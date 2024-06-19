@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import CreateUnit from "../unitComponents/CreateUnit";
-import EditUnit from "../unitComponents/EditUnit"
+import EditUnit from "../unitComponents/EditUnit";
 
 export default function UnitPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -69,15 +69,15 @@ export default function UnitPage({ facilityId }) {
   };
 
   const handleEditSubmit = (e) => {
-    toast.success("Facility updated!");
+    toast.success("Unit updated!");
     setEditOpen(false);
-    const updatedFacilities = facilities.map((facility) => {
-      if (facility._id === e.data._id) {
-        return { ...facility, ...e.data };
+    const updatedUnits = units.map((unit) => {
+      if (unit._id === e.data.unit._id) {
+        return { ...unit, ...e.data.unit };
       }
-      return facility;
+      return unit;
     });
-    setFacilities(updatedFacilities);
+    setUnits(updatedUnits);
   };
 
   const deleteUnit = async (id) => {
@@ -155,7 +155,9 @@ export default function UnitPage({ facilityId }) {
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   {unit.unitNumber}
+                  {unit.climateControlled ? " - ⌂" : ""}
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <div>
                     {unit.size?.depth +

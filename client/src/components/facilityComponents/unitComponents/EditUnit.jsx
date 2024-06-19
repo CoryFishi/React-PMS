@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../../context/userContext";
 
-export default function EditUnit({ onClose, onSubmit, facilityId }) {
+export default function EditUnit({ onClose, onSubmit, unitId }) {
   const [unitNumber, setUnitNumber] = useState("");
   const [size, setSize] = useState("");
   const [climateControlled, setClimateControlled] = useState(false);
@@ -14,25 +14,32 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
   const { user } = useContext(UserContext);
 
   useEffect(() => {
+    axios.get(`/units/${unitId}`).then(({ data }) => {
+      setUnitNumber(data.unitNumber);
+      setSize(data.size);
+      setClimateControlled(data.climateControlled);
+      setSelectedSecurityLevel(data.securityLevel);
+      setPrice(data.pricePerMonth);
+      setCondition(data.condition);
+    });
+
     axios.get("/facilities/security").then(({ data }) => {
       setSecurityLevels(data);
     });
-  }, []);
+  }, [unitId]);
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(`/facilities/units/create`, {
-        facilityId: facilityId,
-        createdBy: user._id,
-        units: [
-          {
-            unitNumber,
-            size,
-            pricePerMonth: price,
-            climateControlled,
-            securityLevel: selectedSecurityLevel,
-          },
-        ],
+      const response = await axios.put(`/facilities/units/update`, {
+        unitId,
+        updateData: {
+          unitNumber,
+          size,
+          pricePerMonth: price,
+          climateControlled,
+          securityLevel: selectedSecurityLevel,
+          condition,
+        },
       });
       onSubmit(response);
     } catch (error) {
@@ -48,7 +55,9 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold mb-4 text-text-950">Creating Unit</h2>
+        <h2 className="text-xl font-bold mb-4 text-text-950">
+          Editing Unit {unitNumber}
+        </h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
@@ -64,7 +73,7 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
                   name="unitNumber"
                   id="unitNumber"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Unit 100"
+                  placeholder={unitNumber}
                   onChange={(e) => setUnitNumber(e.target.value)}
                   style={{ width: "17rem" }}
                 />
@@ -81,7 +90,7 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
                     type="text"
                     name="width"
                     id="street1"
-                    placeholder="width"
+                    placeholder={size.width}
                     onChange={(e) =>
                       setSize((prevSize) => ({
                         ...prevSize,
@@ -101,7 +110,7 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
                     type="text"
                     name="height"
                     id="height"
-                    placeholder="height"
+                    placeholder={size.height}
                     onChange={(e) =>
                       setSize((prevSize) => ({
                         ...prevSize,
@@ -123,7 +132,7 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
                     type="text"
                     name="depth"
                     id="depth"
-                    placeholder="depth"
+                    placeholder={size.depth}
                     onChange={(e) =>
                       setSize((prevSize) => ({
                         ...prevSize,
@@ -161,7 +170,7 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
                   name="price"
                   id="price"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Ex: 500.00"
+                  placeholder={price}
                   onChange={(e) => setPrice(e.target.value)}
                   style={{ width: "17rem" }}
                 />
@@ -197,7 +206,9 @@ export default function EditUnit({ onClose, onSubmit, facilityId }) {
                       id="condition"
                       className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
                       value={condition}
-                      onChange={(e) => setCondition(e.target.value)}
+                      onChange={(e) => {
+                        setCondition(e.target.value);
+                      }}
                     >
                       <option value="">Select Condition</option>
                       <option value="new">New</option>

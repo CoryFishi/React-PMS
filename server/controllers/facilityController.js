@@ -243,7 +243,7 @@ const editUnit = async (req, res) => {
 
   const unitId = req.body.unitId;
   const updateData = req.body.updateData;
-
+  console.log(updateData)
   // Check if facility exists
   const facilityData = await StorageUnit.findOne({
     _id: unitId,
@@ -291,9 +291,24 @@ const editUnit = async (req, res) => {
   }
 };
 
+// Get Unit by ID
+const getUnitById = async (req, res) => {
+  console.log("Get Unit by Id called!");
+  try {
+    const { unitId } = req.params;
+    const unit = await StorageUnit.findById(unitId);
+    res.status(200).json(unit);
+  } catch (error) {
+    console.error(
+      "Error processing the last call! See error below...\n" + error.message
+    );
+    res.status(400).json({ message: error.message });
+  }
+};
+
 // Get all Facilities
 const getUnits = async (req, res) => {
-  console.log("Get units")
+  console.log("Get units");
   const facilityId = req.params.facilityId;
   try {
     var facilityWithUnits = [];
@@ -364,8 +379,7 @@ const getFacilityById = async (req, res) => {
     res.status(200).json(facility);
   } catch (error) {
     console.error(
-      "Error processing the last call! See error below...\n" +
-        error.message
+      "Error processing the last call! See error below...\n" + error.message
     );
     res.status(400).json({ message: error.message });
   }
@@ -453,4 +467,5 @@ module.exports = {
   getSecurityLevels,
   getFacilityById,
   deployFacility,
+  getUnitById,
 };

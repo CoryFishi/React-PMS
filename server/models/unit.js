@@ -32,7 +32,7 @@ const storageUnitSchema = new mongoose.Schema({
   securityLevel: {
     type: String,
     enum: ["Basic", "Enhanced", "High"],
-    default: "basic",
+    default: "Basic",
   },
   pricePerMonth: {
     type: Number,

@@ -33,6 +33,7 @@ const {
   getSecurityLevels,
   getFacilityById,
   deployFacility,
+  getUnitById,
 } = require("../controllers/facilityController");
 
 const {
@@ -99,7 +100,8 @@ router.put("/facilities/update", editFacility);
 router.post("/facilities/units/create", addUnits);
 router.delete("/facilities/units/delete", deleteUnit);
 router.get("/facilities/units/:facilityId", getUnits);
-router.put("/facilities/units/update", editUnit);
+router.put("/facilities/units/update", editUnit); 
+router.get("/units/:unitId", getUnitById);
 
 // /tenants
 router.post("/tenants/create", createTenant);
