@@ -11,7 +11,6 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
   const [selectedSecurityLevel, setSelectedSecurityLevel] = useState("Basic");
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("");
-  const { user } = useContext(UserContext);
 
   useEffect(() => {
     axios.get(`/units/${unitId}`).then(({ data }) => {
@@ -142,6 +141,27 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                     style={{ width: "8rem" }}
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
                   />
+                  <label
+                    htmlFor="unit"
+                    className="block text-sm font-semibold text-text-950 mt-2"
+                  >
+                    Unit:<span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="unit"
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                    value={size.unit}
+                    onChange={(e) =>
+                      setSize((prevSize) => ({
+                        ...prevSize,
+                        unit: e.target.value,
+                      }))
+                    }
+                    style={{ width: "8rem" }}
+                  >
+                    <option value="ft">Feet</option>
+                    <option value="m">Meters</option>
+                  </select>
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
@@ -163,7 +183,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                   htmlFor="price"
                   className="block text-sm font-semibold text-text-950"
                 >
-                  Price:
+                  Monthly Price:<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -180,13 +200,13 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                   <div>
                     <label
                       htmlFor="securityLevel"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="mt-5 block text-sm font-semibold text-text-950"
                     >
                       Security Level:<span className="text-red-500">*</span>
                     </label>
                     <select
                       id="securityLevel"
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
                       value={selectedSecurityLevel}
                       onChange={(e) => setSelectedSecurityLevel(e.target.value)}
                     >
@@ -210,7 +230,6 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                         setCondition(e.target.value);
                       }}
                     >
-                      <option value="">Select Condition</option>
                       <option value="new">New</option>
                       <option value="good">Good</option>
                       <option value="fair">Fair</option>

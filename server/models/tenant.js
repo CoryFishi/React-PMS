@@ -17,7 +17,7 @@ const tenantSchema = new Schema(
         trim: true,
         match: [
           /^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$/,
-          'Please fill a valid phone number',
+          "Please fill a valid phone number",
         ],
       },
       email: {
@@ -26,7 +26,7 @@ const tenantSchema = new Schema(
         lowercase: true,
         match: [
           /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-          'Please fill a valid email address',
+          "Please fill a valid email address",
         ],
       },
     },
@@ -58,6 +58,9 @@ const tenantSchema = new Schema(
         ref: "StorageUnit",
       },
     ],
+    accessCode: {
+      type: Number,
+    },
     paymentHistory: [
       {
         date: {
@@ -84,9 +87,11 @@ const tenantSchema = new Schema(
       type: Number,
       default: 0,
     },
-    isActive: {
-      type: Boolean,
-      default: true,
+    status: {
+      type: String,
+      default: "Rented",
+      required: [true, "Status is required"],
+      enum: ["Rented", "Delinquent", "In Progress", "New"],
     },
   },
   { timestamps: true }

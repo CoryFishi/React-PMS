@@ -243,7 +243,6 @@ const editUnit = async (req, res) => {
 
   const unitId = req.body.unitId;
   const updateData = req.body.updateData;
-  console.log(updateData)
   // Check if facility exists
   const facilityData = await StorageUnit.findOne({
     _id: unitId,
@@ -322,7 +321,10 @@ const getUnits = async (req, res) => {
       });
     } else {
       facilityWithUnits = await StorageFacility.findById(facilityId)
-        .populate("units")
+        .populate({
+          path: 'units',
+          populate: { path: 'tenant' }
+        })
         .exec();
       if (!facilityWithUnits) {
         return res.status(404).send({ message: "Facility not found" });

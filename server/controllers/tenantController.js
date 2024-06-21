@@ -17,7 +17,9 @@ const createTenant = async (req, res) => {
       units,
       paymentHistory,
       balance,
-      isActive,
+      status,
+      company,
+      accessCode,
     } = req.body;
 
     for (const unit of units) {
@@ -54,12 +56,14 @@ const createTenant = async (req, res) => {
       units,
       paymentHistory,
       balance,
-      isActive,
+      status,
+      company,
+      accessCode,
     });
 
     await StorageUnit.updateMany(
       { _id: { $in: units } },
-      { $set: { tenant: tenant._id } }
+      { $set: { tenant: tenant._id, availability: false } }
     );
 
     return res.status(201).json(tenant);

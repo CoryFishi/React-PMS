@@ -11,12 +11,25 @@ export default function UnitPage({ facilityId }) {
   const [isCreateOpen, setCreateOpen] = useState(null);
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRentModalOpen, setIsRentModalOpen] = useState(false);
+  const [isMoveOutModalOpen, setIsMoveOutModalOpen] = useState(false);
   const [unitIdToDelete, setUnitIdToDelete] = useState(null);
+  const [unitIdToRent, setUnitIdToRent] = useState(null);
+  const [unitIdToMoveOut, setUnitIdToMoveOut] = useState(null);
   const containerRef = useRef(null);
 
   const promptDeleteUnit = (id) => {
     setUnitIdToDelete(id);
     setIsDeleteModalOpen(true);
+  };
+
+  const rent = async (unitId) => {
+    setUnitIdToRent(unitId);
+    setIsRentModalOpen(true);
+  };
+  const moveOut = async (unitId) => {
+    setUnitIdToMoveOut(unitId);
+    setIsMoveOutModalOpen(true);
   };
 
   const rentedCount = units.filter(
@@ -90,7 +103,7 @@ export default function UnitPage({ facilityId }) {
       setIsDeleteModalOpen(false); // Close the modal
     } catch (error) {
       console.error("Failed to delete unit:", error);
-      toast.error(error.response.data.error);
+      toast.error(error.response.data.message);
       setIsDeleteModalOpen(false); // Close the modal on error as well
     }
   };
@@ -168,7 +181,9 @@ export default function UnitPage({ facilityId }) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {unit.tenant || "-"}
+                  {unit.tenant?.firstName
+                    ? unit.tenant.firstName + " " + unit.tenant?.lastName
+                    : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   {unit.tenant?.balance || "-"}
@@ -235,6 +250,80 @@ export default function UnitPage({ facilityId }) {
                             onClose={handleCloseEdit}
                             onSubmit={handleEditSubmit}
                           />
+                        )}
+                        {unit.availability === true && (
+                          <a
+                            className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
+                            role="menuitem"
+                            tabIndex="-1"
+                            onClick={() => rent(unit._id)}
+                          >
+                            Rent
+                          </a>
+                        )}
+                        {isRentModalOpen && (
+                          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                            <div className="bg-background-100 p-4 rounded-lg shadow-lg">
+                              <h3 className="text-lg font-bold">
+                                Renting Unit {unit.unitNumber}
+                              </h3>
+                              <p>Are you sure you want to rent this unit?</p>
+                              <div className="flex justify-end mt-4">
+                                <button
+                                  className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
+                                  onClick={() => deleteUnit(unitIdToDelete)}
+                                >
+                                  New Tenant
+                                </button>
+                                <button
+                                  className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
+                                  onClick={() => setIsDeleteModalOpen(false)}
+                                >
+                                  Existing Tenant
+                                </button>
+                                <button
+                                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                                  onClick={() => setIsRentModalOpen(false)}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {unit.availability === false && (
+                          <a
+                            className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
+                            role="menuitem"
+                            tabIndex="-1"
+                            onClick={() => moveOut(unit._id)}
+                          >
+                            Move Out
+                          </a>
+                        )}
+                        {isMoveOutModalOpen && (
+                          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                            <div className="bg-background-100 p-4 rounded-lg shadow-lg">
+                              <h3 className="text-lg font-bold">
+                                Moving Out Unit {unit.unitNumber}
+                              </h3>
+                              <p>Are you sure you want to move out {unit.tenant?.firstName} {unit.tenant?.lastName}?</p>
+                              <div className="flex justify-end mt-4">
+                                <button
+                                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                                  onClick={() => deleteUnit(unitIdToDelete)}
+                                >
+                                  Move Out
+                                </button>
+                                <button
+                                  className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                                  onClick={() => setIsMoveOutModalOpen(false)}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         )}
                         <a
                           className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
