@@ -5,11 +5,13 @@ const tenantSchema = new Schema(
   {
     firstName: {
       type: String,
-      required: true,
+      required: [true, "First name is required"],
+      trim: true,
     },
     lastName: {
       type: String,
-      required: true,
+      required: [true, "Last name is required"],
+      trim: true,
     },
     contactInfo: {
       phone: {
@@ -31,25 +33,35 @@ const tenantSchema = new Schema(
       },
     },
     address: {
-      street: {
+      street1: {
         type: String,
-        required: true,
+        required: [true, "Street address is required"],
+        trim: true,
+      },
+      street2: {
+        type: String,
+        trim: true,
       },
       city: {
         type: String,
-        required: true,
+        required: [true, "City is required"],
+        trim: true,
       },
       state: {
         type: String,
-        required: true,
+        required: [true, "State is required"],
+        trim: true,
       },
       zipCode: {
         type: String,
-        required: true,
+        required: [true, "Zip code is required"],
+        match: [/^\d{5}(-\d{4})?$/, "Please fill a valid zip code"],
+        trim: true,
       },
       country: {
         type: String,
-        required: true,
+        required: [true, "Country is required"],
+        trim: true,
       },
     },
     units: [
@@ -60,6 +72,8 @@ const tenantSchema = new Schema(
     ],
     accessCode: {
       type: Number,
+      min: [1000, "Access code must be at least 4 digits"],
+      max: [99999999, "Access code must be at most 8 digits"],
     },
     paymentHistory: [
       {
@@ -69,12 +83,13 @@ const tenantSchema = new Schema(
         },
         amount: {
           type: Number,
-          required: true,
+          required: [true, "Payment amount is required"],
+          min: [0, "Payment amount cannot be negative"],
         },
         method: {
           type: String,
           enum: ["credit card", "debit card", "cash", "check"],
-          required: true,
+          required: [true, "Payment method is required"],
         },
       },
     ],
@@ -86,6 +101,7 @@ const tenantSchema = new Schema(
     balance: {
       type: Number,
       default: 0,
+      min: [0, "Balance cannot be negative"],
     },
     status: {
       type: String,
