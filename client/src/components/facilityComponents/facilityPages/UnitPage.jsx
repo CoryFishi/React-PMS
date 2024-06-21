@@ -12,10 +12,12 @@ export default function UnitPage({ facilityId }) {
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isRentModalOpen, setIsRentModalOpen] = useState(false);
+  const [isRentModalMainOpen, setIsRentModalMainOpen] = useState(false);
   const [isMoveOutModalOpen, setIsMoveOutModalOpen] = useState(false);
   const [unitIdToDelete, setUnitIdToDelete] = useState(null);
   const [unitIdToRent, setUnitIdToRent] = useState(null);
   const [unitIdToMoveOut, setUnitIdToMoveOut] = useState(null);
+  const [tenancy, setTenancy] = useState(false);
   const containerRef = useRef(null);
 
   const promptDeleteUnit = (id) => {
@@ -23,11 +25,11 @@ export default function UnitPage({ facilityId }) {
     setIsDeleteModalOpen(true);
   };
 
-  const rent = async (unitId) => {
+  const promptRentUnit = async (unitId) => {
     setUnitIdToRent(unitId);
     setIsRentModalOpen(true);
   };
-  const moveOut = async (unitId) => {
+  const promptMoveOut = async (unitId) => {
     setUnitIdToMoveOut(unitId);
     setIsMoveOutModalOpen(true);
   };
@@ -75,10 +77,12 @@ export default function UnitPage({ facilityId }) {
   };
   const handleCloseCreate = () => {
     setCreateOpen(false);
+    setOpenDropdown(null);
   };
 
   const handleCloseEdit = () => {
     setEditOpen(false);
+    setOpenDropdown(null);
   };
 
   const handleEditSubmit = (e) => {
@@ -91,6 +95,7 @@ export default function UnitPage({ facilityId }) {
       return unit;
     });
     setUnits(updatedUnits);
+    setOpenDropdown(null);
   };
 
   const deleteUnit = async (id) => {
@@ -105,6 +110,27 @@ export default function UnitPage({ facilityId }) {
       console.error("Failed to delete unit:", error);
       toast.error(error.response.data.message);
       setIsDeleteModalOpen(false); // Close the modal on error as well
+    }
+  };
+
+  const moveOutUnit = async (id) => {
+    try {
+      const response = await axios.put(
+        `/facilities/units/${facilityId}/${id}/moveout`
+      );
+      toast.success("Tenant has been moved out!");
+      const updatedUnits = units.map((unit) => {
+        if (unit._id === response.data._id) {
+          return { ...unit, ...response.data };
+        }
+        return unit;
+      });
+      setUnits(updatedUnits);
+      setIsMoveOutModalOpen(false); // Close the modal
+    } catch (error) {
+      console.error("Failed to delete unit:", error);
+      toast.error(error.response.data.message);
+      setIsMoveOutModalOpen(false); // Close the modal
     }
   };
 
@@ -256,7 +282,7 @@ export default function UnitPage({ facilityId }) {
                             className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                             role="menuitem"
                             tabIndex="-1"
-                            onClick={() => rent(unit._id)}
+                            onClick={() => promptRentUnit(unit._id)}
                           >
                             Rent
                           </a>
@@ -271,19 +297,19 @@ export default function UnitPage({ facilityId }) {
                               <div className="flex justify-end mt-4">
                                 <button
                                   className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
-                                  onClick={() => deleteUnit(unitIdToDelete)}
+                                  onClick={() => setTenancy(false) & setIsRentModalMainOpen(false) & setOpenDropdown(null) & setIsRentModalOpen(false)}
                                 >
                                   New Tenant
                                 </button>
                                 <button
                                   className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
-                                  onClick={() => setIsDeleteModalOpen(false)}
+                                  onClick={() => setTenancy(true) & setIsRentModalMainOpen(true) & setOpenDropdown(null) & setIsRentModalOpen(false)}
                                 >
                                   Existing Tenant
                                 </button>
                                 <button
                                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() => setIsRentModalOpen(false)}
+                                  onClick={() => setIsRentModalOpen(false) & setOpenDropdown(null)}
                                 >
                                   Cancel
                                 </button>
@@ -296,7 +322,7 @@ export default function UnitPage({ facilityId }) {
                             className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                             role="menuitem"
                             tabIndex="-1"
-                            onClick={() => moveOut(unit._id)}
+                            onClick={() => promptMoveOut(unit._id)}
                           >
                             Move Out
                           </a>
@@ -307,11 +333,15 @@ export default function UnitPage({ facilityId }) {
                               <h3 className="text-lg font-bold">
                                 Moving Out Unit {unit.unitNumber}
                               </h3>
-                              <p>Are you sure you want to move out {unit.tenant?.firstName} {unit.tenant?.lastName}?</p>
+                              <p>
+                                Are you sure you want to move out{" "}
+                                {unit.tenant?.firstName} {unit.tenant?.lastName}
+                                ?
+                              </p>
                               <div className="flex justify-end mt-4">
                                 <button
                                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() => deleteUnit(unitIdToDelete)}
+                                  onClick={() => moveOutUnit(unitIdToMoveOut)}
                                 >
                                   Move Out
                                 </button>
@@ -343,13 +373,13 @@ export default function UnitPage({ facilityId }) {
                               <div className="flex justify-end mt-4">
                                 <button
                                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() => deleteUnit(unitIdToDelete)}
+                                  onClick={() => deleteUnit(unitIdToDelete) & setOpenDropdown(null)}
                                 >
                                   Delete
                                 </button>
                                 <button
                                   className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                  onClick={() => setIsDeleteModalOpen(false)}
+                                  onClick={() => setIsDeleteModalOpen(false) & setOpenDropdown(null)}
                                 >
                                   Cancel
                                 </button>

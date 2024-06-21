@@ -305,6 +305,54 @@ const getUnitById = async (req, res) => {
   }
 };
 
+// Remove tenant from unit
+const removeTenant = async (req, res) => {
+  console.log("Remove tenant from unit called!");
+  try {
+    const { unitId } = req.params;
+
+    // Find the unit by ID
+    const unit = await StorageUnit.findById(unitId);
+    if (!unit) {
+      return res.status(404).json({ error: "Unit not found!" });
+    }
+
+    // Check if the unit has a tenant
+    if (unit.tenant) {
+      const tenantId = unit.tenant;
+
+      // Find the tenant by ID
+      const tenant = await Tenant.findById(tenantId);
+      if (!tenant) {
+        return res.status(404).json({ error: "Tenant not found!" });
+      }
+
+      // Remove the unit reference from the tenant's units array
+      tenant.units = tenant.units.filter(id => !id.equals(unit._id));
+      await tenant.save();
+
+      // Remove the tenant reference from the unit
+      unit.tenant = null;
+      unit.availability = true;
+      await unit.save();
+
+      // Check if the tenant has any other units left
+      if (tenant.units.length === 0) {
+        await Tenant.findByIdAndDelete(tenantId);
+        return res.status(200).json(unit);
+      }
+
+      return res.status(200).json(unit);
+    } else {
+      return res.status(404).json({ error: "Unit does not have a tenant" });
+    }
+  } catch (error) {
+    console.error("Error processing the last call! See error below...\n" + error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
 // Get all Facilities
 const getUnits = async (req, res) => {
   console.log("Get units");
@@ -322,8 +370,8 @@ const getUnits = async (req, res) => {
     } else {
       facilityWithUnits = await StorageFacility.findById(facilityId)
         .populate({
-          path: 'units',
-          populate: { path: 'tenant' }
+          path: "units",
+          populate: { path: "tenant" },
         })
         .exec();
       if (!facilityWithUnits) {
@@ -470,4 +518,5 @@ module.exports = {
   getFacilityById,
   deployFacility,
   getUnitById,
+  removeTenant,
 };
