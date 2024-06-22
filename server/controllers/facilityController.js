@@ -295,7 +295,8 @@ const getUnitById = async (req, res) => {
   console.log("Get Unit by Id called!");
   try {
     const { unitId } = req.params;
-    const unit = await StorageUnit.findById(unitId);
+    const unit = await StorageUnit.findById(unitId)
+    .populate('tenant');
     res.status(200).json(unit);
   } catch (error) {
     console.error(
@@ -355,7 +356,7 @@ const removeTenant = async (req, res) => {
 
 // Get all Facilities
 const getUnits = async (req, res) => {
-  console.log("Get units");
+  console.log("Get units was called!");
   const facilityId = req.params.facilityId;
   try {
     var facilityWithUnits = [];

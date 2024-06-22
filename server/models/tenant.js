@@ -109,6 +109,18 @@ const tenantSchema = new Schema(
       required: [true, "Status is required"],
       enum: ["Rented", "Delinquent", "In Progress", "New"],
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Creator reference is required"],
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

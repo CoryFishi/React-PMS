@@ -11,8 +11,7 @@ const createTenant = async (req, res) => {
     const {
       firstName,
       lastName,
-      email,
-      phoneNumber,
+      contactInfo,
       address,
       units,
       paymentHistory,
@@ -20,6 +19,7 @@ const createTenant = async (req, res) => {
       status,
       company,
       accessCode,
+      createdBy,
     } = req.body;
 
     for (const unit of units) {
@@ -31,27 +31,11 @@ const createTenant = async (req, res) => {
       }
     }
 
-    // Check for required items
-    if (!firstName || !lastName || !email || !phoneNumber || !address) {
-      return res.status(400).json({
-        error: "Missing Requirements",
-      });
-    }
-
-    // Check email
-    const emailExist = await Tenant.findOne({ email });
-    if (emailExist) {
-      return res.status(409).json({
-        error: "Email is taken already",
-      });
-    }
-
     // Create tenant in database
     const tenant = await Tenant.create({
       firstName,
       lastName,
-      email,
-      phoneNumber,
+      contactInfo,
       address,
       units,
       paymentHistory,
@@ -59,6 +43,7 @@ const createTenant = async (req, res) => {
       status,
       company,
       accessCode,
+      createdBy,
     });
 
     await StorageUnit.updateMany(
@@ -68,10 +53,23 @@ const createTenant = async (req, res) => {
 
     return res.status(201).json(tenant);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      error: "Internal server error",
-    });
+    if (error.name === "ValidationError") {
+      const firstErrorKey = Object.keys(error.errors)[0];
+      console.error(
+        "Rejecting due to validation error: " +
+          error.errors[firstErrorKey].message
+      );
+      res.status(500).send({ error: error.errors[firstErrorKey].message });
+    } else if (error.code === 11000) {
+      const duplicateField = Object.keys(error.keyValue)[0];
+      const duplicateValue = error.keyValue[duplicateField];
+      console.error("Rejecting due to duplicate value");
+      res.status(409).send({ error: `${duplicateValue} is already taken!` });
+    } else {
+      res.status(500).send({ error: error.name });
+      console.log(error);
+      console.error("Rejecting due to unknown error: " + error.name);
+    }
   }
 };
 

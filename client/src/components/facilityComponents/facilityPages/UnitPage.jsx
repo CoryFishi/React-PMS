@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import CreateUnit from "../unitComponents/CreateUnit";
 import EditUnit from "../unitComponents/EditUnit";
+import CreateTenant from "../tenantComponents/CreateTenant";
 
 export default function UnitPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -80,11 +81,29 @@ export default function UnitPage({ facilityId }) {
     setOpenDropdown(null);
   };
 
+  const handleTenantSubmit = (e) => {
+    toast.success("Unit Rented!");
+    setIsRentModalMainOpen(false);
+    const updatedUnits = units.map((unit) => {
+      if (unit._id === e._id) {
+        return e;
+      }
+      return unit;
+    });
+
+    setUnits(updatedUnits);
+    setOpenDropdown(null);
+  };
+
+  const handleCloseTenant = () => {
+    setIsRentModalMainOpen(false);
+    setOpenDropdown(null);
+  };
+
   const handleCloseEdit = () => {
     setEditOpen(false);
     setOpenDropdown(null);
   };
-
   const handleEditSubmit = (e) => {
     toast.success("Unit updated!");
     setEditOpen(false);
@@ -127,6 +146,7 @@ export default function UnitPage({ facilityId }) {
       });
       setUnits(updatedUnits);
       setIsMoveOutModalOpen(false); // Close the modal
+      setOpenDropdown(null);
     } catch (error) {
       console.error("Failed to delete unit:", error);
       toast.error(error.response.data.message);
@@ -143,6 +163,7 @@ export default function UnitPage({ facilityId }) {
           facilityId={facilityId}
         />
       )}
+
       <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
         <p className="text-sm">Rented: {rentedCount}</p>
         <p className="text-sm">Vacant: {vacantCount}</p>
@@ -261,6 +282,14 @@ export default function UnitPage({ facilityId }) {
                       tabIndex="-1"
                       ref={containerRef}
                     >
+                      {isRentModalMainOpen && (
+                        <CreateTenant
+                          onClose={handleCloseTenant}
+                          onSubmit={handleTenantSubmit}
+                          unitId={unit._id}
+                          tenancy={tenancy}
+                        />
+                      )}
                       <div className="py-1" role="none">
                         <a
                           className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
@@ -270,6 +299,7 @@ export default function UnitPage({ facilityId }) {
                         >
                           Edit
                         </a>
+
                         {isEditOpen && (
                           <EditUnit
                             unitId={unit._id}
@@ -287,6 +317,7 @@ export default function UnitPage({ facilityId }) {
                             Rent
                           </a>
                         )}
+
                         {isRentModalOpen && (
                           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
                             <div className="bg-background-100 p-4 rounded-lg shadow-lg">
@@ -297,19 +328,30 @@ export default function UnitPage({ facilityId }) {
                               <div className="flex justify-end mt-4">
                                 <button
                                   className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
-                                  onClick={() => setTenancy(false) & setIsRentModalMainOpen(false) & setOpenDropdown(null) & setIsRentModalOpen(false)}
+                                  onClick={() =>
+                                    setTenancy(false) &
+                                    setIsRentModalMainOpen(true) &
+                                    setIsRentModalOpen(false)
+                                  }
                                 >
                                   New Tenant
                                 </button>
                                 <button
                                   className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
-                                  onClick={() => setTenancy(true) & setIsRentModalMainOpen(true) & setOpenDropdown(null) & setIsRentModalOpen(false)}
+                                  onClick={() =>
+                                    setTenancy(true) &
+                                    setIsRentModalMainOpen(true) &
+                                    setIsRentModalOpen(false)
+                                  }
                                 >
                                   Existing Tenant
                                 </button>
                                 <button
                                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() => setIsRentModalOpen(false) & setOpenDropdown(null)}
+                                  onClick={() =>
+                                    setIsRentModalOpen(false) &
+                                    setOpenDropdown(null)
+                                  }
                                 >
                                   Cancel
                                 </button>
@@ -317,6 +359,7 @@ export default function UnitPage({ facilityId }) {
                             </div>
                           </div>
                         )}
+
                         {unit.availability === false && (
                           <a
                             className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
@@ -373,13 +416,19 @@ export default function UnitPage({ facilityId }) {
                               <div className="flex justify-end mt-4">
                                 <button
                                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() => deleteUnit(unitIdToDelete) & setOpenDropdown(null)}
+                                  onClick={() =>
+                                    deleteUnit(unitIdToDelete) &
+                                    setOpenDropdown(null)
+                                  }
                                 >
                                   Delete
                                 </button>
                                 <button
                                   className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                  onClick={() => setIsDeleteModalOpen(false) & setOpenDropdown(null)}
+                                  onClick={() =>
+                                    setIsDeleteModalOpen(false) &
+                                    setOpenDropdown(null)
+                                  }
                                 >
                                   Cancel
                                 </button>

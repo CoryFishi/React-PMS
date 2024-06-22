@@ -3,234 +3,373 @@ import React, { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../../context/userContext";
 
-export default function CreateTenant({ onClose, onSubmit, facilityId }) {
-  const [unitNumber, setUnitNumber] = useState("");
-  const [size, setSize] = useState("");
-  const [climateControlled, setClimateControlled] = useState(false);
-  const [securityLevels, setSecurityLevels] = useState([]);
-  const [selectedSecurityLevel, setSelectedSecurityLevel] = useState("Basic");
-  const [price, setPrice] = useState("");
-  const [condition, setCondition] = useState("good");
+export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
+  const [isTenancy, setIsTenancy] = useState(tenancy);
+  const [isFacilityTenant, setIsFacilityTenant] = useState(undefined);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState([]);
+  const [email, setEmail] = useState([]);
+  const [company, setCompany] = useState([]);
+  const [address, setAddress] = useState([]);
+  const [balance, setBalance] = useState("");
+  const [status, setStatus] = useState("In Progress");
+  const [unitData, setUnitData] = useState([]);
+  const [accessCode, setAccessCode] = useState("");
+  const [paidInCash, setPaidInCash] = useState(false);
+
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    axios.get("/facilities/security").then(({ data }) => {
-      setSecurityLevels(data);
+    axios.get(`/units/${unitId}`).then(({ data }) => {
+      setUnitData(data);
     });
-  }, []);
+  }, [unitId]);
+
+  useEffect(() => {
+    if (unitData.facility) {
+      const timeoutId = setTimeout(() => {
+        axios.get(`/facilities/${unitData.facility}`).then(({ data }) => {
+          setCompany(data.company);
+        });
+      }, 1000);
+
+      // Cleanup the timeout if unitData.facility changes or the component unmounts
+      return () => clearTimeout(timeoutId);
+    }
+  }, [unitData.facility]);
 
   const handleSubmit = async () => {
+    var newBalance = 0;
+    var response;
+    if (paidInCash) {
+      newBalance = 0;
+    } else {
+      newBalance = balance;
+    }
     try {
-      const response = await axios.post(`/facilities/units/create`, {
-        facilityId: facilityId,
+      await axios.post(`/tenants/create`, {
+        firstName,
+        lastName,
+        contactInfo: {
+          phone: phone,
+          email: email,
+        },
         createdBy: user._id,
-        units: [
-          {
-            unitNumber,
-            size,
-            pricePerMonth: price,
-            climateControlled,
-            securityLevel: selectedSecurityLevel,
-          },
-        ],
+        accessCode,
+        company,
+        address,
+        balance: newBalance,
+        status,
+        units: [unitId],
       });
-      onSubmit(response);
+      await axios.get(`/units/${unitId}`).then(({ data }) => {
+        response = data;
+      });
+      await onSubmit(response);
     } catch (error) {
-      console.error("Failed to create unit:", error);
+      console.error("Failed to create tenant:", error);
       toast.error(error.response.data.error);
     }
   };
 
-  const toggleClimateControl = () => {
-    setClimateControlled((prevState) => (prevState === true ? false : true));
+  const togglePaidInCash = () => {
+    setPaidInCash((prevState) => (prevState === true ? false : true));
   };
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold mb-4 text-text-950">Creating Unit</h2>
+        <h2 className="text-xl font-bold mb-4 text-text-950">Renting Unit</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
+          {isTenancy === true && (
+            <div>
               <div>
                 <label
-                  htmlFor="unitNumber"
-                  className="block text-sm font-semibold text-text-950"
+                  htmlFor="tenancyDrop"
+                  className="block text-sm font-semibold text-text-950 mt-2"
                 >
-                  Unit Number:<span className="text-red-500">*</span>
+                  Tenancy Location:
                 </label>
-                <input
-                  type="text"
-                  name="unitNumber"
-                  id="unitNumber"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Unit 100"
-                  onChange={(e) => setUnitNumber(e.target.value)}
-                  style={{ width: "17rem" }}
-                />
-              </div>
-              <div className="flex space-x-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="width"
-                    className="block text-sm font-semibold text-text-950 mt-1"
-                  >
-                    Width:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="width"
-                    id="street1"
-                    placeholder="width"
-                    onChange={(e) =>
-                      setSize((prevSize) => ({
-                        ...prevSize,
-                        width: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-                  />
-                  <label
-                    htmlFor="height"
-                    className="block text-sm font-semibold text-text-950 mt-2"
-                  >
-                    Height:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="height"
-                    id="height"
-                    placeholder="height"
-                    onChange={(e) =>
-                      setSize((prevSize) => ({
-                        ...prevSize,
-                        height: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor="depth"
-                    className="block text-sm font-semibold text-text-950 mt-1"
-                  >
-                    Depth:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="depth"
-                    id="depth"
-                    placeholder="depth"
-                    onChange={(e) =>
-                      setSize((prevSize) => ({
-                        ...prevSize,
-                        depth: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-                  />
-                  <label
-                    htmlFor="unit"
-                    className="block text-sm font-semibold text-text-950 mt-2"
-                  >
-                    Unit:<span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    id="unit"
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
-                    value={size.unit}
-                    onChange={(e) =>
-                      setSize((prevSize) => ({
-                        ...prevSize,
-                        unit: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                  >
-                    <option value="ft">Feet</option>
-                    <option value="m">Meters</option>
-                  </select>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <label htmlFor="status" className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="status"
-                    checked={climateControlled === true}
-                    onChange={toggleClimateControl}
-                    className="mr-2"
-                  />
-                  <span>Climate Controlled</span>
-                </label>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-semibold text-text-950"
+                <select
+                  id="tenancyDrop"
+                  className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                  value={isFacilityTenant}
+                  onChange={(e) => setIsFacilityTenant(e.target.value)}
                 >
-                  Price:
-                </label>
-                <input
-                  type="text"
-                  name="price"
-                  id="price"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Ex: 500.00"
-                  onChange={(e) => setPrice(e.target.value)}
-                  style={{ width: "17rem" }}
-                />
+                  <option value={undefined}>Select an Option</option>
+                  <option value={true}>Tenant at Facility</option>
+                  <option value={false}>Tenant at Company</option>
+                </select>
               </div>
               <div>
-                <div className="space-y-4">
+                {isFacilityTenant === "true" && (
                   <div>
                     <label
-                      htmlFor="securityLevel"
-                      className="block text-sm font-semibold text-text-950 mt-5"
-                    >
-                      Security Level:<span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      id="securityLevel"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
-                      value={selectedSecurityLevel}
-                      onChange={(e) => setSelectedSecurityLevel(e.target.value)}
-                    >
-                      {securityLevels.map((level) => (
-                        <option key={level._id} value={level.name}>
-                          {level.securityLevelName}
-                        </option>
-                      ))}
-                    </select>
-                    <label
-                      htmlFor="condition"
+                      htmlFor="tenantsFacility"
                       className="block text-sm font-semibold text-text-950 mt-2"
                     >
-                      Condition:<span className="text-red-500">*</span>
+                      Tenants From Facility:
                     </label>
                     <select
-                      id="condition"
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
-                      value={condition}
-                      onChange={(e) => setCondition(e.target.value)}
+                      id="tenantsFacility"
+                      className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                      value={isFacilityTenant}
+                      onChange={(e) => setIsFacilityTenant(e.target.value)}
                     >
-                      <option value="new">New</option>
-                      <option value="good">Good</option>
-                      <option value="fair">Fair</option>
-                      <option value="poor">Poor</option>
+                      <option value={undefined}>Tenants from Facility</option>
                     </select>
+                  </div>
+                )}
+                {isFacilityTenant === "false" && (
+                  <div>
+                    <label
+                      htmlFor="tenantsCompany"
+                      className="block text-sm font-semibold text-text-950 mt-5"
+                    >
+                      Tenants From Company:
+                    </label>
+                    <select
+                      id="tenantsCompany"
+                      className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                      value={isFacilityTenant}
+                      onChange={(e) => setIsFacilityTenant(e.target.value)}
+                    >
+                      <option value={undefined}>Tenants from Company</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          {isTenancy === false && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="firstName"
+                    className="block text-sm font-semibold text-text-950"
+                  >
+                    First Name:<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    id="firstName"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="first name"
+                    onChange={(e) => setFirstName(e.target.value)}
+                    style={{ width: "17rem" }}
+                  />
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-semibold text-text-950 mt-2"
+                  >
+                    Last Name:<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    id="lastName"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="last name"
+                    onChange={(e) => setLastName(e.target.value)}
+                    style={{ width: "17rem" }}
+                  />
+                </div>
+                <div className="flex space-x-4">
+                  <div className="flex-1">
+                    <label
+                      htmlFor="street1"
+                      className="block text-sm font-semibold text-text-950"
+                    >
+                      Street 1:<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="street1"
+                      id="street1"
+                      placeholder="street"
+                      onChange={(e) =>
+                        setAddress((prevAddress) => ({
+                          ...prevAddress,
+                          street1: e.target.value,
+                        }))
+                      }
+                      style={{ width: "8rem" }}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    />
+                    <label
+                      htmlFor="country"
+                      className="block text-sm font-semibold text-text-950 mt-2"
+                    >
+                      Country:<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      id="country"
+                      placeholder="country"
+                      onChange={(e) =>
+                        setAddress((prevAddress) => ({
+                          ...prevAddress,
+                          country: e.target.value,
+                        }))
+                      }
+                      style={{ width: "8rem" }}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    />
+                    <label
+                      htmlFor="city"
+                      className="block text-sm font-semibold text-text-950 mt-2"
+                    >
+                      City:<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="city"
+                      id="city"
+                      placeholder="city"
+                      onChange={(e) =>
+                        setAddress((prevAddress) => ({
+                          ...prevAddress,
+                          city: e.target.value,
+                        }))
+                      }
+                      style={{ width: "8rem" }}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label
+                      htmlFor="street2"
+                      className="block text-sm font-semibold text-text-950"
+                    >
+                      Street 2:
+                    </label>
+                    <input
+                      type="text"
+                      name="street2"
+                      id="street2"
+                      placeholder=""
+                      onChange={(e) =>
+                        setAddress((prevAddress) => ({
+                          ...prevAddress,
+                          street2: e.target.value,
+                        }))
+                      }
+                      style={{ width: "8rem" }}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    />
+                    <label
+                      htmlFor="state"
+                      className="block text-sm font-semibold text-text-950 mt-2"
+                    >
+                      State:<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="state"
+                      id="state"
+                      placeholder="state"
+                      onChange={(e) =>
+                        setAddress((prevAddress) => ({
+                          ...prevAddress,
+                          state: e.target.value,
+                        }))
+                      }
+                      style={{ width: "8rem" }}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    />
+                    <label
+                      htmlFor="zipCode"
+                      className="block text-sm font-semibold text-text-950 mt-2"
+                    >
+                      ZIP Code:<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="zipCode"
+                      id="zipCode"
+                      placeholder="zipcode"
+                      onChange={(e) =>
+                        setAddress((prevAddress) => ({
+                          ...prevAddress,
+                          zipCode: e.target.value,
+                        }))
+                      }
+                      style={{ width: "8rem" }}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    />
                   </div>
                 </div>
               </div>
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-semibold text-text-950"
+                  >
+                    Email:<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="email"
+                    id="email"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="example@email.com"
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{ width: "17rem" }}
+                  />
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-semibold text-text-950 mt-2"
+                  >
+                    Phone:<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="phone"
+                    id="phone"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="Phone Number"
+                    onChange={(e) => setPhone(e.target.value)}
+                    style={{ width: "17rem" }}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="accessCode"
+                    className="block text-sm font-semibold text-text-950"
+                  >
+                    Access Code:<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="accessCode"
+                    id="accessCode"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="Ex: 5390"
+                    onChange={(e) => setAccessCode(e.target.value)}
+                    style={{ width: "17rem" }}
+                  />
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <label htmlFor="status" className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="status"
+                      checked={paidInCash === true}
+                      onChange={togglePaidInCash}
+                      className="mr-2"
+                    />
+                    <span>Paid in Cash</span>
+                  </label>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex justify-end pt-2">
+          )}
+          <div className="flex justify-end pt-5">
             <button
               type="button"
               onClick={handleSubmit}
