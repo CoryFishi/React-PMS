@@ -17,6 +17,8 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
   const [unitData, setUnitData] = useState([]);
   const [accessCode, setAccessCode] = useState("");
   const [paidInCash, setPaidInCash] = useState(false);
+  const [tenants, setTenants] = useState([]);
+  const [selectedTenant, setSelectedTenant] = useState("");
 
   const { user } = useContext(UserContext);
 
@@ -39,6 +41,44 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
     }
   }, [unitData.facility]);
 
+  const facilityTenants = (facilityId) => {
+    axios
+      .get(`/tenants`, {
+        params: {
+          facilityId: facilityId,
+        },
+      })
+      .then(({ data }) => {
+        setTenants(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching tenants:", error);
+      });
+  };
+
+  const companyTenants = (companyId) => {
+    axios
+      .get(`/tenants`, {
+        params: {
+          companyId: companyId,
+        },
+      })
+      .then(({ data }) => {
+        setTenants(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching tenants:", error);
+      });
+  };
+
+  useEffect(() => {
+    if (isFacilityTenant === "true" && unitData.facility) {
+      facilityTenants(unitData.facility);
+    } else if (isFacilityTenant === "false" && company) {
+      companyTenants(company);
+    }
+  }, [isFacilityTenant, unitData.facility, company]);
+
   const handleSubmit = async () => {
     var newBalance = 0;
     var response;
@@ -48,21 +88,27 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
       newBalance = balance;
     }
     try {
-      await axios.post(`/tenants/create`, {
-        firstName,
-        lastName,
-        contactInfo: {
-          phone: phone,
-          email: email,
-        },
-        createdBy: user._id,
-        accessCode,
-        company,
-        address,
-        balance: newBalance,
-        status,
-        units: [unitId],
-      });
+      if (isTenancy) {
+        await axios.put(`/tenants/update/${selectedTenant}`, {
+          unitId: unitId,
+        });
+      } else {
+        await axios.post(`/tenants/create`, {
+          firstName,
+          lastName,
+          contactInfo: {
+            phone: phone,
+            email: email,
+          },
+          createdBy: user._id,
+          accessCode,
+          company,
+          address,
+          balance: newBalance,
+          status,
+          units: [unitId],
+        });
+      }
       await axios.get(`/units/${unitId}`).then(({ data }) => {
         response = data;
       });
@@ -80,7 +126,9 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold mb-4 text-text-950">Renting Unit</h2>
+        <h2 className="text-xl font-bold mb-4 text-text-950">
+          Creating Tenant
+        </h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           {isTenancy === true && (
             <div>
@@ -95,7 +143,9 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                   id="tenancyDrop"
                   className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
                   value={isFacilityTenant}
-                  onChange={(e) => setIsFacilityTenant(e.target.value)}
+                  onChange={(e) =>
+                    setIsFacilityTenant(e.target.value) & setSelectedTenant("")
+                  }
                 >
                   <option value={undefined}>Select an Option</option>
                   <option value={true}>Tenant at Facility</option>
@@ -114,10 +164,15 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                     <select
                       id="tenantsFacility"
                       className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
-                      value={isFacilityTenant}
-                      onChange={(e) => setIsFacilityTenant(e.target.value)}
+                      value={selectedTenant}
+                      onChange={(e) => setSelectedTenant(e.target.value)}
                     >
                       <option value={undefined}>Tenants from Facility</option>
+                      {tenants.map((tenant) => (
+                        <option key={tenant._id} value={tenant._id}>
+                          {tenant.firstName} {tenant.lastName}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 )}
@@ -132,10 +187,15 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                     <select
                       id="tenantsCompany"
                       className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
-                      value={isFacilityTenant}
-                      onChange={(e) => setIsFacilityTenant(e.target.value)}
+                      value={selectedTenant}
+                      onChange={(e) => setSelectedTenant(e.target.value)}
                     >
                       <option value={undefined}>Tenants from Company</option>
+                      {tenants.map((tenant) => (
+                        <option key={tenant._id} value={tenant}>
+                          {tenant.firstName} {tenant.lastName}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 )}

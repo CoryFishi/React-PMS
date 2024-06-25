@@ -34,6 +34,7 @@ export default function FacilityTable() {
       return facility;
     });
     setFacilities(updatedFacilities);
+    setOpenDropdown(null);
   };
   // Update users table on change
   useEffect(() => {
@@ -76,6 +77,7 @@ export default function FacilityTable() {
       toast.success(response.data.message);
       setFacilities(facilities.filter((facility) => facility._id !== id));
       setIsDeleteModalOpen(false); // Close the modal
+      setOpenDropdown(null);
     } catch (error) {
       console.error("Failed to delete facility:", error);
       toast.error(error.response.data.error);
@@ -89,9 +91,11 @@ export default function FacilityTable() {
   // Close edit modal
   const handleCloseEdit = () => {
     setEditOpen(false);
+    setOpenDropdown(null);
   };
   const handleCloseCreate = () => {
     setCreateOpen(false);
+    setOpenDropdown(null);
   };
   // Submit create=
   const handleCreateSubmit = (e) => {
@@ -124,7 +128,7 @@ export default function FacilityTable() {
         }
         return facility;
       });
-      
+
       setFacilities(updatedFacilities);
     } catch (error) {
       console.error("Failed to update facility:", error);
@@ -317,7 +321,10 @@ export default function FacilityTable() {
                                   </button>
                                   <button
                                     className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    onClick={() =>
+                                      setIsDeleteModalOpen(false) &
+                                      setOpenDropdown(null)
+                                    }
                                   >
                                     Cancel
                                   </button>

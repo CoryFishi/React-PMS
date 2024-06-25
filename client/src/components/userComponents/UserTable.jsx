@@ -95,20 +95,24 @@ export default function UserTable() {
       setIsDeleteModalOpen(false); // Close the modal on error as well
     }
   };
+  const sound = new Audio
   // Send email to selected user
   const sendEmail = async (userId) => {
     try {
       const res = await axios.post("/users/sendconfirmation", { userId });
       toast.success(res.data.message);
+      setOpenDropdown(null);
     } catch (error) {
       console.log(error);
       toast.error("Error sending email...");
+      setOpenDropdown(null);
     }
   };
   // Open edit modal
   const openEdit = (id) => {
     if (id === rootUser._id) {
       alert("Can't edit your own User.");
+      setOpenDropdown(null);
     } else {
       setEditOpen(true);
     }
@@ -116,9 +120,13 @@ export default function UserTable() {
   // Close edit modal
   const handleCloseEdit = () => {
     setEditOpen(false);
+    setOpenDropdown(null);
+
   };
   const handleCloseCreate = () => {
     setCreateOpen(false);
+    setOpenDropdown(null);
+
   };
   // Submit create
   const handleCreateSubmit = (e) => {
@@ -126,6 +134,8 @@ export default function UserTable() {
     setCreateOpen(false);
     const updatedUsers = [...users, e.data];
     setUsers(updatedUsers);
+    setOpenDropdown(null);
+
   };
 
   return (
@@ -289,7 +299,10 @@ export default function UserTable() {
                                   </button>
                                   <button
                                     className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    onClick={() =>
+                                      setIsDeleteModalOpen(false) &
+                                      setOpenDropdown(null)
+                                    }
                                   >
                                     Cancel
                                   </button>

@@ -3,6 +3,7 @@ const StorageFacility = require("../models/facility");
 const StorageUnit = require("../models/unit");
 const User = require("../models/user");
 const Tenant = require("../models/tenant");
+const { CommandInteractionOptionResolver } = require("discord.js");
 
 // Create Tenant
 const createTenant = async (req, res) => {
@@ -75,16 +76,12 @@ const createTenant = async (req, res) => {
 
 // Get Tenants by Facility
 const getTenants = async (req, res) => {
-  console.log("GetTeants");
-  const facilityId = req.body.facilityId;
-
+  console.log("Get Teants was called");
+  const facilityId = req.query.facilityId;
+  const companyId = req.query.companyId;
   try {
-    var units = [];
     var tenants = [];
-    if (!facilityId) {
-      units = await StorageUnit.find({});
-      tenants = await Tenant.find({});
-    } else {
+    if (facilityId) {
       units = await StorageUnit.find({ facility: facilityId }).select(
         "_id tenant"
       );
@@ -93,15 +90,14 @@ const getTenants = async (req, res) => {
 
       // Retrieve tenant information from the Tenant collection using the unique tenant IDs
       tenants = await Tenant.find({ _id: { $in: tenantIds } });
-    }
-
-    if (units.length === 0) {
-      return res.status(404).json({
-        error: "No units found",
-      });
+    } else if (companyId) {
+      tenants = await Tenant.find({ company: companyId });
+    } else {
+      tenants = await Tenant.find({});
     }
 
     // Return the list of tenants
+    console.log("Tenant list was sent!");
     return res.status(200).json(tenants);
   } catch (error) {
     console.error(error);
@@ -183,10 +179,34 @@ const deleteTenant = async (req, res) => {
   }
 };
 
+const addUnitToTenant = async (req, res) => {
+  console.log("Add Unit To Tenant was called!");
+  console.log(req)
+  const tenantId = req.params.tenantId;
+  const unitId = req.body.unitId;
+  try {
+    Tenant.findByIdAndUpdate(
+      tenantId,
+      { $addToSet: { units: unitId } },
+      { new: true, useFindAndModify: false }
+    );
+    // StorageUnit.findByIdAndUpdate(unitId,{tenant: tenantId});
+    res.status(200).json({
+      unit,
+    });
+  } catch (error) {
+    console.error("Error updating tenant:", error);
+    res
+      .status(500)
+      .send({ message: "Error updating tenant", error: error.message });
+  }
+};
+
 // Exports
 module.exports = {
   createTenant,
   getTenants,
   editTenant,
   deleteTenant,
+  addUnitToTenant,
 };

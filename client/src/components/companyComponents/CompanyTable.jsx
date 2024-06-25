@@ -31,6 +31,7 @@ export default function CompanyTable() {
       return company;
     });
     setCompanies(updatedCompanies);
+    setOpenDropdown(null);
   };
   // Update users table on change
   useEffect(() => {
@@ -60,10 +61,12 @@ export default function CompanyTable() {
       toast.success(response.data.message);
       setCompanies(companies.filter((company) => company._id !== id));
       setIsDeleteModalOpen(false); // Close the modal
+      setOpenDropdown(null);
     } catch (error) {
       console.error("Failed to delete company:", error.response.data.message);
       toast.error(error.response.data.message);
       setIsDeleteModalOpen(false); // Close the modal on error as well
+      setOpenDropdown(null);
     }
   };
   // Open/close actions drop down
@@ -73,9 +76,11 @@ export default function CompanyTable() {
   // Close edit modal
   const handleCloseEdit = () => {
     setEditOpen(false);
+    setOpenDropdown(null);
   };
   const handleCloseCreate = () => {
     setCreateOpen(false);
+    setOpenDropdown(null);
   };
   // Submit create=
   const handleCreateSubmit = (e) => {
@@ -83,6 +88,7 @@ export default function CompanyTable() {
     setCreateOpen(false);
     const updatedCompanies = [...companies, e.data];
     setCompanies(updatedCompanies);
+    setOpenDropdown(null);
   };
 
   return (
@@ -101,7 +107,10 @@ export default function CompanyTable() {
       </div>
 
       {isCreateOpen && (
-        <CreateCompany onClose={handleCloseCreate} onSubmit={handleCreateSubmit} />
+        <CreateCompany
+          onClose={handleCloseCreate}
+          onSubmit={handleCreateSubmit}
+        />
       )}
       <div className="container mx-auto px-4 mb-5">
         <table className="min-w-full table-auto bg-background-100">
@@ -221,7 +230,10 @@ export default function CompanyTable() {
                                   </button>
                                   <button
                                     className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    onClick={() =>
+                                      setIsDeleteModalOpen(false) &
+                                      setOpenDropdown(null)
+                                    }
                                   >
                                     Cancel
                                   </button>
