@@ -16,7 +16,6 @@ export default function UnitPage({ facilityId }) {
   const [isRentModalMainOpen, setIsRentModalMainOpen] = useState(false);
   const [isMoveOutModalOpen, setIsMoveOutModalOpen] = useState(false);
   const [unitIdToDelete, setUnitIdToDelete] = useState(null);
-  const [unitIdToRent, setUnitIdToRent] = useState(null);
   const [unitIdToMoveOut, setUnitIdToMoveOut] = useState(null);
   const [tenancy, setTenancy] = useState(false);
   const containerRef = useRef(null);
@@ -26,10 +25,6 @@ export default function UnitPage({ facilityId }) {
     setIsDeleteModalOpen(true);
   };
 
-  const promptRentUnit = async (unitId) => {
-    setUnitIdToRent(unitId);
-    setIsRentModalOpen(true);
-  };
   const promptMoveOut = async (unitId) => {
     setUnitIdToMoveOut(unitId);
     setIsMoveOutModalOpen(true);
@@ -38,6 +33,7 @@ export default function UnitPage({ facilityId }) {
   const rentedCount = units.filter(
     (units) => units.availability === false
   ).length;
+
   const vacantCount = units.filter(
     (units) => units.availability === true
   ).length;
@@ -60,13 +56,8 @@ export default function UnitPage({ facilityId }) {
 
   useEffect(() => {
     setFacility(facilityId);
+    refreshUnitTable(facilityId);
   }, [facilityId]);
-
-  useEffect(() => {
-    axios.get(`/facilities/units/${facility}`).then(({ data }) => {
-      setUnits(data.units);
-    });
-  }, []);
 
   // Submit create=
   const handleCreateSubmit = (e) => {
@@ -76,6 +67,7 @@ export default function UnitPage({ facilityId }) {
     setUnits(updatedUnits);
     setOpenDropdown(null);
   };
+
   const handleCloseCreate = () => {
     setCreateOpen(false);
     setOpenDropdown(null);
@@ -84,14 +76,7 @@ export default function UnitPage({ facilityId }) {
   const handleTenantSubmit = (e) => {
     toast.success("Unit Rented!");
     setIsRentModalMainOpen(false);
-    const updatedUnits = units.map((unit) => {
-      if (unit._id === e._id) {
-        return e;
-      }
-      return unit;
-    });
-
-    setUnits(updatedUnits);
+    refreshUnitTable(facilityId);
     setOpenDropdown(null);
   };
 
@@ -152,6 +137,12 @@ export default function UnitPage({ facilityId }) {
       toast.error(error.response.data.message);
       setIsMoveOutModalOpen(false); // Close the modal
     }
+  };
+
+  const refreshUnitTable = async (facilityId) => {
+    axios.get(`/facilities/units/${facility}`).then(({ data }) => {
+      setUnits(data.units);
+    });
   };
 
   return (
@@ -220,9 +211,9 @@ export default function UnitPage({ facilityId }) {
 
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <div>
-                    {unit.size?.depth +
+                    {unit.size?.width +
                       "x" +
-                      unit.size?.width +
+                      unit.size?.depth +
                       " " +
                       unit.size?.unit || "-"}
                   </div>
@@ -233,7 +224,9 @@ export default function UnitPage({ facilityId }) {
                     : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {unit.tenant?.balance || "-"}
+                  {unit.tenant?.balance !== undefined
+                    ? `$${unit.tenant.balance}`
+                    : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   {unit.tenant?.status || "-"}
@@ -312,7 +305,7 @@ export default function UnitPage({ facilityId }) {
                             className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                             role="menuitem"
                             tabIndex="-1"
-                            onClick={() => promptRentUnit(unit._id)}
+                            onClick={() => setIsRentModalOpen(true)}
                           >
                             Rent
                           </a>

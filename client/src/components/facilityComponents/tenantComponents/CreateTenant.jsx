@@ -12,7 +12,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
   const [email, setEmail] = useState([]);
   const [company, setCompany] = useState([]);
   const [address, setAddress] = useState([]);
-  const [balance, setBalance] = useState("");
+  const [balance, setBalance] = useState(0);
   const [status, setStatus] = useState("In Progress");
   const [unitData, setUnitData] = useState([]);
   const [accessCode, setAccessCode] = useState("");
@@ -25,6 +25,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
   useEffect(() => {
     axios.get(`/units/${unitId}`).then(({ data }) => {
       setUnitData(data);
+      setBalance(data.pricePerMonth);
     });
   }, [unitId]);
 
@@ -91,6 +92,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
       if (isTenancy) {
         await axios.put(`/tenants/update/${selectedTenant}`, {
           unitId: unitId,
+          balance,
         });
       } else {
         await axios.post(`/tenants/create`, {
@@ -192,7 +194,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                     >
                       <option value={undefined}>Tenants from Company</option>
                       {tenants.map((tenant) => (
-                        <option key={tenant._id} value={tenant}>
+                        <option key={tenant._id} value={tenant._id}>
                           {tenant.firstName} {tenant.lastName}
                         </option>
                       ))}
@@ -423,7 +425,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                       onChange={togglePaidInCash}
                       className="mr-2"
                     />
-                    <span>Paid in Cash</span>
+                    <span>Waive initial payment</span>
                   </label>
                 </div>
               </div>

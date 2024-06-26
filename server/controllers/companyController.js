@@ -127,10 +127,10 @@ const deleteCompany = async (req, res) => {
         .json({ message: "Cannot delete company with associated facilities!" });
     }
     await Company.findByIdAndDelete(companyId);
-    const deleteCompanyFromUser = await User.updateMany(
-      { company: companyId },
-      { $set: { company: null } }
-    );
+    const deleteUsersWithCompany = await User.deleteMany({
+      company: companyId,
+    });
+
     res.status(200).json({ message: `${companyId} deleted successfully!` });
   } catch (error) {
     console.error(

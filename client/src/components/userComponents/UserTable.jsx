@@ -84,6 +84,12 @@ export default function UserTable() {
   };
   // Delete selected user
   const deleteUser = async (id) => {
+    if (id === rootUser._id) {
+      alert("Can't delete your own User.");
+      setIsDeleteModalOpen(false);
+      setOpenDropdown(null);
+      return;
+    }
     try {
       const res = await axios.delete(`/users/delete?userId=${id}`);
       toast.success(res.data.message);
@@ -95,9 +101,13 @@ export default function UserTable() {
       setIsDeleteModalOpen(false); // Close the modal on error as well
     }
   };
-  const sound = new Audio
   // Send email to selected user
   const sendEmail = async (userId) => {
+    if (userId === rootUser._id) {
+      alert("Can't confirm your own user.");
+      setOpenDropdown(null);
+      return;
+    }
     try {
       const res = await axios.post("/users/sendconfirmation", { userId });
       toast.success(res.data.message);
@@ -121,12 +131,10 @@ export default function UserTable() {
   const handleCloseEdit = () => {
     setEditOpen(false);
     setOpenDropdown(null);
-
   };
   const handleCloseCreate = () => {
     setCreateOpen(false);
     setOpenDropdown(null);
-
   };
   // Submit create
   const handleCreateSubmit = (e) => {
@@ -135,7 +143,6 @@ export default function UserTable() {
     const updatedUsers = [...users, e.data];
     setUsers(updatedUsers);
     setOpenDropdown(null);
-
   };
 
   return (

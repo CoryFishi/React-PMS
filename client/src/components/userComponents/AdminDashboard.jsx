@@ -8,7 +8,9 @@ export default function AdminDashboard() {
   const [openDashboard, setOpenDashboard] = useState(
     localStorage.getItem("openDashboard") || "users"
   );
-  const [facilityName, setFacilityName] = useState(localStorage.getItem("selectedFacilityName") || "Facility Dashboard");
+  const [facilityName, setFacilityName] = useState(
+    localStorage.getItem("selectedFacilityName") || "Facility Dashboard"
+  );
 
   useEffect(() => {
     const updateFacilityName = () => {
@@ -39,7 +41,9 @@ export default function AdminDashboard() {
     <>
       <div className="flex w-full overflow-hidden h-full">
         <div className="w-1/6 flex flex-col items-center bg-background-50 h-auto border-r border-background-100">
-          <h2 className="text-center text-xl font-bold m-3 text-text-950">Configuration</h2>
+          <h2 className="text-center text-xl font-bold m-3 text-text-950">
+            Configuration
+          </h2>
           <button
             className="block w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2"
             onClick={() => setOpenDashboard("users")}

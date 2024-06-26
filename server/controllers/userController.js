@@ -139,15 +139,15 @@ const createUser = async (req, res) => {
                     <p>Thank you for registering with us. Please confirm your email address by clicking the button below:</p>
                     <a href="http://${
                       req.headers.host
-                    }/users/confirm?id=${encodeURIComponent(
+                    }/users/confirm/${encodeURIComponent(
       user._id.toString()
     )}" class="button">Confirm Email</a>
                     <p>If the button does not work, please paste the following link into your browser:</p>
                     <p><a href="http://${
                       req.headers.host
-                    }/users/confirm?id=${encodeURIComponent(
+                    }/users/confirm/${encodeURIComponent(
       user._id.toString()
-    )}">http://${req.headers.host}/users/confirm?id=${encodeURIComponent(
+    )}">http://${req.headers.host}/users/confirm/${encodeURIComponent(
       user._id.toString()
     )}</a></p>
                     <p>Thank you for joining us and welcome aboard!</p>
@@ -538,7 +538,7 @@ const getUsersByCompany = async (req, res) => {
   console.log("Get Users by Company was called!");
   try {
     const { companyId } = req.params;
-    const user = await User.find({ company: companyId});
+    const user = await User.find({ company: companyId });
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Error fetching users", error });
@@ -549,13 +549,14 @@ const getUsersByCompany = async (req, res) => {
 const getUsers = async (req, res) => {
   console.log("Get Users was called!");
   const users = await User.find({}).populate("company", "companyName");
-  console.log("Responded with Users!")
+  console.log("Responded with Users!");
   res.status(200).json(users);
 };
 
 // Get user by Id
 const getUserById = async (req, res) => {
   console.log("Get User By Id Called!");
+  console.log(req.params);
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);

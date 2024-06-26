@@ -15,7 +15,11 @@ export default function FacilityDashboard({ facilityId }) {
     setFacility(facilityId);
     if (facilityId) {
       axios.get(`/facilities/${facilityId}`).then(({ data }) => {
-        setFacilityData(data);
+        if (data) {
+          setFacilityData(data);
+        } else {
+          setFacilityData([]);
+        }
       });
     } else {
       setFacilityData([]);
@@ -24,10 +28,11 @@ export default function FacilityDashboard({ facilityId }) {
 
   return (
     <>
-      <div className="w-full p-5 bg-background-100 flex justify-around items-center text-text-950">
+      <div className="w-full p-5 bg-background-100 flex flex-col justify-center items-center text-text-950">
         <h1 className="text-4xl font-bold">{facilityData.facilityName}</h1>
+        <h3>{facilityData.status}</h3>
       </div>
-      
+
       <div className="w-full p-1 flex justify-center items-center mb-2 text-text-950 space-x-24">
         <button
           className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"

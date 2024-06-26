@@ -47,6 +47,9 @@ const storageUnitSchema = new mongoose.Schema({
     enum: ["new", "good", "fair", "poor"],
     default: "good",
   },
+  moveInData: {
+    type: Date,
+  },
   photos: [String],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

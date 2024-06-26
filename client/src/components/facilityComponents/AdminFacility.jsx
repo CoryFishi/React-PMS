@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
 import FacilityDashboard from "./FacilityDashboard";
 
 export default function AdminFacility() {
@@ -12,7 +11,6 @@ export default function AdminFacility() {
   const [facility, setFacility] = useState(
     localStorage.getItem("selectedFacility") || ""
   );
-  const [facilityData, setFacilityData] = useState("");
 
   useEffect(() => {
     axios.get("/companies").then(({ data }) => {
@@ -23,10 +21,14 @@ export default function AdminFacility() {
   useEffect(() => {
     if (company) {
       axios.get(`/facilities&company?company=${company}`).then(({ data }) => {
-        setFacilities(data.facilities);
+        if (data.facilities != null) {
+          localStorage.setItem("selectedCompany", company);
+          setFacilities(data.facilities);
+        } else {
+          localStorage.removeItem("selectedCompany");
+          setFacilities([]);
+        }
       });
-
-      localStorage.setItem("selectedCompany", company);
     } else {
       setFacilities([]);
       localStorage.removeItem("selectedCompany");
@@ -36,16 +38,16 @@ export default function AdminFacility() {
   useEffect(() => {
     if (facility) {
       axios.get(`/facilities/${facility}`).then(({ data }) => {
-        setFacilityData(data);
-        localStorage.setItem("selectedFacility", facility);
-        localStorage.setItem("selectedFacilityName", data.facilityName); // Assuming the response has facilityName
-        window.dispatchEvent(new Event("storage")); // Manually trigger storage event
+        if (data) {
+          localStorage.setItem("selectedFacility", facility);
+          localStorage.setItem("selectedFacilityName", data.facilityName); // Assuming the response has facilityName
+          window.dispatchEvent(new Event("storage")); // Manually trigger storage event
+        } else {
+          localStorage.removeItem("selectedFacility");
+          localStorage.removeItem("selectedFacilityName");
+          window.dispatchEvent(new Event("storage")); // Manually trigger storage event
+        }
       });
-    } else {
-      setFacilityData([]);
-      localStorage.removeItem("selectedFacility");
-      localStorage.removeItem("selectedFacilityName");
-      window.dispatchEvent(new Event("storage")); // Manually trigger storage event
     }
   }, [facility]);
 

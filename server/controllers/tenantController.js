@@ -3,7 +3,6 @@ const StorageFacility = require("../models/facility");
 const StorageUnit = require("../models/unit");
 const User = require("../models/user");
 const Tenant = require("../models/tenant");
-const { CommandInteractionOptionResolver } = require("discord.js");
 
 // Create Tenant
 const createTenant = async (req, res) => {
@@ -45,6 +44,7 @@ const createTenant = async (req, res) => {
       company,
       accessCode,
       createdBy,
+      moveInDate: null,
     });
 
     await StorageUnit.updateMany(
@@ -181,18 +181,28 @@ const deleteTenant = async (req, res) => {
 
 const addUnitToTenant = async (req, res) => {
   console.log("Add Unit To Tenant was called!");
-  console.log(req)
   const tenantId = req.params.tenantId;
   const unitId = req.body.unitId;
+  const balance = req.body.balance;
+  const currentDate = new Date();
   try {
-    Tenant.findByIdAndUpdate(
+    const tenant = await Tenant.findByIdAndUpdate(
       tenantId,
-      { $addToSet: { units: unitId } },
+      {
+        $addToSet: { units: [unitId] },
+        $inc: { balance: balance },
+      },
       { new: true, useFindAndModify: false }
     );
-    // StorageUnit.findByIdAndUpdate(unitId,{tenant: tenantId});
+
+    await StorageUnit.findByIdAndUpdate(unitId, {
+      tenant: tenantId,
+      availability: false,
+      $set: { moveInDate: currentDate },
+    });
+
     res.status(200).json({
-      unit,
+      tenant,
     });
   } catch (error) {
     console.error("Error updating tenant:", error);
