@@ -126,7 +126,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 text-left">
       <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
         <h2 className="text-xl font-bold mb-4 text-text-950">
           Creating Tenant

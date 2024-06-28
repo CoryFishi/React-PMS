@@ -172,28 +172,28 @@ export default function UnitPage({ facilityId }) {
         <table className="min-w-full table-auto bg-background-100">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Unit Number
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Size
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
-                Tenant
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
-                Balance
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
-                Availability
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Monthly
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Availability
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Tenant
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Balance
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -204,12 +204,11 @@ export default function UnitPage({ facilityId }) {
                 key={unit._id}
                 className="border-b bg-background-50 rounded text-text-950"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {unit.unitNumber}
                   {unit.climateControlled ? " - ⌂" : ""}
                 </td>
-
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <div>
                     {unit.size?.width +
                       "x" +
@@ -218,27 +217,27 @@ export default function UnitPage({ facilityId }) {
                       unit.size?.unit || "-"}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {"$" + unit.pricePerMonth || "-"}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {unit.availability == true && `✔`}
+                  {unit.availability == false && `✕`}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {unit.tenant?.firstName
                     ? unit.tenant.firstName + " " + unit.tenant?.lastName
                     : "-"}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {unit.tenant?.balance !== undefined
                     ? `$${unit.tenant.balance}`
                     : "-"}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {unit.tenant?.status || "-"}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {unit.availability == true && `✔`}
-                  {unit.availability == false && `✕`}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {"$" + unit.pricePerMonth || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <div>
                     <button
                       type="button"
@@ -268,7 +267,7 @@ export default function UnitPage({ facilityId }) {
                   </div>
                   {openDropdown === unit._id && (
                     <div
-                      className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-background-100 ring-1 ring-black ring-opacity-5 z-10"
+                      className="origin-center absolute mt-2 w-36 rounded-md shadow-lg bg-background-100 ring-1 ring-black ring-opacity-5 z-10"
                       role="menu"
                       aria-orientation="vertical"
                       aria-labelledby="menu-button"
@@ -292,7 +291,6 @@ export default function UnitPage({ facilityId }) {
                         >
                           Edit
                         </a>
-
                         {isEditOpen && (
                           <EditUnit
                             unitId={unit._id}

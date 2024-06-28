@@ -175,7 +175,7 @@ export default function CreateUnit({ onClose, onSubmit, facilityId }) {
                   htmlFor="price"
                   className="block text-sm font-semibold text-text-950"
                 >
-                  Price:
+                  Price Per Month:<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"

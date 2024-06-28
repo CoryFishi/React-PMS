@@ -19,7 +19,7 @@ export default function AdminFacility() {
   }, []);
 
   useEffect(() => {
-    if (company) {
+    if (company !== 0) {
       axios.get(`/facilities&company?company=${company}`).then(({ data }) => {
         if (data.facilities != null) {
           localStorage.setItem("selectedCompany", company);
@@ -40,12 +40,10 @@ export default function AdminFacility() {
       axios.get(`/facilities/${facility}`).then(({ data }) => {
         if (data) {
           localStorage.setItem("selectedFacility", facility);
-          localStorage.setItem("selectedFacilityName", data.facilityName); // Assuming the response has facilityName
-          window.dispatchEvent(new Event("storage")); // Manually trigger storage event
+          localStorage.setItem("selectedFacilityName", data.facilityName);
         } else {
           localStorage.removeItem("selectedFacility");
           localStorage.removeItem("selectedFacilityName");
-          window.dispatchEvent(new Event("storage")); // Manually trigger storage event
         }
       });
     }
@@ -79,6 +77,8 @@ export default function AdminFacility() {
           id="facility"
           value={facility || ""}
           onChange={(e) =>
+            localStorage.removeItem("selectedFacility") &
+            localStorage.removeItem("selectedFacilityName") &
             setFacility(e.target.value) &
             setTimeout(() => {
               location.reload();

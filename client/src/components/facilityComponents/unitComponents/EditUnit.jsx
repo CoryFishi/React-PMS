@@ -52,7 +52,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 text-left">
       <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
         <h2 className="text-xl font-bold mb-4 text-text-950">
           Editing Unit {unitNumber}
@@ -65,7 +65,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                   htmlFor="unitNumber"
                   className="block text-sm font-semibold text-text-950"
                 >
-                  Unit Number:<span className="text-red-500">*</span>
+                  Unit Number:
                 </label>
                 <input
                   type="text"
@@ -83,7 +83,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                     htmlFor="width"
                     className="block text-sm font-semibold text-text-950 mt-1"
                   >
-                    Width:<span className="text-red-500">*</span>
+                    Width:
                   </label>
                   <input
                     type="text"
@@ -103,7 +103,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                     htmlFor="height"
                     className="block text-sm font-semibold text-text-950 mt-2"
                   >
-                    Height:<span className="text-red-500">*</span>
+                    Height:
                   </label>
                   <input
                     type="text"
@@ -125,7 +125,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                     htmlFor="depth"
                     className="block text-sm font-semibold text-text-950 mt-1"
                   >
-                    Depth:<span className="text-red-500">*</span>
+                    Depth:
                   </label>
                   <input
                     type="text"
@@ -145,7 +145,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                     htmlFor="unit"
                     className="block text-sm font-semibold text-text-950 mt-2"
                   >
-                    Unit:<span className="text-red-500">*</span>
+                    Unit:
                   </label>
                   <select
                     id="unit"
@@ -183,7 +183,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                   htmlFor="price"
                   className="block text-sm font-semibold text-text-950"
                 >
-                  Monthly Price:<span className="text-red-500">*</span>
+                  Monthly Price:
                 </label>
                 <input
                   type="text"
@@ -202,7 +202,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                       htmlFor="securityLevel"
                       className="mt-5 block text-sm font-semibold text-text-950"
                     >
-                      Security Level:<span className="text-red-500">*</span>
+                      Security Level:
                     </label>
                     <select
                       id="securityLevel"
@@ -220,7 +220,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
                       htmlFor="condition"
                       className="block text-sm font-semibold text-text-950 mt-2"
                     >
-                      Condition:<span className="text-red-500">*</span>
+                      Condition:
                     </label>
                     <select
                       id="condition"
