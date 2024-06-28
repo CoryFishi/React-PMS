@@ -226,7 +226,7 @@ const deleteUnit = async (req, res) => {
         { units: unitId },
         { $pull: { units: unitId } }
       );
-      res.status(200).send({ message: "Unit deleted" });
+      res.status(200).send({ message: `Unit ${result.unitNumber} deleted` });
     } else {
       res.status(404).send({ message: "Unit not found" });
     }
@@ -295,8 +295,7 @@ const getUnitById = async (req, res) => {
   console.log("Get Unit by Id called!");
   try {
     const { unitId } = req.params;
-    const unit = await StorageUnit.findById(unitId)
-    .populate('tenant');
+    const unit = await StorageUnit.findById(unitId).populate("tenant");
     res.status(200).json(unit);
   } catch (error) {
     console.error(
@@ -329,7 +328,7 @@ const removeTenant = async (req, res) => {
       }
 
       // Remove the unit reference from the tenant's units array
-      tenant.units = tenant.units.filter(id => !id.equals(unit._id));
+      tenant.units = tenant.units.filter((id) => !id.equals(unit._id));
       await tenant.save();
 
       // Remove the tenant reference from the unit
@@ -348,11 +347,12 @@ const removeTenant = async (req, res) => {
       return res.status(404).json({ error: "Unit does not have a tenant" });
     }
   } catch (error) {
-    console.error("Error processing the last call! See error below...\n" + error.message);
+    console.error(
+      "Error processing the last call! See error below...\n" + error.message
+    );
     res.status(400).json({ message: error.message });
   }
 };
-
 
 // Get all Facilities
 const getUnits = async (req, res) => {

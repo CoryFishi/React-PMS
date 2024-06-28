@@ -92,7 +92,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
       if (isTenancy) {
         await axios.put(`/tenants/update/${selectedTenant}`, {
           unitId: unitId,
-          balance,
+          balance: newBalance,
         });
       } else {
         await axios.post(`/tenants/create`, {
@@ -128,9 +128,10 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 text-left">
       <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold mb-4 text-text-950">
-          Creating Tenant
+        <h2 className="text-xl font-bold text-text-950 mb-0">
+          Renting Unit {unitData.unitNumber}
         </h2>
+        {isTenancy === false && <h3 className="mb-3">New Tenant</h3>}
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           {isTenancy === true && (
             <div>
@@ -169,7 +170,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                       value={selectedTenant}
                       onChange={(e) => setSelectedTenant(e.target.value)}
                     >
-                      <option value={undefined}>Tenants from Facility</option>
+                      <option value={undefined}>Select an Option</option>
                       {tenants.map((tenant) => (
                         <option key={tenant._id} value={tenant._id}>
                           {tenant.firstName} {tenant.lastName}
@@ -192,7 +193,7 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                       value={selectedTenant}
                       onChange={(e) => setSelectedTenant(e.target.value)}
                     >
-                      <option value={undefined}>Tenants from Company</option>
+                      <option value={undefined}>Select an Option</option>
                       {tenants.map((tenant) => (
                         <option key={tenant._id} value={tenant._id}>
                           {tenant.firstName} {tenant.lastName}
@@ -201,6 +202,18 @@ export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
                     </select>
                   </div>
                 )}
+              </div>
+              <div className="mt-4 flex items-center justify-between">
+                <label htmlFor="status" className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="status"
+                    checked={paidInCash === true}
+                    onChange={togglePaidInCash}
+                    className="mr-2"
+                  />
+                  <span>Waive initial payment</span>
+                </label>
               </div>
             </div>
           )}

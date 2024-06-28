@@ -61,7 +61,7 @@ export default function UnitPage({ facilityId }) {
 
   // Submit create=
   const handleCreateSubmit = (e) => {
-    toast.success("Unit Created!");
+    toast.success("Unit " + e.data[0].unitNumber + " Created");
     setCreateOpen(false);
     const updatedUnits = [...units, e.data[0]];
     setUnits(updatedUnits);
@@ -74,7 +74,13 @@ export default function UnitPage({ facilityId }) {
   };
 
   const handleTenantSubmit = (e) => {
-    toast.success("Unit Rented!");
+    toast.success(
+      e.unitNumber +
+        " Rented to " +
+        e.tenant.firstName +
+        " " +
+        e.tenant.lastName
+    );
     setIsRentModalMainOpen(false);
     refreshUnitTable(facilityId);
     setOpenDropdown(null);
@@ -109,11 +115,11 @@ export default function UnitPage({ facilityId }) {
       );
       toast.success(response.data.message);
       setUnits(units.filter((unit) => unit._id !== id));
-      setIsDeleteModalOpen(false); // Close the modal
+      setIsDeleteModalOpen(false);
     } catch (error) {
       console.error("Failed to delete unit:", error);
       toast.error(error.response.data.message);
-      setIsDeleteModalOpen(false); // Close the modal on error as well
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -372,7 +378,7 @@ export default function UnitPage({ facilityId }) {
                                 {unit.tenant?.firstName} {unit.tenant?.lastName}
                                 ?
                               </p>
-                              <div className="flex justify-end mt-4">
+                              <div className="flex justify-center mt-4">
                                 <button
                                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
                                   onClick={() => moveOutUnit(unitIdToMoveOut)}
@@ -381,7 +387,10 @@ export default function UnitPage({ facilityId }) {
                                 </button>
                                 <button
                                   className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                  onClick={() => setIsMoveOutModalOpen(false)}
+                                  onClick={() =>
+                                    setIsMoveOutModalOpen(false) &
+                                    setOpenDropdown(null)
+                                  }
                                 >
                                   Cancel
                                 </button>
