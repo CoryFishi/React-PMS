@@ -1,18 +1,15 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
 import UnitPage from "./facilityPages/UnitPage";
 import TenantPage from "./facilityPages/TenantPage";
 import ReportsPage from "./facilityPages/ReportsPage";
 import SettingsPage from "./facilityPages/SettingsPage";
 
 export default function FacilityDashboard({ facilityId }) {
-  const [facility, setFacility] = useState(facilityId);
   const [facilityData, setFacilityData] = useState("");
   const [page, setPage] = useState("units");
 
   useEffect(() => {
-    setFacility(facilityId);
     if (facilityId) {
       axios.get(`/facilities/${facilityId}`).then(({ data }) => {
         if (data) {
@@ -35,25 +32,33 @@ export default function FacilityDashboard({ facilityId }) {
 
       <div className="w-full p-1 flex justify-center items-center mb-2 text-text-950 space-x-24">
         <button
-          className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
+          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
+            page === "units" ? "underline" : ""
+          }`}
           onClick={() => setPage("units")}
         >
           Units
         </button>
         <button
-          className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
+          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
+            page === "tenants" ? "underline" : ""
+          }`}
           onClick={() => setPage("tenants")}
         >
           Tenants
         </button>
         <button
-          className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
+          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
+            page === "reports" ? "underline" : ""
+          }`}
           onClick={() => setPage("reports")}
         >
           Reports
         </button>
         <button
-          className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
+          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
+            page === "settings" ? "underline" : ""
+          }`}
           onClick={() => setPage("settings")}
         >
           Settings

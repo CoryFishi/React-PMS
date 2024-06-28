@@ -194,7 +194,7 @@ export default function UnitPage({ facilityId }) {
                 Tenant
               </th>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-                Balance
+                Outstanding Balance
               </th>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Status
@@ -247,7 +247,7 @@ export default function UnitPage({ facilityId }) {
                   <div>
                     <button
                       type="button"
-                      className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500"
+                      className="inline-flex justify-center w-48 rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500"
                       onClick={() =>
                         setOpenDropdown(
                           openDropdown === unit._id ? null : unit._id
@@ -273,7 +273,7 @@ export default function UnitPage({ facilityId }) {
                   </div>
                   {openDropdown === unit._id && (
                     <div
-                      className="origin-center absolute mt-2 w-36 rounded-md shadow-lg bg-background-100 ring-1 ring-black ring-opacity-5 z-10"
+                      className="origin-center absolute ml-12 w-32 mt-1 rounded-md shadow-md bg-background-100 text-left"
                       role="menu"
                       aria-orientation="vertical"
                       aria-labelledby="menu-button"
@@ -290,7 +290,7 @@ export default function UnitPage({ facilityId }) {
                       )}
                       <div className="py-1" role="none">
                         <a
-                          className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
+                          className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200 text-left"
                           role="menuitem"
                           tabIndex="-1"
                           onClick={() => setEditOpen(unit._id)}
