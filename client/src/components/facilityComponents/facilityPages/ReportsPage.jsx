@@ -1,17 +1,21 @@
 import { useState } from "react";
-import GeneralSettings from "../settingsComponents/GeneralSettings";
-import TenantManagementSettings from "../settingsComponents/TenantManagementSettings";
+import UnitDetailReport from "../reportsComponents/UnitDetailReport";
+import TenantDetailReport from "../reportsComponents/TenantDetailReport";
+import DelinquencyReport from "../reportsComponents/DelinquencyReport";
+import VacancyReport from "../reportsComponents/VacancyReport";
+import PaymentsReport from "../reportsComponents/PaymentsReport";
+import ApplicationEventsReport from "../reportsComponents/ApplicationEventsReport";
 
 export default function ReportsPage({ facilityId }) {
   const [selectedReport, setSelectedReport] = useState(null);
 
   const reports = [
-    { name: "Unit List", component: <GeneralSettings /> },
-    { name: "Tenant List", component: <TenantManagementSettings /> },
-    { name: "Delinquent Tenants", component: <GeneralSettings /> },
-    { name: "Tenant List", component: <TenantManagementSettings /> },
-    { name: "Unit List", component: <GeneralSettings /> },
-    { name: "Tenant List", component: <TenantManagementSettings /> },
+    { name: "Unit List", component: <UnitDetailReport /> },
+    { name: "Tenant List", component: <TenantDetailReport /> },
+    { name: "Delinquent Tenants", component: <DelinquencyReport /> },
+    { name: "Vacancy List", component: <VacancyReport /> },
+    { name: "Payments", component: <PaymentsReport /> },
+    { name: "Application Events", component: <ApplicationEventsReport /> },
   ];
 
   return (

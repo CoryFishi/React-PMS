@@ -10,8 +10,8 @@ export default function SettingsPage({ facilityId }) {
   const [selectedSetting, setSelectedSetting] = useState(null);
 
   const settings = [
-    { name: "General Settings", component: <GeneralSettings /> },
-    { name: "User Management", component: <TenantManagementSettings /> },
+    { name: "General", component: <GeneralSettings /> },
+    { name: "Tenant Management", component: <TenantManagementSettings /> },
     { name: "Notifications", component: <NotificationSettings /> },
     { name: "Billing", component: <BillingSettings /> },
     { name: "Access Control", component: <AccessControlSettings /> },
