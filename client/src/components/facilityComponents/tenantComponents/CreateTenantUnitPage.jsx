@@ -3,7 +3,12 @@ import React, { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../../context/userContext";
 
-export default function CreateTenant({ onClose, onSubmit, unitId, tenancy }) {
+export default function CreateTenantUnitPage({
+  onClose,
+  onSubmit,
+  unitId,
+  tenancy,
+}) {
   const [isTenancy, setIsTenancy] = useState(tenancy);
   const [isFacilityTenant, setIsFacilityTenant] = useState(undefined);
   const [firstName, setFirstName] = useState("");

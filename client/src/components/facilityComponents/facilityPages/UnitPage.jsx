@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import CreateUnit from "../unitComponents/CreateUnit";
 import EditUnit from "../unitComponents/EditUnit";
-import CreateTenant from "../tenantComponents/CreateTenant";
+import CreateTenantUnitPage from "../tenantComponents/CreateTenantUnitPage";
 
 export default function UnitPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -281,7 +281,7 @@ export default function UnitPage({ facilityId }) {
                       ref={containerRef}
                     >
                       {isRentModalMainOpen && (
-                        <CreateTenant
+                        <CreateTenantUnitPage
                           onClose={handleCloseTenant}
                           onSubmit={handleTenantSubmit}
                           unitId={unit._id}

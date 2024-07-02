@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import CreateTenant from "../tenantComponents/CreateTenant";
+import CreateTenantTenantPage from "../tenantComponents/CreateTenantTenantPage";
 
 export default function TenantPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -50,7 +50,6 @@ export default function TenantPage({ facilityId }) {
         },
       })
       .then(({ data }) => {
-        console.log(data);
         setTenants(data);
       })
       .catch((error) => {
@@ -74,7 +73,7 @@ export default function TenantPage({ facilityId }) {
   return (
     <>
       {isCreateOpen && (
-        <CreateTenant
+        <CreateTenantTenantPage
           onClose={handleCloseCreate}
           onSubmit={handleCreateSubmit}
           facilityId={facilityId}
