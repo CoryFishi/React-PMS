@@ -5,6 +5,7 @@ import UserDashboard from "../components/userComponents/UserDashboard";
 import AdminDashboard from "../components/userComponents/AdminDashboard";
 import Navbar from "../components/Navbar";
 import NotFound from "../components/NotFound";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Dashboard() {
   const { user } = useContext(UserContext);
@@ -54,8 +55,7 @@ export default function Dashboard() {
             <p>Role not recognized or user data incomplete</p>
           )
         ) : (
-          // Render a loading indicator or placeholder content while waiting for user context
-          <NotFound />
+          <LoadingSpinner />
         )}
       </div>
     </div>

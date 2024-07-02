@@ -171,25 +171,25 @@ export default function UserTable() {
         <table className="min-w-full table-auto bg-background-100">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Display Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Role
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Company
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -200,25 +200,25 @@ export default function UserTable() {
                 key={user._id}
                 className="border-b bg-background-50 rounded text-text-950"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {user.displayName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {user.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {user.email}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {user.role}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {user?.company?.companyName ?? ""}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {user?.company?.companyName ?? "-"}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {user.status}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <div className="relative inline-block text-left">
                     <div>
                       <button

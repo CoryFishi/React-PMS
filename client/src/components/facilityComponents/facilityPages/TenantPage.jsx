@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+import CreateTenant from "../tenantComponents/CreateTenant";
 
 export default function TenantPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
-  const [createOpen, setCreateOpen] = useState(false);
+  const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const containerRef = useRef(null);
@@ -57,8 +58,28 @@ export default function TenantPage({ facilityId }) {
       });
   };
 
+  const handleCreateSubmit = (e) => {
+    toast.success("Unit " + e.data[0].unitNumber + " Created");
+    setCreateOpen(false);
+    const updatedUnits = [...units, e.data[0]];
+    setUnits(updatedUnits);
+    setOpenDropdown(null);
+  };
+
+  const handleCloseCreate = () => {
+    setCreateOpen(false);
+    setOpenDropdown(null);
+  };
+
   return (
     <>
+      {isCreateOpen && (
+        <CreateTenant
+          onClose={handleCloseCreate}
+          onSubmit={handleCreateSubmit}
+          facilityId={facilityId}
+        />
+      )}
       <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
         <p className="text-sm">New: {newCount}</p>
         <p className="text-sm">In Progress: {inProgressCount}</p>

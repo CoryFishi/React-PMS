@@ -185,25 +185,25 @@ export default function FacilityTable() {
         <table className="min-w-full table-auto bg-background-100">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Company
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Address
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Manager
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Units
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -214,26 +214,31 @@ export default function FacilityTable() {
                 key={facility._id}
                 className="border-b bg-background-50 rounded text-text-950"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {facility.facilityName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {facility.company.companyName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {facility.address.street1},{facility.address.city},
-                  {facility.address.state},{facility.address.zipCode}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {facility.address.street1}
+                  {facility.address.street2
+                    ? `, ${facility.address.street2}`
+                    : ""}
+                  , {facility.address.city}, {facility.address.state}{" "}
+                  {facility.address.zipCode}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {facility?.manager?.name ?? ""}
+
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {facility?.manager?.name ?? "-"}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {facility.units.length}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {facility.status}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <div className="relative inline-block text-left">
                     <div>
                       <button

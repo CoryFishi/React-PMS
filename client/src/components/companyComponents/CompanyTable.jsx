@@ -116,19 +116,19 @@ export default function CompanyTable() {
         <table className="min-w-full table-auto bg-background-100">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Address
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Facilities
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -139,20 +139,24 @@ export default function CompanyTable() {
                 key={company._id}
                 className="border-b bg-background-50 rounded text-text-950"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {company.companyName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  {company.address.street1},{company.address.city},
-                  {company.address.state},{company.address.zipCode}
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {company.address.street1}
+                  {company.address.street2
+                    ? `, ${company.address.street2}`
+                    : ""}
+                  , {company.address.city}, {company.address.state}{" "}
+                  {company.address.zipCode}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {company.facilities.length}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {company.status}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <div className="relative inline-block text-left">
                     <div>
                       <button
