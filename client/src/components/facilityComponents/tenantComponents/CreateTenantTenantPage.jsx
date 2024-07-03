@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useRef, useContext, useEffect } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../../context/userContext";
 
@@ -8,26 +8,39 @@ export default function CreateTenantTenantPage({
   onSubmit,
   facilityId,
 }) {
-  const [isFacilityTenant, setIsFacilityTenant] = useState(undefined);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState([]);
   const [email, setEmail] = useState([]);
-  const [company, setCompany] = useState([]);
+  const [facilityData, setFacilityData] = useState([]);
   const [address, setAddress] = useState([]);
   const [balance, setBalance] = useState(0);
   const [status, setStatus] = useState("In Progress");
-  const [unitData, setUnitData] = useState([]);
   const [accessCode, setAccessCode] = useState("");
   const [paidInCash, setPaidInCash] = useState(false);
-  const [tenants, setTenants] = useState([]);
-  const [selectedTenant, setSelectedTenant] = useState("");
+  const [units, setUnits] = useState([]);
+  const [selectedUnits, setSelectedUnits] = useState([]);
+  const [unitsDropdownOpen, setUnitsDropdownOpen] = useState(false);
+  const unitsDropdownRef = useRef(null);
 
   const { user } = useContext(UserContext);
 
+  const handleUnitChange = (unitId) => {
+    setSelectedUnits((prev) =>
+      prev.includes(unitId)
+        ? prev.filter((id) => id !== unitId)
+        : [...prev, unitId]
+    );
+  };
+
+  useEffect(() => {
+    axios.get(`/facilities/${facilityId}`).then(({ data }) => {
+      setFacilityData(data);
+    });
+  }, [facilityId]);
+
   const handleSubmit = async () => {
     var newBalance = 0;
-    var response;
     if (paidInCash) {
       newBalance = 0;
     } else {
@@ -43,18 +56,35 @@ export default function CreateTenantTenantPage({
         },
         createdBy: user._id,
         accessCode,
-        company,
+        company: facilityData.company,
         address,
         balance: newBalance,
         status,
-        units: [unitId],
+        units,
       });
+      console.log(response);
       await onSubmit(response);
     } catch (error) {
       console.error("Failed to create tenant:", error);
       toast.error(error.response.data.error);
     }
   };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        unitsDropdownRef.current &&
+        !unitsDropdownRef.current.contains(event.target)
+      ) {
+        setUnitsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [unitsDropdownRef]);
 
   const togglePaidInCash = () => {
     setPaidInCash((prevState) => (prevState === true ? false : true));
@@ -277,6 +307,56 @@ export default function CreateTenantTenantPage({
                   onChange={(e) => setAccessCode(e.target.value)}
                   style={{ width: "17rem" }}
                 />
+              </div>
+              <div>
+                <label
+                  htmlFor="units"
+                  className="block text-sm font-semibold text-text-950 mt-2"
+                >
+                  Units:
+                </label>
+                <div className="relative" ref={unitsDropdownRef}>
+                  <button
+                    type="button"
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                    style={{ width: "17rem" }}
+                    onClick={() => {
+                      setUnitsDropdownOpen(!unitsDropdownOpen);
+                      axios
+                        .get(`/facilities/units/${facilityId}/vacant`)
+                        .then(({ data }) => {
+                          setUnits(data.units);
+                        });
+                    }}
+                  >
+                    {selectedUnits.length > 0
+                      ? `${selectedUnits.length} Unit(s) Selected`
+                      : "Select Units"}
+                  </button>
+                  {unitsDropdownOpen && (
+                    <div
+                      id="unitsDropdown"
+                      className="absolute w-full bg-white border border-gray-300 rounded-md shadow-lg m-0"
+                    >
+                      {units.map((unit) => (
+                        <label
+                          key={unit._id}
+                          className="block px-4 py-2 text-sm text-black"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedUnits.includes(unit._id)}
+                            onChange={() => handleUnitChange(unit._id)}
+                            className="mr-2"
+                          />
+                          {unit.unitNumber} - {unit.size?.width}x
+                          {unit.size?.depth}
+                          {unit.size?.unit}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
                 <label htmlFor="status" className="flex items-center">

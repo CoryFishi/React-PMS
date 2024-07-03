@@ -354,7 +354,7 @@ const removeTenant = async (req, res) => {
   }
 };
 
-// Get all Facilities
+// Get all Units or by facility
 const getUnits = async (req, res) => {
   console.log("Get units was called!");
   const facilityId = req.params.facilityId;
@@ -382,6 +382,31 @@ const getUnits = async (req, res) => {
         units: facilityWithUnits.units,
       });
     }
+  } catch (error) {
+    console.error("Error retrieving facility units:", error);
+    res
+      .status(500)
+      .send({ message: "Error retrieving data", error: error.message });
+  }
+};
+
+// Get all vacant units by facility
+const getVacantUnits = async (req, res) => {
+  console.log("Get vacant units was called!");
+  const facilityId = req.params.facilityId;
+  try {
+    const facilityWithUnits = await StorageFacility.findById(facilityId)
+      .populate({
+        path: "units",
+        match: { availability: true },
+      })
+      .exec();
+    if (!facilityWithUnits) {
+      return res.status(404).send({ message: "Facility not found" });
+    }
+    res.status(200).json({
+      units: facilityWithUnits.units,
+    });
   } catch (error) {
     console.error("Error retrieving facility units:", error);
     res
@@ -520,4 +545,5 @@ module.exports = {
   deployFacility,
   getUnitById,
   removeTenant,
+  getVacantUnits,
 };

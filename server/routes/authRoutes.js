@@ -33,6 +33,7 @@ const {
   getSecurityLevels,
   getFacilityById,
   deployFacility,
+  getVacantUnits,
   getUnitById,
   removeTenant,
 } = require("../controllers/facilityController");
@@ -101,6 +102,7 @@ router.put("/facilities/update", editFacility);
 // /facilities/units
 router.post("/facilities/units/create", addUnits);
 router.delete("/facilities/units/delete", deleteUnit);
+router.get("/facilities/units/:facilityId/vacant", getVacantUnits);
 router.get("/facilities/units/:facilityId", getUnits);
 router.put("/facilities/units/:facilityId/:unitId/moveout", removeTenant);
 router.put("/facilities/units/update", editUnit);

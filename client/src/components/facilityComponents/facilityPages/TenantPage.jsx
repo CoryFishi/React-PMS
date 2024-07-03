@@ -58,7 +58,7 @@ export default function TenantPage({ facilityId }) {
   };
 
   const handleCreateSubmit = (e) => {
-    toast.success("Unit " + e.data[0].unitNumber + " Created");
+    toast.success("Tenant " + e.data.firstName + e.data.lastName + " Created");
     setCreateOpen(false);
     const updatedUnits = [...units, e.data[0]];
     setUnits(updatedUnits);
