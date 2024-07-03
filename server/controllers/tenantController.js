@@ -107,32 +107,32 @@ const getTenants = async (req, res) => {
   }
 };
 
+// Get Tenants by Id
+const getTenantById = async (req, res) => {
+  console.log("Get Teantby Id was called");
+  const tenantId = req.params.tenantId;
+  try {
+    const tenant = await Tenant.findById(tenantId).populate("units");
+
+    console.log("Tenant was sent!");
+    return res.status(200).json(tenant);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
 // Edit Tenant
 const editTenant = async (req, res) => {
   console.log("editTenant");
   const tenantId = req.body.tenantId;
   const updateData = req.body.updateData;
 
-  const emailExists = await Tenant.findOne({
-    email: updateData.email,
-  });
-  if (emailExists && emailExists._id !== tenantId) {
-    return res.status(409).json({
-      error: `Unit Number ${updateData.email} is already taken in this facility`,
-    });
-  }
-  for (const unit of updateData.units) {
-    const unitExists = await StorageUnit.findById(unit);
-    if (!unitExists) {
-      return res.status(404).json({
-        error: `Unit(s) ${unit} was not found`,
-      });
-    }
-  }
   try {
     const updatedTenant = await Tenant.findByIdAndUpdate(tenantId, updateData, {
       new: true, // Return the updated document
-      runValidators: true, // Ensure model validations are run during update
     }).exec();
 
     if (!updatedTenant) {
@@ -224,4 +224,5 @@ module.exports = {
   editTenant,
   deleteTenant,
   addUnitToTenant,
+  getTenantById,
 };

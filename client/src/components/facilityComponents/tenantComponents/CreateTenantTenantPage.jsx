@@ -62,7 +62,6 @@ export default function CreateTenantTenantPage({
         status,
         units,
       });
-      console.log(response);
       await onSubmit(response);
     } catch (error) {
       console.error("Failed to create tenant:", error);

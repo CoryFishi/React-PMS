@@ -51,6 +51,7 @@ const {
   editTenant,
   deleteTenant,
   addUnitToTenant,
+  getTenantById,
 } = require("../controllers/tenantController");
 
 // middleware
@@ -106,6 +107,7 @@ router.get("/units/:unitId", getUnitById);
 // /tenants
 router.post("/tenants/create", createTenant);
 router.get("/tenants", getTenants);
+router.get("/tenants/:tenantId", getTenantById);
 
 router.put("/tenants/update/:tenantId", addUnitToTenant);
 router.put("/tenants/update", editTenant);

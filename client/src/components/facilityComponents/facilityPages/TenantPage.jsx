@@ -2,13 +2,14 @@ import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import CreateTenantTenantPage from "../tenantComponents/CreateTenantTenantPage";
+import EditTenant from "../tenantComponents/EditTenant";
 
 export default function TenantPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [editOpen, setEditOpen] = useState(false);
+  const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [tenantIdToDelete, setTenantIdToDelete] = useState([]);
   const containerRef = useRef(null);
@@ -88,6 +89,26 @@ export default function TenantPage({ facilityId }) {
 
   const handleCloseCreate = () => {
     setCreateOpen(false);
+    setOpenDropdown(null);
+  };
+
+  // Close edit modal
+  const handleCloseEdit = () => {
+    setEditOpen(false);
+    setOpenDropdown(null);
+  };
+
+  // Submit edit
+  const handleEditSubmit = (e) => {
+    toast.success("Tenant updated!");
+    setEditOpen(false);
+    const updatedTenants = tenants.map((tenant) => {
+      if (tenant._id === e.data._id) {
+        return { ...tenant, ...e.data };
+      }
+      return tenant;
+    });
+    setTenants(updatedTenants);
     setOpenDropdown(null);
   };
 
@@ -200,8 +221,14 @@ export default function TenantPage({ facilityId }) {
                         >
                           Edit
                         </a>
-
-                        <a
+                        {isEditOpen && (
+                          <EditTenant
+                            tenantId={tenant._id}
+                            onClose={handleCloseEdit}
+                            onSubmit={handleEditSubmit}
+                          />
+                        )}
+                        {/* <a
                           className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                           role="menuitem"
                           tabIndex="-1"
@@ -241,7 +268,7 @@ export default function TenantPage({ facilityId }) {
                               </div>
                             </div>
                           </div>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   )}
