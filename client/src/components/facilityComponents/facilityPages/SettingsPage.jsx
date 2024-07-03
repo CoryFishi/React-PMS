@@ -20,6 +20,9 @@ export default function SettingsPage({ facilityId }) {
 
   return (
     <div className="p-5 text-text-950">
+      <h2 className="text-center text-red-500">
+        Settings not currently implemented...
+      </h2>
       {selectedSetting === null ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {settings.map((setting, index) => (

@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const cors = require("cors");
 
-const { test } = require("../controllers/testController");
-
 const {
   createUser,
   getUsers,
@@ -62,9 +60,6 @@ router.use(
     origin: "http://localhost:5173",
   })
 );
-
-// /
-router.get("/", test);
 
 // /users
 router.get("/users", getUsers);

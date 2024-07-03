@@ -336,11 +336,11 @@ const removeTenant = async (req, res) => {
       unit.availability = true;
       await unit.save();
 
-      // Check if the tenant has any other units left
-      if (tenant.units.length === 0) {
-        await Tenant.findByIdAndDelete(tenantId);
-        return res.status(200).json(unit);
-      }
+      // // Check if the tenant has any other units left
+      // if (tenant.units.length === 0) {
+      //   await Tenant.findByIdAndDelete(tenantId);
+      //   return res.status(200).json(unit);
+      // }
 
       return res.status(200).json(unit);
     } else {

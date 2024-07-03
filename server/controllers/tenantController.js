@@ -153,14 +153,19 @@ const editTenant = async (req, res) => {
 
 // Remove Tenant
 const deleteTenant = async (req, res) => {
-  console.log("DeleteTenant");
-  const tenantId = req.body.tenantId;
+  console.log("Delete Tenant was called");
+  const tenantId = req.query.tenantId;
   if (!tenantId) {
     return res.status(404).json({
       error: "id is required",
     });
   }
   try {
+    // Check if tenant has units
+    const unitsRented = await StorageUnit.find({ tenant: tenantId });
+    if (unitsRented) {
+      return res.status(409).send({ error: "Tenant is associated to unit(s)" });
+    }
     // Delete the tenant
     const result = await Tenant.findByIdAndDelete(tenantId);
     if (result) {

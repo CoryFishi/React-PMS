@@ -8,6 +8,9 @@ export default function TenantPage({ facilityId }) {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [tenantIdToDelete, setTenantIdToDelete] = useState([]);
   const containerRef = useRef(null);
 
   const newCount = tenants.filter((tenants) => tenants.status === "New").length;
@@ -20,6 +23,24 @@ export default function TenantPage({ facilityId }) {
   const delinquentCount = tenants.filter(
     (tenants) => tenants.status === "Delinquent"
   ).length;
+
+  const promptDeleteTenant = (id) => {
+    setTenantIdToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const deleteTenant = async (id) => {
+    try {
+      const response = await axios.delete(`/tenants/delete?tenantId=${id}`);
+      toast.success(response.data.message);
+      setTenants(tenants.filter((tenant) => tenant._id !== id));
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Failed to delete tenant:", error);
+      toast.error(error.response.data.error);
+      setIsDeleteModalOpen(false);
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -175,7 +196,7 @@ export default function TenantPage({ facilityId }) {
                           className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                           role="menuitem"
                           tabIndex="-1"
-                          onClick={() => setEditOpen(unit._id)}
+                          onClick={() => setEditOpen(tenant._id)}
                         >
                           Edit
                         </a>
@@ -184,10 +205,43 @@ export default function TenantPage({ facilityId }) {
                           className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                           role="menuitem"
                           tabIndex="-1"
-                          onClick={() => promptDeleteUnit(unit._id)}
+                          onClick={() => promptDeleteTenant(tenant._id)}
                         >
                           Delete
                         </a>
+                        {isDeleteModalOpen && (
+                          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                            <div className="bg-background-100 p-4 rounded-lg shadow-lg">
+                              <h3 className="text-lg font-bold">
+                                Confirm Delete
+                              </h3>
+                              <p>
+                                Are you sure you want to delete tenant{" "}
+                                {tenant.firstName} {tenant.lastName}?
+                              </p>
+                              <div className="flex justify-end mt-4">
+                                <button
+                                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                                  onClick={() =>
+                                    deleteTenant(tenantIdToDelete) &
+                                    setOpenDropdown(null)
+                                  }
+                                >
+                                  Delete
+                                </button>
+                                <button
+                                  className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                                  onClick={() =>
+                                    setIsDeleteModalOpen(false) &
+                                    setOpenDropdown(null)
+                                  }
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
