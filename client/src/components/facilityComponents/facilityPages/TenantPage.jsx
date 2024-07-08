@@ -170,7 +170,7 @@ export default function TenantPage({ facilityId }) {
                   {tenant.units.length}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {tenant.balance}
+                  ${tenant.balance}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {tenant.status}

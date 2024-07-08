@@ -329,7 +329,7 @@ const removeTenant = async (req, res) => {
 
       // Remove the unit reference from the tenant's units array
       tenant.units = tenant.units.filter((id) => !id.equals(unit._id));
-      await tenant.save();
+      await tenant.save({ validateBeforeSave: false });
 
       // Remove the tenant reference from the unit
       unit.tenant = null;

@@ -18,7 +18,7 @@ export default function CreateTenantUnitPage({
   const [company, setCompany] = useState([]);
   const [address, setAddress] = useState([]);
   const [balance, setBalance] = useState(0);
-  const [status, setStatus] = useState("In Progress");
+  const [status, setStatus] = useState("New");
   const [unitData, setUnitData] = useState([]);
   const [accessCode, setAccessCode] = useState("");
   const [paidInCash, setPaidInCash] = useState(false);
