@@ -3,74 +3,57 @@ import { UserContext } from "../../context/userContext";
 import toast from "react-hot-toast";
 import EditProfile from "../components/userComponents/EditProfile";
 import axios from "axios";
-import Navbar from "../components/Navbar"
+import Navbar from "../components/Navbar";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function UserProfile() {
-  const { user } = useContext(UserContext);
-  const [userContextLoaded, setUserContextLoaded] = useState(false);
-  const [userData, setUserData] = useState([]);
+  const { user, setUser } = useContext(UserContext);
+  const [userData, setUserData] = useState({});
   const [isEditOpen, setEditOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        if (user) {
-          setUserContextLoaded(true);
-          const userData = await userDataCaller(user);
-          setUserData(userData);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        // Handle error if needed
-      }
-    };
-
-    fetchUserData();
+    if (user) {
+      fetchUserData(user);
+    }
   }, [user]);
 
-  // Fetch userData
-  const userDataCaller = async (contextData) => {
+  const fetchUserData = async (contextData) => {
     try {
       const response = await axios.get(
         `/profile/compute?id=${contextData._id}`
       );
-      return response.data;
+      setUserData(response.data);
     } catch (error) {
       console.error("Error fetching user data:", error);
-      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Open edit modal
-  const openEdit = () => {
-    setEditOpen(true);
+  const handleEditToggle = () => {
+    setEditOpen(!isEditOpen);
   };
-  // Close edit modal
-  const handleCloseEdit = () => {
-    setEditOpen(false);
-  };
-  // Update user data
-  function updateUser(userData) {
-    // Update the user data in your context
-    setUser(userData);
-  }
-  const handleSubmit = (e) => {
+
+  const handleUpdateUser = (updatedData) => {
+    setUserData(updatedData.data);
     toast.success("User updated!");
-    updateUser(e.data);
-    // console.log(e.data);
     setEditOpen(false);
   };
+
   return (
     <>
-    <Navbar />
-      <div className="mt-5 flex items-center justify-center w-full">
-        {userContextLoaded ? (
-          <div className="bg-white rounded-xl shadow-lg p-20 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+      <Navbar />
+      <div className="mt-5 flex items-center justify-center w-full px-4">
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="bg-white p-8 text-center w-full max-w-md">
+            <h1 className="text-3xl font-bold text-gray-900 mb-6">
               Your Profile
             </h1>
             <div className="space-y-4">
-              <p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
                 <strong className="font-semibold text-gray-700">
                   Display Name:
                 </strong>
@@ -78,19 +61,19 @@ export default function UserProfile() {
                   {userData.displayName || "N/A"}
                 </span>
               </p>
-              <p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
                 <strong className="font-semibold text-gray-700">Name:</strong>
                 <span className="text-gray-600 ml-2">
                   {userData.name || "N/A"}
                 </span>
               </p>
-              <p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
                 <strong className="font-semibold text-gray-700">Email:</strong>
                 <span className="text-gray-600 ml-2">
                   {userData.email || "N/A"}
                 </span>
               </p>
-              <p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
                 <strong className="font-semibold text-gray-700">
                   Email Confirmed:
                 </strong>
@@ -107,29 +90,56 @@ export default function UserProfile() {
                   </span>
                 </span>
               </p>
-              <p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
                 <strong className="font-semibold text-gray-700">Role:</strong>
                 <span className="text-gray-600 ml-2">
                   {userData.role || "N/A"}
                 </span>
               </p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
+                <strong className="font-semibold text-gray-700">
+                  Company:
+                </strong>
+                <span className="text-gray-600 ml-2">
+                  {userData.company || "N/A"}
+                </span>
+              </p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
+                <strong className="font-semibold text-gray-700">
+                  Facilities:
+                </strong>
+                <span className="text-gray-600 ml-2">
+                  {userData.facilities.length > 0
+                    ? userData.facilities.join(", ")
+                    : "N/A"}
+                </span>
+              </p>
+              <p className="flex justify-between items-center border-b border-gray-200 py-2">
+                <strong className="font-semibold text-gray-700">
+                  Address:
+                </strong>
+                <span className="text-gray-600 ml-2">{`${
+                  userData.address.street1 || "N/A"
+                } ${userData.address.street2 || ""}, ${
+                  userData.address.city || "N/A"
+                }, ${userData.address.state || "N/A"} ${
+                  userData.address.zipCode || "N/A"
+                }`}</span>
+              </p>
               <button
-                className="mt-5 bg-blue-500 text-white font-medium py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-                onClick={openEdit}
+                className="mt-5 bg-blue-600 text-white font-medium py-2 px-6 rounded-full hover:bg-blue-700 transition duration-300 shadow-md"
+                onClick={handleEditToggle}
               >
                 Edit Profile
               </button>
             </div>
           </div>
-        ) : (
-          // Render a loading indicator or placeholder content while waiting for user context
-          <p>Loading...</p>
         )}
         {isEditOpen && (
           <EditProfile
             user={userData}
-            onClose={handleCloseEdit}
-            onSubmit={handleSubmit}
+            onClose={handleEditToggle}
+            onSubmit={handleUpdateUser}
           />
         )}
       </div>
