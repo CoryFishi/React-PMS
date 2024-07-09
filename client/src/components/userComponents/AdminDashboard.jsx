@@ -3,6 +3,8 @@ import FacilityTable from "../facilityComponents/FacilityTable";
 import UserTable from "../userComponents/UserTable";
 import AdminFacility from "../facilityComponents/AdminFacility";
 import { useState, useEffect } from "react";
+import { FaBars, FaUsers, FaBuilding, FaIndustry, FaCog } from "react-icons/fa";
+import Navbar from "../Navbar"; // Make sure the path to Navbar is correct
 
 export default function AdminDashboard() {
   const [openDashboard, setOpenDashboard] = useState(
@@ -11,6 +13,7 @@ export default function AdminDashboard() {
   const [facilityName, setFacilityName] = useState(
     localStorage.getItem("selectedFacilityName") || "Facility Dashboard"
   );
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     const updateFacilityName = () => {
@@ -38,44 +41,60 @@ export default function AdminDashboard() {
   }, [openDashboard]);
 
   return (
-    <>
-      <div className="flex w-full overflow-hidden h-full">
-        <div className="w-1/6 flex flex-col items-center bg-background-50 h-auto border-r border-background-100">
-          <h2 className="text-center text-xl font-bold m-3 text-text-950">
-            Configuration
-          </h2>
+    <div className="flex flex-col w-full h-full overflow-hidden">
+      <Navbar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+      <div className="flex flex-row w-full h-full">
+        <div
+          className={`${
+            isCollapsed ? "w-16" : "w-1/6"
+          } flex flex-col items-center bg-background-50 h-auto border-r border-background-100 transition-width duration-3000`}
+        >
+          {!isCollapsed && (
+            <h2 className="text-center text-xl font-bold mt-3 text-text-950">
+              Configuration
+            </h2>
+          )}
           <button
-            className="block w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2"
+            className="mt-3 w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 flex items-center justify-center"
             onClick={() => setOpenDashboard("users")}
           >
-            Users
+            <FaUsers />
+            {!isCollapsed && <span className="ml-2">Users</span>}
           </button>
           <button
-            className="block w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2"
+            className=" w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 flex items-center justify-center"
             onClick={() => setOpenDashboard("companies")}
           >
-            Companies
+            <FaBuilding />
+            {!isCollapsed && <span className="ml-2">Companies</span>}
           </button>
           <button
-            className="block w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2"
+            className=" w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 flex items-center justify-center"
             onClick={() => setOpenDashboard("facilities")}
           >
-            Facilities
+            <FaIndustry />
+            {!isCollapsed && <span className="ml-2">Facilities</span>}
           </button>
+          {!isCollapsed && (
+            <h2 className="text-center text-xl font-bold mt-3 text-text-950">
+              Facility Management
+            </h2>
+          )}
           <button
-            className="block w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 mt-5"
+            className=" w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 mt-5 flex items-center justify-center"
             onClick={() => setOpenDashboard("facility")}
           >
-            {facilityName}
+            <FaCog />
+            {!isCollapsed && <span className="ml-2">{facilityName}</span>}
           </button>
         </div>
-        <div className="w-5/6 h-full overflow-auto bg-background-50">
+        <div className="w-full h-full overflow-auto bg-background-50">
           {openDashboard === "users" && <UserTable />}
           {openDashboard === "companies" && <CompanyTable />}
           {openDashboard === "facilities" && <FacilityTable />}
           {openDashboard === "facility" && <AdminFacility />}
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -44,7 +44,6 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col h-screen">
-      <Navbar />
       <div className="flex flex-grow flex-col items-center w-full">
         {userContextLoaded ? (
           userData.role === "System_Admin" ? (

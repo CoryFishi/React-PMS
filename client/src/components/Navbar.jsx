@@ -4,10 +4,10 @@ import { UserContext } from "../../context/userContext";
 import Cookies from "universal-cookie";
 import { AiFillCode } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import { RiMoonClearFill } from "react-icons/ri";
-import { RiSunFill } from "react-icons/ri";
+import { RiMoonClearFill, RiSunFill } from "react-icons/ri";
+import { FaBars } from "react-icons/fa";
 
-export default function Navbar() {
+export default function Navbar({ isCollapsed, setIsCollapsed }) {
   const cookies = new Cookies();
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
@@ -44,6 +44,12 @@ export default function Navbar() {
     <nav className="bg-background-50 p-4 w-full border-background-200 border-b">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-shrink-0 text-text-950 mr-6">
+          <button
+            className="block p-3 text-black font-semibold rounded-2xl hover:bg-background-100 mr-4"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            <FaBars />
+          </button>
           <span className="font-semibold text-xl flex items-center">
             <AiFillCode />
             SafeManager
@@ -53,7 +59,7 @@ export default function Navbar() {
           <Link
             to="/"
             className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
-            >
+          >
             Home
           </Link>
           {isLoggedIn && (
@@ -88,7 +94,10 @@ export default function Navbar() {
             </Link>
           )}
           <div className="flex items-center">
-            <label htmlFor="dark-mode-toggle" className="text-text-950 hover:bg-secondary px-3 py-2 rounded-md text-sm font-medium">
+            <label
+              htmlFor="dark-mode-toggle"
+              className="text-text-950 hover:bg-secondary px-3 py-2 rounded-md text-sm font-medium"
+            >
               {isDarkMode ? <RiMoonClearFill /> : <RiSunFill />}
             </label>
             <input

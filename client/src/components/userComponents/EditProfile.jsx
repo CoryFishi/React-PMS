@@ -47,7 +47,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-10 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
-        <h2 className="text-xl font-bold mb-4">Editing {user._id}</h2>
+        <h2 className="text-xl font-bold mb-4">Editing Profile</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>

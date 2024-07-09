@@ -52,6 +52,9 @@ export default function AdminFacility() {
   return (
     <>
       <div className="flex justify-end">
+        <label htmlFor="company" className="mt-3 px-3 py-2">
+          Company:
+        </label>
         <select
           name="company"
           id="company"
@@ -72,6 +75,9 @@ export default function AdminFacility() {
             </option>
           ))}
         </select>
+        <label htmlFor="facility" className="mt-3 px-3 py-2">
+          Facility:
+        </label>
         <select
           name="facility"
           id="facility"
