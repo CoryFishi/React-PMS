@@ -11,7 +11,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
     city: user.address.city || "",
     state: user.address.state || "",
     zipCode: user.address.zipCode || "",
-    country: user.address.country || "USA",
+    country: user.address.country || "",
   });
 
   const handleSubmit = async () => {
@@ -19,7 +19,30 @@ export default function EditProfile({ user, onClose, onSubmit }) {
       const submittedName = newName.trim() === "" ? user.name : newName;
       const submittedDisplayName =
         newDisplayName.trim() === "" ? user.displayName : newDisplayName;
-      const submittedAddress = newAddress;
+      const submittedAddress = {
+        street1:
+          newAddress.street1.trim() === ""
+            ? user.address.street1
+            : newAddress.street1,
+        street2:
+          newAddress.street2.trim() === ""
+            ? user.address.street2
+            : newAddress.street2,
+        city:
+          newAddress.city.trim() === "" ? user.address.city : newAddress.city,
+        state:
+          newAddress.state.trim() === ""
+            ? user.address.state
+            : newAddress.state,
+        zipCode:
+          newAddress.zipCode.trim() === ""
+            ? user.address.zipCode
+            : newAddress.zipCode,
+        country:
+          newAddress.country.trim() === ""
+            ? user.address.country
+            : newAddress.country,
+      };
 
       const response = await axios.put(`/users/update`, {
         userId: user._id,

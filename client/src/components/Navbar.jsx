@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../../context/userContext";
 import Cookies from "universal-cookie";
@@ -11,6 +11,7 @@ export default function Navbar({ isCollapsed, setIsCollapsed }) {
   const cookies = new Cookies();
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
+  const location = useLocation();
 
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -44,13 +45,19 @@ export default function Navbar({ isCollapsed, setIsCollapsed }) {
     <nav className="bg-background-50 p-4 w-full border-background-200 border-b">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-shrink-0 text-text-950 mr-6">
-          <button
-            className="block p-3 text-black font-semibold rounded-2xl hover:bg-background-100 mr-4"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+          {location.pathname === "/dashboard" && (
+            <button
+              className="block p-3 text-black font-semibold rounded-3xl hover:bg-background-100 mr-4"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+            >
+              <FaBars />
+            </button>
+          )}
+          <span
+            className={`${
+              location.pathname === "/dashboard" ? "ml-1" : "ml-5"
+            } font-semibold text-xl flex items-center`}
           >
-            <FaBars />
-          </button>
-          <span className="font-semibold text-xl flex items-center">
             <AiFillCode />
             SafeManager
           </span>

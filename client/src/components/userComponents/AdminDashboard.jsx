@@ -4,6 +4,8 @@ import UserTable from "../userComponents/UserTable";
 import AdminFacility from "../facilityComponents/AdminFacility";
 import { useState, useEffect } from "react";
 import { FaBars, FaUsers, FaBuilding, FaIndustry, FaCog } from "react-icons/fa";
+import { HiMiniBuildingOffice2 } from "react-icons/hi2";
+import { HiMiniBuildingOffice } from "react-icons/hi2";
 import Navbar from "../Navbar"; // Make sure the path to Navbar is correct
 
 export default function AdminDashboard() {
@@ -65,14 +67,15 @@ export default function AdminDashboard() {
             className=" w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 flex items-center justify-center"
             onClick={() => setOpenDashboard("companies")}
           >
-            <FaBuilding />
+            <HiMiniBuildingOffice2 />
             {!isCollapsed && <span className="ml-2">Companies</span>}
           </button>
           <button
             className=" w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 flex items-center justify-center"
             onClick={() => setOpenDashboard("facilities")}
           >
-            <FaIndustry />
+            <HiMiniBuildingOffice />
+
             {!isCollapsed && <span className="ml-2">Facilities</span>}
           </button>
           {!isCollapsed && (
