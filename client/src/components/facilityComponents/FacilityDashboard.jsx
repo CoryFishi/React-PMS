@@ -30,7 +30,7 @@ export default function FacilityDashboard({ facilityId }) {
         <h3>{facilityData.status}</h3>
       </div>
 
-      <div className="w-full p-1 flex justify-center items-center mb-2 text-text-950 space-x-24">
+      <div className="bg-background-100 w-full p-1 flex justify-center items-center mb-2 text-text-950 space-x-24">
         <button
           className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
             page === "units" ? "underline" : ""

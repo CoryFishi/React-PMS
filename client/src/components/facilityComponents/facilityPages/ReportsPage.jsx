@@ -10,7 +10,10 @@ export default function ReportsPage({ facilityId }) {
   const [selectedReport, setSelectedReport] = useState(null);
 
   const reports = [
-    { name: "Unit List", component: <UnitDetailReport /> },
+    {
+      name: "Unit List**",
+      component: <UnitDetailReport facilityId={facilityId} />,
+    },
     { name: "Tenant List", component: <TenantDetailReport /> },
     { name: "Delinquent Tenants", component: <DelinquencyReport /> },
     { name: "Vacancy List", component: <VacancyReport /> },
@@ -20,9 +23,6 @@ export default function ReportsPage({ facilityId }) {
 
   return (
     <div className="p-5 text-text-950">
-      <h2 className="text-center text-red-500">
-        Reports not currently implemented...
-      </h2>
       {selectedReport === null ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {reports.map((report, index) => (

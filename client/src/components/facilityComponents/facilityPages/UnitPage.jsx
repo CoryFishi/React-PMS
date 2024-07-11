@@ -152,7 +152,7 @@ export default function UnitPage({ facilityId }) {
   };
 
   return (
-    <>
+    <div className="p-4 bg-white rounded-lg shadow-md mx-2">
       {isCreateOpen && (
         <CreateUnit
           onClose={handleCloseCreate}
@@ -208,7 +208,7 @@ export default function UnitPage({ facilityId }) {
             {Object.values(units).map((unit) => (
               <tr
                 key={unit._id}
-                className="border-b bg-background-50 rounded text-text-950"
+                className="border-b bg-white rounded text-text-950"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {unit.unitNumber}
@@ -445,6 +445,6 @@ export default function UnitPage({ facilityId }) {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }

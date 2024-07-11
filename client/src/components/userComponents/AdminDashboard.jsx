@@ -3,10 +3,11 @@ import FacilityTable from "../facilityComponents/FacilityTable";
 import UserTable from "../userComponents/UserTable";
 import AdminFacility from "../facilityComponents/AdminFacility";
 import { useState, useEffect } from "react";
-import { FaBars, FaUsers, FaBuilding, FaIndustry, FaCog } from "react-icons/fa";
-import { HiMiniBuildingOffice2 } from "react-icons/hi2";
-import { HiMiniBuildingOffice } from "react-icons/hi2";
-import Navbar from "../Navbar"; // Make sure the path to Navbar is correct
+import { FaUsers, FaCog } from "react-icons/fa";
+import { BsBuildingsFill } from "react-icons/bs";
+import { BsFillBuildingFill } from "react-icons/bs";
+
+import Navbar from "../Navbar";
 
 export default function AdminDashboard() {
   const [openDashboard, setOpenDashboard] = useState(
@@ -67,15 +68,14 @@ export default function AdminDashboard() {
             className=" w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 flex items-center justify-center"
             onClick={() => setOpenDashboard("companies")}
           >
-            <HiMiniBuildingOffice2 />
+            <BsBuildingsFill />
             {!isCollapsed && <span className="ml-2">Companies</span>}
           </button>
           <button
             className=" w-4/5 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 flex items-center justify-center"
             onClick={() => setOpenDashboard("facilities")}
           >
-            <HiMiniBuildingOffice />
-
+            <BsFillBuildingFill />
             {!isCollapsed && <span className="ml-2">Facilities</span>}
           </button>
           {!isCollapsed && (

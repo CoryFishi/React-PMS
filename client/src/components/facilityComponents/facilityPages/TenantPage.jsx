@@ -113,7 +113,7 @@ export default function TenantPage({ facilityId }) {
   };
 
   return (
-    <>
+    <div className="p-4 bg-white rounded-lg shadow-md mx-2">
       {isCreateOpen && (
         <CreateTenantTenantPage
           onClose={handleCloseCreate}
@@ -161,7 +161,7 @@ export default function TenantPage({ facilityId }) {
             {Object.values(tenants).map((tenant) => (
               <tr
                 key={tenant._id}
-                className="border-b bg-background-50 rounded text-text-950"
+                className="border-b bg-white rounded text-text-950"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {tenant.firstName} {tenant.lastName}
@@ -278,6 +278,6 @@ export default function TenantPage({ facilityId }) {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }
