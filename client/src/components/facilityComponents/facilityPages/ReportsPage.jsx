@@ -14,9 +14,18 @@ export default function ReportsPage({ facilityId }) {
       name: "Unit List**",
       component: <UnitDetailReport facilityId={facilityId} />,
     },
-    { name: "Tenant List", component: <TenantDetailReport /> },
-    { name: "Delinquent Tenants", component: <DelinquencyReport /> },
-    { name: "Vacancy List", component: <VacancyReport /> },
+    {
+      name: "Tenant List**",
+      component: <TenantDetailReport facilityId={facilityId} />,
+    },
+    {
+      name: "Delinquent Tenants**",
+      component: <DelinquencyReport facilityId={facilityId} />,
+    },
+    {
+      name: "Vacancy List**",
+      component: <VacancyReport facilityId={facilityId} />,
+    },
     { name: "Payments", component: <PaymentsReport /> },
     { name: "Application Events", component: <ApplicationEventsReport /> },
   ];
