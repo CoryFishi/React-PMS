@@ -62,7 +62,7 @@ export default function VacancyReport({ facilityId }) {
     <div className="p-4 bg-white rounded-lg shadow-md">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold">Unit Detail Report</h2>
+          <h2 className="text-xl font-bold">Vacancy Report</h2>
           <p className="mb-2">See your detailed report below...</p>
         </div>
         <button

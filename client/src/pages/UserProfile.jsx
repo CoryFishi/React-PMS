@@ -42,13 +42,13 @@ export default function UserProfile() {
   };
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-background-50 w-full overflow-hidden">
       <Navbar />
-      <div className="mt-5 flex items-center justify-center w-full px-4">
+      <div className="flex-grow flex items-center justify-center w-full px-4 ">
         {isLoading ? (
           <LoadingSpinner />
         ) : (
-          <div className="bg-white p-8 text-center w-full max-w-md">
+          <div className="bg-background-50 p-8 text-center w-full max-w-md shadow-lg bg-white rounded-lg">
             <h1 className="text-3xl font-bold text-gray-900 mb-6">
               Your Profile
             </h1>
@@ -143,6 +143,6 @@ export default function UserProfile() {
           />
         )}
       </div>
-    </>
+    </div>
   );
 }

@@ -121,7 +121,7 @@ export default function TenantPage({ facilityId }) {
           facilityId={facilityId}
         />
       )}
-      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
+      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950 rounded-lg">
         <p className="text-sm">New: {newCount}</p>
         <p className="text-sm">In Progress: {inProgressCount}</p>
         <p className="text-sm">Rented: {rentedCount}</p>

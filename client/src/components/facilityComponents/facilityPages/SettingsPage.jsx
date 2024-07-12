@@ -28,7 +28,7 @@ export default function SettingsPage({ facilityId }) {
           {settings.map((setting, index) => (
             <button
               key={index}
-              className="p-10 bg-white rounded-lg shadow-md text-xl font-bold flex justify-center items-center h-48 hover:bg-gray-200"
+              className="p-10 bg-background-50 rounded-lg shadow-lg text-xl font-bold flex justify-center items-center h-48 hover:bg-gray-200"
               onClick={() => setSelectedSetting(index)}
             >
               {setting.name}

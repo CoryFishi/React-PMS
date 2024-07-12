@@ -12,6 +12,9 @@ export default function UserTable() {
   const rootUser = user;
   // Users
   const [users, setUsers] = useState([]);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   // Open/close dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
   // Edit user popup
@@ -145,9 +148,20 @@ export default function UserTable() {
     setOpenDropdown(null);
   };
 
+  // Calculate the indices of the users to display on the current page
+  const indexOfLastUser = currentPage * itemsPerPage;
+  const indexOfFirstUser = indexOfLastUser - itemsPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Function to handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+
   return (
     <>
-      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
+      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950 rounded-lg">
         <h2 className="text-xl font-bold">User Statistics</h2>
         <p className="text-sm">Sys-Admins: {systemAdminCount}</p>
         <p className="text-sm">Sys-Users: {systemUserCount}</p>
@@ -167,8 +181,8 @@ export default function UserTable() {
       {isCreateOpen && (
         <CreateUser onClose={handleCloseCreate} onSubmit={handleCreateSubmit} />
       )}
-      <div className="container mx-auto px-4 mb-5">
-        <table className="min-w-full table-auto bg-background-100">
+      <div className="container mx-auto p-4 mb-5 shadow-lg rounded-lg bg-white">
+        <table className="min-w-full table-auto bg-background-100 rounded-md">
           <thead>
             <tr>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
@@ -195,10 +209,10 @@ export default function UserTable() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {users.map((user) => (
+            {currentUsers.map((user) => (
               <tr
                 key={user._id}
-                className="border-b bg-background-50 rounded text-text-950"
+                className="border-b bg-white rounded text-text-950"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {user.displayName}
@@ -326,6 +340,32 @@ export default function UserTable() {
             ))}
           </tbody>
         </table>
+
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {"<"}
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`mx-1 px-3 py-1 rounded text-primary-500}`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {">"}
+          </button>
+        </div>
       </div>
     </>
   );

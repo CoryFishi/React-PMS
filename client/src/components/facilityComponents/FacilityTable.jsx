@@ -6,11 +6,14 @@ import CreateFacility from "./CreateFacility";
 
 export default function FacilityTable() {
   // Facilities
-  const [facilities, setFacilities] = useState({});
+  const [facilities, setFacilities] = useState([]);
   // Facility's Units
   const [units, setUnits] = useState(0);
   // Open/close dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   // Ref so actions menu closes on outside click
   const containerRef = useRef(null);
   // Edit Facility popup
@@ -18,7 +21,8 @@ export default function FacilityTable() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [facilityIdToDelete, setFacilityIdToDelete] = useState(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
-  const promptDeleteUser = (id) => {
+
+  const promptDeleteFacility = (id) => {
     setFacilityIdToDelete(id);
     setIsDeleteModalOpen(true);
   };
@@ -36,6 +40,7 @@ export default function FacilityTable() {
     setFacilities(updatedFacilities);
     setOpenDropdown(null);
   };
+
   // Update users table on change
   useEffect(() => {
     axios.get("/facilities&company").then(({ data }) => {
@@ -53,6 +58,7 @@ export default function FacilityTable() {
       setUnits(totalUnits);
     });
   }, []);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -68,8 +74,9 @@ export default function FacilityTable() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openDropdown]);
+
   // Delete selected user
-  const deleteUser = async (id) => {
+  const deleteFacility = async (id) => {
     try {
       const response = await axios.delete(
         `/facilities/delete?facilityId=${id}`
@@ -84,19 +91,23 @@ export default function FacilityTable() {
       setIsDeleteModalOpen(false); // Close the modal on error as well
     }
   };
+
   // Open/close actions drop down
   const toggleDropdown = (facilityId) => {
     setOpenDropdown(openDropdown === facilityId ? null : facilityId);
   };
+
   // Close edit modal
   const handleCloseEdit = () => {
     setEditOpen(false);
     setOpenDropdown(null);
   };
+
   const handleCloseCreate = () => {
     setCreateOpen(false);
     setOpenDropdown(null);
   };
+
   // Submit create=
   const handleCreateSubmit = (e) => {
     toast.success("Facility created!");
@@ -135,6 +146,21 @@ export default function FacilityTable() {
       toast.error(error.response.data.error);
     }
   };
+
+  // Calculate the indices of the users to display on the current page
+  const indexOfLastFacility = currentPage * itemsPerPage;
+  const indexOfFirstFacility = indexOfLastFacility - itemsPerPage;
+  const currentFacilities = facilities.slice(
+    indexOfFirstFacility,
+    indexOfLastFacility
+  );
+
+  // Function to handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(facilities.length / itemsPerPage);
+
   return (
     <>
       <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
@@ -142,7 +168,7 @@ export default function FacilityTable() {
         <p className="text-sm">
           Pending Deployment:{" "}
           {
-            Object.values(facilities).filter(
+            facilities.filter(
               (facility) => facility.status === "Pending Deployment"
             ).length
           }
@@ -150,17 +176,15 @@ export default function FacilityTable() {
         <p className="text-sm">
           Enabled:{" "}
           {
-            Object.values(facilities).filter(
-              (facility) => facility.status === "Enabled"
-            ).length
+            facilities.filter((facility) => facility.status === "Enabled")
+              .length
           }
         </p>
         <p className="text-sm">
           Maintenance:{" "}
           {
-            Object.values(facilities).filter(
-              (facility) => facility.status === "Maintenance"
-            ).length
+            facilities.filter((facility) => facility.status === "Maintenance")
+              .length
           }
         </p>
         <p className="text-sm">Total Units: {units}</p>
@@ -181,8 +205,8 @@ export default function FacilityTable() {
           onSubmit={handleCreateSubmit}
         />
       )}
-      <div className="container mx-auto px-4 mb-5">
-        <table className="min-w-full table-auto bg-background-100">
+      <div className="container mx-auto p-4 mb-5 shadow-lg rounded-lg bg-white">
+        <table className="min-w-full table-auto bg-background-100 rounded-md">
           <thead>
             <tr>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
@@ -209,10 +233,10 @@ export default function FacilityTable() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {Object.values(facilities).map((facility) => (
+            {currentFacilities.map((facility) => (
               <tr
                 key={facility._id}
-                className="border-b bg-background-50 rounded text-text-950"
+                className="border-b bg-white rounded text-text-950"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {facility.facilityName}
@@ -228,7 +252,6 @@ export default function FacilityTable() {
                   , {facility.address.city}, {facility.address.state}{" "}
                   {facility.address.zipCode}
                 </td>
-
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {facility?.manager?.name ?? "-"}
                 </td>
@@ -302,7 +325,7 @@ export default function FacilityTable() {
                             className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                             role="menuitem"
                             tabIndex="-1"
-                            onClick={() => promptDeleteUser(facility._id)}
+                            onClick={() => promptDeleteFacility(facility._id)}
                           >
                             Delete
                           </a>
@@ -319,7 +342,7 @@ export default function FacilityTable() {
                                   <button
                                     className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
                                     onClick={() =>
-                                      deleteUser(facilityIdToDelete)
+                                      deleteFacility(facilityIdToDelete)
                                     }
                                   >
                                     Delete
@@ -346,6 +369,31 @@ export default function FacilityTable() {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {"<"}
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`mx-1 px-3 py-1 rounded text-primary-500}`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {">"}
+          </button>
+        </div>
       </div>
     </>
   );

@@ -11,33 +11,33 @@ export default function ReportsPage({ facilityId }) {
 
   const reports = [
     {
-      name: "Unit List**",
+      name: "Unit List",
       component: <UnitDetailReport facilityId={facilityId} />,
     },
     {
-      name: "Tenant List**",
+      name: "Tenant List",
       component: <TenantDetailReport facilityId={facilityId} />,
     },
     {
-      name: "Delinquent Tenants**",
+      name: "Delinquent Tenants",
       component: <DelinquencyReport facilityId={facilityId} />,
     },
     {
-      name: "Vacancy List**",
+      name: "Vacancy List",
       component: <VacancyReport facilityId={facilityId} />,
     },
-    { name: "Payments", component: <PaymentsReport /> },
-    { name: "Application Events", component: <ApplicationEventsReport /> },
+    { name: "Payments**", component: <PaymentsReport /> },
+    { name: "Application Events**", component: <ApplicationEventsReport /> },
   ];
 
   return (
     <div className="p-5 text-text-950">
       {selectedReport === null ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {reports.map((report, index) => (
             <button
               key={index}
-              className="p-10 bg-white rounded-lg shadow-md text-xl font-bold flex justify-center items-center h-48 hover:bg-gray-200"
+              className="p-10 bg-white rounded-lg shadow-lg text-xl font-bold flex justify-center items-center h-48 hover:bg-gray-200"
               onClick={() => setSelectedReport(index)}
             >
               {report.name}

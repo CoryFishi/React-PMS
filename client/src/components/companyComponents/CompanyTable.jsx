@@ -5,21 +5,26 @@ import EditCompany from "../companyComponents/EditCompany";
 import CreateCompany from "./CreateCompany";
 
 export default function CompanyTable() {
-  // companies
-  const [companies, setCompanies] = useState({});
+  // Companies
+  const [companies, setCompanies] = useState([]);
   // Open/close dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
   // Ref so actions menu closes on outside click
   const containerRef = useRef(null);
-  // Edit Facility popup
+  // Edit Company popup
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [companyIdToDelete, setCompanyIdToDelete] = useState(null);
+  const [isCreateOpen, setCreateOpen] = useState(false);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
   const promptdeleteCompany = (id) => {
     setCompanyIdToDelete(id);
     setIsDeleteModalOpen(true);
   };
-  const [isCreateOpen, setCreateOpen] = useState(false);
+
   // Submit edit
   const handleSubmit = (e) => {
     toast.success("Company updated!");
@@ -33,12 +38,14 @@ export default function CompanyTable() {
     setCompanies(updatedCompanies);
     setOpenDropdown(null);
   };
-  // Update users table on change
+
+  // Update companies table on change
   useEffect(() => {
     axios.get("/companies").then(({ data }) => {
       setCompanies(data);
     });
   }, []);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -54,6 +61,7 @@ export default function CompanyTable() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openDropdown]);
+
   // Delete selected company
   const deleteCompany = async (id) => {
     try {
@@ -69,20 +77,24 @@ export default function CompanyTable() {
       setOpenDropdown(null);
     }
   };
+
   // Open/close actions drop down
   const toggleDropdown = (companyId) => {
     setOpenDropdown(openDropdown === companyId ? null : companyId);
   };
+
   // Close edit modal
   const handleCloseEdit = () => {
     setEditOpen(false);
     setOpenDropdown(null);
   };
+
   const handleCloseCreate = () => {
     setCreateOpen(false);
     setOpenDropdown(null);
   };
-  // Submit create=
+
+  // Submit create
   const handleCreateSubmit = (e) => {
     toast.success("Company created!");
     setCreateOpen(false);
@@ -90,6 +102,20 @@ export default function CompanyTable() {
     setCompanies(updatedCompanies);
     setOpenDropdown(null);
   };
+
+  // Calculate the indices of the companies to display on the current page
+  const indexOfLastCompany = currentPage * itemsPerPage;
+  const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
+  const currentCompanies = companies.slice(
+    indexOfFirstCompany,
+    indexOfLastCompany
+  );
+
+  // Function to handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(companies.length / itemsPerPage);
 
   return (
     <>
@@ -112,8 +138,8 @@ export default function CompanyTable() {
           onSubmit={handleCreateSubmit}
         />
       )}
-      <div className="container mx-auto px-4 mb-5">
-        <table className="min-w-full table-auto bg-background-100">
+      <div className="container mx-auto p-4 mb-5 shadow-lg rounded-lg bg-white">
+        <table className="min-w-full table-auto bg-background-100 rounded-md">
           <thead>
             <tr>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
@@ -134,10 +160,10 @@ export default function CompanyTable() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {Object.values(companies).map((company) => (
+            {currentCompanies.map((company) => (
               <tr
                 key={company._id}
-                className="border-b bg-background-50 rounded text-text-950"
+                className="border-b bg-white rounded text-text-950"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {company.companyName}
@@ -254,6 +280,31 @@ export default function CompanyTable() {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {"<"}
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`mx-1 px-3 py-1 rounded text-primary-500}`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {">"}
+          </button>
+        </div>
       </div>
     </>
   );

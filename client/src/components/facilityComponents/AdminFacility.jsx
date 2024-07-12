@@ -66,7 +66,7 @@ export default function AdminFacility() {
             localStorage.removeItem("selectedFacilityName")
           }
           style={{ width: "17rem" }}
-          className="text-black m-3 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className=" text-black m-3 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
           <option value="">Select a company</option>
           {companies.map((company) => (

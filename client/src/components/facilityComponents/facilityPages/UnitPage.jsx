@@ -161,7 +161,7 @@ export default function UnitPage({ facilityId }) {
         />
       )}
 
-      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
+      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950 rounded-lg">
         <p className="text-sm">Rented: {rentedCount}</p>
         <p className="text-sm">Vacant: {vacantCount}</p>
         <p className="text-sm">Total: {units.length}</p>
