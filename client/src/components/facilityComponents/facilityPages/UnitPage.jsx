@@ -34,7 +34,7 @@ export default function UnitPage({ facilityId }) {
   };
 
   const rentedCount = units.filter(
-    (units) => units.availability === false
+    (unit) => unit.availability === false
   ).length;
 
   const vacantCount = units.filter(
@@ -149,7 +149,7 @@ export default function UnitPage({ facilityId }) {
   };
 
   const refreshUnitTable = async (facilityId) => {
-    axios.get(`/facilities/units/${facility}`).then(({ data }) => {
+    axios.get(`/facilities/units/${facilityId}`).then(({ data }) => {
       setUnits(data.units);
     });
   };

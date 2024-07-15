@@ -88,11 +88,20 @@ const getTenants = async (req, res) => {
       const tenantIds = [...new Set(units.map((unit) => unit.tenant))];
 
       // Retrieve tenant information from the Tenant collection using the unique tenant IDs
-      tenants = await Tenant.find({ _id: { $in: tenantIds } });
+      tenants = await Tenant.find({ _id: { $in: tenantIds } }).sort({
+        firstNameName: 1,
+        lastName: 1,
+      });
     } else if (companyId) {
-      tenants = await Tenant.find({ company: companyId });
+      tenants = await Tenant.find({ company: companyId }).sort({
+        firstNameName: 1,
+        lastName: 1,
+      });
     } else {
-      tenants = await Tenant.find({});
+      tenants = await Tenant.find({}).sort({
+        firstNameName: 1,
+        lastName: 1,
+      });
     }
 
     // Return the list of tenants

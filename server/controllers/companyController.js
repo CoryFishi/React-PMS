@@ -33,7 +33,7 @@ const createCompany = async (req, res) => {
 // Get all companies
 const getCompanies = async (req, res) => {
   try {
-    const companies = await Company.find({});
+    const companies = await Company.find({}).sort({ companyName: 1 });
     res.status(200).json(companies);
   } catch (error) {
     console.error(

@@ -357,7 +357,7 @@ const getUnits = async (req, res) => {
   try {
     var facilityWithUnits = [];
     if (!facilityId) {
-      facilityWithUnits = await StorageUnit.find({});
+      facilityWithUnits = await StorageUnit.find({}).sort({ unitNumber: 1 });
       if (!facilityWithUnits) {
         return res.status(404).send({ message: "No units found" });
       }
@@ -365,17 +365,18 @@ const getUnits = async (req, res) => {
         units: facilityWithUnits,
       });
     } else {
-      facilityWithUnits = await StorageFacility.findById(facilityId)
+      facilityWithUnits = await StorageUnit.find({ facility: facilityId })
         .populate({
-          path: "units",
-          populate: { path: "tenant" },
+          path: "tenant",
+          model: "Tenant",
         })
+        .sort({ unitNumber: 1 })
         .exec();
       if (!facilityWithUnits) {
         return res.status(404).send({ message: "Facility not found" });
       }
       res.status(200).json({
-        units: facilityWithUnits.units,
+        units: facilityWithUnits,
       });
     }
   } catch (error) {
@@ -395,6 +396,7 @@ const getVacantUnits = async (req, res) => {
         path: "units",
         match: { availability: true },
       })
+      .sort({ unitNumber: 1 })
       .exec();
     if (!facilityWithUnits) {
       return res.status(404).send({ message: "Facility not found" });
@@ -412,7 +414,7 @@ const getVacantUnits = async (req, res) => {
 
 // Get all Facilities
 const getFacilities = async (req, res) => {
-  const facilities = await StorageFacility.find({});
+  const facilities = await StorageFacility.find({}).sort({ facilityName: 1 });
   res.status(200).json({ facilities });
 };
 
@@ -422,11 +424,13 @@ const getFacilitiesAndCompany = async (req, res) => {
     if (req.query.company) {
       facilities = await StorageFacility.find({ company: req.query.company })
         .populate("company", "companyName")
-        .populate("manager", "name");
+        .populate("manager", "name")
+        .sort({ facilityName: 1 });
     } else {
       facilities = await StorageFacility.find({})
         .populate("company", "companyName")
-        .populate("manager", "name");
+        .populate("manager", "name")
+        .sort({ facilityName: 1 });
     }
     res.status(200).json({ facilities });
   } catch (error) {

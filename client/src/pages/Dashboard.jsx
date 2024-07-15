@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/userContext";
-import UserDashboard from "../components/userComponents/UserDashboard";
+import UserAdminDashboard from "../components/userComponents/UserAdminDashboard";
 import AdminDashboard from "../components/userComponents/AdminDashboard";
 import Navbar from "../components/Navbar";
 import NotFound from "../components/NotFound";
@@ -48,8 +48,8 @@ export default function Dashboard() {
         {userContextLoaded ? (
           userData.role === "System_Admin" ? (
             <AdminDashboard />
-          ) : userData.role ? (
-            <UserDashboard />
+          ) : userData.role === "Company_Admin" ? (
+            <UserAdminDashboard />
           ) : (
             <p>Role not recognized or user data incomplete</p>
           )

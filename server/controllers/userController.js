@@ -28,6 +28,7 @@ const createUser = async (req, res) => {
       company,
       facilities,
       phone,
+      createdBy,
     } = req.body;
 
     // Check for account if not a system account
@@ -60,6 +61,7 @@ const createUser = async (req, res) => {
       facilities,
       role,
       phone,
+      createdBy,
     });
     const userWithCompany = await User.findById(user._id).populate(
       "company",
@@ -536,7 +538,9 @@ const getUsersByCompany = async (req, res) => {
 
 // Get all Users
 const getUsers = async (req, res) => {
-  const users = await User.find({}).populate("company", "companyName");
+  const users = await User.find({})
+    .populate("company", "companyName")
+    .sort({ displayName: 1 });
   res.status(200).json(users);
 };
 

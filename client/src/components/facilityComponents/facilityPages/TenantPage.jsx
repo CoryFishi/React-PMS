@@ -28,6 +28,11 @@ export default function TenantPage({ facilityId }) {
     (tenants) => tenants.status === "Delinquent"
   ).length;
 
+  const totalOutstandingBalance = tenants.reduce(
+    (total, tenant) => total + tenant.balance,
+    0
+  );
+
   const promptDeleteTenant = (id) => {
     setTenantIdToDelete(id);
     setIsDeleteModalOpen(true);
@@ -141,6 +146,9 @@ export default function TenantPage({ facilityId }) {
         <p className="text-sm">Rented: {rentedCount}</p>
         <p className="text-sm">Delinquent: {delinquentCount}</p>
         <p className="text-sm">Total: {tenants.length}</p>
+        <p className="text-sm">
+          Total Outstanding Balance: ${totalOutstandingBalance}
+        </p>
       </div>
       <div className="flex justify-end">
         <button
