@@ -120,6 +120,7 @@ const tenantSchema = new Schema(
     },
     updatedAt: {
       type: Date,
+      default: Date.now,
     },
   },
   { timestamps: true }

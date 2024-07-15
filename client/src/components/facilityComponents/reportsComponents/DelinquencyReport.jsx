@@ -17,7 +17,6 @@ export default function DelinquencyReport({ facilityId }) {
       })
       .then(({ data }) => {
         setTenants(data);
-        console.log(data);
       })
       .catch((error) => {
         console.error("Error fetching tenants:", error);

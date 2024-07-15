@@ -1,6 +1,7 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import toast from "react-hot-toast";
+import { UserContext } from "../../../context/userContext";
 
 export default function CreateCompany({ onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -8,6 +9,8 @@ export default function CreateCompany({ onClose, onSubmit }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState("Enabled");
+  const { user } = useContext(UserContext);
+
   const toggleStatus = () => {
     setStatus((prevState) =>
       prevState === "Enabled" ? "Disabled" : "Enabled"
@@ -23,6 +26,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
         },
         status: status,
         address: address,
+        createdBy: user._id,
       });
       onSubmit(response);
     } catch (error) {

@@ -47,14 +47,17 @@ const storageUnitSchema = new mongoose.Schema({
     enum: ["new", "good", "fair", "poor"],
     default: "good",
   },
-  moveInData: {
+  moveInDate: {
+    type: Date,
+  },
+  moveOutDate: {
     type: Date,
   },
   photos: [String],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: [true, "Creator reference is required"],
   },
   createdAt: {
     type: Date,
@@ -62,6 +65,7 @@ const storageUnitSchema = new mongoose.Schema({
   },
   updatedAt: {
     type: Date,
+    default: Date.now,
   },
 });
 

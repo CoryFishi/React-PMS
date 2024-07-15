@@ -83,6 +83,11 @@ const storageFacilitySchema = new mongoose.Schema({
     enum: ["Pending Deployment", "Disabled", "Enabled", "Maintenance"],
     default: "Pending Deployment",
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "Creator reference is required"],
+  },
   createdAt: {
     type: Date,
     default: Date.now,

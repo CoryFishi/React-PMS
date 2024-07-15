@@ -1,6 +1,7 @@
 import axios from "axios";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import toast from "react-hot-toast";
+import { UserContext } from "../../../context/userContext";
 
 export default function CreateUser({ onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -16,6 +17,7 @@ export default function CreateUser({ onClose, onSubmit }) {
   const [status, setStatus] = useState("Enabled");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { user } = useContext(UserContext);
 
   const handleChange = (e) => {
     if (e.target.value === "System_Admin" || e.target.value === "System_User") {
@@ -72,6 +74,7 @@ export default function CreateUser({ onClose, onSubmit }) {
         facilities: userFacilities,
         status: status,
         address: address,
+        createdBy: user._id,
       });
       onSubmit(response);
     } catch (error) {
@@ -261,17 +264,17 @@ export default function CreateUser({ onClose, onSubmit }) {
                 </div>
               </div>
               <div className="mt-4 flex items-center justify-between">
-                  <label htmlFor="status" className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="status"
-                      checked={status === "Enabled"}
-                      onChange={toggleStatus}
-                      className="mr-2"
-                    />
-                    <span>{status}</span>
-                  </label>
-                </div>
+                <label htmlFor="status" className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="status"
+                    checked={status === "Enabled"}
+                    onChange={toggleStatus}
+                    className="mr-2"
+                  />
+                  <span>{status}</span>
+                </label>
+              </div>
             </div>
             <div className="space-y-4">
               <div>
@@ -309,28 +312,28 @@ export default function CreateUser({ onClose, onSubmit }) {
                 />
               </div>
               <div>
-                  <label
-                    htmlFor="role"
-                    className="block text-sm font-semibold text-text-950"
-                  >
-                    Role:<span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    name="role"
-                    id="role"
-                    value={role}
-                    onChange={handleChange}
-                    style={{ width: "17rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-                  >
-                    <option value="" disabled>
-                      Select a role
-                    </option>
-                    <option value="Company_User">Company User</option>
-                    <option value="Company_Admin">Company Admin</option>
-                    <option value="System_Admin">System Admin</option>
-                    <option value="System_User">System User</option>
-                  </select>
+                <label
+                  htmlFor="role"
+                  className="block text-sm font-semibold text-text-950"
+                >
+                  Role:<span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="role"
+                  id="role"
+                  value={role}
+                  onChange={handleChange}
+                  style={{ width: "17rem" }}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                >
+                  <option value="" disabled>
+                    Select a role
+                  </option>
+                  <option value="Company_User">Company User</option>
+                  <option value="Company_Admin">Company Admin</option>
+                  <option value="System_Admin">System Admin</option>
+                  <option value="System_User">System User</option>
+                </select>
                 {(role === "System_User" || role === "System_Admin") && (
                   <div className="mt-3 text-red-500">
                     <h2 className="font-bold text-lg">Warning!</h2>

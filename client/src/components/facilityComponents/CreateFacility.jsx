@@ -1,6 +1,7 @@
 import axios from "axios";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import toast from "react-hot-toast";
+import { UserContext } from "../../../context/userContext";
 
 export default function CreateFacility({ onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -16,6 +17,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
   const [selectedSecurityLevel, setSelectedSecurityLevel] = useState("Basic");
   const [amenitiesDropdownOpen, setAmenitiesDropdownOpen] = useState(false);
   const amenitiesDropdownRef = useRef(null);
+  const { user } = useContext(UserContext);
 
   const handleAmenityChange = (amenityId) => {
     setFacilityAmenities((prev) =>
@@ -55,6 +57,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
         manager: manager,
         amenities: facilityAmenities,
         securityLevel: selectedSecurityLevel,
+        createdBy: user._id,
       });
       onSubmit(response);
     } catch (error) {

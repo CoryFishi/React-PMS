@@ -4,34 +4,34 @@ const { Schema } = mongoose;
 const CompanySchema = new Schema({
   companyName: {
     type: String,
-    required: [true, 'Company Name is required'],
+    required: [true, "Company Name is required"],
     trim: true,
-    unique: [true, 'Company Name is already taken'],
-    minlength: [3, 'Company name must be at least 3 characters long'],
+    unique: [true, "Company Name is already taken"],
+    minlength: [3, "Company name must be at least 3 characters long"],
   },
   address: {
     street1: {
       type: String,
-      required: [true, 'Street address is required'],
+      required: [true, "Street address is required"],
     },
     street2: {
       type: String,
     },
     city: {
       type: String,
-      required: [true, 'City is required'],
+      required: [true, "City is required"],
     },
     state: {
       type: String,
-      required: [true, 'State is required'],
+      required: [true, "State is required"],
     },
     zipCode: {
       type: String,
-      required: [true, 'Zip code is required'],
+      required: [true, "Zip code is required"],
     },
     country: {
       type: String,
-      required: [true, 'Country is required'],
+      required: [true, "Country is required"],
     },
   },
   contactInfo: {
@@ -40,7 +40,7 @@ const CompanySchema = new Schema({
       trim: true,
       match: [
         /^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$/,
-        'Please fill a valid phone number',
+        "Please fill a valid phone number",
       ],
     },
     email: {
@@ -49,7 +49,7 @@ const CompanySchema = new Schema({
       lowercase: true,
       match: [
         /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        'Please fill a valid email address',
+        "Please fill a valid email address",
       ],
     },
   },
@@ -63,6 +63,11 @@ const CompanySchema = new Schema({
     type: String,
     enum: ["Disabled", "Enabled"],
     default: "Enabled",
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "Creator reference is required"],
   },
   createdAt: {
     type: Date,
