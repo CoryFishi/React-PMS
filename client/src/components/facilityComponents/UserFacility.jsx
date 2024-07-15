@@ -17,6 +17,19 @@ export default function UserFacility() {
         if (user) {
           const userData = await userDataCaller(user);
           setCompany(userData.company);
+          if (userData.company !== 0) {
+            axios
+              .get(`/facilities&company?company=${userData.company}`)
+              .then(({ data }) => {
+                if (data.facilities != null) {
+                  setFacilities(data.facilities);
+                } else {
+                  setFacilities([]);
+                }
+              });
+          } else {
+            setFacilities([]);
+          }
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -40,6 +53,7 @@ export default function UserFacility() {
   };
 
   useEffect(() => {
+    console.log("asd" + company);
     if (company !== 0) {
       axios.get(`/facilities&company?company=${company}`).then(({ data }) => {
         if (data.facilities != null) {
