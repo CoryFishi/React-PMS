@@ -1,4 +1,3 @@
-````markdown
 # React Property Management Solution
 
 ## Description
@@ -24,11 +23,8 @@ cd ../client
 npm install
 
 ```
-````
 
 ## Usage
-
-Provide instructions and examples for using your project. This can include code snippets and screenshots.
 
 ```bash
 
@@ -65,7 +61,3 @@ Contributions are currently not public, however feel free to reach out me direct
 Contact me directly with any inquiry or questions via email.
 
 coryfishburnjr@gmail.com
-
-```
-
-```
