@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Tenant = require("../models/tenant");
+const StorageUnit = require("../models/unit");
 const dotenv = require("dotenv").config();
 
 // Increase the default timeout settings
@@ -15,24 +16,41 @@ mongoose
     console.log("🔴 Monthly Script Database failed to connect", err)
   );
 
-// Function to update tenant status
-const updateTenantStatus = async () => {
-  console.time("Update Tenant Status"); // Start timer
+// Function to update tenant balance
+const updateTenantBalance = async () => {
+  console.time("Update Tenant Balance"); // Start timer
+  var count = 0;
   try {
-    const result = await Tenant.updateMany(
-      { balance: { $gt: 0 }, status: "Rented" },
-      { $set: { status: "Delinquent" } }
-    );
+    const tenants = await Tenant.find({
+      status: { $in: ["Rented", "Delinquent"] },
+    });
 
-    console.log(`Updated ${result.nModified} tenants to Delinquent status.`);
+    for (const tenant of tenants) {
+      let totalAdditionalBalance = 0;
+
+      for (const unitId of tenant.units) {
+        const storageUnit = await StorageUnit.findById(unitId);
+
+        if (storageUnit) {
+          totalAdditionalBalance += storageUnit.pricePerMonth;
+        }
+      }
+
+      await Tenant.updateOne(
+        { _id: tenant._id },
+        { $inc: { balance: totalAdditionalBalance } }
+      );
+      count++;
+    }
+    console.log(`${count} tenants balance increased`);
   } catch (error) {
-    console.error("Error updating tenant status:", error);
+    console.error("Error updating tenant balance:", error);
   } finally {
     // Close the database connection
     mongoose.connection.close();
-    console.timeEnd("Update Tenant Status"); // End timer
+    console.timeEnd("Update Tenant Balance"); // End timer
   }
 };
 
 // Run the update function
-updateTenantStatus();
+updateTenantBalance();

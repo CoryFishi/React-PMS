@@ -57,6 +57,6 @@ const runMonthly = () => {
 // run delinquency script every 30 minutes
 // This script turns tenants that have not paid their bill too delinquent
 setInterval(runDelinquency, 30 * 60 * 1000);
-// run monthly script every 30 minutes
+// run monthly script every 60 minutes
 // This script adds the tenants monthly rent to their balance
-setInterval(runMonthly, 30 * 60 * 1000);
+setInterval(runMonthly, 60 * 60 * 1000);

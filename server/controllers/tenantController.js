@@ -76,7 +76,6 @@ const createTenant = async (req, res) => {
 
 // Get Tenants by Facility
 const getTenants = async (req, res) => {
-  console.log("Get Teants was called");
   const facilityId = req.query.facilityId;
   const companyId = req.query.companyId;
   try {
@@ -97,7 +96,6 @@ const getTenants = async (req, res) => {
     }
 
     // Return the list of tenants
-    console.log("Tenant list was sent!");
     return res.status(200).json(tenants);
   } catch (error) {
     console.error(error);
@@ -109,12 +107,10 @@ const getTenants = async (req, res) => {
 
 // Get Tenants by Id
 const getTenantById = async (req, res) => {
-  console.log("Get Teantby Id was called");
   const tenantId = req.params.tenantId;
   try {
     const tenant = await Tenant.findById(tenantId).populate("units");
 
-    console.log("Tenant was sent!");
     return res.status(200).json(tenant);
   } catch (error) {
     console.error(error);
@@ -126,7 +122,6 @@ const getTenantById = async (req, res) => {
 
 // Edit Tenant
 const editTenant = async (req, res) => {
-  console.log("editTenant");
   const tenantId = req.body.tenantId;
   const updateData = req.body.updateData;
 
@@ -153,7 +148,6 @@ const editTenant = async (req, res) => {
 
 // Remove Tenant
 const deleteTenant = async (req, res) => {
-  console.log("Delete Tenant was called");
   const tenantId = req.query.tenantId;
   if (!tenantId) {
     return res.status(404).json({
@@ -185,7 +179,6 @@ const deleteTenant = async (req, res) => {
 };
 
 const addUnitToTenant = async (req, res) => {
-  console.log("Add Unit To Tenant was called!");
   const tenantId = req.params.tenantId;
   const unitId = req.body.unitId;
   const balance = req.body.balance;

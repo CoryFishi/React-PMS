@@ -8,7 +8,6 @@ const mongoose = require("mongoose");
 
 // Create a new facility
 const createFacility = async (req, res) => {
-  console.log("Create Facility called!");
   try {
     // Find manager by id
     if (
@@ -17,7 +16,7 @@ const createFacility = async (req, res) => {
     ) {
       const manager = await User.findOne({ _id: req.body.manager });
       if (!manager) {
-        console.log("Rejecting request due to no manager found!");
+        console.error("Rejecting create facility due to no manager found!");
         return res.status(404).json({
           error: "Manager does not exist!",
         });
@@ -26,7 +25,7 @@ const createFacility = async (req, res) => {
     // Find company by id
     const company = await Company.findOne({ _id: req.body.company });
     if (!company) {
-      console.log("Rejecting request due to no company found!");
+      console.error("Rejecting create facility due to no company found!");
       return res.status(404).json({
         error: "Company does not exist!",
       });
@@ -66,10 +65,10 @@ const createFacility = async (req, res) => {
 
 // Delete Facility
 const deleteFacility = async (req, res) => {
-  console.log("Delete Facility called!");
   try {
     const facilityId = req.query.facilityId;
     if (!facilityId) {
+      console.error("Rejecting delete facility due to no facility ID");
       return res.status(400).json({
         error: "Facility ID is required",
       });
@@ -92,7 +91,7 @@ const deleteFacility = async (req, res) => {
     }
     const facility = await StorageFacility.findByIdAndDelete(facilityId);
     if (!facility) {
-      console.log("Rejecting request due to no facility found!");
+      console.error("Rejecting delete facility due to no facility found!");
       return res.status(404).send({ message: "Facility not found" });
     }
     await StorageUnit.deleteMany({ facility: facilityId });
@@ -117,13 +116,12 @@ const deleteFacility = async (req, res) => {
 
 // Edit Facility
 const editFacility = async (req, res) => {
-  console.log("EditFacility");
   const facilityId = req.query.facilityId;
   // Find manager by id
   if (req.body.manager) {
     const managerExist = await User.findById(req.body.manager);
     if (!managerExist) {
-      console.log("Rejecting request due to no manager found!");
+      console.error("Rejecting edit facility due to manager not found!");
       return res.status(404).json({
         error: "Manager does not exist!",
       });
@@ -132,7 +130,7 @@ const editFacility = async (req, res) => {
   // Find company by id
   const companyExist = await Company.findById(req.body.company);
   if (!companyExist || !req.body.company) {
-    console.log("Rejecting request due to no company found!");
+    console.error("Rejecting edit facility due to no company found!");
     return res.status(404).json({
       error: "Company does not exist!",
     });
@@ -160,39 +158,38 @@ const editFacility = async (req, res) => {
 
 // Add Unit(s)
 const addUnits = async (req, res) => {
-  console.log("AddUnits");
-  const facilityId = req.body.facilityId;
-  const createdBy = req.body.createdBy;
-  let unitsData = req.body.units;
-  const facilityExists = await StorageFacility.findById(facilityId);
-  if (!facilityExists) {
-    return res.status(406).json({
-      error: `facility not found`,
-    });
-  }
-  unitsData.forEach((unit) => {
-    unit.createdBy = createdBy;
-    unit.facility = facilityId;
-  });
-  for (const unit of unitsData) {
-    if (!unit.unitNumber) {
-      return res.status(409).json({
-        error: "unitNumber is required",
-      });
-    }
-    const unitExists = await checkUnitInFacility(facilityId, unit.unitNumber);
-    if (unitExists) {
-      return res.status(409).json({
-        error: `Unit Number ${unit.unitNumber} is already taken in this facility`,
-      });
-    }
-    if (!unit.pricePerMonth) {
-      return res.status(400).json({
-        error: "pricePerMonth is required",
-      });
-    }
-  }
   try {
+    const facilityId = req.body.facilityId;
+    const createdBy = req.body.createdBy;
+    let unitsData = req.body.units;
+    const facilityExists = await StorageFacility.findById(facilityId);
+    if (!facilityExists) {
+      return res.status(406).json({
+        error: `facility not found`,
+      });
+    }
+    unitsData.forEach((unit) => {
+      unit.createdBy = createdBy;
+      unit.facility = facilityId;
+    });
+    for (const unit of unitsData) {
+      if (!unit.unitNumber) {
+        return res.status(409).json({
+          error: "unitNumber is required",
+        });
+      }
+      const unitExists = await checkUnitInFacility(facilityId, unit.unitNumber);
+      if (unitExists) {
+        return res.status(409).json({
+          error: `Unit Number ${unit.unitNumber} is already taken in this facility`,
+        });
+      }
+      if (!unit.pricePerMonth) {
+        return res.status(400).json({
+          error: "pricePerMonth is required",
+        });
+      }
+    }
     const createdUnits = await StorageUnit.create(unitsData);
     const unitIds = createdUnits.map((unit) => unit._id);
     const updatedFacility = await updateFacilityWithUnits(facilityId, unitIds);
@@ -205,9 +202,9 @@ const addUnits = async (req, res) => {
 
 // Remove Unit
 const deleteUnit = async (req, res) => {
-  console.log("Delete Unit");
   const unitId = req.query.unitId;
   if (!unitId) {
+    console.error("Rejecting delete unit due to no unit id");
     return res.json({
       error: "id is required",
     });
@@ -215,6 +212,9 @@ const deleteUnit = async (req, res) => {
   try {
     const tenantExist = await Tenant.findOne({ units: unitId });
     if (tenantExist) {
+      console.error(
+        "Rejecting delete unit due to unit having assigned tenants"
+      );
       return res
         .status(400)
         .send({ message: "Can't delete unit(s) assigned to a tenant!" });
@@ -239,31 +239,30 @@ const deleteUnit = async (req, res) => {
 
 // Edit Unit
 const editUnit = async (req, res) => {
-  console.log("editUnit");
-
-  const unitId = req.body.unitId;
-  const updateData = req.body.updateData;
-  // Check if facility exists
-  const facilityData = await StorageUnit.findOne({
-    _id: unitId,
-  }).populate("facility");
-  if (!facilityData) {
-    return res.status(404).json({
-      error: `Unit not found`,
-    });
-  }
-
-  // Check if unit number already exists
-  const unitExists = await StorageUnit.findOne({
-    facility: facilityData.facility._id,
-    unitNumber: updateData.unitNumber,
-  });
-  if (unitExists && unitExists._id.toString() !== unitId) {
-    return res.status(409).json({
-      error: `Unit Number ${updateData.unitNumber} is already taken in this facility`,
-    });
-  }
   try {
+    const unitId = req.body.unitId;
+    const updateData = req.body.updateData;
+    // Check if facility exists
+    const facilityData = await StorageUnit.findOne({
+      _id: unitId,
+    }).populate("facility");
+    if (!facilityData) {
+      console.error("rejecting edit unit due to no unit found");
+      return res.status(404).json({
+        error: `Unit not found`,
+      });
+    }
+
+    // Check if unit number already exists
+    const unitExists = await StorageUnit.findOne({
+      facility: facilityData.facility._id,
+      unitNumber: updateData.unitNumber,
+    });
+    if (unitExists && unitExists._id.toString() !== unitId) {
+      return res.status(409).json({
+        error: `Unit Number ${updateData.unitNumber} is already taken in this facility`,
+      });
+    }
     // Validate updateData or sanitize as necessary
     const updatedUnit = await StorageUnit.findByIdAndUpdate(
       unitId,
@@ -292,7 +291,6 @@ const editUnit = async (req, res) => {
 
 // Get Unit by ID
 const getUnitById = async (req, res) => {
-  console.log("Get Unit by Id called!");
   try {
     const { unitId } = req.params;
     const unit = await StorageUnit.findById(unitId).populate("tenant");
@@ -307,7 +305,6 @@ const getUnitById = async (req, res) => {
 
 // Remove tenant from unit
 const removeTenant = async (req, res) => {
-  console.log("Remove tenant from unit called!");
   try {
     const { unitId } = req.params;
 
@@ -356,7 +353,6 @@ const removeTenant = async (req, res) => {
 
 // Get all Units or by facility
 const getUnits = async (req, res) => {
-  console.log("Get units was called!");
   const facilityId = req.params.facilityId;
   try {
     var facilityWithUnits = [];
@@ -392,7 +388,6 @@ const getUnits = async (req, res) => {
 
 // Get all vacant units by facility
 const getVacantUnits = async (req, res) => {
-  console.log("Get vacant units was called!");
   const facilityId = req.params.facilityId;
   try {
     const facilityWithUnits = await StorageFacility.findById(facilityId)
@@ -417,15 +412,12 @@ const getVacantUnits = async (req, res) => {
 
 // Get all Facilities
 const getFacilities = async (req, res) => {
-  console.log("Get Facilities called...");
   const facilities = await StorageFacility.find({});
-  console.log("Facilities sent!");
   res.status(200).json({ facilities });
 };
 
 const getFacilitiesAndCompany = async (req, res) => {
   try {
-    console.log("Get Facilities and Company Called...");
     var facilities;
     if (req.query.company) {
       facilities = await StorageFacility.find({ company: req.query.company })
@@ -436,7 +428,6 @@ const getFacilitiesAndCompany = async (req, res) => {
         .populate("company", "companyName")
         .populate("manager", "name");
     }
-    console.log("Facilities with company sent!");
     res.status(200).json({ facilities });
   } catch (error) {
     console.error("Error fetching facilities and companies:", error);
@@ -448,7 +439,6 @@ const getFacilitiesAndCompany = async (req, res) => {
 
 // Get Facility by ID
 const getFacilityById = async (req, res) => {
-  console.log("Get Facility by Id called!");
   try {
     const { facilityId } = req.params;
     const facility = await StorageFacility.findById(facilityId);
@@ -463,6 +453,7 @@ const getFacilityById = async (req, res) => {
 
 // Get the diferent types of amenities
 const getAmenities = async (req, res) => {
+  //needs to be converted to be stored in database
   const amenitiesList = [
     { _id: "1", amenityName: "24/7 Access" },
     { _id: "2", amenityName: "Climate Control" },
@@ -476,6 +467,7 @@ const getAmenities = async (req, res) => {
 
 // Get the diferent types of amenities
 const getSecurityLevels = async (req, res) => {
+  //needs to be converted to be stored in database
   const securityLevels = [
     { _id: "1", securityLevelName: "Basic" },
     { _id: "2", securityLevelName: "Enhanced" },

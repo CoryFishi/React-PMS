@@ -7,7 +7,6 @@ const Tenant = require("../models/tenant");
 
 // Create a new company
 const createCompany = async (req, res) => {
-  console.log("Create Company called!");
   try {
     const newCompany = await Company.create(req.body);
     res.status(201).json(newCompany);
@@ -33,7 +32,6 @@ const createCompany = async (req, res) => {
 
 // Get all companies
 const getCompanies = async (req, res) => {
-  console.log("Get Companies called!");
   try {
     const companies = await Company.find({});
     res.status(200).json(companies);
@@ -48,7 +46,6 @@ const getCompanies = async (req, res) => {
 
 // Get Company by ID
 const getCompanyById = async (req, res) => {
-  console.log("Get Company by Id called!");
   try {
     const { companyId } = req.params;
     const company = await Company.findById(companyId);
@@ -64,7 +61,6 @@ const getCompanyById = async (req, res) => {
 
 // Get all facilities apart of a company
 const getFacilitiesByCompany = async (req, res) => {
-  console.log("Get Facilities By Company called!");
   try {
     const { companyId } = req.params;
     const facilities = await StorageFacility.find({ company: companyId });
@@ -76,7 +72,6 @@ const getFacilitiesByCompany = async (req, res) => {
 
 // Update a company by ID
 const editCompany = async (req, res) => {
-  console.log("Edit Company called!");
   try {
     const updatedCompany = await Company.findByIdAndUpdate(
       req.query.companyId,
@@ -84,7 +79,7 @@ const editCompany = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!updatedCompany) {
-      console.log("Rejecting request due to no company found!");
+      console.log("Rejecting edit company due to no company found!");
       return res.status(404).json({ message: "Company not found" });
     }
     res.status(200).json(updatedCompany);
@@ -110,17 +105,16 @@ const editCompany = async (req, res) => {
 
 // Delete a company by ID
 const deleteCompany = async (req, res) => {
-  console.log("Delete Company called!");
   try {
     const companyId = req.query.id;
     const company = await Company.findById(companyId);
     if (!company) {
-      console.log("Rejecting request due to no facility found!");
+      console.error("Rejecting delete company due to no facility found!");
       return res.status(404).json({ message: "Company not found!" });
     }
     if (company.facilities.length > 0) {
-      console.log(
-        "Rejecting request due the company having active facilities!"
+      console.error(
+        "Rejecting delete company due the company having active facilities!"
       );
       return res
         .status(400)

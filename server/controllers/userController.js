@@ -18,7 +18,6 @@ require("dotenv").config();
 
 // Create User
 const createUser = async (req, res) => {
-  console.log("Create User called...");
   try {
     const {
       displayName,
@@ -198,7 +197,6 @@ const createUser = async (req, res) => {
 
 // Login User
 const loginUser = async (req, res) => {
-  console.log("LoginUser");
   try {
     const { email, password } = req.body;
     // Check if user exists
@@ -241,7 +239,6 @@ const loginUser = async (req, res) => {
 
 // Get JWT Data
 const getLoginData = (req, res) => {
-  console.log("getLoginData");
   const { token } = req.cookies;
   if (token) {
     jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => {
@@ -253,7 +250,6 @@ const getLoginData = (req, res) => {
 
 // Process JWT Data
 const processJWTData = async (req, res) => {
-  console.log("processJWTData");
   const id = req.query.id;
   try {
     if (!id) {
@@ -268,7 +264,6 @@ const processJWTData = async (req, res) => {
 
 // Delete User
 const deleteUser = async (req, res) => {
-  console.log("Delete User called...");
   const userId = req.query.userId;
   if (!userId) {
     return res.json({
@@ -286,7 +281,6 @@ const deleteUser = async (req, res) => {
       { manager: userId },
       { $pull: { manager: userId } }
     );
-    console.log("User and associated data was successfully deleted!");
   } catch (error) {
     res
       .status(500)
@@ -296,7 +290,6 @@ const deleteUser = async (req, res) => {
 
 // Edit User
 const editUser = async (req, res) => {
-  console.log("Edit User called...");
   const id = req.body.userId;
   const name = req.body.name;
   const displayName = req.body.displayName;
@@ -328,7 +321,6 @@ const editUser = async (req, res) => {
       return res.status(404).send({ message: "User not found" });
     }
 
-    console.log("User successfully updated!");
     res.status(200).send(user);
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -481,7 +473,6 @@ const sendUserConfirmationEmail = async (req, res) => {
 
 // User confirmation email
 const userConfirmationEmail = async (req, res) => {
-  console.log("User Confirmed Email");
   const userId = req.params.userId;
   const redirectUrl = `http://localhost:5173/register/${userId}`;
   try {
@@ -526,7 +517,6 @@ const setUserPassword = async (req, res) => {
       { new: true }
     );
 
-    console.log("User confirmed!");
     res.status(200).send(user);
   } catch (error) {
     console.error(error);
@@ -535,7 +525,6 @@ const setUserPassword = async (req, res) => {
 
 // Get Users by Company
 const getUsersByCompany = async (req, res) => {
-  console.log("Get Users by Company was called!");
   try {
     const { companyId } = req.params;
     const user = await User.find({ company: companyId });
@@ -547,16 +536,12 @@ const getUsersByCompany = async (req, res) => {
 
 // Get all Users
 const getUsers = async (req, res) => {
-  console.log("Get Users was called!");
   const users = await User.find({}).populate("company", "companyName");
-  console.log("Responded with Users!");
   res.status(200).json(users);
 };
 
 // Get user by Id
 const getUserById = async (req, res) => {
-  console.log("Get User By Id Called!");
-  console.log(req.params);
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);
