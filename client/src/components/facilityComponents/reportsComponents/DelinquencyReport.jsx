@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 
 export default function DelinquencyReport({ facilityId }) {
   const [tenants, setTenants] = useState([]);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     refreshTenantTable(facilityId);
@@ -65,6 +68,17 @@ export default function DelinquencyReport({ facilityId }) {
     document.body.removeChild(link);
   };
 
+  // Calculate the indices of the tenants to display on the current page
+  const indexOfLastTenant = currentPage * itemsPerPage;
+  const indexOfFirstTenant = indexOfLastTenant - itemsPerPage;
+  const currentTenants = tenants.slice(indexOfFirstTenant, indexOfLastTenant);
+
+  // Function to handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(tenants.length / itemsPerPage);
+
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
       <div className="flex justify-between items-center">
@@ -113,7 +127,7 @@ export default function DelinquencyReport({ facilityId }) {
           </tr>
         </thead>
         <tbody className="bg-white">
-          {tenants
+          {currentTenants
             .filter((tenant) => tenant.status === "Delinquent")
             .map((delinquentTenant) => (
               <tr
@@ -157,6 +171,31 @@ export default function DelinquencyReport({ facilityId }) {
             ))}
         </tbody>
       </table>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+        >
+          {"<"}
+        </button>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => paginate(index + 1)}
+            className={`mx-1 px-3 py-1 rounded text-primary-500}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+        >
+          {">"}
+        </button>
+      </div>
     </div>
   );
 }

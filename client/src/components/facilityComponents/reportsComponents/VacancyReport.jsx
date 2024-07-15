@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 
 export default function VacancyReport({ facilityId }) {
   const [units, setUnits] = useState([]);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     refreshUnitTable(facilityId);
@@ -58,6 +61,17 @@ export default function VacancyReport({ facilityId }) {
     document.body.removeChild(link);
   };
 
+  // Calculate the indices of the units to display on the current page
+  const indexOfLastUnit = currentPage * itemsPerPage;
+  const indexOfFirstUnit = indexOfLastUnit - itemsPerPage;
+  const currentUnits = units.slice(indexOfFirstUnit, indexOfLastUnit);
+
+  // Function to handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(units.length / itemsPerPage);
+
   return (
     <div className="p-4 bg-white rounded-lg shadow-md">
       <div className="flex justify-between items-center">
@@ -109,7 +123,7 @@ export default function VacancyReport({ facilityId }) {
           </tr>
         </thead>
         <tbody className="bg-white">
-          {units
+          {currentUnits
             .filter((unit) => unit.availability === true)
             .map((unit) => (
               <tr
@@ -154,6 +168,31 @@ export default function VacancyReport({ facilityId }) {
             ))}
         </tbody>
       </table>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+        >
+          {"<"}
+        </button>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => paginate(index + 1)}
+            className={`mx-1 px-3 py-1 rounded text-primary-500}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+        >
+          {">"}
+        </button>
+      </div>
     </div>
   );
 }

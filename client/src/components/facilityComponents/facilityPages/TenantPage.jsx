@@ -13,6 +13,9 @@ export default function TenantPage({ facilityId }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [tenantIdToDelete, setTenantIdToDelete] = useState([]);
   const containerRef = useRef(null);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   const newCount = tenants.filter((tenants) => tenants.status === "New").length;
   const inProgressCount = tenants.filter(
@@ -112,6 +115,17 @@ export default function TenantPage({ facilityId }) {
     setOpenDropdown(null);
   };
 
+  // Calculate the indices of the tenants to display on the current page
+  const indexOfLastTenant = currentPage * itemsPerPage;
+  const indexOfFirstTenant = indexOfLastTenant - itemsPerPage;
+  const currentTenants = tenants.slice(indexOfFirstTenant, indexOfLastTenant);
+
+  // Function to handle page changes
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Calculate total number of pages
+  const totalPages = Math.ceil(tenants.length / itemsPerPage);
+
   return (
     <div className="p-4 bg-white rounded-lg shadow-md mx-2">
       {isCreateOpen && (
@@ -158,7 +172,7 @@ export default function TenantPage({ facilityId }) {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {Object.values(tenants).map((tenant) => (
+            {currentTenants.map((tenant) => (
               <tr
                 key={tenant._id}
                 className="border-b bg-white rounded text-text-950"
@@ -277,6 +291,31 @@ export default function TenantPage({ facilityId }) {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {"<"}
+          </button>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`mx-1 px-3 py-1 rounded text-primary-500}`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {">"}
+          </button>
+        </div>
       </div>
     </div>
   );
