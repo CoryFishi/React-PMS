@@ -3,10 +3,10 @@ const StorageFacility = require("../models/facility");
 const StorageUnit = require("../models/unit");
 const User = require("../models/user");
 const Tenant = require("../models/tenant");
+const Event = require("../models/event");
 
 // Create Tenant
 const createTenant = async (req, res) => {
-  console.log("createTenant");
   try {
     const {
       firstName,
@@ -20,6 +20,7 @@ const createTenant = async (req, res) => {
       company,
       accessCode,
       createdBy,
+      facilityId,
     } = req.body;
 
     for (const unit of units) {
@@ -47,10 +48,17 @@ const createTenant = async (req, res) => {
       moveInDate: null,
     });
 
-    await StorageUnit.updateMany(
+    const storageUnit = await StorageUnit.updateMany(
       { _id: { $in: units } },
       { $set: { tenant: tenant._id, availability: false } }
     );
+
+    await Event.create({
+      eventType: "Application",
+      eventName: "Tenant Created",
+      message: `Tenant ${firstName} ${lastName} created`,
+      facility: facilityId,
+    });
 
     return res.status(201).json(tenant);
   } catch (error) {
@@ -143,12 +151,25 @@ const editTenant = async (req, res) => {
       return res.status(404).send({ message: "Tenant not found" });
     }
 
+    await Event.create({
+      eventType: "Application",
+      eventName: "Tenant Updated",
+      message: `Tenant ${updatedTenant.firstName} ${updatedTenant.lastName} updated`,
+      facility: updateData.facilityId,
+    });
+
     res.status(200).json({
       message: "Tenant updated successfully",
       Tenant: updatedTenant,
     });
   } catch (error) {
     console.error("Error updating tenant:", error);
+    await Event.create({
+      eventType: "Application",
+      eventName: "Tenant Updated",
+      message: `Tenant ${updateData._id} failed to update`,
+      facility: updateData.facilityId,
+    });
     res
       .status(500)
       .send({ message: "Error updating tenant", error: error.message });

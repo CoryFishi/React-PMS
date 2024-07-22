@@ -54,6 +54,10 @@ const {
   getTenantById,
 } = require("../controllers/tenantController");
 
+const {
+  getApplicationEventsByFacility,
+} = require("../controllers/eventsController");
+
 // middleware
 router.use(
   cors({
@@ -103,6 +107,12 @@ router.get("/facilities/units/:facilityId", getUnits);
 router.put("/facilities/units/:facilityId/:unitId/moveout", removeTenant);
 router.put("/facilities/units/update", editUnit);
 router.get("/units/:unitId", getUnitById);
+
+// /facilities/events
+router.get(
+  "/facilities/events/:facilityId/application",
+  getApplicationEventsByFacility
+);
 
 // /tenants
 router.post("/tenants/create", createTenant);

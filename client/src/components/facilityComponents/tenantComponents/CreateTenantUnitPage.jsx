@@ -101,6 +101,7 @@ export default function CreateTenantUnitPage({
         });
       } else {
         await axios.post(`/tenants/create`, {
+          facilityId: unitData.facility,
           firstName,
           lastName,
           contactInfo: {

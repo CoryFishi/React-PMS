@@ -173,31 +173,35 @@ export default function TenantDetailReport({ facilityId }) {
           ))}
         </tbody>
       </table>
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={() => paginate(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-        >
-          {"<"}
-        </button>
-        {Array.from({ length: totalPages }, (_, index) => (
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4">
           <button
-            key={index + 1}
-            onClick={() => paginate(index + 1)}
-            className={`mx-1 px-3 py-1 rounded text-primary-500}`}
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
           >
-            {index + 1}
+            {"<"}
           </button>
-        ))}
-        <button
-          onClick={() => paginate(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-        >
-          {">"}
-        </button>
-      </div>
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => paginate(index + 1)}
+              className={`mx-1 px-3 py-1 rounded ${
+                currentPage === index + 1 ? "text-primary-500" : "text-black"
+              }`}
+            >
+              {index + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+          >
+            {">"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

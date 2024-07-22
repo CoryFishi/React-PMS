@@ -2,7 +2,12 @@ import axios from "axios";
 import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 
-export default function EditTenant({ tenantId, onClose, onSubmit }) {
+export default function EditTenant({
+  facilityId,
+  tenantId,
+  onClose,
+  onSubmit,
+}) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState(null);
@@ -41,9 +46,9 @@ export default function EditTenant({ tenantId, onClose, onSubmit }) {
           accessCode,
           address,
           status,
+          facilityId,
         },
       });
-      console.log(response);
       await onSubmit(response);
     } catch (error) {
       console.error("Failed to create tenant:", error);

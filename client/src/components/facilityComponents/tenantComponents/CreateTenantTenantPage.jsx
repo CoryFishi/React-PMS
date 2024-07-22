@@ -48,6 +48,7 @@ export default function CreateTenantTenantPage({
     }
     try {
       const response = await axios.post(`/tenants/create`, {
+        facilityId,
         firstName,
         lastName,
         contactInfo: {

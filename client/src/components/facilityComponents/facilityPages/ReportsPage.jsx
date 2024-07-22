@@ -26,8 +26,14 @@ export default function ReportsPage({ facilityId }) {
       name: "Vacancy List",
       component: <VacancyReport facilityId={facilityId} />,
     },
-    { name: "Payments**", component: <PaymentsReport /> },
-    { name: "Application Events**", component: <ApplicationEventsReport /> },
+    {
+      name: "Application Events",
+      component: <ApplicationEventsReport facilityId={facilityId} />,
+    },
+    {
+      name: "Payments**",
+      component: <PaymentsReport facilityId={facilityId} />,
+    },
   ];
 
   return (
