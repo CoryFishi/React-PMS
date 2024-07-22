@@ -3,14 +3,15 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/userContext";
 import UserAdminDashboard from "../components/userComponents/UserAdminDashboard";
 import AdminDashboard from "../components/userComponents/AdminDashboard";
-import Navbar from "../components/Navbar";
-import NotFound from "../components/NotFound";
+import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { user } = useContext(UserContext);
   const [userContextLoaded, setUserContextLoaded] = useState(false);
   const [userData, setUserData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -19,15 +20,25 @@ export default function Dashboard() {
           setUserContextLoaded(true);
           const userData = await userDataCaller(user);
           setUserData(userData);
+        } else {
+          // Redirect to another page when the user is not defined
+          navigate("/login");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        // Handle error if needed
+      } finally {
+        setLoading(false); // Stop loading after fetchUserData completes
       }
     };
 
-    fetchUserData();
-  }, [user]);
+    // Timeout needed during testing considering the dual api calls
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      fetchUserData();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [user, navigate]);
 
   // Fetch userData
   const userDataCaller = async (contextData) => {
@@ -41,6 +52,10 @@ export default function Dashboard() {
       throw error;
     }
   };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="flex flex-col h-screen">
