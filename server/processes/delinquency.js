@@ -28,7 +28,7 @@ const updateTenantStatus = async () => {
   try {
     const oneWeekAgo = new Date();
     const facilityCountMap = new Map();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() + 70);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     const tenants = await Tenant.find({ status: "Rented" }).populate("units"); // Assuming 'units' is a reference field
 
