@@ -53,6 +53,9 @@ const storageUnitSchema = new mongoose.Schema({
   moveOutDate: {
     type: Date,
   },
+  paymentDate: {
+    type: Date,
+  },
   photos: [String],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

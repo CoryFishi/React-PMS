@@ -220,6 +220,8 @@ const addUnitToTenant = async (req, res) => {
   const unitId = req.body.unitId;
   const balance = req.body.balance;
   const currentDate = new Date();
+  const nextMonthDate = new Date(currentDate);
+  nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
   try {
     const tenant = await Tenant.findByIdAndUpdate(
       tenantId,
@@ -233,7 +235,10 @@ const addUnitToTenant = async (req, res) => {
     const unit = await StorageUnit.findByIdAndUpdate(unitId, {
       tenant: tenantId,
       availability: false,
-      $set: { moveInDate: currentDate },
+      $set: {
+        moveInDate: currentDate,
+        paymentDate: nextMonthDate,
+      },
     });
     await Event.create({
       eventType: "Application",
