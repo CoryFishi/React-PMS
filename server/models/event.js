@@ -37,6 +37,11 @@ const eventSchema = new mongoose.Schema({
         "Tenant Updated",
         "Tenant Update Failed",
         "Tenant Deleted",
+        //Facility
+        "Facility Created",
+        "Facility Updated",
+        "Facility Update Failed",
+        "Facility Deleted",
         //Integrations
         //Notifications
         //Access Control

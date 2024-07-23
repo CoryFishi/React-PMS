@@ -179,6 +179,7 @@ const editTenant = async (req, res) => {
 // Remove Tenant
 const deleteTenant = async (req, res) => {
   const tenantId = req.query.tenantId;
+  const facilityId = req.query.facilityId;
   if (!tenantId) {
     return res.status(404).json({
       error: "id is required",
@@ -197,6 +198,12 @@ const deleteTenant = async (req, res) => {
         { tenant: tenantId },
         { $pull: { tenant: tenantId } }
       );
+      await Event.create({
+        eventType: "Application",
+        eventName: "Tenant Deleted",
+        message: `Tenant ${result.firstName} ${result.lastName} deleted`,
+        facility: facilityId,
+      });
       res.status(200).send({ message: "Tenant deleted" });
     } else {
       res.status(404).send({ message: "Tenant not found" });
@@ -223,12 +230,17 @@ const addUnitToTenant = async (req, res) => {
       { new: true, useFindAndModify: false }
     );
 
-    await StorageUnit.findByIdAndUpdate(unitId, {
+    const unit = await StorageUnit.findByIdAndUpdate(unitId, {
       tenant: tenantId,
       availability: false,
       $set: { moveInDate: currentDate },
     });
-
+    await Event.create({
+      eventType: "Application",
+      eventName: "Tenant Updated",
+      message: `Tenant ${tenant.firstName} ${tenant.lastName} updated`,
+      facility: unit.facility,
+    });
     res.status(200).json({
       tenant,
     });

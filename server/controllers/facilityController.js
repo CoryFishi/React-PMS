@@ -4,6 +4,7 @@ const StorageFacility = require("../models/facility");
 const StorageUnit = require("../models/unit");
 const User = require("../models/user");
 const Tenant = require("../models/tenant");
+const Event = require("../models/event");
 const mongoose = require("mongoose");
 
 // Create a new facility
@@ -40,7 +41,14 @@ const createFacility = async (req, res) => {
     await Company.findByIdAndUpdate(company._id, {
       $push: { facilities: facility._id },
     });
-    console.log("Facility created! " + facility.facilityName);
+
+    await Event.create({
+      eventType: "Application",
+      eventName: "Facility Created",
+      message: `${facility.facilityName} created`,
+      facility: facility._id,
+    });
+
     return res.status(201).json(facilityWithCompanyAndManager);
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -103,6 +111,12 @@ const deleteFacility = async (req, res) => {
       { facilities: facilityId },
       { $pull: { facilities: facilityId } }
     );
+    await Event.create({
+      eventType: "Application",
+      eventName: "Facility Deleted",
+      message: `${facility.facilityName} deleted`,
+      facility: facility._id,
+    });
     res
       .status(200)
       .send({ message: "Facility and all related units deleted successfully" });
@@ -147,6 +161,13 @@ const editFacility = async (req, res) => {
     const facilityWithCompany = await StorageFacility.findById(facilityId)
       .populate("company", "companyName")
       .populate("manager", "name");
+
+    await Event.create({
+      eventType: "Application",
+      eventName: "Facility Updated",
+      message: `${facility.facilityName} updated`,
+      facility: facilityId,
+    });
 
     res.send(facilityWithCompany);
   } catch (error) {
@@ -193,6 +214,16 @@ const addUnits = async (req, res) => {
     const createdUnits = await StorageUnit.create(unitsData);
     const unitIds = createdUnits.map((unit) => unit._id);
     const updatedFacility = await updateFacilityWithUnits(facilityId, unitIds);
+
+    for (const unit of createdUnits) {
+      await Event.create({
+        eventType: "Application",
+        eventName: "Unit Created",
+        message: `Unit ${unit.unitNumber} created`,
+        facility: updatedFacility._id,
+      });
+    }
+
     res.status(201).json(createdUnits);
   } catch (err) {
     console.error("Error creating units:", err);
@@ -226,6 +257,12 @@ const deleteUnit = async (req, res) => {
         { units: unitId },
         { $pull: { units: unitId } }
       );
+      await Event.create({
+        eventType: "Application",
+        eventName: "Unit Deleted",
+        message: `Unit ${result.unitNumber} deleted`,
+        facility: result.facility,
+      });
       res.status(200).send({ message: `Unit ${result.unitNumber} deleted` });
     } else {
       res.status(404).send({ message: "Unit not found" });
@@ -240,6 +277,7 @@ const deleteUnit = async (req, res) => {
 // Edit Unit
 const editUnit = async (req, res) => {
   try {
+    const facilityId = req.body.facilityId;
     const unitId = req.body.unitId;
     const updateData = req.body.updateData;
     // Check if facility exists
@@ -277,12 +315,24 @@ const editUnit = async (req, res) => {
       return res.status(404).send({ message: "Unit not found" });
     }
 
+    await Event.create({
+      eventType: "Application",
+      eventName: "Unit Updated",
+      message: `Unit ${updatedUnit.unitNumber} updated`,
+      facility: facilityId,
+    });
     res.status(200).json({
       message: "Unit updated successfully",
       unit: updatedUnit,
     });
   } catch (error) {
     console.error("Error updating unit:", error);
+    await Event.create({
+      eventType: "Application",
+      eventName: "Unit Update Failed",
+      message: `${unitId} failed to update`,
+      facility: facilityId,
+    });
     res
       .status(500)
       .send({ message: "Error updating unit", error: error.message });
@@ -306,7 +356,7 @@ const getUnitById = async (req, res) => {
 // Remove tenant from unit
 const removeTenant = async (req, res) => {
   try {
-    const { unitId } = req.params;
+    const { unitId, facilityId } = req.params;
 
     // Find the unit by ID
     const unit = await StorageUnit.findById(unitId);
@@ -321,6 +371,18 @@ const removeTenant = async (req, res) => {
       // Find the tenant by ID
       const tenant = await Tenant.findById(tenantId);
       if (!tenant) {
+        await Event.create({
+          eventType: "Application",
+          eventName: "Unit Update Failed",
+          message: `${unitId} failed to update due to tenant not found`,
+          facility: facilityId,
+        });
+        await Event.create({
+          eventType: "Application",
+          eventName: "Tenant Update Failed",
+          message: `${tenantId} failed to update due to tenant not found`,
+          facility: facilityId,
+        });
         return res.status(404).json({ error: "Tenant not found!" });
       }
 
@@ -338,7 +400,18 @@ const removeTenant = async (req, res) => {
       //   await Tenant.findByIdAndDelete(tenantId);
       //   return res.status(200).json(unit);
       // }
-
+      await Event.create({
+        eventType: "Application",
+        eventName: "Unit Updated",
+        message: `Unit ${unit.unitNumber} had Tenant ${tenant.firstName} ${tenant.lastName} removed`,
+        facility: facilityId,
+      });
+      await Event.create({
+        eventType: "Application",
+        eventName: "Tenant Updated",
+        message: `Tenant ${tenant.firstName} ${tenant.lastName} removed from ${unit.unitNumber}`,
+        facility: facilityId,
+      });
       return res.status(200).json(unit);
     } else {
       return res.status(404).json({ error: "Unit does not have a tenant" });
@@ -347,6 +420,12 @@ const removeTenant = async (req, res) => {
     console.error(
       "Error processing the last call! See error below...\n" + error.message
     );
+    await Event.create({
+      eventType: "Application",
+      eventName: "Unit Update Failed",
+      message: `${unitId} failed to remove tenant`,
+      facility: facilityId,
+    });
     res.status(400).json({ message: error.message });
   }
 };
@@ -495,6 +574,12 @@ const deployFacility = async (req, res) => {
       .populate("company", "companyName")
       .populate("manager", "name");
 
+    await Event.create({
+      eventType: "Application",
+      eventName: "Facility Updated",
+      message: `${facility.facilityName} updated`,
+      facility: facilityId,
+    });
     res.status(200).send(facilityWithCompany);
   } catch (error) {
     console.error("Failed to update facility:", error);

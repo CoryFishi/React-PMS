@@ -313,6 +313,7 @@ export default function UnitPage({ facilityId }) {
                         </a>
                         {isEditOpen && (
                           <EditUnit
+                            facilityId={facilityId}
                             unitId={unit._id}
                             onClose={handleCloseEdit}
                             onSubmit={handleEditSubmit}

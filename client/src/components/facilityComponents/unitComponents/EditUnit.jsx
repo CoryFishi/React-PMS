@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../../context/userContext";
 
-export default function EditUnit({ onClose, onSubmit, unitId }) {
+export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   const [unitNumber, setUnitNumber] = useState("");
   const [size, setSize] = useState("");
   const [climateControlled, setClimateControlled] = useState(false);
@@ -31,6 +31,7 @@ export default function EditUnit({ onClose, onSubmit, unitId }) {
     try {
       const response = await axios.put(`/facilities/units/update`, {
         unitId,
+        facilityId,
         updateData: {
           unitNumber,
           size,
