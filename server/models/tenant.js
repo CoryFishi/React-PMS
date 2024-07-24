@@ -98,17 +98,6 @@ const tenantSchema = new Schema(
       ref: "Company",
       required: [true, "Company reference is required"],
     },
-    balance: {
-      type: Number,
-      default: 0,
-      min: [0, "Balance cannot be negative"],
-    },
-    status: {
-      type: String,
-      default: "Rented",
-      required: [true, "Status is required"],
-      enum: ["Rented", "Delinquent", "In Progress", "New"],
-    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

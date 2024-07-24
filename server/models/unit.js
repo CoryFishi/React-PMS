@@ -34,10 +34,6 @@ const storageUnitSchema = new mongoose.Schema({
     enum: ["Basic", "Enhanced", "High"],
     default: "Basic",
   },
-  pricePerMonth: {
-    type: Number,
-    required: true,
-  },
   availability: {
     type: Boolean,
     default: true,
@@ -47,16 +43,32 @@ const storageUnitSchema = new mongoose.Schema({
     enum: ["new", "good", "fair", "poor"],
     default: "good",
   },
-  moveInDate: {
-    type: Date,
+  paymentInfo: {
+    moveInDate: {
+      type: Date,
+    },
+    moveOutDate: {
+      type: Date,
+    },
+    paymentDate: {
+      type: Date,
+    },
+    pricePerMonth: {
+      type: Number,
+      required: true,
+    },
+    balance: {
+      type: Number,
+      default: 0,
+      min: [0, "Balance cannot be negative"],
+    },
   },
-  moveOutDate: {
-    type: Date,
+  status: {
+    type: String,
+    default: "Rented",
+    required: [true, "Status is required"],
+    enum: ["Rented", "Delinquent", "In Progress", "New"],
   },
-  paymentDate: {
-    type: Date,
-  },
-  photos: [String],
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
