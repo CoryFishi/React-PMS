@@ -24,15 +24,15 @@ export default function CreateUnit({ onClose, onSubmit, facilityId }) {
       const response = await axios.post(`/facilities/units/create`, {
         facilityId: facilityId,
         createdBy: user._id,
-        units: [
-          {
-            unitNumber,
-            size,
+        unit: {
+          unitNumber,
+          size,
+          paymentInfo: {
             pricePerMonth: price,
-            climateControlled,
-            securityLevel: selectedSecurityLevel,
           },
-        ],
+          climateControlled,
+          securityLevel: selectedSecurityLevel,
+        },
       });
       onSubmit(response);
     } catch (error) {
@@ -220,10 +220,10 @@ export default function CreateUnit({ onClose, onSubmit, facilityId }) {
                       value={condition}
                       onChange={(e) => setCondition(e.target.value)}
                     >
-                      <option value="new">New</option>
-                      <option value="good">Good</option>
-                      <option value="fair">Fair</option>
-                      <option value="poor">Poor</option>
+                      <option value="New">New</option>
+                      <option value="Good">Good</option>
+                      <option value="Fair">Fair</option>
+                      <option value="Poor">Poor</option>
                     </select>
                   </div>
                 </div>

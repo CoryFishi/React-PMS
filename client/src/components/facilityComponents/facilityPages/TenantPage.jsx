@@ -6,6 +6,7 @@ import EditTenant from "../tenantComponents/EditTenant";
 
 export default function TenantPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
+  const [units, setUnits] = useState([]);
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -28,10 +29,16 @@ export default function TenantPage({ facilityId }) {
     (tenants) => tenants.status === "Delinquent"
   ).length;
 
-  const totalOutstandingBalance = tenants.reduce(
-    (total, tenant) => total + tenant.balance,
+  const totalOutstandingBalance = units.reduce(
+    (total, unit) => total + unit.paymentInfo?.balance,
     0
   );
+
+  const refreshUnitTable = async (facilityId) => {
+    axios.get(`/facilities/units/${facilityId}`).then(({ data }) => {
+      setUnits(data.units);
+    });
+  };
 
   const promptDeleteTenant = (id) => {
     setTenantIdToDelete(id);
@@ -70,6 +77,7 @@ export default function TenantPage({ facilityId }) {
   useEffect(() => {
     setFacility(facilityId);
     refreshTenantTable(facilityId);
+    refreshUnitTable(facilityId);
   }, [facilityId]);
 
   const refreshTenantTable = async (facilityId) => {

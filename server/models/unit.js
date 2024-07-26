@@ -40,8 +40,11 @@ const storageUnitSchema = new mongoose.Schema({
   },
   condition: {
     type: String,
-    enum: ["new", "good", "fair", "poor"],
-    default: "good",
+    enum: ["New", "Good", "Fair", "Poor"],
+    default: "Good",
+  },
+  notes: {
+    type: String,
   },
   paymentInfo: {
     moveInDate: {
@@ -65,9 +68,9 @@ const storageUnitSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    default: "Rented",
+    default: "Vacant",
     required: [true, "Status is required"],
-    enum: ["Rented", "Delinquent", "In Progress", "New"],
+    enum: ["Rented", "Delinquent", "Vacant"],
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

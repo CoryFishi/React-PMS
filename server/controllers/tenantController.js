@@ -14,14 +14,14 @@ const createTenant = async (req, res) => {
       contactInfo,
       address,
       units,
-      paymentHistory,
-      balance,
       status,
       company,
       accessCode,
       createdBy,
       facilityId,
     } = req.body;
+
+    const { paindInCash } = req.body.unitData;
 
     for (const unit of units) {
       const unitExists = await StorageUnit.findById(unit);
@@ -39,24 +39,33 @@ const createTenant = async (req, res) => {
       contactInfo,
       address,
       units,
-      paymentHistory,
-      balance,
       status,
       company,
       accessCode,
       createdBy,
-      moveInDate: null,
     });
 
-    const storageUnit = await StorageUnit.updateMany(
-      { _id: { $in: units } },
-      { $set: { tenant: tenant._id, availability: false } }
-    );
+    if (!paindInCash) {
+      const storageUnits = await StorageUnit.find({ _id: { $in: units } });
+      for (const unit of storageUnits) {
+        const newBalance = unit.balance + unit.payment?.pricePerMonth;
+        await StorageUnit.updateOne(
+          { _id: unit._id },
+          {
+            $set: {
+              tenant: tenant._id,
+              status: "Rented",
+              balance: newBalance,
+            },
+          }
+        );
+      }
+    }
 
     await Event.create({
       eventType: "Application",
       eventName: "Tenant Created",
-      message: `Tenant ${firstName} ${lastName} created`,
+      message: `Tenant ${firstName} ${lastName} created and assigned to ${tenant.units.length} unit(s)`,
       facility: facilityId,
     });
 
@@ -219,27 +228,38 @@ const addUnitToTenant = async (req, res) => {
   const tenantId = req.params.tenantId;
   const unitId = req.body.unitId;
   const balance = req.body.balance;
+  const paindInCash = req.body.paidInCash;
+  var incBalance = 0;
   const currentDate = new Date();
   const nextMonthDate = new Date(currentDate);
   nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+  if (!paindInCash) {
+    incBalance = balance;
+  }
   try {
     const tenant = await Tenant.findByIdAndUpdate(
       tenantId,
       {
         $addToSet: { units: [unitId] },
-        $inc: { balance: balance },
       },
       { new: true, useFindAndModify: false }
     );
 
-    const unit = await StorageUnit.findByIdAndUpdate(unitId, {
-      tenant: tenantId,
-      availability: false,
-      $set: {
-        moveInDate: currentDate,
-        paymentDate: nextMonthDate,
+    const unit = await StorageUnit.findByIdAndUpdate(
+      unitId,
+      {
+        tenant: tenantId,
+        availability: false,
+        status: "Rented",
+        $set: {
+          "paymentInfo.moveInDate": currentDate,
+          "paymentInfo.paymentDate": currentDate,
+        },
+        $inc: { "paymentInfo.balance": incBalance },
       },
-    });
+      { new: true }
+    );
+
     await Event.create({
       eventType: "Application",
       eventName: "Tenant Updated",

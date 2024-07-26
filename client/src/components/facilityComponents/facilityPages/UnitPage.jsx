@@ -64,9 +64,9 @@ export default function UnitPage({ facilityId }) {
 
   // Submit create=
   const handleCreateSubmit = (e) => {
-    toast.success("Unit " + e.data[0].unitNumber + " Created");
+    toast.success("Unit " + e.data.unitNumber + " Created");
     setCreateOpen(false);
-    const updatedUnits = [...units, e.data[0]];
+    const updatedUnits = [...units, e.data];
     setUnits(updatedUnits);
     setOpenDropdown(null);
   };
@@ -238,7 +238,7 @@ export default function UnitPage({ facilityId }) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {"$" + unit.pricePerMonth || "-"}
+                  {"$" + unit.paymentInfo?.pricePerMonth || "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {unit.availability == true && `✔`}
@@ -250,12 +250,12 @@ export default function UnitPage({ facilityId }) {
                     : "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.tenant?.balance !== undefined
-                    ? `$${unit.tenant.balance}`
-                    : "-"}
+                  {unit.paymentInfo?.balance !== undefined
+                    ? `$${unit.paymentInfo?.balance}`
+                    : "$" + 0}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.tenant?.status || "-"}
+                  {unit.status || "-"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <div>

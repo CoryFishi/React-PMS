@@ -98,6 +98,12 @@ const tenantSchema = new Schema(
       ref: "Company",
       required: [true, "Company reference is required"],
     },
+    status: {
+      type: String,
+      default: "Active",
+      required: [true, "Status is required"],
+      enum: ["New", "Active", "Disabled"],
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

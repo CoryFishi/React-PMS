@@ -30,7 +30,7 @@ export default function CreateTenantUnitPage({
   useEffect(() => {
     axios.get(`/units/${unitId}`).then(({ data }) => {
       setUnitData(data);
-      setBalance(data.pricePerMonth);
+      setBalance(data.paymentInfo?.pricePerMonth);
     });
   }, [unitId]);
 
@@ -86,18 +86,13 @@ export default function CreateTenantUnitPage({
   }, [isFacilityTenant, unitData.facility, company]);
 
   const handleSubmit = async () => {
-    var newBalance = 0;
     var response;
-    if (paidInCash) {
-      newBalance = 0;
-    } else {
-      newBalance = balance;
-    }
     try {
       if (isTenancy) {
         await axios.put(`/tenants/update/${selectedTenant}`, {
           unitId: unitId,
-          balance: newBalance,
+          paidInCash: paidInCash,
+          balance: unitData.paymentInfo?.pricePerMonth,
         });
       } else {
         await axios.post(`/tenants/create`, {
@@ -112,9 +107,11 @@ export default function CreateTenantUnitPage({
           accessCode,
           company,
           address,
-          balance: newBalance,
           status,
           units: [unitId],
+          unitData: {
+            paidInCash: paidInCash,
+          },
         });
       }
       await axios.get(`/units/${unitId}`).then(({ data }) => {

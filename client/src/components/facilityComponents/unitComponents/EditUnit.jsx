@@ -11,6 +11,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   const [selectedSecurityLevel, setSelectedSecurityLevel] = useState("Basic");
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("");
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     axios.get(`/units/${unitId}`).then(({ data }) => {
@@ -18,8 +19,9 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
       setSize(data.size);
       setClimateControlled(data.climateControlled);
       setSelectedSecurityLevel(data.securityLevel);
-      setPrice(data.pricePerMonth);
+      setPrice(data.paymentInfo?.pricePerMonth);
       setCondition(data.condition);
+      setNotes(data.notes);
     });
 
     axios.get("/facilities/security").then(({ data }) => {
@@ -35,10 +37,11 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
         updateData: {
           unitNumber,
           size,
-          pricePerMonth: price,
+          paymentInfo: { pricePerMonth: price },
           climateControlled,
           securityLevel: selectedSecurityLevel,
           condition,
+          notes,
         },
       });
       onSubmit(response);
@@ -231,15 +234,31 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                         setCondition(e.target.value);
                       }}
                     >
-                      <option value="new">New</option>
-                      <option value="good">Good</option>
-                      <option value="fair">Fair</option>
-                      <option value="poor">Poor</option>
+                      <option value="New">New</option>
+                      <option value="Good">Good</option>
+                      <option value="Fair">Fair</option>
+                      <option value="Poor">Poor</option>
                     </select>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+          <div className="w-full">
+            <label
+              htmlFor="notes"
+              className="block text-sm font-semibold text-text-950 mt-2"
+            >
+              Notes:
+            </label>
+            <textarea
+              name="notes"
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="mt-1 block min-h-28 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+              style={{ resize: "none", height: "150px" }} // Adjust height as needed
+            />
           </div>
           <div className="flex justify-end pt-2">
             <button
