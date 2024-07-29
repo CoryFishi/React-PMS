@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import EditFacility from "../facilityComponents/EditFacility";
 import CreateFacility from "./CreateFacility";
+import { TbPlayerSkipBack, TbPlayerSkipForward } from "react-icons/tb";
+import { RiArrowLeftWideLine, RiArrowRightWideLine } from "react-icons/ri";
 
 export default function FacilityTable() {
   // Facilities
@@ -372,29 +374,35 @@ export default function FacilityTable() {
         {totalPages > 1 && (
           <div className="flex justify-center mt-4">
             <button
+              onClick={() => paginate(1)}
+              disabled={currentPage === 1}
+              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+            >
+              <TbPlayerSkipBack />
+            </button>
+            <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
               className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
             >
-              {"<"}
+              <RiArrowLeftWideLine />
             </button>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => paginate(index + 1)}
-                className={`mx-1 px-3 py-1 rounded ${
-                  currentPage === index + 1 ? "text-primary-500" : "text-black"
-                }`}
-              >
-                {index + 1}
-              </button>
-            ))}
+            <p className="mx-3">
+              Page {currentPage} of {totalPages}
+            </p>
             <button
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
             >
-              {">"}
+              <RiArrowRightWideLine />
+            </button>
+            <button
+              onClick={() => paginate(totalPages)}
+              disabled={currentPage === totalPages}
+              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+            >
+              <TbPlayerSkipForward />
             </button>
           </div>
         )}

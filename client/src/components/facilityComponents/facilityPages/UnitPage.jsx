@@ -464,8 +464,8 @@ export default function UnitPage({ facilityId }) {
         {totalPages > 1 && (
           <div className="flex justify-center mt-4">
             <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              onClick={() => paginate(1)}
+              disabled={currentPage === 1}
               className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <TbPlayerSkipBack />
@@ -488,7 +488,7 @@ export default function UnitPage({ facilityId }) {
               <RiArrowRightWideLine />
             </button>
             <button
-              onClick={() => paginate(currentPage + 1)}
+              onClick={() => paginate(totalPages)}
               disabled={currentPage === totalPages}
               className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
             >
