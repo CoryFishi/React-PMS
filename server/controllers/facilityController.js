@@ -393,6 +393,10 @@ const removeTenant = async (req, res) => {
       // Remove the tenant reference from the unit
       unit.tenant = null;
       unit.availability = true;
+      unit.paymentInfo.balance = 0;
+      unit.paymentInfo.moveInDate = null;
+      unit.paymentInfo.moveOutDate = Date.now();
+      unit.status = "Vacant";
       await unit.save();
 
       // // Check if the tenant has any other units left

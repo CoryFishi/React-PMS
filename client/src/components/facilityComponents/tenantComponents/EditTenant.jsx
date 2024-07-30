@@ -17,6 +17,7 @@ export default function EditTenant({
   const [accessCode, setAccessCode] = useState("");
   const [unitsDropdownOpen, setUnitsDropdownOpen] = useState(false);
   const [tenantData, setTenantData] = useState([]);
+  const [notes, setNotes] = useState("");
   const unitsDropdownRef = useRef(null);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function EditTenant({
       setAddress(data.address);
       setAccessCode(data.accessCode);
       setStatus(data.status);
+      setNotes(data.notes);
     });
   }, [tenantId]);
 
@@ -47,6 +49,7 @@ export default function EditTenant({
           address,
           status,
           facilityId,
+          notes,
         },
       });
       await onSubmit(response);
@@ -304,13 +307,14 @@ export default function EditTenant({
                 <div className="relative" ref={unitsDropdownRef}>
                   <button
                     type="button"
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                    className="text-wrap block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
                     style={{ width: "17rem" }}
                     onClick={() => {
                       setUnitsDropdownOpen(!unitsDropdownOpen);
                     }}
                   >
-                    {tenantData.units?.length} Unit(s) Rented
+                    {tenantData.units?.length} Unit(s) Rented @{" "}
+                    {tenantData.company?.companyName}
                   </button>
                   {unitsDropdownOpen && (
                     <div
@@ -330,7 +334,7 @@ export default function EditTenant({
                           />
                           {unit.unitNumber} - {unit.size?.width}x
                           {unit.size?.depth}
-                          {unit.size?.unit} - ${unit.pricePerMonth}
+                          {unit.size?.unit} - ${unit.paymentInfo?.pricePerMonth}
                         </label>
                       ))}
                     </div>
@@ -339,7 +343,22 @@ export default function EditTenant({
               </div>
             </div>
           </div>
-
+          <div className="w-full">
+            <label
+              htmlFor="notes"
+              className="block text-sm font-semibold text-text-950 mt-2"
+            >
+              Notes:
+            </label>
+            <textarea
+              name="notes"
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="mt-1 block min-h-28 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+              style={{ resize: "none", height: "150px" }} // Adjust height as needed
+            />
+          </div>
           <div className="flex justify-end pt-5">
             <button
               type="button"

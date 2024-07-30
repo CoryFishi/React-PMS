@@ -86,7 +86,7 @@ export default function UnitDetailReport({ facilityId }) {
           Export
         </button>
       </div>
-      <table className="min-w-full table-auto bg-background-100">
+      <table className="min-w-full max-w-fit table-auto bg-background-100">
         <thead>
           <tr>
             <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
@@ -99,7 +99,7 @@ export default function UnitDetailReport({ facilityId }) {
               Condition
             </th>
             <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Security Level
+              Security
             </th>
             <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
               Width
@@ -118,6 +118,18 @@ export default function UnitDetailReport({ facilityId }) {
             </th>
             <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
               Tenant
+            </th>
+            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              Status
+            </th>
+            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              Move-In
+            </th>
+            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              Move-Out
+            </th>
+            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              Balance
             </th>
           </tr>
         </thead>
@@ -150,7 +162,7 @@ export default function UnitDetailReport({ facilityId }) {
                 {unit.size?.depth} {unit.size?.unit}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                {"$" + unit.pricePerMonth || "-"}
+                {"$" + unit.paymentInfo?.pricePerMonth || "-"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                 {unit.availability == true && `✔`}
@@ -160,6 +172,22 @@ export default function UnitDetailReport({ facilityId }) {
                 {unit.tenant?.firstName
                   ? unit.tenant.firstName + " " + unit.tenant?.lastName
                   : "-"}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                {unit.status}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                {unit.paymentInfo?.moveInDate
+                  ? new Date(unit.paymentInfo.moveInDate).toLocaleDateString()
+                  : ""}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                {unit.paymentInfo?.moveOutDate
+                  ? new Date(unit.paymentInfo.moveOutDate).toLocaleDateString()
+                  : ""}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                ${unit.paymentInfo?.balance}
               </td>
             </tr>
           ))}

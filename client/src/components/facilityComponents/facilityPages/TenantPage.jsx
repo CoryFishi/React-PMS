@@ -21,14 +21,11 @@ export default function TenantPage({ facilityId }) {
   const [itemsPerPage] = useState(10);
 
   const newCount = tenants.filter((tenants) => tenants.status === "New").length;
-  const inProgressCount = tenants.filter(
-    (tenants) => tenants.status === "In Progress"
+  const activeCount = tenants.filter(
+    (tenants) => tenants.status === "Active"
   ).length;
-  const rentedCount = tenants.filter(
-    (tenants) => tenants.status === "Rented"
-  ).length;
-  const delinquentCount = tenants.filter(
-    (tenants) => tenants.status === "Delinquent"
+  const disabledCount = tenants.filter(
+    (tenants) => tenants.status === "Disabled"
   ).length;
 
   const totalOutstandingBalance = units.reduce(
@@ -91,6 +88,7 @@ export default function TenantPage({ facilityId }) {
       })
       .then(({ data }) => {
         setTenants(data);
+        console.log(data);
       })
       .catch((error) => {
         console.error("Error fetching tenants:", error);
@@ -152,9 +150,8 @@ export default function TenantPage({ facilityId }) {
       )}
       <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950 rounded-lg">
         <p className="text-sm">New: {newCount}</p>
-        <p className="text-sm">In Progress: {inProgressCount}</p>
-        <p className="text-sm">Rented: {rentedCount}</p>
-        <p className="text-sm">Delinquent: {delinquentCount}</p>
+        <p className="text-sm">Active: {activeCount}</p>
+        <p className="text-sm">Disabled: {disabledCount}</p>
         <p className="text-sm">Total: {tenants.length}</p>
         <p className="text-sm">
           Total Outstanding Balance: ${totalOutstandingBalance}
@@ -177,6 +174,15 @@ export default function TenantPage({ facilityId }) {
               </th>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 # of Units
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Access Code
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Phone Number
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Email Address
               </th>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Outstanding Balance
@@ -202,7 +208,19 @@ export default function TenantPage({ facilityId }) {
                   {tenant.units.length}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  ${tenant.balance}
+                  {tenant.accessCode}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {tenant.contactInfo?.phone}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {tenant.contactInfo?.email}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  $
+                  {tenant.units.reduce((total, unit) => {
+                    return total + (unit.paymentInfo?.balance || 0);
+                  }, 0)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {tenant.status}

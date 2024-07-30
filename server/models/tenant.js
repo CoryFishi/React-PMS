@@ -75,6 +75,9 @@ const tenantSchema = new Schema(
       min: [1000, "Access code must be at least 4 digits"],
       max: [99999999, "Access code must be at most 8 digits"],
     },
+    notes: {
+      type: String,
+    },
     paymentHistory: [
       {
         date: {

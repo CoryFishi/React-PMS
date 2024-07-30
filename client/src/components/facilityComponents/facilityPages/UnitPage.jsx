@@ -6,6 +6,7 @@ import EditUnit from "../unitComponents/EditUnit";
 import CreateTenantUnitPage from "../tenantComponents/CreateTenantUnitPage";
 import { TbPlayerSkipBack, TbPlayerSkipForward } from "react-icons/tb";
 import { RiArrowLeftWideLine, RiArrowRightWideLine } from "react-icons/ri";
+import { FaStickyNote } from "react-icons/fa";
 
 export default function UnitPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -35,12 +36,12 @@ export default function UnitPage({ facilityId }) {
     setIsMoveOutModalOpen(true);
   };
 
-  const rentedCount = units.filter(
-    (unit) => unit.availability === false
-  ).length;
+  const rentedCount = units.filter((unit) => unit.status === "Rented").length;
 
-  const vacantCount = units.filter(
-    (units) => units.availability === true
+  const vacantCount = units.filter((units) => units.status === "Vacant").length;
+
+  const delinquentCount = units.filter(
+    (units) => units.status === "Delinquent"
   ).length;
 
   useEffect(() => {
@@ -180,6 +181,7 @@ export default function UnitPage({ facilityId }) {
       <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950 rounded-lg">
         <p className="text-sm">Rented: {rentedCount}</p>
         <p className="text-sm">Vacant: {vacantCount}</p>
+        <p className="text-sm">Delinquent: {delinquentCount}</p>
         <p className="text-sm">Total: {units.length}</p>
       </div>
       <div className="flex justify-end">
@@ -196,6 +198,9 @@ export default function UnitPage({ facilityId }) {
             <tr>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Unit Number
+              </th>
+              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+                Climate Controlled
               </th>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
                 Size
@@ -228,7 +233,10 @@ export default function UnitPage({ facilityId }) {
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   {unit.unitNumber}
-                  {unit.climateControlled ? " - ⌂" : ""}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  {unit.climateControlled == true && `✔`}
+                  {unit.climateControlled == false && `✕`}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                   <div>
@@ -374,7 +382,7 @@ export default function UnitPage({ facilityId }) {
                           </div>
                         )}
 
-                        {unit.availability === false && (
+                        {unit.status !== "Vacant" && (
                           <a
                             className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
                             role="menuitem"

@@ -12,6 +12,11 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("");
   const [notes, setNotes] = useState("");
+  const [moveInDate, setMoveInDate] = useState([]);
+  const [moveOutDate, setMoveOutDate] = useState([]);
+  const [availability, setAvailability] = useState(false);
+  const [createdAt, setCreatedAt] = useState("");
+  const [tenant, setTenat] = useState([]);
 
   useEffect(() => {
     axios.get(`/units/${unitId}`).then(({ data }) => {
@@ -22,12 +27,21 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
       setPrice(data.paymentInfo?.pricePerMonth);
       setCondition(data.condition);
       setNotes(data.notes);
+      setMoveOutDate(data.paymentInfo?.moveOutDate);
+      setMoveInDate(data.paymentInfo?.moveInDate);
+      setCreatedAt(data.createdAt);
+      setAvailability(data.availability);
+      setTenat(data.tenant);
     });
 
     axios.get("/facilities/security").then(({ data }) => {
       setSecurityLevels(data);
     });
   }, [unitId]);
+
+  const toggleStatus = () => {
+    setAvailability((prevState) => (prevState === true ? false : true));
+  };
 
   const handleSubmit = async () => {
     try {
@@ -42,6 +56,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
           securityLevel: selectedSecurityLevel,
           condition,
           notes,
+          availability,
         },
       });
       onSubmit(response);
@@ -240,6 +255,16 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                       <option value="Poor">Poor</option>
                     </select>
                   </div>
+                  <label htmlFor="status" className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="status"
+                      checked={availability}
+                      onClick={toggleStatus}
+                      className="mr-2"
+                    />
+                    <span>{availability ? "Available" : "Unavailable"}</span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -260,21 +285,38 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
               style={{ resize: "none", height: "150px" }} // Adjust height as needed
             />
           </div>
-          <div className="flex justify-end pt-2">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
-            >
-              Submit
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="ml-4 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 transition ease-in duration-200"
-            >
-              Close
-            </button>
+          <div className="flex justify-between pt-2">
+            <p className="ml-3 text-base">
+              {availability && moveOutDate
+                ? `Available - Last Active: ${new Date(
+                    moveOutDate
+                  ).toLocaleDateString()}`
+                : availability && !moveOutDate
+                ? `New Unit - Since: ${new Date(
+                    createdAt
+                  ).toLocaleDateString()}`
+                : !availability && tenant
+                ? `Rented - Since: ${new Date(moveInDate).toLocaleDateString()}`
+                : !tenant
+                ? "Unavailable"
+                : ""}
+            </p>
+            <div>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
+              >
+                Submit
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="ml-4 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 transition ease-in duration-200"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </form>
       </div>

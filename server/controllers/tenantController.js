@@ -13,23 +13,20 @@ const createTenant = async (req, res) => {
       lastName,
       contactInfo,
       address,
-      units,
+      unit,
       status,
       company,
       accessCode,
       createdBy,
       facilityId,
     } = req.body;
+    const { paidInCash, balance } = req.body.unitData;
 
-    const { paindInCash } = req.body.unitData;
-
-    for (const unit of units) {
-      const unitExists = await StorageUnit.findById(unit);
-      if (!unitExists) {
-        return res.status(404).json({
-          error: `Unit(s) ${unit} was not found`,
-        });
-      }
+    const unitExists = await StorageUnit.findById(unit);
+    if (!unitExists) {
+      return res.status(404).json({
+        error: `Unit(s) ${unit} was not found`,
+      });
     }
 
     // Create tenant in database
@@ -38,34 +35,46 @@ const createTenant = async (req, res) => {
       lastName,
       contactInfo,
       address,
-      units,
+      units: unit,
       status,
       company,
       accessCode,
       createdBy,
     });
-
-    if (!paindInCash) {
-      const storageUnits = await StorageUnit.find({ _id: { $in: units } });
-      for (const unit of storageUnits) {
-        const newBalance = unit.balance + unit.payment?.pricePerMonth;
-        await StorageUnit.updateOne(
-          { _id: unit._id },
-          {
-            $set: {
-              tenant: tenant._id,
-              status: "Rented",
-              balance: newBalance,
-            },
-          }
-        );
-      }
+    if (!paidInCash) {
+      await StorageUnit.updateOne(
+        { _id: unit },
+        {
+          $set: {
+            tenant: tenant._id,
+            status: "Rented",
+            "paymentInfo.balance": balance,
+            "paymentInfo.moveInDate": currentDate,
+            "paymentInfo.paymentDate": currentDate,
+            availability: false,
+          },
+        }
+      );
+    } else {
+      await StorageUnit.updateOne(
+        { _id: unit },
+        {
+          $set: {
+            tenant: tenant._id,
+            status: "Rented",
+            "paymentInfo.balance": 0,
+            "paymentInfo.moveInDate": currentDate,
+            "paymentInfo.paymentDate": currentDate,
+            availability: false,
+          },
+        }
+      );
     }
 
     await Event.create({
       eventType: "Application",
       eventName: "Tenant Created",
-      message: `Tenant ${firstName} ${lastName} created and assigned to ${tenant.units.length} unit(s)`,
+      message: `Tenant ${firstName} ${lastName} created and assigned to unit ${unitExists.unitNumber}`,
       facility: facilityId,
     });
 
@@ -105,10 +114,12 @@ const getTenants = async (req, res) => {
       const tenantIds = [...new Set(units.map((unit) => unit.tenant))];
 
       // Retrieve tenant information from the Tenant collection using the unique tenant IDs
-      tenants = await Tenant.find({ _id: { $in: tenantIds } }).sort({
-        firstNameName: 1,
-        lastName: 1,
-      });
+      tenants = await Tenant.find({ _id: { $in: tenantIds } })
+        .sort({
+          firstNameName: 1,
+          lastName: 1,
+        })
+        .populate("units");
     } else if (companyId) {
       tenants = await Tenant.find({ company: companyId }).sort({
         firstNameName: 1,
@@ -135,7 +146,9 @@ const getTenants = async (req, res) => {
 const getTenantById = async (req, res) => {
   const tenantId = req.params.tenantId;
   try {
-    const tenant = await Tenant.findById(tenantId).populate("units");
+    const tenant = await Tenant.findById(tenantId)
+      .populate("units")
+      .populate("company");
 
     return res.status(200).json(tenant);
   } catch (error) {
@@ -254,8 +267,8 @@ const addUnitToTenant = async (req, res) => {
         $set: {
           "paymentInfo.moveInDate": currentDate,
           "paymentInfo.paymentDate": currentDate,
+          "paymentInfo.balance": incBalance,
         },
-        $inc: { "paymentInfo.balance": incBalance },
       },
       { new: true }
     );
