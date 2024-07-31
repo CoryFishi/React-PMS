@@ -15,22 +15,31 @@ export default function CreateTenantTenantPage({
   const [facilityData, setFacilityData] = useState([]);
   const [address, setAddress] = useState([]);
   const [balance, setBalance] = useState(0);
-  const [status, setStatus] = useState("New");
   const [accessCode, setAccessCode] = useState("");
   const [paidInCash, setPaidInCash] = useState(false);
   const [units, setUnits] = useState([]);
   const [selectedUnits, setSelectedUnits] = useState([]);
+  const [selectedUnitsDetail, setSelectedUnitsDetail] = useState([]);
   const [unitsDropdownOpen, setUnitsDropdownOpen] = useState(false);
   const unitsDropdownRef = useRef(null);
 
   const { user } = useContext(UserContext);
 
-  const handleUnitChange = (unitId) => {
-    setSelectedUnits((prev) =>
-      prev.includes(unitId)
-        ? prev.filter((id) => id !== unitId)
-        : [...prev, unitId]
-    );
+  const handleUnitChange = (unit) => {
+    setSelectedUnits((prev) => {
+      const unitExists = prev.some((item) => item.id === unit._id);
+
+      if (unitExists) {
+        // Remove the unit if it exists
+        return prev.filter((item) => item.id !== unit._id);
+      } else {
+        // Add the unit with additional information
+        return [
+          ...prev,
+          { id: unit._id, price: unit.paymentInfo.pricePerMonth },
+        ];
+      }
+    });
   };
 
   useEffect(() => {
@@ -40,15 +49,13 @@ export default function CreateTenantTenantPage({
   }, [facilityId]);
 
   const handleSubmit = async () => {
-    var newBalance = 0;
-    if (paidInCash) {
-      newBalance = 0;
-    } else {
-      newBalance = balance;
-    }
     try {
+      const total = selectedUnits.map((unit) => unit.price);
+      const ids = selectedUnits.map((unit) => unit.id);
+      console.log(total);
+      console.log(ids);
       const response = await axios.post(`/tenants/create`, {
-        facilityId,
+        facilityId: facilityId,
         firstName,
         lastName,
         contactInfo: {
@@ -59,9 +66,10 @@ export default function CreateTenantTenantPage({
         accessCode,
         company: facilityData.company,
         address,
-        balance: newBalance,
-        status,
-        units,
+        units: selectedUnits,
+        unitData: {
+          paidInCash: paidInCash,
+        },
       });
       await onSubmit(response);
     } catch (error) {
@@ -345,8 +353,10 @@ export default function CreateTenantTenantPage({
                         >
                           <input
                             type="checkbox"
-                            checked={selectedUnits.includes(unit._id)}
-                            onChange={() => handleUnitChange(unit._id)}
+                            checked={selectedUnits.some(
+                              (selectedUnit) => selectedUnit.id === unit._id
+                            )}
+                            onChange={() => handleUnitChange(unit)}
                             className="mr-2"
                           />
                           {unit.unitNumber} - {unit.size?.width}x

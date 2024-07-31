@@ -153,7 +153,10 @@ export default function TenantDetailReport({ facilityId }) {
                 {tenant.units?.length}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                ${tenant.balance}
+                $
+                {tenant.units.reduce((total, unit) => {
+                  return total + (unit.paymentInfo?.balance || 0);
+                }, 0)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                 {tenant.status}

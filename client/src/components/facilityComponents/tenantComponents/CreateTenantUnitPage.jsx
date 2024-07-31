@@ -107,11 +107,14 @@ export default function CreateTenantUnitPage({
           accessCode,
           company,
           address,
-          status,
-          unit: unitId,
+          units: [
+            {
+              id: unitData._id,
+              price: unitData.paymentInfo?.pricePerMonth,
+            },
+          ],
           unitData: {
             paidInCash: paidInCash,
-            balance: unitData.paymentInfo?.pricePerMonth,
           },
         });
       }

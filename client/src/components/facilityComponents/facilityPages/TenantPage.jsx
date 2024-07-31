@@ -88,7 +88,6 @@ export default function TenantPage({ facilityId }) {
       })
       .then(({ data }) => {
         setTenants(data);
-        console.log(data);
       })
       .catch((error) => {
         console.error("Error fetching tenants:", error);
@@ -96,10 +95,11 @@ export default function TenantPage({ facilityId }) {
   };
 
   const handleCreateSubmit = (e) => {
+    console.log(e);
     toast.success("Tenant " + e.data.firstName + e.data.lastName + " Created");
     setCreateOpen(false);
-    const updatedUnits = [...units, e.data[0]];
-    setUnits(updatedUnits);
+    refreshTenantTable(facilityId);
+    refreshUnitTable(facilityId);
     setOpenDropdown(null);
   };
 
