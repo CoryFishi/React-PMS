@@ -10,19 +10,31 @@ export default function SettingsPage({ facilityId }) {
   const [selectedSetting, setSelectedSetting] = useState(null);
 
   const settings = [
-    { name: "General", component: <GeneralSettings /> },
-    { name: "Tenant Management", component: <TenantManagementSettings /> },
-    { name: "Notifications", component: <NotificationSettings /> },
-    { name: "Billing", component: <BillingSettings /> },
-    { name: "Access Control", component: <AccessControlSettings /> },
-    { name: "Integrations", component: <IntegrationSettings /> },
+    { name: "General", component: <GeneralSettings facilityId={facilityId} /> },
+    {
+      name: "Tenant Management**",
+      component: <TenantManagementSettings facilityId={facilityId} />,
+    },
+    {
+      name: "Notifications**",
+      component: <NotificationSettings facilityId={facilityId} />,
+    },
+    {
+      name: "Billing**",
+      component: <BillingSettings facilityId={facilityId} />,
+    },
+    {
+      name: "Access Control**",
+      component: <AccessControlSettings facilityId={facilityId} />,
+    },
+    {
+      name: "Integrations**",
+      component: <IntegrationSettings facilityId={facilityId} />,
+    },
   ];
 
   return (
     <div className="p-5 text-text-950">
-      <h2 className="text-center text-red-500">
-        Settings not currently implemented...
-      </h2>
       {selectedSetting === null ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {settings.map((setting, index) => (

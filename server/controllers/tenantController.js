@@ -57,6 +57,7 @@ const createTenant = async (req, res) => {
               "paymentInfo.balance": unit.price,
               "paymentInfo.moveInDate": currentDate,
               "paymentInfo.paymentDate": currentDate,
+              "paymentInfo.moveOutDate": null,
               availability: false,
             },
           }
@@ -73,6 +74,7 @@ const createTenant = async (req, res) => {
               "paymentInfo.balance": 0,
               "paymentInfo.moveInDate": currentDate,
               "paymentInfo.paymentDate": currentDate,
+              "paymentInfo.moveOutDate": null,
               availability: false,
             },
           }
@@ -276,6 +278,7 @@ const addUnitToTenant = async (req, res) => {
         $set: {
           "paymentInfo.moveInDate": currentDate,
           "paymentInfo.paymentDate": currentDate,
+          "paymentInfo.moveOutDate": null,
           "paymentInfo.balance": incBalance,
         },
       },

@@ -141,14 +141,7 @@ const editFacility = async (req, res) => {
       });
     }
   }
-  // Find company by id
-  const companyExist = await Company.findById(req.body.company);
-  if (!companyExist || !req.body.company) {
-    console.error("Rejecting edit facility due to no company found!");
-    return res.status(404).json({
-      error: "Company does not exist!",
-    });
-  }
+
   try {
     const facility = await StorageFacility.findByIdAndUpdate(
       facilityId,
