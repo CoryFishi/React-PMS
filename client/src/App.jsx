@@ -8,6 +8,7 @@ import { UserContextProvider } from "../context/userContext";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
+import TenantPayment from "./pages/TenantPayment";
 
 axios.defaults.baseURL = "http://localhost:8000";
 axios.defaults.withCredentials = true;
@@ -22,6 +23,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users/:id" element={<UserProfile />} exact />
+        <Route path="/payments" element={<TenantPayment />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </UserContextProvider>

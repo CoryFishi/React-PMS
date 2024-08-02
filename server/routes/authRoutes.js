@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const cors = require("cors");
 
+const { createPayment } = require("../controllers/paymentController");
+
 const {
   createUser,
   getUsers,
@@ -65,6 +67,9 @@ router.use(
     origin: "http://localhost:5173",
   })
 );
+
+// /payments
+router.post("/payments/create", createPayment);
 
 // /users
 router.get("/users", getUsers);
