@@ -91,12 +91,12 @@ export default function EditUser({ userId, onClose, onSubmit }) {
     try {
       var submittedName = name.trim() === "" ? name : name;
       if (submittedName === "") {
-        submittedName = userData.name;
+        submittedName = userData?.name;
       }
       var submittedDisplayName =
         displayName.trim() === "" ? displayName : displayName;
       if (submittedDisplayName === "") {
-        submittedDisplayName = userData.displayName;
+        submittedDisplayName = userData?.displayName;
       }
       const submittedRole = role.trim() === "" ? role : role;
       setAddress(updateAddressWithOldValues(address, oldAddress));
@@ -340,7 +340,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
                   id="email"
                   className=" block w-full px-3 py-2 rounded-md sm:text-sm text-text-950 mt-1"
                 >
-                  {userData.email}
+                  {userData?.email}
                 </h3>
               </div>
               <div>

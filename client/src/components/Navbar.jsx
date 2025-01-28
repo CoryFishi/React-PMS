@@ -1,38 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useRef } from "react";
 import { UserContext } from "../../context/userContext";
 import Cookies from "universal-cookie";
 import { AiFillCode } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { RiMoonClearFill, RiSunFill } from "react-icons/ri";
 import { FaBars } from "react-icons/fa";
+import { MdExpandLess, MdExpandMore } from "react-icons/md";
 
-export default function Navbar({ isCollapsed, setIsCollapsed }) {
+export default function Navbar({
+  isCollapsed,
+  setIsCollapsed,
+  toggleDarkMode,
+  darkMode,
+}) {
   const cookies = new Cookies();
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
+  const { isLoggedIn, setIsLoggedIn, user } = useContext(UserContext);
   const location = useLocation();
-
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("darkMode");
-    if (savedTheme === "true") {
-      setIsDarkMode(true);
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    if (!isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("darkMode", "true");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("darkMode", "false");
-    }
-  };
+  const userRef = useRef(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const logoutUser = () => {
     cookies.remove("token");
@@ -63,58 +50,83 @@ export default function Navbar({ isCollapsed, setIsCollapsed }) {
           </span>
         </div>
         <div className="flex space-x-4 items-center">
+          <div className="flex items-center">
+            <label
+              htmlFor="dark-mode-toggle"
+              className="text-text-950 hover:bg-secondary px-3 py-2 rounded-md text-sm font-medium  hover:cursor-pointer"
+            >
+              {darkMode ? <RiMoonClearFill /> : <RiSunFill />}
+            </label>
+            <input
+              id="dark-mode-toggle"
+              type="checkbox"
+              checked={darkMode}
+              onChange={toggleDarkMode}
+              className="toggle-checkbox hidden"
+            />
+          </div>
           <Link
             to="/"
-            className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
+            className={`hover:bg-slate-100 dark:hover:bg-gray-200 px-3 py-2 text-md font-medium ${
+              location.pathname === "/" ? "border-b-2 border-blue-400" : ""
+            }`}
           >
             Home
           </Link>
           {isLoggedIn && (
             <Link
               to="/dashboard"
-              className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
+              className={`hover:bg-slate-100 dark:hover:bg-gray-200 px-3 py-2 text-md font-medium ${
+                location.pathname === "/dashboard"
+                  ? "border-b-2 border-blue-400"
+                  : ""
+              }`}
             >
               Dashboard
             </Link>
           )}
-          {isLoggedIn && (
-            <Link
-              to={`/users/profile`}
-              className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Profile
-            </Link>
-          )}
           {isLoggedIn ? (
-            <Link
-              onClick={logoutUser}
-              className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Logout
-            </Link>
+            <div className="relative" ref={userRef}>
+              <h2
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className={`cursor-pointer bg-gray-200  rounded-md p-2 px-4 flex items-center text-center hover:bg-gray-300 ${
+                  location.pathname === "/users/profile"
+                    ? "border-b-2 border-blue-400"
+                    : ""
+                }`}
+              >
+                {user?.email}{" "}
+                {isDropdownOpen ? <MdExpandLess /> : <MdExpandMore />}
+              </h2>
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-1 w-full bg-white border border-gray-200 dark:border-border rounded-lg shadow-lg p-2 z-20 flex flex-col">
+                  <Link
+                    to={`/users/profile`}
+                    className="hover:bg-slate-100 dark:hover:bg-gray-200 px-3 py-2 text-md font-medium text-center dark:border-t-border rounded"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    className="hover:bg-slate-100 dark:hover:bg-gray-200 px-3 py-2 text-md font-medium border-opacity-50 border-t border-t-gray-100 dark:border-t-border rounded"
+                    onClick={() => logoutUser()}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link
               to="/login"
-              className="text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium"
+              className={`hover:bg-slate-100 dark:hover:bg-gray-200 px-3 py-2 text-md font-medium ${
+                location.pathname === "/login"
+                  ? "border-b-2 border-blue-400"
+                  : ""
+              }`}
             >
-              Login
+              Sign In
             </Link>
           )}
-          <div className="flex items-center">
-            <label
-              htmlFor="dark-mode-toggle"
-              className="text-text-950 hover:bg-secondary px-3 py-2 rounded-md text-sm font-medium"
-            >
-              {isDarkMode ? <RiMoonClearFill /> : <RiSunFill />}
-            </label>
-            <input
-              id="dark-mode-toggle"
-              type="checkbox"
-              checked={isDarkMode}
-              onChange={toggleDarkMode}
-              className="toggle-checkbox hidden"
-            />
-          </div>
         </div>
       </div>
     </nav>

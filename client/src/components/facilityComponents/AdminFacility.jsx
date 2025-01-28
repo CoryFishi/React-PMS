@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import FacilityDashboard from "./FacilityDashboard";
 
-export default function AdminFacility() {
+export default function AdminFacility({ facilityPage }) {
   const [companies, setCompanies] = useState([]);
   const [facilities, setFacilities] = useState([]);
   const [company, setCompany] = useState(
@@ -50,9 +50,13 @@ export default function AdminFacility() {
   }, [facility]);
 
   return (
-    <>
-      <div className="flex justify-end">
-        <label htmlFor="company" className="mt-3 px-3 py-2">
+    <div className="h-full">
+      <div className="flex justify-end bg-background-100">
+        <label
+          htmlFor="company"
+          className="mt-3 px-3 py-2"
+          onClick={() => console.log(facilityPage)}
+        >
           Company:
         </label>
         <select
@@ -101,7 +105,9 @@ export default function AdminFacility() {
           ))}
         </select>
       </div>
-      {facility && <FacilityDashboard facilityId={facility} />}
-    </>
+      {facility && (
+        <FacilityDashboard facilityId={facility} facilityPage={facilityPage} />
+      )}
+    </div>
   );
 }

@@ -10,39 +10,27 @@ import { RiArrowLeftWideLine, RiArrowRightWideLine } from "react-icons/ri";
 export default function UserTable() {
   // Root user
   const { user } = useContext(UserContext);
-  // Needed to store this in a new variable name
   const rootUser = user;
-  // Users
   const [users, setUsers] = useState([]);
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  // Open/close dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
-  // Edit user popup
   const [isEditOpen, setEditOpen] = useState(false);
-  // Delete user popup
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  // Stored UserId to delete
   const [userIdToDelete, setUserIdToDelete] = useState(null);
-  // Create modal
   const [isCreateOpen, setCreateOpen] = useState(false);
-  // Ref so actions menu closes on outside click
   const containerRef = useRef(null);
 
-  // Calculate the number of users with the 'user' role
+  // Totale user calculations
   const companyUserCount = users.filter(
     (user) => user.role === "Company_User"
   ).length;
-  // Calculate the number of users with the 'admin' role
   const companyAdminCount = users.filter(
     (user) => user.role === "Company_Admin"
   ).length;
-  // Calculate the number of users with the 'admin' role
   const systemAdminCount = users.filter(
     (user) => user.role === "System_Admin"
   ).length;
-  // Calculate the number of users with the 'admin' role
   const systemUserCount = users.filter(
     (user) => user.role === "System_User"
   ).length;
@@ -162,8 +150,8 @@ export default function UserTable() {
   const totalPages = Math.ceil(users.length / itemsPerPage);
 
   return (
-    <>
-      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950 rounded-lg">
+    <div className="h-full w-full overflow-y-hidden relative">
+      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
         <h2 className="text-xl font-bold">User Statistics</h2>
         <p className="text-sm">Sys-Admins: {systemAdminCount}</p>
         <p className="text-sm">Sys-Users: {systemUserCount}</p>
@@ -173,7 +161,7 @@ export default function UserTable() {
       </div>
       <div className="flex justify-end">
         <button
-          className="block w-32 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 mr-10"
+          className="block w-32 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mr-10"
           onClick={() => setCreateOpen(true)}
         >
           Create User
@@ -183,8 +171,8 @@ export default function UserTable() {
       {isCreateOpen && (
         <CreateUser onClose={handleCloseCreate} onSubmit={handleCreateSubmit} />
       )}
-      <div className="container mx-auto p-4 mb-5 shadow-lg rounded-lg bg-white">
-        <table className="min-w-full table-auto bg-background-100 rounded-md">
+      <div className="container mx-auto w-full px-4 mt-2 mb-5 h-full">
+        <table className="w-full table-auto bg-background-100">
           <thead>
             <tr>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
@@ -210,7 +198,7 @@ export default function UserTable() {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white">
+          <tbody>
             {currentUsers.map((user) => (
               <tr
                 key={user._id}
@@ -344,18 +332,18 @@ export default function UserTable() {
         </table>
 
         {totalPages > 1 && (
-          <div className="flex justify-center mt-4">
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex justify-center mt-4">
             <button
               onClick={() => paginate(1)}
               disabled={currentPage === 1}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <TbPlayerSkipBack />
             </button>
             <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
-              className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 px-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <RiArrowLeftWideLine />
             </button>
@@ -365,20 +353,20 @@ export default function UserTable() {
             <button
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <RiArrowRightWideLine />
             </button>
             <button
               onClick={() => paginate(totalPages)}
               disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <TbPlayerSkipForward />
             </button>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

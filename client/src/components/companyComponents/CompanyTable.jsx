@@ -120,7 +120,7 @@ export default function CompanyTable() {
   const totalPages = Math.ceil(companies.length / itemsPerPage);
 
   return (
-    <>
+    <div className="h-full w-full overflow-y-hidden relative">
       <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
         <h2 className="text-xl font-bold">Company Statistics</h2>
         <p className="text-sm">Total: {companies.length}</p>
@@ -140,8 +140,8 @@ export default function CompanyTable() {
           onSubmit={handleCreateSubmit}
         />
       )}
-      <div className="container mx-auto p-4 mb-5 shadow-lg rounded-lg bg-white">
-        <table className="min-w-full table-auto bg-background-100 rounded-md">
+      <div className="container mx-auto w-full px-4 mt-2 mb-5 h-full">
+        <table className="w-full table-auto bg-background-100">
           <thead>
             <tr>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
@@ -282,19 +282,20 @@ export default function CompanyTable() {
             ))}
           </tbody>
         </table>
+
         {totalPages > 1 && (
-          <div className="flex justify-center mt-4">
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex justify-center mt-4">
             <button
               onClick={() => paginate(1)}
               disabled={currentPage === 1}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <TbPlayerSkipBack />
             </button>
             <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
-              className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 px-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <RiArrowLeftWideLine />
             </button>
@@ -304,20 +305,20 @@ export default function CompanyTable() {
             <button
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <RiArrowRightWideLine />
             </button>
             <button
               onClick={() => paginate(totalPages)}
               disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
+              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
             >
               <TbPlayerSkipForward />
             </button>
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

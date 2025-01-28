@@ -9,13 +9,14 @@ export function UserContextProvider({ children }) {
   useEffect(() => {
     if (!user) {
       axios.get("/profile").then(({ data }) => {
-        setUser(data);
+        setUser(data.user);
         if (data !== null) {
           setIsLoggedIn(true);
         }
       });
     }
   }, []);
+
   return (
     <UserContext.Provider value={{ user, setUser, isLoggedIn, setIsLoggedIn }}>
       {children}

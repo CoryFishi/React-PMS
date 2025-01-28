@@ -5,9 +5,8 @@ import TenantPage from "./facilityPages/TenantPage";
 import ReportsPage from "./facilityPages/ReportsPage";
 import SettingsPage from "./facilityPages/SettingsPage";
 
-export default function FacilityDashboard({ facilityId }) {
+export default function FacilityDashboard({ facilityId, facilityPage }) {
   const [facilityData, setFacilityData] = useState("");
-  const [page, setPage] = useState("units");
 
   useEffect(() => {
     if (facilityId) {
@@ -25,49 +24,20 @@ export default function FacilityDashboard({ facilityId }) {
 
   return (
     <>
-      <div className="w-full p-5 bg-background-100 flex flex-col justify-center items-center text-text-950">
-        <h1 className="text-4xl font-bold">{facilityData.facilityName}</h1>
+      <div className="w-full px-5 py-2 pt-5 bg-background-100 flex flex-col justify-center items-center text-text-950">
+        <h1
+          className="text-4xl font-bold"
+          onClick={() => console.log(facilityPage)}
+        >
+          {facilityData.facilityName}
+        </h1>
         <h3>{facilityData.status}</h3>
       </div>
 
-      <div className="bg-background-100 w-full p-1 flex justify-center items-center mb-2 text-text-950 space-x-24">
-        <button
-          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
-            page === "units" ? "underline" : ""
-          }`}
-          onClick={() => setPage("units")}
-        >
-          Units
-        </button>
-        <button
-          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
-            page === "tenants" ? "underline" : ""
-          }`}
-          onClick={() => setPage("tenants")}
-        >
-          Tenants
-        </button>
-        <button
-          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
-            page === "reports" ? "underline" : ""
-          }`}
-          onClick={() => setPage("reports")}
-        >
-          Reports
-        </button>
-        <button
-          className={`text-text-950 hover:bg-primary-100 px-3 py-2 rounded-md text-sm font-medium ${
-            page === "settings" ? "underline" : ""
-          }`}
-          onClick={() => setPage("settings")}
-        >
-          Settings
-        </button>
-      </div>
-      {page === "units" && <UnitPage facilityId={facilityId} />}
-      {page === "tenants" && <TenantPage facilityId={facilityId} />}
-      {page === "reports" && <ReportsPage facilityId={facilityId} />}
-      {page === "settings" && <SettingsPage facilityId={facilityId} />}
+      {facilityPage === "units" && <UnitPage facilityId={facilityId} />}
+      {facilityPage === "tenants" && <TenantPage facilityId={facilityId} />}
+      {facilityPage === "reports" && <ReportsPage facilityId={facilityId} />}
+      {facilityPage === "settings" && <SettingsPage facilityId={facilityId} />}
     </>
   );
 }
