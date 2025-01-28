@@ -501,7 +501,7 @@ const setUserPassword = async (req, res) => {
     }
 
     const hashedPassword = await hashPassword(password);
-
+    console.log(hashedPassword);
     const existUser = await User.findById(id);
     if (!existUser) {
       return res.status(404).send({ message: "User not found" });
