@@ -25,6 +25,17 @@ mongoose
   })
   .catch((err) => console.log("🔴 Database not connected:", err));
 
+const path = require("path");
+
+// Serve frontend for production
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+  });
+}
+
 // const runDelinquency = () => {
 //   exec("node ./processes/delinquency.js", (error, stdout, stderr) => {
 //     if (error) {

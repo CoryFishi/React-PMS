@@ -11,7 +11,8 @@ import UserProfile from "./pages/UserProfile";
 import TenantPayment from "./pages/TenantPayment";
 import { useState, useEffect } from "react";
 
-axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.baseURL =
+  import.meta.env.VITE_BASE_URL || "http://localhost:8000";
 axios.defaults.withCredentials = true;
 
 function App() {
