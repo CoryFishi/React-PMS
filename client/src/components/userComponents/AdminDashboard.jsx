@@ -13,7 +13,7 @@ import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [openDashboard, setOpenDashboard] = useState(
     localStorage.getItem("openDashboard") || "users"
   );
@@ -62,7 +62,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
-      <Navbar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+      <Navbar
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+      />
       <div className="flex flex-row w-full h-full">
         {isCollapsed === false && (
           <div className="flex flex-col h-full w-1/6 bg-background-50 text-black text-xl border-r select-none">
