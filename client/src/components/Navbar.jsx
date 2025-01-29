@@ -29,7 +29,7 @@ export default function Navbar({
   };
 
   return (
-    <nav className="bg-background-50 p-4 w-full border-background-200 border-b dark:bg-darkNavPrimary dark:text-white">
+    <nav className="bg-background-50 p-4 w-full border-background-200 border-b dark:bg-darkPrimary dark:text-white dark:border-darkNavSecondary">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-shrink-0 text-text-950 mr-6 select-none">
           {location.pathname === "/dashboard" && (

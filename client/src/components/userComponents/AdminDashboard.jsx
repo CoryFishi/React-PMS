@@ -61,7 +61,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   };
 
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden">
+    <div className="flex flex-col w-screen h-screen overflow-hidden dark:bg-darkPrimary">
       <Navbar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
@@ -70,7 +70,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
       />
       <div className="flex flex-row w-full h-full">
         {isCollapsed === false && (
-          <div className="flex flex-col h-full w-1/6 bg-background-50 text-black text-xl border-r select-none">
+          <div className="flex flex-col h-full w-1/6 bg-navPrimary text-xl border-r select-none dark:bg-darkNavPrimary dark:border-darkNavSecondary text-white">
             {/* Header Side Bar */}
             <div>
               <h3 className="text-center m-5 text-2xl font-bold">
@@ -85,7 +85,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 openDashboard === "reports" ||
                 openDashboard === "companies" ||
                 openDashboard === "facilities"
-                  ? "bg-background-100 border-l-blue-500 border-l-4"
+                  ? "bg-navSecondary border-l-blue-500 border-l-4 dark:bg-darkPrimary"
                   : ""
               }`}
             >
@@ -120,7 +120,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       setOpenDashboard("users") &
                       localStorage.setItem("openPage2", "users")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       openDashboard === "users"
                         ? "bg-background-100 border-b-blue-500 border-b-2"
                         : ""
@@ -133,7 +133,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       setOpenDashboard("companies") &
                       localStorage.setItem("openPage2", "companies")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       openDashboard === "companies"
                         ? "bg-background-100 border-b-blue-500 border-b-2"
                         : ""
@@ -146,7 +146,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       setOpenDashboard("facilities") &
                       localStorage.setItem("openPage2", "facilities")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       openDashboard === "facilities"
                         ? "bg-background-100 border-b-blue-500 border-b-2"
                         : ""
@@ -159,7 +159,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       setOpenDashboard("reports") &
                       localStorage.setItem("openPage2", "reports")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       openDashboard === "reports"
                         ? "bg-background-100 border-b-blue-500 border-b-2"
                         : ""
@@ -173,13 +173,13 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
             {/* Facilities Side Bar */}
             <div
-              className={`border-t border-b pl-2 pr-2 border-background-200 pb-8 ${
+              className={`border-t border-b pl-2 pr-2 border-navSecondary pb-8 ${
                 openDashboard === "units" ||
                 openDashboard === "tenants" ||
                 openDashboard === "facilityReports" ||
                 openDashboard === "settings" ||
                 openDashboard === "facility"
-                  ? "bg-navSecondary dark:bg-darkNavSecondary border-l-blue-500 border-l-4"
+                  ? "bg-navSecondary  dark:bg-darkPrimary border-l-blue-500 border-l-4"
                   : ""
               }`}
             >
@@ -212,7 +212,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       localStorage.setItem("openPage2", "facility") &
                       setFacilityPage("units")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       facilityPage === "units" && openDashboard === "facility"
                         ? "bg-background-100 border-b-blue-500 border-b-2"
                         : ""
@@ -226,7 +226,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       localStorage.setItem("openPage2", "facility") &
                       setFacilityPage("tenants")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       facilityPage === "tenants" && openDashboard === "facility"
                         ? "bg-background-100 border-b-blue-500 border-b-2"
                         : ""
@@ -240,7 +240,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       localStorage.setItem("openPage2", "facility") &
                       setFacilityPage("reports")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       facilityPage === "reports" && openDashboard === "facility"
                         ? "bg-background-100 border-b-blue-500 border-b-2"
                         : ""
@@ -254,7 +254,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       localStorage.setItem("openPage2", "facility") &
                       setFacilityPage("settings")
                     }
-                    className={`px-2 block hover:bg-background-200 w-full text-left ${
+                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
                       facilityPage === "settings" &&
                       openDashboard === "facility"
                         ? "bg-background-100 border-b-blue-500 border-b-2"

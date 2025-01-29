@@ -97,16 +97,16 @@ export default function CreateUser({ onClose, onSubmit }) {
   }, [dropdownRef]);
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold mb-4 text-text-950">Creating User</h2>
+    <div className="fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white">
+      <div className="relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+        <h2 className="text-xl font-bold mb-4">Creating User</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
               <div>
                 <label
                   htmlFor="displayName"
-                  className="block text-sm font-semibold text-text-950"
+                  className="block text-sm font-semibold"
                 >
                   Display Name:<span className="text-red-500">*</span>
                 </label>
@@ -114,7 +114,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   type="text"
                   name="displayName"
                   id="displayName"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="display name"
                   onChange={(e) => setDisplayName(e.target.value)}
                   style={{ width: "17rem" }}
@@ -131,7 +131,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   type="text"
                   name="name"
                   id="name"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="name"
                   onChange={(e) => setName(e.target.value)}
                   style={{ width: "17rem" }}
@@ -157,7 +157,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="country"
@@ -177,7 +177,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="city"
@@ -197,7 +197,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <div className="flex-1">
@@ -219,7 +219,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="state"
@@ -239,7 +239,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="zipCode"
@@ -259,7 +259,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -288,7 +288,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   type="text"
                   name="email"
                   id="email"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="example@email.com"
                   onChange={(e) => setEmail(e.target.value)}
                   style={{ width: "17rem" }}
@@ -305,7 +305,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   type="text"
                   name="phone"
                   id="phone"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="Phone Number"
                   onChange={(e) => setPhone(e.target.value)}
                   style={{ width: "17rem" }}
@@ -324,7 +324,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   value={role}
                   onChange={handleChange}
                   style={{ width: "17rem" }}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 >
                   <option value="" disabled>
                     Select a role
@@ -357,7 +357,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                       value={company}
                       onChange={handleCompanyChange}
                       style={{ width: "17rem" }}
-                      className="text-black mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >
                       <option value="">Select a company</option>
                       {companies.map((company) => (
@@ -379,7 +379,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                     <div className="relative" ref={dropdownRef}>
                       <button
                         type="button"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                        className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         style={{ width: "17rem" }}
                         onClick={() => setDropdownOpen(!dropdownOpen)}
                       >
@@ -390,12 +390,12 @@ export default function CreateUser({ onClose, onSubmit }) {
                       {dropdownOpen && (
                         <div
                           id="facilityDropdown"
-                          className="absolute w-full bg-white border border-gray-300 rounded-md shadow-lg z-10"
+                          className="absolute w-full bg-white border border-gray-300 dark:bg-darkSecondary dark:border-border rounded-md shadow-lg z-10"
                         >
                           {facilities.map((facility) => (
                             <label
                               key={facility._id}
-                              className="block px-4 py-2 text-sm text-black"
+                              className="block px-4 py-2 text-sm text-black dark:text-white"
                             >
                               <input
                                 type="checkbox"
