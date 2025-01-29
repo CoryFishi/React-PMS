@@ -171,8 +171,8 @@ export default function UserTable() {
       {isCreateOpen && (
         <CreateUser onClose={handleCloseCreate} onSubmit={handleCreateSubmit} />
       )}
-      <div className="container mx-auto w-full px-4 mt-2 mb-5 h-full">
-        <table className="w-full table-auto bg-background-100">
+      <div className="container mx-auto w-full px-4 mt-2 max-h-full overflow-y-auto">
+        <table className="w-full table-auto bg-background-100 h-3">
           <thead>
             <tr>
               <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
@@ -204,25 +204,25 @@ export default function UserTable() {
                 key={user._id}
                 className="border-b bg-white rounded text-text-950"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <td className="px-6 py-2 whitespace-nowrap text-sm text-center">
                   {user.displayName}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <td className="px-6 py-2 whitespace-nowrap text-sm text-center">
                   {user.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <td className="px-6 py-2 whitespace-nowrap text-sm text-center">
                   {user.email}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <td className="px-6 py-2 whitespace-nowrap text-sm text-center">
                   {user.role}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <td className="px-6 py-2 whitespace-nowrap text-sm text-center">
                   {user?.company?.companyName ?? "-"}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <td className="px-6 py-2 whitespace-nowrap text-sm text-center">
                   {user.status}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                <td className="px-6 py-2 whitespace-nowrap text-sm text-center">
                   <div className="relative inline-block text-left">
                     <div>
                       <button
