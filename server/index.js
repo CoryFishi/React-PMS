@@ -7,6 +7,11 @@ const cookieParser = require("cookie-parser");
 const { exec } = require("child_process");
 const app = express();
 
+const allowedOrigins = [
+  "https://front-34ee.onrender.com", // Deployed frontend URL
+  "https://localhost:5173", // Local development URL
+];
+
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
@@ -24,17 +29,6 @@ mongoose
     app.listen(port, () => console.log(`🟢 Server is running on port ${port}`));
   })
   .catch((err) => console.log("🔴 Database not connected:", err));
-
-const path = require("path");
-
-// Serve frontend for production
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../client/build")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/build", "index.html"));
-  });
-}
 
 // const runDelinquency = () => {
 //   exec("node ./processes/delinquency.js", (error, stdout, stderr) => {

@@ -201,6 +201,7 @@ const createUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
@@ -208,15 +209,18 @@ const loginUser = async (req, res) => {
         error: "No user found",
       });
     }
+
     // Check if passwords match
     const match = await comparePassword(password, user.password);
     if (match) {
       // Check if they have confirmed their account
       if (user.confirmed === false) {
-        return res.json({
+        return res.status(403).json({
           error: "Please confirm your email",
         });
       }
+
+      // Generate JWT
       jwt.sign(
         {
           _id: user._id,
@@ -225,17 +229,27 @@ const loginUser = async (req, res) => {
         {},
         (err, token) => {
           if (err) throw err;
-          res.cookie("token", token).json(user);
+
+          // Set the cookie with appropriate attributes
+          res.cookie("token", token, {
+            httpOnly: true, // Prevent JavaScript access
+            secure: true, // Send cookie over HTTPS only
+            sameSite: "None", // Allow cross-site cookie usage
+            maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7-day expiration
+          });
+
+          // Send the user data as a response
+          res.status(200).json(user);
         }
       );
-    }
-    if (!match) {
-      res.json({
+    } else {
+      res.status(401).json({
         error: "Password does not match!",
       });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
