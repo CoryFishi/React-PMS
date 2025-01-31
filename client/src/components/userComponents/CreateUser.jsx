@@ -121,10 +121,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-semibold text-text-950"
-                >
+                <label htmlFor="name" className="block text-sm font-semibold ">
                   Name:<span className="text-red-500">*</span>
                 </label>
                 <input
@@ -141,7 +138,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 <div className="flex-1">
                   <label
                     htmlFor="street1"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold "
                   >
                     Street 1:<span className="text-red-500">*</span>
                   </label>
@@ -161,7 +158,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   />
                   <label
                     htmlFor="country"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     Country:<span className="text-red-500">*</span>
                   </label>
@@ -181,7 +178,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   />
                   <label
                     htmlFor="city"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     City:<span className="text-red-500">*</span>
                   </label>
@@ -203,7 +200,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 <div className="flex-1">
                   <label
                     htmlFor="street2"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold "
                   >
                     Street 2:
                   </label>
@@ -223,7 +220,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   />
                   <label
                     htmlFor="state"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     State:<span className="text-red-500">*</span>
                   </label>
@@ -243,7 +240,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   />
                   <label
                     htmlFor="zipCode"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     ZIP Code:<span className="text-red-500">*</span>
                   </label>
@@ -278,10 +275,7 @@ export default function CreateUser({ onClose, onSubmit }) {
             </div>
             <div className="space-y-4">
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-text-950"
-                >
+                <label htmlFor="email" className="block text-sm font-semibold ">
                   Email:<span className="text-red-500">*</span>
                 </label>
                 <input
@@ -295,10 +289,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-semibold text-text-950"
-                >
+                <label htmlFor="phone" className="block text-sm font-semibold ">
                   Phone:
                 </label>
                 <input
@@ -312,10 +303,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="role"
-                  className="block text-sm font-semibold text-text-950"
-                >
+                <label htmlFor="role" className="block text-sm font-semibold ">
                   Role:<span className="text-red-500">*</span>
                 </label>
                 <select
@@ -347,7 +335,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   <div>
                     <label
                       htmlFor="company"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold  mt-2"
                     >
                       Company:<span className="text-red-500">*</span>
                     </label>
@@ -372,7 +360,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                   <div>
                     <label
                       htmlFor="facility"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold  mt-2"
                     >
                       Facilities:<span className="text-red-500">*</span>
                     </label>

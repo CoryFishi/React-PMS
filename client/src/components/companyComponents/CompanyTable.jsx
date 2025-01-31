@@ -3,24 +3,25 @@ import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import EditCompany from "../companyComponents/EditCompany";
 import CreateCompany from "./CreateCompany";
-import { TbPlayerSkipBack, TbPlayerSkipForward } from "react-icons/tb";
-import { RiArrowLeftWideLine, RiArrowRightWideLine } from "react-icons/ri";
+import {
+  BiChevronLeft,
+  BiChevronRight,
+  BiChevronsLeft,
+  BiChevronsRight,
+} from "react-icons/bi";
 
 export default function CompanyTable() {
-  // Companies
   const [companies, setCompanies] = useState([]);
-  // Open/close dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
-  // Ref so actions menu closes on outside click
   const containerRef = useRef(null);
-  // Edit Company popup
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [companyIdToDelete, setCompanyIdToDelete] = useState(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredCompanies, setFilteredCompanies] = useState([]);
 
   const promptdeleteCompany = (id) => {
     setCompanyIdToDelete(id);
@@ -40,14 +41,12 @@ export default function CompanyTable() {
     setCompanies(updatedCompanies);
     setOpenDropdown(null);
   };
-
   // Update companies table on change
   useEffect(() => {
     axios.get("/companies").then(({ data }) => {
       setCompanies(data);
     });
   }, []);
-
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -113,21 +112,32 @@ export default function CompanyTable() {
     indexOfLastCompany
   );
 
-  // Function to handle page changes
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   // Calculate total number of pages
   const totalPages = Math.ceil(companies.length / itemsPerPage);
 
+  useEffect(() => {
+    const filteredCompanies = companies.filter((company) =>
+      company.companyName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredCompanies(filteredCompanies);
+  }, [companies, searchQuery]);
+
   return (
-    <div className="h-full w-full overflow-y-hidden relative">
-      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950">
+    <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
+      <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
         <h2 className="text-xl font-bold">Company Statistics</h2>
         <p className="text-sm">Total: {companies.length}</p>
       </div>
-      <div className="flex justify-end">
+      <div className="my-4 flex items-center justify-end text-center mx-5">
+        <input
+          type="text"
+          placeholder="Search companies..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
+          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+        />
         <button
-          className="block w-40 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 mr-10"
+          className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-700 ml-3 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
         >
           Create Company
@@ -140,184 +150,216 @@ export default function CompanyTable() {
           onSubmit={handleCreateSubmit}
         />
       )}
-      <div className="container mx-auto w-full px-4 mt-2 mb-5 h-full">
-        <table className="w-full table-auto bg-background-100">
-          <thead>
+      <div className="flex-1 min-h-0 overflow-y-auto px-4">
+        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border">
+          <thead className="sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
             <tr>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Address
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Facilities
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white">
-            {currentCompanies.map((company) => (
-              <tr
-                key={company._id}
-                className="border-b bg-white rounded text-text-950"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {company.companyName}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {company.address.street1}
-                  {company.address.street2
-                    ? `, ${company.address.street2}`
-                    : ""}
-                  , {company.address.city}, {company.address.state}{" "}
-                  {company.address.zipCode}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {company.facilities.length}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {company.status}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  <div className="relative inline-block text-left">
-                    <div>
-                      <button
-                        type="button"
-                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500"
-                        onClick={() => toggleDropdown(company._id)}
-                      >
-                        <svg
-                          className="w-4 h-4 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
+          <tbody>
+            {filteredCompanies
+              .slice(
+                (currentPage - 1) * itemsPerPage,
+                currentPage * itemsPerPage
+              )
+              .map((company, index) => (
+                <tr
+                  key={company._id}
+                  className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
+                >
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {company.companyName}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {company.address.street1}
+                    {company.address.street2
+                      ? `, ${company.address.street2}`
+                      : ""}
+                    , {company.address.city}, {company.address.state}{" "}
+                    {company.address.zipCode}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {company.facilities.length}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {company.status}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    <div className="relative inline-block text-left">
+                      <div>
+                        <button
+                          type="button"
+                          className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-700"
+                          onClick={() => toggleDropdown(company._id)}
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 9l-7 7-7-7"
-                          ></path>
-                        </svg>
-                        Actions
-                      </button>
-                    </div>
-                    {openDropdown === company._id && (
-                      <div
-                        className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-background-100 ring-1 ring-black ring-opacity-5 z-10"
-                        role="menu"
-                        aria-orientation="vertical"
-                        aria-labelledby="menu-button"
-                        tabIndex="-1"
-                        ref={containerRef}
-                      >
-                        <div className="py-1" role="none">
-                          <a
-                            className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
-                            role="menuitem"
-                            tabIndex="-1"
-                            onClick={() => setEditOpen(true)}
+                          <svg
+                            className="w-4 h-4 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
                           >
-                            Edit
-                          </a>
-                          {isEditOpen && (
-                            <EditCompany
-                              companyId={company._id}
-                              onClose={handleCloseEdit}
-                              onSubmit={handleSubmit}
-                            />
-                          )}
-                          <a
-                            className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
-                            role="menuitem"
-                            tabIndex="-1"
-                            onClick={() => promptdeleteCompany(company._id)}
-                          >
-                            Delete
-                          </a>
-                          {isDeleteModalOpen && (
-                            <div className="text-text-950 fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                              <div className="bg-background-100 p-4 rounded-lg shadow-lg">
-                                <h3 className="text-lg font-bold">
-                                  Confirm Delete
-                                </h3>
-                                <p>
-                                  Are you sure you want to delete this company?
-                                </p>
-                                <div className="flex justify-end mt-4">
-                                  <button
-                                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                    onClick={() =>
-                                      deleteCompany(companyIdToDelete)
-                                    }
-                                  >
-                                    Delete
-                                  </button>
-                                  <button
-                                    className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                    onClick={() =>
-                                      setIsDeleteModalOpen(false) &
-                                      setOpenDropdown(null)
-                                    }
-                                  >
-                                    Cancel
-                                  </button>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            ></path>
+                          </svg>
+                          Actions
+                        </button>
+                      </div>
+                      {openDropdown === company._id && (
+                        <div
+                          className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
+                          role="menu"
+                          aria-orientation="vertical"
+                          aria-labelledby="menu-button"
+                          tabIndex="-1"
+                          ref={containerRef}
+                        >
+                          <div className="py-1" role="none">
+                            <a
+                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              role="menuitem"
+                              tabIndex="-1"
+                              onClick={() => setEditOpen(true)}
+                            >
+                              Edit
+                            </a>
+                            {isEditOpen && (
+                              <EditCompany
+                                companyId={company._id}
+                                onClose={handleCloseEdit}
+                                onSubmit={handleSubmit}
+                              />
+                            )}
+                            <a
+                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
+                              role="menuitem"
+                              tabIndex="-1"
+                              onClick={() => promptdeleteCompany(company._id)}
+                            >
+                              Delete
+                            </a>
+                            {isDeleteModalOpen && (
+                              <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                                <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+                                  <h3 className="text-lg font-bold">
+                                    Confirm Delete
+                                  </h3>
+                                  <p>
+                                    Are you sure you want to delete this
+                                    company?
+                                  </p>
+                                  <div className="flex justify-end mt-4">
+                                    <button
+                                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                                      onClick={() =>
+                                        deleteCompany(companyIdToDelete)
+                                      }
+                                    >
+                                      Delete
+                                    </button>
+                                    <button
+                                      className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                                      onClick={() =>
+                                        setIsDeleteModalOpen(false) &
+                                        setOpenDropdown(null)
+                                      }
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
-
-        {totalPages > 1 && (
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex justify-center mt-4">
-            <button
-              onClick={() => paginate(1)}
-              disabled={currentPage === 1}
-              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <TbPlayerSkipBack />
-            </button>
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="mx-1 px-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <RiArrowLeftWideLine />
-            </button>
-            <p className="mx-3">
-              Page {currentPage} of {totalPages}
+        <div className="flex justify-between items-center dark:text-white">
+          <div className="flex gap-3">
+            <div>
+              <select
+                className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
+                id="itemsPerPage"
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1); // Reset to first page on rows per page change
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+            <p className="text-sm">
+              {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
+              {currentPage * itemsPerPage > filteredCompanies.length
+                ? filteredCompanies.length
+                : currentPage * itemsPerPage}{" "}
+              of {filteredCompanies.length}
             </p>
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <RiArrowRightWideLine />
-            </button>
-            <button
-              onClick={() => paginate(totalPages)}
-              disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-2 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <TbPlayerSkipForward />
-            </button>
           </div>
-        )}
+          <div className="px-2 py-5 mx-1">
+            <div className="gap-2 flex">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(1)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronsLeft />
+              </button>
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronLeft />
+              </button>
+              <p>
+                {currentPage} of {totalPages}
+              </p>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronRight />
+              </button>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronsRight />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

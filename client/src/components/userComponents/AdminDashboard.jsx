@@ -3,15 +3,12 @@ import FacilityTable from "../facilityComponents/FacilityTable";
 import UserTable from "../userComponents/UserTable";
 import AdminFacility from "../facilityComponents/AdminFacility";
 import { useState, useEffect, useContext } from "react";
-import {
-  BsFillBuildingsFill,
-  BsBuildingFill,
-  BsFillBuildingFill,
-  BsBuildingsFill,
-} from "react-icons/bs";
+import { FaBuildingLock } from "react-icons/fa6";
+import { RiAdminFill } from "react-icons/ri";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
+import Reports from "../adminReportComponents/Reports";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [openDashboard, setOpenDashboard] = useState(
@@ -61,26 +58,26 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   };
 
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden dark:bg-darkPrimary">
+    <div className="flex flex-col w-screen h-screen dark:bg-darkPrimary">
       <Navbar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
       />
-      <div className="flex flex-row w-full h-full">
+      <div className="flex flex-row flex-1 min-h-0">
         {isCollapsed === false && (
-          <div className="flex flex-col h-full w-1/6 bg-navPrimary text-xl border-r select-none dark:bg-darkNavPrimary dark:border-darkNavSecondary text-white">
+          <div className="w-1/6 bg-navPrimary text-xl border-r select-none dark:bg-darkNavPrimary dark:border-darkNavSecondary text-white">
             {/* Header Side Bar */}
             <div>
-              <h3 className="text-center m-5 text-2xl font-bold">
+              <h3 className="text-center m-[18px] text-2xl font-bold">
                 {user.role == "System_Admin" ? "Admin" : "Dashboard"}
               </h3>
             </div>
 
             {/* Current Facility Side Bar */}
             <div
-              className={`pl-2 pr-2 pb-8 mt-8 ${
+              className={`border-t border-b pl-2 pr-2 border-navSecondary pb-8 ${
                 openDashboard === "users" ||
                 openDashboard === "reports" ||
                 openDashboard === "companies" ||
@@ -94,7 +91,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 onClick={() => toggleSection("currentFacility")}
               >
                 <div className="flex items-center space-x-2">
-                  <BsBuildingFill
+                  <RiAdminFill
                     className={`${
                       openDashboard === "users" ||
                       openDashboard === "reports" ||
@@ -188,7 +185,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 onClick={() => toggleSection("facilities")}
               >
                 <div className="flex items-center space-x-2">
-                  <BsFillBuildingsFill
+                  <FaBuildingLock
                     className={`${
                       openDashboard === "units" ||
                       openDashboard === "tenants" ||
@@ -268,7 +265,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             </div>
           </div>
         )}
-        <div className="w-full h-full flex flex-col bg-background-50">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {openDashboard === "users" && <UserTable />}
           {openDashboard === "companies" && <CompanyTable />}
           {openDashboard === "facilities" && (
@@ -277,7 +274,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           {openDashboard === "facility" && (
             <AdminFacility facilityPage={facilityPage} />
           )}
-          {openDashboard === "reports" && <UserTable />}
+          {openDashboard === "reports" && <Reports />}
         </div>
       </div>
     </div>

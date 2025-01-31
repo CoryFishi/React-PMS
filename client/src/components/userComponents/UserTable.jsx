@@ -12,7 +12,6 @@ import {
 } from "react-icons/bi";
 
 export default function UserTable() {
-  // Root user
   const { user } = useContext(UserContext);
   const rootUser = user;
   const [users, setUsers] = useState([]);
@@ -164,7 +163,7 @@ export default function UserTable() {
   }, [users, searchQuery]);
 
   return (
-    <div className="h-full w-full overflow-y-auto relative mb-16 dark:bg-darkPrimary">
+    <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
       <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
         <h2 className="text-xl font-bold">User Statistics</h2>
         <p className="text-sm">Sys-Admins: {systemAdminCount}</p>
@@ -179,7 +178,7 @@ export default function UserTable() {
           placeholder="Search users..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-          className="border p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
         />
         <button
           className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-700 ml-3 w-44 font-bold"
@@ -192,9 +191,9 @@ export default function UserTable() {
       {isCreateOpen && (
         <CreateUser onClose={handleCloseCreate} onSubmit={handleCreateSubmit} />
       )}
-      <div className="container mx-auto min-w-full px-4 overflow-y-auto">
-        <table className="w-full table-autooverflow-y-auto dark:text-white dark:bg-darkPrimary dark:border-border">
-          <thead className="select-none sticky top-[-1px] z-10 bg-gray-200 dark:bg-darkNavSecondary">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4">
+        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
+          <thead className="sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
             <tr>
               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Display Name
@@ -229,27 +228,26 @@ export default function UserTable() {
                 <tr
                   key={user._id}
                   className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
-                  onClick={() => console.log(user)}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.displayName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.email}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.role}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user?.company?.companyName ?? "-"}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.status}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     <div className="relative inline-block text-left">
                       <div>
                         <button
@@ -287,7 +285,7 @@ export default function UserTable() {
                           tabIndex="-1"
                           ref={containerRef}
                         >
-                          <div role="none">
+                          <div className="py-1" role="none">
                             <a
                               className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                               role="menuitem"

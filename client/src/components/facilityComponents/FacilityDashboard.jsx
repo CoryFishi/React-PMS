@@ -24,7 +24,7 @@ export default function FacilityDashboard({ facilityId, facilityPage }) {
 
   return (
     <>
-      <div className="w-full px-5 py-2 pt-5 bg-background-100 flex flex-col justify-center items-center text-text-950">
+      <div className="w-full px-5 py-2 pt-5 bg-background-100 flex flex-col justify-center items-center ">
         <h1
           className="text-4xl font-bold"
           onClick={() => console.log(facilityPage)}

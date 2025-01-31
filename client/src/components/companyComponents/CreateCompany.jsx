@@ -35,18 +35,16 @@ export default function CreateCompany({ onClose, onSubmit }) {
     }
   };
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold mb-4 text-text-950">
-          Creating Company
-        </h2>
+    <div className="fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white">
+      <div className="relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+        <h2 className="text-xl font-bold mb-4">Creating Company</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
               <div>
                 <label
                   htmlFor="companyName"
-                  className="block text-sm font-semibold text-text-950"
+                  className="block text-sm font-semibold"
                 >
                   Company Name:<span className="text-red-500">*</span>
                 </label>
@@ -54,7 +52,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                   type="text"
                   name="companyName"
                   id="companyName"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="Company name"
                   onChange={(e) => setName(e.target.value)}
                   style={{ width: "17rem" }}
@@ -64,7 +62,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                 <div className="flex-1">
                   <label
                     htmlFor="street1"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold "
                   >
                     Street 1:<span className="text-red-500">*</span>
                   </label>
@@ -80,11 +78,11 @@ export default function CreateCompany({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="country"
-                    className="block text-sm font-semibold text-text-950 mt-1"
+                    className="block text-sm font-semibold  mt-1"
                   >
                     Country:<span className="text-red-500">*</span>
                   </label>
@@ -100,11 +98,11 @@ export default function CreateCompany({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="city"
-                    className="block text-sm font-semibold text-text-950 mt-1"
+                    className="block text-sm font-semibold  mt-1"
                   >
                     City:<span className="text-red-500">*</span>
                   </label>
@@ -120,13 +118,13 @@ export default function CreateCompany({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <div className="flex-1">
                   <label
                     htmlFor="street2"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold "
                   >
                     Street 2:
                   </label>
@@ -142,11 +140,11 @@ export default function CreateCompany({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="state"
-                    className="block text-sm font-semibold text-text-950 mt-1"
+                    className="block text-sm font-semibold  mt-1"
                   >
                     State:<span className="text-red-500">*</span>
                   </label>
@@ -162,11 +160,11 @@ export default function CreateCompany({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="zipCode"
-                    className="block text-sm font-semibold text-text-950 mt-1"
+                    className="block text-sm font-semibold  mt-1"
                   >
                     ZIP Code:<span className="text-red-500">*</span>
                   </label>
@@ -182,24 +180,21 @@ export default function CreateCompany({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-text-950"
-                >
+                <label htmlFor="email" className="block text-sm font-semibold ">
                   Email:
                 </label>
                 <input
                   type="text"
                   name="email"
                   id="email"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="example@email.com"
                   onChange={(e) => setEmail(e.target.value)}
                   style={{ width: "17rem" }}
@@ -209,7 +204,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                 <div>
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold "
                   >
                     Phone Number:
                   </label>
@@ -217,7 +212,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                     type="text"
                     name="phone"
                     id="phone"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="Phone Number"
                     onChange={(e) => setPhone(e.target.value)}
                     style={{ width: "17rem" }}
