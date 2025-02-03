@@ -80,9 +80,9 @@ export default function EditTenant({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 text-left">
-      <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold text-text-950 mb-4">
+    <div className="text-left fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white">
+      <div className="relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+        <h2 className="text-xl font-bold mb-4">
           Editing Tenant | {tenantData.firstName} {tenantData.lastName}
         </h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
@@ -91,7 +91,7 @@ export default function EditTenant({
               <div>
                 <label
                   htmlFor="firstName"
-                  className="block text-sm font-semibold text-text-950"
+                  className="block text-sm font-semibold"
                 >
                   First Name:<span className="text-red-500">*</span>
                 </label>
@@ -99,14 +99,14 @@ export default function EditTenant({
                   type="text"
                   name="firstName"
                   id="firstName"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder={tenantData.firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   style={{ width: "17rem" }}
                 />
                 <label
                   htmlFor="lastName"
-                  className="block text-sm font-semibold text-text-950 mt-2"
+                  className="block text-sm font-semibold mt-2"
                 >
                   Last Name:<span className="text-red-500">*</span>
                 </label>
@@ -114,7 +114,7 @@ export default function EditTenant({
                   type="text"
                   name="lastName"
                   id="lastName"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder={tenantData.lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   style={{ width: "17rem" }}
@@ -124,7 +124,7 @@ export default function EditTenant({
                 <div className="flex-1">
                   <label
                     htmlFor="street1"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold"
                   >
                     Street 1:<span className="text-red-500">*</span>
                   </label>
@@ -140,11 +140,11 @@ export default function EditTenant({
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="country"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold mt-2"
                   >
                     Country:<span className="text-red-500">*</span>
                   </label>
@@ -160,11 +160,11 @@ export default function EditTenant({
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="city"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold mt-2"
                   >
                     City:<span className="text-red-500">*</span>
                   </label>
@@ -180,13 +180,13 @@ export default function EditTenant({
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <div className="flex-1">
                   <label
                     htmlFor="street2"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold"
                   >
                     Street 2:
                   </label>
@@ -202,11 +202,11 @@ export default function EditTenant({
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="state"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold mt-2"
                   >
                     State:<span className="text-red-500">*</span>
                   </label>
@@ -222,11 +222,11 @@ export default function EditTenant({
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="zipCode"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold mt-2"
                   >
                     ZIP Code:<span className="text-red-500">*</span>
                   </label>
@@ -242,31 +242,28 @@ export default function EditTenant({
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-text-950"
-                >
+                <label htmlFor="email" className="block text-sm font-semibold">
                   Email:<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   name="email"
                   id="email"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder={tenantData.contactInfo?.email}
                   onChange={(e) => setEmail(e.target.value)}
                   style={{ width: "17rem" }}
                 />
                 <label
                   htmlFor="phone"
-                  className="block text-sm font-semibold text-text-950 mt-2"
+                  className="block text-sm font-semibold mt-2"
                 >
                   Phone:
                 </label>
@@ -274,7 +271,7 @@ export default function EditTenant({
                   type="text"
                   name="phone"
                   id="phone"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder={tenantData.contactInfo?.phone}
                   onChange={(e) => setPhone(e.target.value)}
                   style={{ width: "17rem" }}
@@ -283,7 +280,7 @@ export default function EditTenant({
               <div>
                 <label
                   htmlFor="accessCode"
-                  className="block text-sm font-semibold text-text-950"
+                  className="block text-sm font-semibold"
                 >
                   Access Code:
                 </label>
@@ -291,23 +288,22 @@ export default function EditTenant({
                   type="text"
                   name="accessCode"
                   id="accessCode"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder={tenantData.accessCode}
                   onChange={(e) => setAccessCode(e.target.value)}
                   style={{ width: "17rem" }}
                 />
-              </div>
-              <div>
+
                 <label
                   htmlFor="units"
-                  className="block text-sm font-semibold text-text-950 mt-2"
+                  className="mt-2 block text-sm font-semibold"
                 >
                   Rented Units:
                 </label>
                 <div className="relative" ref={unitsDropdownRef}>
                   <button
                     type="button"
-                    className="text-wrap block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     style={{ width: "17rem" }}
                     onClick={() => {
                       setUnitsDropdownOpen(!unitsDropdownOpen);
@@ -319,12 +315,12 @@ export default function EditTenant({
                   {unitsDropdownOpen && (
                     <div
                       id="unitsDropdown"
-                      className="absolute w-full bg-white border border-gray-300 rounded-md shadow-lg m-0"
+                      className="absolute w-full dark:border-border dark:bg-darkSecondary bg-white border border-gray-300 rounded-md shadow-lg m-0"
                     >
                       {tenantData.units?.map((unit) => (
                         <label
                           key={unit._id}
-                          className="block px-4 py-2 text-sm text-black"
+                          className="block px-4 py-2 text-sm "
                         >
                           <input
                             type="checkbox"
@@ -344,10 +340,7 @@ export default function EditTenant({
             </div>
           </div>
           <div className="w-full">
-            <label
-              htmlFor="notes"
-              className="block text-sm font-semibold text-text-950 mt-2"
-            >
+            <label htmlFor="notes" className="block text-sm font-semibold mt-2">
               Notes:
             </label>
             <textarea
@@ -355,8 +348,7 @@ export default function EditTenant({
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 block min-h-28 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-              style={{ resize: "none", height: "150px" }} // Adjust height as needed
+              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm min-h-56"
             />
           </div>
           <div className="flex justify-end pt-5">

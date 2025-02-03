@@ -1,7 +1,6 @@
 import CompanyTable from "../companyComponents/CompanyTable";
 import FacilityTable from "../facilityComponents/FacilityTable";
 import UserTable from "../userComponents/UserTable";
-import AdminFacility from "../facilityComponents/AdminFacility";
 import { useState, useEffect, useContext } from "react";
 import { FaBuildingLock } from "react-icons/fa6";
 import { RiAdminFill } from "react-icons/ri";
@@ -9,6 +8,7 @@ import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
 import Reports from "../adminReportComponents/Reports";
+import FacilityDashboard from "../facilityComponents/FacilityDashboard";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [openDashboard, setOpenDashboard] = useState(
@@ -23,6 +23,12 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
     currentFacility: false,
   });
   const [facilityPage, setFacilityPage] = useState("units");
+  const [company, setCompany] = useState(
+    localStorage.getItem("selectedCompany") || ""
+  );
+  const [facility, setFacility] = useState(
+    localStorage.getItem("selectedFacility") || ""
+  );
   const { user } = useContext(UserContext);
 
   useEffect(() => {
@@ -169,110 +175,142 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             </div>
 
             {/* Facilities Side Bar */}
-            <div
-              className={`border-t border-b pl-2 pr-2 border-navSecondary pb-8 ${
-                openDashboard === "units" ||
-                openDashboard === "tenants" ||
-                openDashboard === "facilityReports" ||
-                openDashboard === "settings" ||
-                openDashboard === "facility"
-                  ? "bg-navSecondary  dark:bg-darkPrimary border-l-blue-500 border-l-4"
-                  : ""
-              }`}
-            >
+            {facility !== "" && (
               <div
-                className="flex justify-between items-center cursor-pointer mt-8"
-                onClick={() => toggleSection("facilities")}
+                className={`border-t border-b pl-2 pr-2 border-navSecondary pb-8 ${
+                  openDashboard === "units" ||
+                  openDashboard === "tenants" ||
+                  openDashboard === "facilityReports" ||
+                  openDashboard === "settings" ||
+                  openDashboard === "facility"
+                    ? "bg-navSecondary  dark:bg-darkPrimary border-l-blue-500 border-l-4"
+                    : ""
+                }`}
               >
-                <div className="flex items-center space-x-2">
-                  <FaBuildingLock
-                    className={`${
-                      openDashboard === "units" ||
-                      openDashboard === "tenants" ||
-                      openDashboard === "facilityReports" ||
-                      openDashboard === "settings" ||
-                      openDashboard === "facility"
-                        ? "text-blue-500"
-                        : ""
-                    }`}
-                  />
-                  <span className="font-medium">{facilityName}</span>
+                <div
+                  className="flex justify-between items-center cursor-pointer mt-8"
+                  onClick={() => toggleSection("facilities")}
+                >
+                  <div className="flex items-center space-x-2">
+                    <FaBuildingLock
+                      className={`${
+                        openDashboard === "units" ||
+                        openDashboard === "tenants" ||
+                        openDashboard === "facilityReports" ||
+                        openDashboard === "settings" ||
+                        openDashboard === "facility"
+                          ? "text-blue-500"
+                          : ""
+                      }`}
+                    />
+                    <span className="font-medium">{facilityName}</span>
+                  </div>
+                  {openSections.facilities ? (
+                    <MdExpandLess />
+                  ) : (
+                    <MdExpandMore />
+                  )}
                 </div>
-                {openSections.facilities ? <MdExpandLess /> : <MdExpandMore />}
-              </div>
 
-              {!openSections.facilities && (
-                <div className="mx-4 mt-4 space-y-2">
-                  <button
-                    onClick={() =>
-                      setOpenDashboard("facility") &
-                      localStorage.setItem("openPage2", "facility") &
-                      setFacilityPage("units")
-                    }
-                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                      facilityPage === "units" && openDashboard === "facility"
-                        ? "bg-background-100 border-b-blue-500 border-b-2"
-                        : ""
-                    }`}
-                  >
-                    Units
-                  </button>
-                  <button
-                    onClick={() =>
-                      setOpenDashboard("facility") &
-                      localStorage.setItem("openPage2", "facility") &
-                      setFacilityPage("tenants")
-                    }
-                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                      facilityPage === "tenants" && openDashboard === "facility"
-                        ? "bg-background-100 border-b-blue-500 border-b-2"
-                        : ""
-                    }`}
-                  >
-                    Tenants
-                  </button>
-                  <button
-                    onClick={() =>
-                      setOpenDashboard("facility") &
-                      localStorage.setItem("openPage2", "facility") &
-                      setFacilityPage("reports")
-                    }
-                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                      facilityPage === "reports" && openDashboard === "facility"
-                        ? "bg-background-100 border-b-blue-500 border-b-2"
-                        : ""
-                    }`}
-                  >
-                    Reports
-                  </button>
-                  <button
-                    onClick={() =>
-                      setOpenDashboard("facility") &
-                      localStorage.setItem("openPage2", "facility") &
-                      setFacilityPage("settings")
-                    }
-                    className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                      facilityPage === "settings" &&
-                      openDashboard === "facility"
-                        ? "bg-background-100 border-b-blue-500 border-b-2"
-                        : ""
-                    }`}
-                  >
-                    Settings
-                  </button>
-                </div>
-              )}
-            </div>
+                {!openSections.facilities && (
+                  <div className="mx-4 mt-4 space-y-2">
+                    <button
+                      onClick={() =>
+                        setOpenDashboard("facility") &
+                        localStorage.setItem("openPage2", "facility") &
+                        setFacilityPage("units")
+                      }
+                      className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
+                        facilityPage === "units" && openDashboard === "facility"
+                          ? "bg-background-100 border-b-blue-500 border-b-2"
+                          : ""
+                      }`}
+                    >
+                      Units
+                    </button>
+                    <button
+                      onClick={() =>
+                        setOpenDashboard("facility") &
+                        localStorage.setItem("openPage2", "facility") &
+                        setFacilityPage("tenants")
+                      }
+                      className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
+                        facilityPage === "tenants" &&
+                        openDashboard === "facility"
+                          ? "bg-background-100 border-b-blue-500 border-b-2"
+                          : ""
+                      }`}
+                    >
+                      Tenants & Visitors
+                    </button>
+                    <button
+                      onClick={() =>
+                        setOpenDashboard("facility") &
+                        localStorage.setItem("openPage2", "facility") &
+                        setFacilityPage("reports")
+                      }
+                      className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
+                        facilityPage === "reports" &&
+                        openDashboard === "facility"
+                          ? "bg-background-100 border-b-blue-500 border-b-2"
+                          : ""
+                      }`}
+                    >
+                      Reports
+                    </button>
+                    <button
+                      onClick={() =>
+                        setOpenDashboard("facility") &
+                        localStorage.setItem("openPage2", "facility") &
+                        setFacilityPage("settings")
+                      }
+                      className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
+                        facilityPage === "settings" &&
+                        openDashboard === "facility"
+                          ? "bg-background-100 border-b-blue-500 border-b-2"
+                          : ""
+                      }`}
+                    >
+                      Settings
+                    </button>
+                    <button
+                      onClick={() =>
+                        localStorage.setItem("selectedFacility", "") &
+                        setFacility("") &
+                        setCompany("") &
+                        localStorage.setItem("selectedCompany", "") &
+                        setOpenDashboard("facilities") &
+                        localStorage.setItem("selectedFacilityName", "") &
+                        setFacilityName("Facility Dashboard")
+                      }
+                      className={`px-2 block hover:bg-darkNavSecondary w-full text-left`}
+                    >
+                      Clear Current Facility
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
         <div className="flex-1 min-h-0 overflow-y-auto">
           {openDashboard === "users" && <UserTable />}
           {openDashboard === "companies" && <CompanyTable />}
           {openDashboard === "facilities" && (
-            <FacilityTable facilityPage={facilityPage} />
+            <FacilityTable
+              facility={facility}
+              setFacility={setFacility}
+              company={company}
+              setCompany={setCompany}
+              setFacilityName={setFacilityName}
+              setOpenDashboard={setOpenDashboard}
+            />
           )}
           {openDashboard === "facility" && (
-            <AdminFacility facilityPage={facilityPage} />
+            <FacilityDashboard
+              facilityPage={facilityPage}
+              facility={facility}
+            />
           )}
           {openDashboard === "reports" && <Reports />}
         </div>

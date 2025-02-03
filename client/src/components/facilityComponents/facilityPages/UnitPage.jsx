@@ -4,9 +4,12 @@ import toast from "react-hot-toast";
 import CreateUnit from "../unitComponents/CreateUnit";
 import EditUnit from "../unitComponents/EditUnit";
 import CreateTenantUnitPage from "../tenantComponents/CreateTenantUnitPage";
-import { TbPlayerSkipBack, TbPlayerSkipForward } from "react-icons/tb";
-import { RiArrowLeftWideLine, RiArrowRightWideLine } from "react-icons/ri";
-import { FaStickyNote } from "react-icons/fa";
+import {
+  BiChevronLeft,
+  BiChevronRight,
+  BiChevronsLeft,
+  BiChevronsRight,
+} from "react-icons/bi";
 
 export default function UnitPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -22,9 +25,10 @@ export default function UnitPage({ facilityId }) {
   const [unitIdToMoveOut, setUnitIdToMoveOut] = useState(null);
   const [tenancy, setTenancy] = useState(false);
   const containerRef = useRef(null);
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredUnits, setFilteredUnits] = useState([]);
 
   const promptDeleteUnit = (id) => {
     setUnitIdToDelete(id);
@@ -157,19 +161,29 @@ export default function UnitPage({ facilityId }) {
     });
   };
 
-  // Calculate the indices of the units to display on the current page
-  const indexOfLastUnit = currentPage * itemsPerPage;
-  const indexOfFirstUnit = indexOfLastUnit - itemsPerPage;
-  const currentUnits = units.slice(indexOfFirstUnit, indexOfLastUnit);
-
-  // Function to handle page changes
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   // Calculate total number of pages
-  const totalPages = Math.ceil(units.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredUnits.length / itemsPerPage);
+
+  useEffect(() => {
+    const filteredUnits = units.filter(
+      (unit) =>
+        unit.unitNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        unit.condition.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        unit.securityLevel.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        unit.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        unit.tenant?.firstName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        unit.tenant?.lastName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        unit.paymentInfo?.balance.toString().includes(searchQuery)
+    );
+    setFilteredUnits(filteredUnits);
+  }, [units, searchQuery]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md mx-2">
+    <div>
       {isCreateOpen && (
         <CreateUnit
           onClose={handleCloseCreate}
@@ -177,333 +191,385 @@ export default function UnitPage({ facilityId }) {
           facilityId={facilityId}
         />
       )}
-
-      <div className="w-full p-5 bg-background-100 flex justify-around items-center mb-2 text-text-950 rounded-lg">
+      <div className="w-full p-5 bg-gray-200 dark:text-white dark:bg-darkNavPrimary flex justify-around items-center mb-2">
         <p className="text-sm">Rented: {rentedCount}</p>
         <p className="text-sm">Vacant: {vacantCount}</p>
         <p className="text-sm">Delinquent: {delinquentCount}</p>
         <p className="text-sm">Total: {units.length}</p>
       </div>
-      <div className="flex justify-end">
+      <div className="my-4 flex items-center justify-end text-center mx-5">
+        <input
+          type="text"
+          placeholder="Search units..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
+          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+        />
         <button
-          className="block w-32 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400 mb-2 mr-10"
+          className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-600 ml-3 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
         >
           Create Unit
         </button>
       </div>
-      <div className="container mx-auto px-4 mb-5">
-        <table className="min-w-full table-auto bg-background-100">
-          <thead>
+      <div className="flex-1 min-h-0 overflow-y-auto px-4">
+        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
+          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
             <tr>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Unit Number
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Climate Controlled
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Size
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Monthly
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Availability
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Tenant
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Outstanding Balance
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
+              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white">
-            {currentUnits.map((unit) => (
-              <tr
-                key={unit._id}
-                className="border-b bg-white rounded text-text-950"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.unitNumber}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.climateControlled == true && `✔`}
-                  {unit.climateControlled == false && `✕`}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  <div>
-                    {unit.size?.width +
-                      "x" +
-                      unit.size?.depth +
-                      " " +
-                      unit.size?.unit || "-"}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {"$" + unit.paymentInfo?.pricePerMonth || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.availability == true && `✔`}
-                  {unit.availability == false && `✕`}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.tenant?.firstName
-                    ? unit.tenant.firstName + " " + unit.tenant?.lastName
-                    : "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.paymentInfo?.balance !== undefined
-                    ? `$${unit.paymentInfo?.balance}`
-                    : "$" + 0}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {unit.status || "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  <div>
-                    <button
-                      type="button"
-                      className="inline-flex justify-center w-48 rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500"
-                      onClick={() =>
-                        setOpenDropdown(
-                          openDropdown === unit._id ? null : unit._id
-                        )
-                      }
-                    >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+          <tbody>
+            {filteredUnits
+              .slice(
+                (currentPage - 1) * itemsPerPage,
+                currentPage * itemsPerPage
+              )
+              .map((unit, index) => (
+                <tr
+                  key={unit._id}
+                  onClick={() => console.log(unit)}
+                  className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
+                >
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {unit.unitNumber}
+                  </td>
+                  <td
+                    className={`px-6 py-3 whitespace-nowrap text-sm text-center ${
+                      unit.climateControlled == true
+                        ? "text-blue-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {unit.climateControlled == true && `✔`}
+                    {unit.climateControlled == false && `✕`}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    <div>
+                      {unit.size?.width +
+                        "x" +
+                        unit.size?.depth +
+                        " " +
+                        unit.size?.unit || "-"}
+                    </div>
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {"$" + unit.paymentInfo?.pricePerMonth || "-"}
+                  </td>
+                  <td
+                    className={`px-6 py-3 whitespace-nowrap text-sm text-center ${
+                      unit.availability == true
+                        ? "text-blue-500"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {unit.availability == true && `✔`}
+                    {unit.availability == false && `✕`}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {unit.tenant?.firstName
+                      ? unit.tenant.firstName + " " + unit.tenant?.lastName
+                      : "-"}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {unit.paymentInfo?.balance !== undefined
+                      ? `$${unit.paymentInfo?.balance}`
+                      : "$" + 0}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {unit.status || "-"}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    <div>
+                      <button
+                        type="button"
+                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-600"
+                        onClick={() =>
+                          setOpenDropdown(
+                            openDropdown === unit._id ? null : unit._id
+                          )
+                        }
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 9l-7 7-7-7"
-                        ></path>
-                      </svg>
-                      Actions
-                    </button>
-                  </div>
-                  {openDropdown === unit._id && (
-                    <div
-                      className="origin-center absolute ml-12 w-32 mt-1 rounded-md shadow-md bg-background-100 text-left"
-                      role="menu"
-                      aria-orientation="vertical"
-                      aria-labelledby="menu-button"
-                      tabIndex="-1"
-                      ref={containerRef}
-                    >
-                      {isRentModalMainOpen && (
-                        <CreateTenantUnitPage
-                          onClose={handleCloseTenant}
-                          onSubmit={handleTenantSubmit}
-                          unitId={unit._id}
-                          tenancy={tenancy}
-                        />
-                      )}
-                      <div className="py-1" role="none">
-                        <a
-                          className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200 text-left"
-                          role="menuitem"
-                          tabIndex="-1"
-                          onClick={() => setEditOpen(unit._id)}
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
                         >
-                          Edit
-                        </a>
-                        {isEditOpen && (
-                          <EditUnit
-                            facilityId={facilityId}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 9l-7 7-7-7"
+                          ></path>
+                        </svg>
+                        Actions
+                      </button>
+                    </div>
+                    {openDropdown === unit._id && (
+                      <div
+                        className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
+                        role="menu"
+                        aria-orientation="vertical"
+                        aria-labelledby="menu-button"
+                        tabIndex="-1"
+                        ref={containerRef}
+                      >
+                        {isRentModalMainOpen && (
+                          <CreateTenantUnitPage
+                            onClose={handleCloseTenant}
+                            onSubmit={handleTenantSubmit}
                             unitId={unit._id}
-                            onClose={handleCloseEdit}
-                            onSubmit={handleEditSubmit}
+                            tenancy={tenancy}
                           />
                         )}
-                        {unit.availability === true && (
+                        <div className="py-1" role="none">
                           <a
-                            className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
+                            className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                             role="menuitem"
                             tabIndex="-1"
-                            onClick={() => setIsRentModalOpen(true)}
+                            onClick={() => setEditOpen(unit._id)}
                           >
-                            Rent
+                            Edit
                           </a>
-                        )}
+                          {isEditOpen && (
+                            <EditUnit
+                              facilityId={facilityId}
+                              unitId={unit._id}
+                              onClose={handleCloseEdit}
+                              onSubmit={handleEditSubmit}
+                            />
+                          )}
+                          {unit.availability === true && (
+                            <a
+                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              role="menuitem"
+                              tabIndex="-1"
+                              onClick={() => setIsRentModalOpen(true)}
+                            >
+                              Rent
+                            </a>
+                          )}
 
-                        {isRentModalOpen && (
-                          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                            <div className="bg-background-100 p-4 rounded-lg shadow-lg">
-                              <h3 className="text-lg font-bold">
-                                Renting Unit {unit.unitNumber}
-                              </h3>
-                              <p>Are you sure you want to rent this unit?</p>
-                              <div className="flex justify-end mt-4">
-                                <button
-                                  className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
-                                  onClick={() =>
-                                    setTenancy(false) &
-                                    setIsRentModalMainOpen(true) &
-                                    setIsRentModalOpen(false)
-                                  }
-                                >
-                                  New Tenant
-                                </button>
-                                <button
-                                  className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
-                                  onClick={() =>
-                                    setTenancy(true) &
-                                    setIsRentModalMainOpen(true) &
-                                    setIsRentModalOpen(false)
-                                  }
-                                >
-                                  Existing Tenant
-                                </button>
-                                <button
-                                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() =>
-                                    setIsRentModalOpen(false) &
-                                    setOpenDropdown(null)
-                                  }
-                                >
-                                  Cancel
-                                </button>
+                          {isRentModalOpen && (
+                            <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                              <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+                                <h3 className="text-lg font-bold">
+                                  Renting Unit {unit.unitNumber}
+                                </h3>
+                                <p>Are you sure you want to rent this unit?</p>
+                                <div className="flex justify-end mt-4">
+                                  <button
+                                    className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
+                                    onClick={() =>
+                                      setTenancy(false) &
+                                      setIsRentModalMainOpen(true) &
+                                      setIsRentModalOpen(false)
+                                    }
+                                  >
+                                    New Tenant
+                                  </button>
+                                  <button
+                                    className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
+                                    onClick={() =>
+                                      setTenancy(true) &
+                                      setIsRentModalMainOpen(true) &
+                                      setIsRentModalOpen(false)
+                                    }
+                                  >
+                                    Existing Tenant
+                                  </button>
+                                  <button
+                                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2"
+                                    onClick={() =>
+                                      setIsRentModalOpen(false) &
+                                      setOpenDropdown(null)
+                                    }
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-
-                        {unit.status !== "Vacant" && (
+                          )}
+                          {unit.status !== "Vacant" && (
+                            <a
+                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              role="menuitem"
+                              tabIndex="-1"
+                              onClick={() => promptMoveOut(unit._id)}
+                            >
+                              Move Out
+                            </a>
+                          )}
+                          {isMoveOutModalOpen && (
+                            <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                              <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+                                <h3 className="text-lg font-bold">
+                                  Moving Out Unit {unit.unitNumber}
+                                </h3>
+                                <p>
+                                  Are you sure you want to move out{" "}
+                                  {unit.tenant?.firstName}{" "}
+                                  {unit.tenant?.lastName}?
+                                </p>
+                                <div className="flex justify-center mt-4">
+                                  <button
+                                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2"
+                                    onClick={() => moveOutUnit(unitIdToMoveOut)}
+                                  >
+                                    Move Out
+                                  </button>
+                                  <button
+                                    className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                                    onClick={() =>
+                                      setIsMoveOutModalOpen(false) &
+                                      setOpenDropdown(null)
+                                    }
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                           <a
-                            className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
+                            className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                             role="menuitem"
                             tabIndex="-1"
-                            onClick={() => promptMoveOut(unit._id)}
+                            onClick={() => promptDeleteUnit(unit._id)}
                           >
-                            Move Out
+                            Delete
                           </a>
-                        )}
-                        {isMoveOutModalOpen && (
-                          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                            <div className="bg-background-100 p-4 rounded-lg shadow-lg">
-                              <h3 className="text-lg font-bold">
-                                Moving Out Unit {unit.unitNumber}
-                              </h3>
-                              <p>
-                                Are you sure you want to move out{" "}
-                                {unit.tenant?.firstName} {unit.tenant?.lastName}
-                                ?
-                              </p>
-                              <div className="flex justify-center mt-4">
-                                <button
-                                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() => moveOutUnit(unitIdToMoveOut)}
-                                >
-                                  Move Out
-                                </button>
-                                <button
-                                  className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                  onClick={() =>
-                                    setIsMoveOutModalOpen(false) &
-                                    setOpenDropdown(null)
-                                  }
-                                >
-                                  Cancel
-                                </button>
+                          {isDeleteModalOpen && (
+                            <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                              <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+                                <h3 className="text-lg font-bold">
+                                  Confirm Delete
+                                </h3>
+                                <p>
+                                  Are you sure you want to delete this unit?
+                                </p>
+                                <div className="flex justify-end mt-4">
+                                  <button
+                                    className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2"
+                                    onClick={() =>
+                                      deleteUnit(unitIdToDelete) &
+                                      setOpenDropdown(null)
+                                    }
+                                  >
+                                    Delete
+                                  </button>
+                                  <button
+                                    className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                                    onClick={() =>
+                                      setIsDeleteModalOpen(false) &
+                                      setOpenDropdown(null)
+                                    }
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                        <a
-                          className="text-text-950 block px-4 py-2 text-sm hover:bg-background-200"
-                          role="menuitem"
-                          tabIndex="-1"
-                          onClick={() => promptDeleteUnit(unit._id)}
-                        >
-                          Delete
-                        </a>
-                        {isDeleteModalOpen && (
-                          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                            <div className="bg-background-100 p-4 rounded-lg shadow-lg">
-                              <h3 className="text-lg font-bold">
-                                Confirm Delete
-                              </h3>
-                              <p>Are you sure you want to delete this unit?</p>
-                              <div className="flex justify-end mt-4">
-                                <button
-                                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() =>
-                                    deleteUnit(unitIdToDelete) &
-                                    setOpenDropdown(null)
-                                  }
-                                >
-                                  Delete
-                                </button>
-                                <button
-                                  className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                  onClick={() =>
-                                    setIsDeleteModalOpen(false) &
-                                    setOpenDropdown(null)
-                                  }
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
+                    )}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-4">
-            <button
-              onClick={() => paginate(1)}
-              disabled={currentPage === 1}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <TbPlayerSkipBack />
-            </button>
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <RiArrowLeftWideLine />
-            </button>
-            <p className="mx-3">
-              Page {currentPage} of {totalPages}
+        <div className="flex justify-between items-center dark:text-white">
+          <div className="flex gap-3">
+            <div>
+              <select
+                className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
+                id="itemsPerPage"
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1); // Reset to first page on rows per page change
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+            </div>
+            <p className="text-sm">
+              {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
+              {currentPage * itemsPerPage > filteredUnits.length
+                ? filteredUnits.length
+                : currentPage * itemsPerPage}{" "}
+              of {filteredUnits.length}
             </p>
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <RiArrowRightWideLine />
-            </button>
-            <button
-              onClick={() => paginate(totalPages)}
-              disabled={currentPage === totalPages}
-              className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-            >
-              <TbPlayerSkipForward />
-            </button>
           </div>
-        )}
+          <div className="px-2 py-5 mx-1">
+            <div className="gap-2 flex">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(1)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronsLeft />
+              </button>
+              <button
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => prev - 1)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronLeft />
+              </button>
+              <p>
+                {currentPage} of {totalPages}
+              </p>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronRight />
+              </button>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+              >
+                <BiChevronsRight />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

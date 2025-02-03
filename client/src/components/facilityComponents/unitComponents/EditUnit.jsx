@@ -1,7 +1,6 @@
 import axios from "axios";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { UserContext } from "../../../../context/userContext";
 
 export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   const [unitNumber, setUnitNumber] = useState("");
@@ -71,18 +70,16 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 text-left">
-      <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold mb-4 text-text-950">
-          Editing Unit {unitNumber}
-        </h2>
+    <div className="fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white text-left">
+      <div className="relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+        <h2 className="text-xl font-bold mb-4">Editing Unit {unitNumber}</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-4">
               <div>
                 <label
                   htmlFor="unitNumber"
-                  className="block text-sm font-semibold text-text-950"
+                  className="block text-sm font-semibold"
                 >
                   Unit Number:
                 </label>
@@ -90,7 +87,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                   type="text"
                   name="unitNumber"
                   id="unitNumber"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder={unitNumber}
                   onChange={(e) => setUnitNumber(e.target.value)}
                   style={{ width: "17rem" }}
@@ -100,7 +97,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                 <div className="flex-1">
                   <label
                     htmlFor="width"
-                    className="block text-sm font-semibold text-text-950 mt-1"
+                    className="block text-sm font-semibold  mt-1"
                   >
                     Width:
                   </label>
@@ -116,11 +113,11 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="height"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     Height:
                   </label>
@@ -136,13 +133,13 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <div className="flex-1">
                   <label
                     htmlFor="depth"
-                    className="block text-sm font-semibold text-text-950 mt-1"
+                    className="block text-sm font-semibold  mt-1"
                   >
                     Depth:
                   </label>
@@ -158,17 +155,17 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="unit"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     Unit:
                   </label>
                   <select
                     id="unit"
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     value={size.unit}
                     onChange={(e) =>
                       setSize((prevSize) => ({
@@ -198,17 +195,14 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
             </div>
             <div className="space-y-4">
               <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-semibold text-text-950"
-                >
+                <label htmlFor="price" className="block text-sm font-semibold ">
                   Monthly Price:
                 </label>
                 <input
                   type="text"
                   name="price"
                   id="price"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder={price}
                   onChange={(e) => setPrice(e.target.value)}
                   style={{ width: "17rem" }}
@@ -219,13 +213,13 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                   <div>
                     <label
                       htmlFor="securityLevel"
-                      className="mt-5 block text-sm font-semibold text-text-950"
+                      className="mt-5 block text-sm font-semibold "
                     >
                       Security Level:
                     </label>
                     <select
                       id="securityLevel"
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       value={selectedSecurityLevel}
                       onChange={(e) => setSelectedSecurityLevel(e.target.value)}
                     >
@@ -237,13 +231,13 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                     </select>
                     <label
                       htmlFor="condition"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold  mt-2"
                     >
                       Condition:
                     </label>
                     <select
                       id="condition"
-                      className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       value={condition}
                       onChange={(e) => {
                         setCondition(e.target.value);
@@ -272,7 +266,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
           <div className="w-full">
             <label
               htmlFor="notes"
-              className="block text-sm font-semibold text-text-950 mt-2"
+              className="block text-sm font-semibold  mt-2"
             >
               Notes:
             </label>
@@ -281,8 +275,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 block min-h-28 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
-              style={{ resize: "none", height: "150px" }} // Adjust height as needed
+              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm min-h-56"
             />
           </div>
           <div className="flex justify-between pt-2">

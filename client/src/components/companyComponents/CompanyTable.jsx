@@ -152,7 +152,7 @@ export default function CompanyTable() {
       )}
       <div className="flex-1 min-h-0 overflow-y-auto px-4">
         <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border">
-          <thead className="sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
+          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
             <tr>
               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Name

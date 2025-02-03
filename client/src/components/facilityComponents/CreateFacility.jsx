@@ -309,7 +309,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                   <div>
                     <label
                       htmlFor="phone"
-                      className="block text-sm font-semibold  mt-5"
+                      className="block text-sm font-semibold mt-5"
                     >
                       Phone Number:
                     </label>
