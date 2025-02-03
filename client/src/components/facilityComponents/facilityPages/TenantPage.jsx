@@ -24,6 +24,7 @@ export default function TenantPage({ facilityId }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredTenants, setFilteredTenants] = useState([]);
+  const [activeTab, setActiveTab] = useState("Current");
 
   const newCount = tenants.filter((tenants) => tenants.status === "New").length;
   const activeCount = tenants.filter(
@@ -152,7 +153,7 @@ export default function TenantPage({ facilityId }) {
           facilityId={facilityId}
         />
       )}
-      <div className="w-full p-5 bg-gray-200 dark:text-white dark:bg-darkNavPrimary flex justify-around items-center mb-2">
+      <div className="p-5 bg-gray-200 dark:text-white dark:bg-darkNavPrimary flex justify-evenly items-center rounded-lg shadow-sm m-5 mt-3">
         <p className="text-sm">New: {newCount}</p>
         <p className="text-sm">Active: {activeCount}</p>
         <p className="text-sm">Disabled: {disabledCount}</p>
@@ -161,6 +162,31 @@ export default function TenantPage({ facilityId }) {
           Total Outstanding Balance: ${totalOutstandingBalance}
         </p>
       </div>
+      <div className="border-b flex items-center justify-between mx-5">
+        <h1 className="text-xl font-bold">Tenants</h1>
+        <div className="flex mr-5 space-x-1">
+          <button
+            className={`text-sm px-5 py-3 focus:outline-none relative top-[1px] shadow-none  ${
+              activeTab === "Current"
+                ? "border border-gray-300 rounded-t-md bg-white shadow-sm text-black border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-gray-200 rounded-t"
+            }`}
+            onClick={() => setActiveTab("Current")}
+          >
+            Current Tenants
+          </button>
+          <button
+            className={`text-sm px-5 py-3 focus:outline-none relative top-[1px] shadow-none  ${
+              activeTab === "Previous"
+                ? "border border-gray-300 rounded-t-md bg-white shadow-sm text-black border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-gray-200 rounded-t"
+            }`}
+            onClick={() => setActiveTab("Previous")}
+          >
+            Previous Tenants
+          </button>
+        </div>
+      </div>
       <div className="my-4 flex items-center justify-end text-center mx-5">
         <input
           type="text"
@@ -168,7 +194,7 @@ export default function TenantPage({ facilityId }) {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
           className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
-        />{" "}
+        />
         <button
           className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-600 ml-3 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
@@ -176,237 +202,246 @@ export default function TenantPage({ facilityId }) {
           Create Tenant
         </button>
       </div>
-      <div className="flex-1 min-h-0 overflow-y-auto px-4">
-        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Tenant
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                # of Units
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Access Code
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Phone Number
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Email Address
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Outstanding Balance
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTenants
-              .slice(
-                (currentPage - 1) * itemsPerPage,
-                currentPage * itemsPerPage
-              )
-              .map((tenant, index) => (
-                <tr
-                  key={tenant._id}
-                  className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
-                >
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.firstName} {tenant.lastName}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.units.length}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.accessCode}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.contactInfo?.phone}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.contactInfo?.email}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    $
-                    {tenant.units.reduce((total, unit) => {
-                      return total + (unit.paymentInfo?.balance || 0);
-                    }, 0)}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.status}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    <div>
-                      <button
-                        type="button"
-                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-600"
-                        onClick={() =>
-                          setOpenDropdown(
-                            openDropdown === tenant._id ? null : tenant._id
-                          )
-                        }
-                      >
-                        <svg
-                          className="w-4 h-4 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 9l-7 7-7-7"
-                          ></path>
-                        </svg>
-                        Actions
-                      </button>
-                    </div>
-                    {openDropdown === tenant._id && (
-                      <div
-                        className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
-                        role="menu"
-                        aria-orientation="vertical"
-                        aria-labelledby="menu-button"
-                        tabIndex="-1"
-                        ref={containerRef}
-                      >
-                        <div className="py-1" role="none">
-                          <a
-                            className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+      {activeTab === "Current" ? (
+        <div>
+          <div className="flex-1 min-h-0 overflow-y-auto px-5">
+            <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
+              <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
+                <tr>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    Tenant
+                  </th>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    # of Units
+                  </th>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    Access Code
+                  </th>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    Phone Number
+                  </th>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    Email Address
+                  </th>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    Outstanding Balance
+                  </th>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTenants
+                  .slice(
+                    (currentPage - 1) * itemsPerPage,
+                    currentPage * itemsPerPage
+                  )
+                  .map((tenant, index) => (
+                    <tr
+                      key={tenant._id}
+                      className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
+                    >
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        {tenant.firstName} {tenant.lastName}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        {tenant.units.length}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        {tenant.accessCode}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        {tenant.contactInfo?.phone}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        {tenant.contactInfo?.email}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        $
+                        {tenant.units.reduce((total, unit) => {
+                          return total + (unit.paymentInfo?.balance || 0);
+                        }, 0)}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        {tenant.status}
+                      </td>
+                      <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                        <div>
+                          <button
+                            type="button"
+                            className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-600"
+                            onClick={() =>
+                              setOpenDropdown(
+                                openDropdown === tenant._id ? null : tenant._id
+                              )
+                            }
+                          >
+                            <svg
+                              className="w-4 h-4 mr-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M19 9l-7 7-7-7"
+                              ></path>
+                            </svg>
+                            Actions
+                          </button>
+                        </div>
+                        {openDropdown === tenant._id && (
+                          <div
+                            className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
+                            role="menu"
+                            aria-orientation="vertical"
+                            aria-labelledby="menu-button"
+                            tabIndex="-1"
+                            ref={containerRef}
+                          >
+                            <div className="py-1" role="none">
+                              <a
+                                className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                                role="menuitem"
+                                tabIndex="-1"
+                                onClick={() => setEditOpen(tenant._id)}
+                              >
+                                Edit
+                              </a>
+                              {isEditOpen && (
+                                <EditTenant
+                                  facilityId={facilityId}
+                                  tenantId={tenant._id}
+                                  onClose={handleCloseEdit}
+                                  onSubmit={handleEditSubmit}
+                                />
+                              )}
+                              {/* <a
+                            className=" block px-4 py-2 text-sm hover:bg-background-200"
                             role="menuitem"
                             tabIndex="-1"
-                            onClick={() => setEditOpen(tenant._id)}
+                            onClick={() => promptDeleteTenant(tenant._id)}
                           >
-                            Edit
+                            Delete
                           </a>
-                          {isEditOpen && (
-                            <EditTenant
-                              facilityId={facilityId}
-                              tenantId={tenant._id}
-                              onClose={handleCloseEdit}
-                              onSubmit={handleEditSubmit}
-                            />
-                          )}
-                          {/* <a
-                          className=" block px-4 py-2 text-sm hover:bg-background-200"
-                          role="menuitem"
-                          tabIndex="-1"
-                          onClick={() => promptDeleteTenant(tenant._id)}
-                        >
-                          Delete
-                        </a>
-                        {isDeleteModalOpen && (
-                          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                            <div className="bg-background-100 p-4 rounded-lg shadow-lg">
-                              <h3 className="text-lg font-bold">
-                                Confirm Delete
-                              </h3>
-                              <p>
-                                Are you sure you want to delete tenant{" "}
-                                {tenant.firstName} {tenant.lastName}?
-                              </p>
-                              <div className="flex justify-end mt-4">
-                                <button
-                                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                  onClick={() =>
-                                    deleteTenant(tenantIdToDelete) &
-                                    setOpenDropdown(null)
-                                  }
-                                >
-                                  Delete
-                                </button>
-                                <button
-                                  className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                  onClick={() =>
-                                    setIsDeleteModalOpen(false) &
-                                    setOpenDropdown(null)
-                                  }
-                                >
-                                  Cancel
-                                </button>
+                          {isDeleteModalOpen && (
+                            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                              <div className="bg-background-100 p-4 rounded-lg shadow-lg">
+                                <h3 className="text-lg font-bold">
+                                  Confirm Delete
+                                </h3>
+                                <p>
+                                  Are you sure you want to delete tenant{" "}
+                                  {tenant.firstName} {tenant.lastName}?
+                                </p>
+                                <div className="flex justify-end mt-4">
+                                  <button
+                                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                                    onClick={() =>
+                                      deleteTenant(tenantIdToDelete) &
+                                      setOpenDropdown(null)
+                                    }
+                                  >
+                                    Delete
+                                  </button>
+                                  <button
+                                    className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                                    onClick={() =>
+                                      setIsDeleteModalOpen(false) &
+                                      setOpenDropdown(null)
+                                    }
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
                               </div>
                             </div>
+                          )} */}
+                            </div>
                           </div>
-                        )} */}
-                        </div>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-        <div className="flex justify-between items-center dark:text-white">
-          <div className="flex gap-3">
-            <div>
-              <select
-                className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
-                id="itemsPerPage"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page on rows per page change
-                }}
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-            <p className="text-sm">
-              {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-              {currentPage * itemsPerPage > filteredTenants.length
-                ? filteredTenants.length
-                : currentPage * itemsPerPage}{" "}
-              of {filteredTenants.length}
-            </p>
-          </div>
-          <div className="px-2 py-5 mx-1">
-            <div className="gap-2 flex">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronsLeft />
-              </button>
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronLeft />
-              </button>
-              <p>
-                {currentPage} of {totalPages}
-              </p>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronRight />
-              </button>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(totalPages)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronsRight />
-              </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+            <div className="flex justify-between items-center dark:text-white">
+              <div className="flex gap-3">
+                <div>
+                  <select
+                    className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
+                    id="itemsPerPage"
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1); // Reset to first page on rows per page change
+                    }}
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                </div>
+                <p className="text-sm">
+                  {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1}{" "}
+                  -{" "}
+                  {currentPage * itemsPerPage > filteredTenants.length
+                    ? filteredTenants.length
+                    : currentPage * itemsPerPage}{" "}
+                  of {filteredTenants.length}
+                </p>
+              </div>
+              <div className="px-2 py-5 mx-1">
+                <div className="gap-2 flex">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(1)}
+                    className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                  >
+                    <BiChevronsLeft />
+                  </button>
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                    className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                  >
+                    <BiChevronLeft />
+                  </button>
+                  <p>
+                    {currentPage} of {totalPages}
+                  </p>
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                    className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                  >
+                    <BiChevronRight />
+                  </button>
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(totalPages)}
+                    className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                  >
+                    <BiChevronsRight />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="items-center justify-center flex-col flex m-10">
+          <p className="text-red-500">UNDER DEVELOPMENT</p>
+        </div>
+      )}
     </div>
   );
 }
