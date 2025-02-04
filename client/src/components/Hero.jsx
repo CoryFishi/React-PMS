@@ -1,12 +1,12 @@
 import React from "react";
+import home from "../assets/images/home.jpeg";
 
 const Hero = () => {
   return (
     <section
       className="relative py-20 bg-cover bg-center bg-no-repeat dark:bg-darkPrimary"
       style={{
-        backgroundImage:
-          "url('https://cdn.mos.cms.futurecdn.net/52HVcjStCQTsaDJWzEt946-1200-80.jpg')",
+        backgroundImage: `url(${home})`,
       }}
     >
       {/* Optional overlay to darken background image */}
