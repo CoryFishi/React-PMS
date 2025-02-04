@@ -68,28 +68,24 @@ export default function FacilityConfigurationDashboard() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full relative">
-      <div className="w-full px-6 py-4 bg-gray-200 dark:text-white dark:bg-darkNavPrimary flex items-center border-b border-b-gray-300 dark:border-border">
-        <h1 className="text-xl font-bold uppercase">Admin Dashboard</h1>
-        <h2 className="text-lg">&nbsp;/ {today}</h2>
-      </div>
-      <div className="m-2">
+    <div className="flex flex-col w-full relative dark:text-white">
+      <div className="m-1">
         {/* Dashboard Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
           {/* Users Statistics */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">User Statistics</h2>
             <Bar data={userChartData} />
           </div>
 
           {/* Facilities Statistics */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Facility Statistics</h2>
             <Bar data={facilityChartData} />
           </div>
 
           {/* Error Log Section */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">System Errors</h2>
             <ul className="text-sm space-y-2">
               {stats.errors.map((error) => (

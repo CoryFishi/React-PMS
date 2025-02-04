@@ -11,6 +11,7 @@ import {
   MdSettingsApplications,
   MdIntegrationInstructions,
 } from "react-icons/md";
+import GateIntegrationReport from "../reportsComponents/GateIntegrationReport";
 
 export default function ReportsPage({ facilityId }) {
   const [selectedReport, setSelectedReport] = useState(null);
@@ -22,6 +23,7 @@ export default function ReportsPage({ facilityId }) {
     unitVacancy: <VacancyReport facilityId={facilityId} />,
     applicationEvents: <ApplicationEventsReport facilityId={facilityId} />,
     payments: <PaymentsReport facilityId={facilityId} />,
+    gateIntegration: <GateIntegrationReport facilityId={facilityId} />,
   };
 
   return (
@@ -36,7 +38,7 @@ export default function ReportsPage({ facilityId }) {
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
               onClick={() => setSelectedReport("allUnits")}
             >
-              All Units
+              Unit Detail
             </button>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -54,7 +56,7 @@ export default function ReportsPage({ facilityId }) {
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
               onClick={() => setSelectedReport("allTenants")}
             >
-              All Tenants
+              Tenant Detail
             </button>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -94,7 +96,7 @@ export default function ReportsPage({ facilityId }) {
             <h1>INTEGRATIONS</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedReport("applicationEvents")}
+              onClick={() => setSelectedReport("gateIntegration")}
             >
               Gate Integration
             </button>
@@ -103,7 +105,7 @@ export default function ReportsPage({ facilityId }) {
       ) : (
         <div>
           <button
-            className="mb-4 px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-700"
+            className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
             onClick={() => setSelectedReport(null)}
           >
             Back to Reports

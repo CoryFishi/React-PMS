@@ -233,8 +233,8 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     <div className="mx-4 mt-4 space-y-2">
                       <button
                         onClick={() =>
-                          setOpenDashboard("dashboard") &
-                          localStorage.setItem("openPage2", "dashboard") &
+                          setOpenDashboard("facility") &
+                          localStorage.setItem("openPage2", "facility") &
                           setFacilityPage("dashboard")
                         }
                         className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${

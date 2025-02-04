@@ -385,11 +385,15 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                     name="company"
                     id="company"
                     value={company}
-                    onChange={(e) => handleCompanyChange(e.target.value)}
+                    onChange={(e) =>
+                      handleCompanyChange(
+                        e.target.value === "null" ? null : e.target.value
+                      )
+                    }
                     style={{ width: "17rem" }}
                     className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   >
-                    <option value={null}>Select a company</option>
+                    <option value="null">Select a company</option>
                     {companies.map((company) => (
                       <option key={company._id} value={company._id}>
                         {company.companyName}
@@ -398,7 +402,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                   </select>
                   <label
                     htmlFor="manager"
-                    className="block text-sm font-semibold  mt-1"
+                    className="block text-sm font-semibold mt-2"
                   >
                     Manager:
                   </label>
@@ -406,11 +410,15 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                     name="manager"
                     id="manager"
                     value={manager || ""}
-                    onChange={(e) => setManager(e.target.value)}
+                    onChange={(e) =>
+                      setManager(
+                        e.target.value === "null" ? null : e.target.value
+                      )
+                    }
                     style={{ width: "17rem" }}
                     className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   >
-                    <option value="">Select a manager</option>
+                    <option value="null">Select a manager</option>
                     {managers.map((manager) => (
                       <option key={manager._id} value={manager._id}>
                         {manager.name}
@@ -419,7 +427,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                   </select>
                   <label
                     htmlFor="securityLevel"
-                    className="block text-sm font-semibold  mt-4"
+                    className="block text-sm font-semibold mt-5"
                   >
                     Security Level:
                   </label>

@@ -1,13 +1,18 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { TbPlayerSkipBack, TbPlayerSkipForward } from "react-icons/tb";
-import { RiArrowLeftWideLine, RiArrowRightWideLine } from "react-icons/ri";
+import {
+  BiChevronLeft,
+  BiChevronRight,
+  BiChevronsLeft,
+  BiChevronsRight,
+} from "react-icons/bi";
 
 export default function DelinquencyReport({ facilityId }) {
   const [tenants, setTenants] = useState([]);
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredTenants, setFilteredTenants] = useState([]);
 
   useEffect(() => {
     refreshTenantTable(facilityId);
@@ -70,144 +75,184 @@ export default function DelinquencyReport({ facilityId }) {
     document.body.removeChild(link);
   };
 
-  // Calculate the indices of the tenants to display on the current page
-  const indexOfLastTenant = currentPage * itemsPerPage;
-  const indexOfFirstTenant = indexOfLastTenant - itemsPerPage;
-  const currentTenants = tenants.slice(indexOfFirstTenant, indexOfLastTenant);
-
-  // Function to handle page changes
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   // Calculate total number of pages
-  const totalPages = Math.ceil(tenants.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredTenants.length / itemsPerPage);
+
+  useEffect(() => {
+    const filteredTenants = tenants.filter((tenant) =>
+      tenant.firstName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredTenants(filteredTenants);
+  }, [tenants, searchQuery]);
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
+    <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-border dark:bg-darkPrimary">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold mb-2">Delinquency Report</h2>
+          <h2 className="text-xl font-bold">Delinquency Report</h2>
           <p>See your delinquency details here!</p>
         </div>
         <button
-          className="w-24 py-2 px-4 bg-primary-500 text-white font-semibold rounded-lg hover:bg-accent-400"
+          className="w-24 py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
           onClick={exportToCSV}
         >
           Export
         </button>
       </div>
-
-      <table className="min-w-full table-auto bg-background-100">
-        <thead>
-          <tr>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              First Name
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Last Name
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Access Code
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Units Rented
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Outstanding Balance
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Status
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Phone Number
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Email Address
-            </th>
-            <th className="px-6 py-3 text-xs font-medium text-text-950 uppercase tracking-wider">
-              Address
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white">
-          {currentTenants
-            .filter((tenant) => tenant.status === "Delinquent")
-            .map((delinquentTenant) => (
-              <tr
-                key={delinquentTenant._id}
-                className="border-b bg-white rounded text-text-950"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.firstName}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.lastName}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.accessCode}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.units?.length}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  ${delinquentTenant.balance}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.status}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.contactInfo?.phone}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.contactInfo?.email}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                  {delinquentTenant.address.street1}
-                  {delinquentTenant.address.street2
-                    ? `, ${delinquentTenant.address.street2}`
-                    : ""}
-                  , {delinquentTenant.address.city},{" "}
-                  {delinquentTenant.address.state}{" "}
-                  {delinquentTenant.address.zipCode}
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={() => paginate(1)}
-            disabled={currentPage === 1}
-            className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-          >
-            <TbPlayerSkipBack />
-          </button>
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="mx-1 px-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-          >
-            <RiArrowLeftWideLine />
-          </button>
-          <p className="mx-3">
-            Page {currentPage} of {totalPages}
+      <div className="my-2">
+        <input
+          type="text"
+          placeholder="Search tenants..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
+          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+        />
+      </div>
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
+          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
+            <tr>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                First Name
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Last Name
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Access Code
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Units Rented
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Outstanding Balance
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Phone Number
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Email Address
+              </th>
+              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+                Address
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTenants
+              .slice(
+                (currentPage - 1) * itemsPerPage,
+                currentPage * itemsPerPage
+              )
+              .filter((tenant) => tenant.status === "Delinquent")
+              .map((tenant, index) => (
+                <tr
+                  key={delinquentTenant._id}
+                  className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
+                >
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.firstName}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.lastName}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.accessCode}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.units?.length}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    ${delinquentTenant.balance}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.status}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.contactInfo?.phone}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.contactInfo?.email}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {delinquentTenant.address.street1}
+                    {delinquentTenant.address.street2
+                      ? `, ${delinquentTenant.address.street2}`
+                      : ""}
+                    , {delinquentTenant.address.city},{" "}
+                    {delinquentTenant.address.state}{" "}
+                    {delinquentTenant.address.zipCode}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex justify-between items-center dark:text-white">
+        <div className="flex gap-3">
+          <div>
+            <select
+              className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
+              id="itemsPerPage"
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page on rows per page change
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+          <p className="text-sm">
+            {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
+            {currentPage * itemsPerPage > filteredTenants.length
+              ? filteredTenants.length
+              : currentPage * itemsPerPage}{" "}
+            of {filteredTenants.length}
           </p>
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-          >
-            <RiArrowRightWideLine />
-          </button>
-          <button
-            onClick={() => paginate(totalPages)}
-            disabled={currentPage === totalPages}
-            className="mx-1 p-3 py-1 rounded bg-primary-500 text-white disabled:opacity-50"
-          >
-            <TbPlayerSkipForward />
-          </button>
         </div>
-      )}
+        <div className="px-2 py-5 mx-1">
+          <div className="gap-2 flex">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(1)}
+              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+            >
+              <BiChevronsLeft />
+            </button>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+            >
+              <BiChevronLeft />
+            </button>
+            <p>
+              {currentPage} of {totalPages}
+            </p>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+            >
+              <BiChevronRight />
+            </button>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(totalPages)}
+              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+            >
+              <BiChevronsRight />
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

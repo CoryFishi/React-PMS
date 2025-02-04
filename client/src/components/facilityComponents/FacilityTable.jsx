@@ -11,8 +11,6 @@ import {
 } from "react-icons/bi";
 
 export default function FacilityTable({
-  company,
-  setCompany,
   facility,
   setFacility,
   setFacilityName,
@@ -260,7 +258,7 @@ export default function FacilityTable({
                     {facility.facilityName}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {facility.company.companyName}
+                    {facility.company?.companyName ?? "-"}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {facility.address.street1}
@@ -320,7 +318,6 @@ export default function FacilityTable({
                               tabIndex="-1"
                               onClick={() =>
                                 setFacility(facility._id) &
-                                setCompany(facility.company._id) &
                                 setFacilityName(facility.facilityName) &
                                 setOpenDashboard("facility") &
                                 localStorage.setItem(

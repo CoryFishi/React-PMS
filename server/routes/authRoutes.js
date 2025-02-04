@@ -58,6 +58,7 @@ const {
 
 const {
   getApplicationEventsByFacility,
+  getAllEvents,
 } = require("../controllers/eventsController");
 
 // middleware
@@ -118,6 +119,7 @@ router.get(
   "/facilities/events/:facilityId/application",
   getApplicationEventsByFacility
 );
+router.get("/events", getAllEvents);
 
 // /tenants
 router.post("/tenants/create", createTenant);

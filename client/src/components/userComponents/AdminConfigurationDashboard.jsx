@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,6 +11,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import axios from "axios";
+import moment from "moment";
 
 ChartJS.register(
   CategoryScale,
@@ -30,45 +32,212 @@ const today = new Date().toLocaleDateString("en-US", {
 });
 
 export default function AdminConfigurationDashboard() {
-  const [stats] = useState({
-    users: { total: 150, active: 120, inactive: 30 },
-    facilities: { total: 12, active: 10, inactive: 2 },
-    companies: { total: 5, active: 4, inactive: 1 },
+  const [stats, setStats] = useState({
+    users: { total: 0, active: 0, inactive: 0 },
+    facilities: {
+      total: 0,
+      enabled: 0,
+      pending: 0,
+      maintenance: 0,
+      disabled: 0,
+    },
+    companies: { total: 0, enabled: 0, disabled: 0 },
     errors: [
       { id: 1, message: "Server downtime detected", severity: "Critical" },
       { id: 2, message: "API response delay", severity: "Warning" },
       { id: 3, message: "Unauthorized login attempt", severity: "Alert" },
     ],
   });
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: "Total Events",
+        data: [],
+        borderColor: "#145ac9",
+        borderWidth: 2,
+      },
+    ],
+  });
+
+  const companyChartData = {
+    labels: ["Total Companies", "Enabled Companies", "Disabled Companies"],
+    datasets: [
+      {
+        label: "Companies",
+        data: [
+          stats.companies.total,
+          stats.companies.enabled,
+          stats.companies.disabled,
+        ],
+        backgroundColor: ["#145ac9", "#006900", "#990003"],
+      },
+    ],
+  };
 
   const userChartData = {
-    labels: ["Total Users", "Active Users", "Inactive Users"],
+    labels: ["Total Users", "Enabled Users", "Disabled Users"],
     datasets: [
       {
         label: "Users",
         data: [stats.users.total, stats.users.active, stats.users.inactive],
-        backgroundColor: ["#4CAF50", "#2196F3", "#FF9800"],
+        backgroundColor: ["#145ac9", "#006900", "#990003"],
       },
     ],
   };
 
   const facilityChartData = {
-    labels: ["Total Facilities", "Active Facilities", "Inactive Facilities"],
+    labels: [
+      "Total Facilities",
+      "Enabled",
+      "Pending Deployment",
+      "Maintenance",
+      "Disabled",
+    ],
     datasets: [
       {
         label: "Facilities",
         data: [
           stats.facilities.total,
-          stats.facilities.active,
-          stats.facilities.inactive,
+          stats.facilities.enabled,
+          stats.facilities.pending,
+          stats.facilities.maintenance,
+          stats.facilities.disabled,
         ],
-        backgroundColor: ["#8BC34A", "#FFC107", "#F44336"],
+        backgroundColor: [
+          "#145ac9",
+          "#006900",
+          "#bd6e00",
+          "#bdb600",
+          "#990003",
+        ],
       },
     ],
   };
 
+  useEffect(() => {
+    axios
+      .get("/users")
+      .then(({ data }) => {
+        if (Array.isArray(data)) {
+          const totalUsers = data.length;
+          const activeUsers = data.filter(
+            (user) => user.status === "Enabled"
+          ).length;
+          const inactiveUsers = totalUsers - activeUsers;
+
+          setStats((prevStats) => ({
+            ...prevStats,
+            users: {
+              total: totalUsers,
+              active: activeUsers,
+              inactive: inactiveUsers,
+            },
+          }));
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
+
+    axios
+      .get("/facilities&company")
+      .then(({ data }) => {
+        if (data?.facilities && Array.isArray(data.facilities)) {
+          const totalFacilities = data.facilities.length;
+          const activeFacilities = data.facilities.filter(
+            (facility) => facility.status === "Enabled"
+          ).length;
+          const disabledFacilities = data.facilities.filter(
+            (facility) => facility.status === "Disabled"
+          ).length;
+          const maintenanceFacilities = data.facilities.filter(
+            (facility) => facility.status === "Maintenance"
+          ).length;
+          const pendingDeploymentFacilities = data.facilities.filter(
+            (facility) => facility.status === "Pending Deployment"
+          ).length;
+
+          setStats((prevStats) => ({
+            ...prevStats,
+            facilities: {
+              total: totalFacilities,
+              enabled: activeFacilities,
+              pending: pendingDeploymentFacilities,
+              maintenance: maintenanceFacilities,
+              disabled: disabledFacilities,
+            },
+          }));
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching facilities:", error);
+      });
+    axios
+      .get("/companies")
+      .then(({ data }) => {
+        if (Array.isArray(data)) {
+          const totalCompanies = data.length;
+          const activeCompanies = data.filter(
+            (company) => company.status === "Enabled"
+          ).length;
+          const inactiveCompanies = totalCompanies - activeCompanies;
+
+          setStats((prevStats) => ({
+            ...prevStats,
+            companies: {
+              total: totalCompanies,
+              enabled: activeCompanies,
+              disabled: inactiveCompanies,
+            },
+          }));
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching companies:", error);
+      });
+    axios
+      .get("/events")
+      .then(({ data }) => {
+        if (Array.isArray(data.events)) {
+          const currentMonth = moment().format("MMM");
+          const lastMonth = moment().subtract(1, "months").format("MMM");
+          const twoMonthsAgo = moment().subtract(2, "months").format("MMM");
+
+          const relevantMonths = [twoMonthsAgo, lastMonth, currentMonth];
+
+          const eventCounts = {
+            [twoMonthsAgo]: 0,
+            [lastMonth]: 0,
+            [currentMonth]: 0,
+          };
+
+          data.events.forEach((event) => {
+            const eventMonth = moment(event.createdAt).format("MMM");
+
+            if (relevantMonths.includes(eventMonth)) {
+              eventCounts[eventMonth]++;
+            }
+          });
+
+          setChartData({
+            labels: relevantMonths,
+            datasets: [
+              {
+                label: "Total Events",
+                data: relevantMonths.map((month) => eventCounts[month] || 0),
+                borderColor: "#145ac9",
+                borderWidth: 2,
+              },
+            ],
+          });
+        }
+      })
+      .catch((error) => console.error("Error fetching events:", error));
+  }, []);
+
   return (
-    <div className="flex flex-col h-full w-full relative">
+    <div className="flex flex-col h-full w-full relative dark:text-white">
       <div className="w-full px-6 py-4 bg-gray-200 dark:text-white dark:bg-darkNavPrimary flex items-center border-b border-b-gray-300 dark:border-border">
         <h1 className="text-xl font-bold uppercase">Admin Dashboard</h1>
         <h2 className="text-lg">&nbsp;/ {today}</h2>
@@ -81,62 +250,41 @@ export default function AdminConfigurationDashboard() {
             <h2 className="text-xl font-semibold mb-4">User Statistics</h2>
             <Bar data={userChartData} />
           </div>
-
+          {/* Company Statistics */}
+          <div className="p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">Company Statistics</h2>
+            <Bar data={companyChartData} />
+          </div>
           {/* Facilities Statistics */}
           <div className="p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Facility Statistics</h2>
             <Bar data={facilityChartData} />
           </div>
-
-          {/* Error Log Section */}
-          <div className="p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">System Errors</h2>
-            <ul className="text-sm space-y-2">
-              {stats.errors.map((error) => (
-                <li key={error.id} className="p-2 border-l-4 rounded-md">
-                  <span className="font-bold">{error.severity}:</span>{" "}
-                  {error.message}
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         {/* Additional Graphs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+          {/* Line Chart: Application Trends */}
+          <div className="p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
+            <Line data={chartData} />
+          </div>
           {/* Line Chart: Activity Trends */}
           <div className="p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-4">Activity Trends</h2>
             <Line
               data={{
-                labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+                labels: ["Jan", "Feb", "Mar"],
                 datasets: [
                   {
                     label: "User Signups",
-                    data: [10, 30, 45, 60, 80],
-                    borderColor: "#4CAF50",
-                    borderWidth: 2,
-                  },
-                  {
-                    label: "Facility Registrations",
-                    data: [5, 15, 25, 35, 50],
-                    borderColor: "#FFC107",
+                    data: [0, 0, 0],
+                    borderColor: "#145ac9",
                     borderWidth: 2,
                   },
                 ],
               }}
             />
-          </div>
-
-          {/* Company Statistics */}
-          <div className="p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-2">Company Statistics</h2>
-            <p className="text-lg">
-              Total Companies:{" "}
-              <span className="font-bold">{stats.companies.total}</span>
-            </p>
-            <p className="text-green-400">Active: {stats.companies.active}</p>
-            <p className="text-red-400">Inactive: {stats.companies.inactive}</p>
           </div>
         </div>
       </div>

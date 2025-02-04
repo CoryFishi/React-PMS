@@ -199,24 +199,24 @@ export default function UnitPage({ facilityId }) {
         <p className="text-sm">Delinquent: {delinquentCount}</p>
         <p className="text-sm">Total: {units.length}</p>
       </div>
-      <div className="border-b flex items-center justify-between mx-5">
-        <h1 className="text-xl font-bold">Units</h1>
+      <div className="border-b flex items-center justify-between mx-5 dark:border-border">
+        <h1 className="text-xl font-bold dark:text-white">Units</h1>
         <div className="flex mr-5 space-x-1">
           <button
-            className={`text-sm px-5 py-3 focus:outline-none relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-border relative top-[1px] shadow-none  ${
               activeTab === "Individual"
-                ? "border border-gray-300 rounded-t-md bg-white shadow-sm text-black border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-gray-200 rounded-t"
+                ? "border border-gray-300 rounded-t-md bg-white dark:bg-darkPrimary dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-gray-200 dark:hover:bg-darkSecondary rounded-t"
             }`}
             onClick={() => setActiveTab("Individual")}
           >
             Individual
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-border relative top-[1px] shadow-none  ${
               activeTab === "Facility Map"
-                ? "border border-gray-300 rounded-t-md bg-white shadow-sm text-black border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-gray-200 rounded-t"
+                ? "border border-gray-300 rounded-t-md bg-white dark:bg-darkPrimary dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-gray-200 dark:hover:bg-darkSecondary rounded-t"
             }`}
             onClick={() => setActiveTab("Facility Map")}
           >

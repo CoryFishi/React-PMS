@@ -162,24 +162,24 @@ export default function TenantPage({ facilityId }) {
           Total Outstanding Balance: ${totalOutstandingBalance}
         </p>
       </div>
-      <div className="border-b flex items-center justify-between mx-5">
-        <h1 className="text-xl font-bold">Tenants</h1>
+      <div className="border-b flex items-center justify-between mx-5 dark:border-border">
+        <h1 className="text-xl font-bold dark:text-white">Tenants</h1>
         <div className="flex mr-5 space-x-1">
           <button
-            className={`text-sm px-5 py-3 focus:outline-none relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-border relative top-[1px] shadow-none  ${
               activeTab === "Current"
-                ? "border border-gray-300 rounded-t-md bg-white shadow-sm text-black border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-gray-200 rounded-t"
+                ? "border border-gray-300 rounded-t-md bg-white dark:bg-darkPrimary dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-gray-200 dark:hover:bg-darkSecondary rounded-t"
             }`}
             onClick={() => setActiveTab("Current")}
           >
             Current Tenants
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-border relative top-[1px] shadow-none  ${
               activeTab === "Previous"
-                ? "border border-gray-300 rounded-t-md bg-white shadow-sm text-black border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-gray-200 rounded-t"
+                ? "border border-gray-300 rounded-t-md bg-white dark:bg-darkPrimary dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-gray-200 dark:hover:bg-darkSecondary rounded-t"
             }`}
             onClick={() => setActiveTab("Previous")}
           >
