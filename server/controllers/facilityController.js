@@ -174,54 +174,69 @@ const editFacility = async (req, res) => {
 // Add Unit(s)
 const addUnits = async (req, res) => {
   try {
-    const facilityId = req.body.facilityId;
-    const createdBy = req.body.createdBy;
-    let unitData = req.body.unit;
+    const { facilityId, createdBy, units } = req.body;
+    // Make sure the facility exists
     const facilityExists = await StorageFacility.findById(facilityId);
     if (!facilityExists) {
       return res.status(406).json({
-        error: `facility not found`,
+        error: `Facility not found`,
       });
     }
-    unitData.createdBy = createdBy;
-    unitData.facility = facilityId;
-
-    if (!unitData.unitNumber) {
-      return res.status(409).json({
-        error: "unitNumber is required",
-      });
-    }
-    const unitExists = await checkUnitInFacility(
-      facilityId,
-      unitData.unitNumber
-    );
-    if (unitExists) {
-      return res.status(409).json({
-        error: `Unit Number ${unitData.unitNumber} is already taken in this facility`,
-      });
-    }
-    if (!unitData.paymentInfo.pricePerMonth) {
+    // Make sure we have an array of units
+    if (!Array.isArray(units) || units.length === 0) {
       return res.status(400).json({
-        error: "pricePerMonth is required",
+        error: "Must provide an array of units in 'units' field",
       });
     }
-    const createdUnit = await StorageUnit.create(unitData);
-    const updatedFacility = await StorageFacility.findByIdAndUpdate(
-      facilityId,
-      { $push: { units: createdUnit } },
-      { new: true, useFindAndModify: false }
-    );
-
-    await Event.create({
-      eventType: "Application",
-      eventName: "Unit Created",
-      message: `Unit ${createdUnit.unitNumber} created`,
-      facility: updatedFacility._id,
-    });
-    res.status(201).json(createdUnit);
+    const createdUnits = [];
+    // Iterate over each unit object
+    for (const singleUnit of units) {
+      // Attach createdBy & facility to each object
+      singleUnit.createdBy = createdBy;
+      singleUnit.facility = facilityId;
+      // Check for required fields
+      if (!singleUnit.unitNumber) {
+        return res.status(409).json({
+          error: "unitNumber is required",
+        });
+      }
+      if (!singleUnit.paymentInfo?.pricePerMonth) {
+        return res.status(400).json({
+          error: "pricePerMonth is required",
+        });
+      }
+      // Check for duplicates in the same facility
+      const unitExists = await checkUnitInFacility(
+        facilityId,
+        singleUnit.unitNumber
+      );
+      if (unitExists) {
+        return res.status(409).json({
+          error: `Unit Number ${singleUnit.unitNumber} is already taken in this facility`,
+        });
+      }
+      // Create the unit in the DB
+      const createdUnit = await StorageUnit.create(singleUnit);
+      createdUnits.push(createdUnit);
+      // Push the newly created unit into the facility’s units array
+      await StorageFacility.findByIdAndUpdate(
+        facilityId,
+        { $push: { units: createdUnit } },
+        { new: true, useFindAndModify: false }
+      );
+      // Record an event for each unit created
+      await Event.create({
+        eventType: "Application",
+        eventName: "Unit Created",
+        message: `Unit ${createdUnit.unitNumber} created`,
+        facility: facilityExists._id,
+      });
+    }
+    // Return the array of created units
+    return res.status(201).json(createdUnits);
   } catch (err) {
     console.error("Error creating units:", err);
-    res.status(500).json({ error: "Failed to create units " + err });
+    return res.status(500).json({ error: "Failed to create units: " + err });
   }
 };
 

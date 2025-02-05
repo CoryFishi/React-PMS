@@ -133,25 +133,25 @@ export default function CreateTenantUnitPage({
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 text-left">
-      <div className="relative top-20 mx-auto p-5 w-fit shadow-lg shadow-background-50 rounded-md bg-background-100">
-        <h2 className="text-xl font-bold text-text-950 mb-0">
+    <div className="text-left fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white cursor-default">
+      <div className="min-w-96 relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+        <h2 className="text-xl font-bold">
           Renting Unit {unitData.unitNumber}
         </h2>
         {isTenancy === false && <h3 className="mb-3">New Tenant</h3>}
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           {isTenancy === true && (
-            <div>
+            <div className="space-y-4">
               <div>
                 <label
                   htmlFor="tenancyDrop"
-                  className="block text-sm font-semibold text-text-950 mt-2"
+                  className="block text-sm font-semibold mt-2"
                 >
                   Tenancy Location:
                 </label>
                 <select
                   id="tenancyDrop"
-                  className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   value={isFacilityTenant}
                   onChange={(e) =>
                     setIsFacilityTenant(e.target.value) & setSelectedTenant("")
@@ -167,13 +167,13 @@ export default function CreateTenantUnitPage({
                   <div>
                     <label
                       htmlFor="tenantsFacility"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold mt-2"
                     >
                       Tenants From Facility:
                     </label>
                     <select
                       id="tenantsFacility"
-                      className="mt-2 block w-96 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       value={selectedTenant}
                       onChange={(e) => setSelectedTenant(e.target.value)}
                     >
@@ -190,7 +190,7 @@ export default function CreateTenantUnitPage({
                   <div>
                     <label
                       htmlFor="tenantsCompany"
-                      className="block text-sm font-semibold text-text-950 mt-5"
+                      className="block text-sm font-semibold mt-5"
                     >
                       Tenants From Company:
                     </label>
@@ -230,7 +230,7 @@ export default function CreateTenantUnitPage({
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold"
                   >
                     First Name:<span className="text-red-500">*</span>
                   </label>
@@ -238,14 +238,14 @@ export default function CreateTenantUnitPage({
                     type="text"
                     name="firstName"
                     id="firstName"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="first name"
                     onChange={(e) => setFirstName(e.target.value)}
                     style={{ width: "17rem" }}
                   />
                   <label
                     htmlFor="lastName"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold mt-2"
                   >
                     Last Name:<span className="text-red-500">*</span>
                   </label>
@@ -253,7 +253,7 @@ export default function CreateTenantUnitPage({
                     type="text"
                     name="lastName"
                     id="lastName"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="last name"
                     onChange={(e) => setLastName(e.target.value)}
                     style={{ width: "17rem" }}
@@ -263,7 +263,7 @@ export default function CreateTenantUnitPage({
                   <div className="flex-1">
                     <label
                       htmlFor="street1"
-                      className="block text-sm font-semibold text-text-950"
+                      className="block text-sm font-semibold"
                     >
                       Street 1:<span className="text-red-500">*</span>
                     </label>
@@ -279,11 +279,11 @@ export default function CreateTenantUnitPage({
                         }))
                       }
                       style={{ width: "8rem" }}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                     <label
                       htmlFor="country"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold mt-2"
                     >
                       Country:<span className="text-red-500">*</span>
                     </label>
@@ -299,11 +299,11 @@ export default function CreateTenantUnitPage({
                         }))
                       }
                       style={{ width: "8rem" }}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                     <label
                       htmlFor="city"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold mt-2"
                     >
                       City:<span className="text-red-500">*</span>
                     </label>
@@ -319,13 +319,13 @@ export default function CreateTenantUnitPage({
                         }))
                       }
                       style={{ width: "8rem" }}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                   </div>
                   <div className="flex-1">
                     <label
                       htmlFor="street2"
-                      className="block text-sm font-semibold text-text-950"
+                      className="block text-sm font-semibold"
                     >
                       Street 2:
                     </label>
@@ -341,11 +341,11 @@ export default function CreateTenantUnitPage({
                         }))
                       }
                       style={{ width: "8rem" }}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                     <label
                       htmlFor="state"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold mt-2"
                     >
                       State:<span className="text-red-500">*</span>
                     </label>
@@ -361,11 +361,11 @@ export default function CreateTenantUnitPage({
                         }))
                       }
                       style={{ width: "8rem" }}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                     <label
                       htmlFor="zipCode"
-                      className="block text-sm font-semibold text-text-950 mt-2"
+                      className="block text-sm font-semibold mt-2"
                     >
                       ZIP Code:<span className="text-red-500">*</span>
                     </label>
@@ -381,7 +381,7 @@ export default function CreateTenantUnitPage({
                         }))
                       }
                       style={{ width: "8rem" }}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-black"
+                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                   </div>
                 </div>
@@ -390,7 +390,7 @@ export default function CreateTenantUnitPage({
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold"
                   >
                     Email:<span className="text-red-500">*</span>
                   </label>
@@ -398,14 +398,14 @@ export default function CreateTenantUnitPage({
                     type="text"
                     name="email"
                     id="email"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="example@email.com"
                     onChange={(e) => setEmail(e.target.value)}
                     style={{ width: "17rem" }}
                   />
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-semibold text-text-950 mt-2"
+                    className="block text-sm font-semibold mt-2"
                   >
                     Phone:<span className="text-red-500">*</span>
                   </label>
@@ -413,7 +413,7 @@ export default function CreateTenantUnitPage({
                     type="text"
                     name="phone"
                     id="phone"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="Phone Number"
                     onChange={(e) => setPhone(e.target.value)}
                     style={{ width: "17rem" }}
@@ -422,7 +422,7 @@ export default function CreateTenantUnitPage({
                 <div>
                   <label
                     htmlFor="accessCode"
-                    className="block text-sm font-semibold text-text-950"
+                    className="block text-sm font-semibold"
                   >
                     Access Code:<span className="text-red-500">*</span>
                   </label>
@@ -430,7 +430,7 @@ export default function CreateTenantUnitPage({
                     type="text"
                     name="accessCode"
                     id="accessCode"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     placeholder="Ex: 5390"
                     onChange={(e) => setAccessCode(e.target.value)}
                     style={{ width: "17rem" }}

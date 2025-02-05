@@ -11,6 +11,7 @@ import {
   BiChevronsRight,
 } from "react-icons/bi";
 import facilityMap from "../../../assets/images/MAP.jpg";
+import { FaCheck } from "react-icons/fa6";
 
 export default function UnitPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -71,11 +72,15 @@ export default function UnitPage({ facilityId }) {
     refreshUnitTable(facilityId);
   }, [facilityId]);
 
-  // Submit create=
+  // Submit create units
   const handleCreateSubmit = (e) => {
-    toast.success("Unit " + e.data.unitNumber + " Created");
+    if (e.data.length > 1) {
+      toast.success("Units Created");
+    } else {
+      toast.success("Unit " + e.data[0].unitNumber + " Created");
+    }
     setCreateOpen(false);
-    const updatedUnits = [...units, e.data];
+    const updatedUnits = [...units, ...e.data];
     setUnits(updatedUnits);
     setOpenDropdown(null);
   };
@@ -285,7 +290,6 @@ export default function UnitPage({ facilityId }) {
                   .map((unit, index) => (
                     <tr
                       key={unit._id}
-                      onClick={() => console.log(unit)}
                       className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
                     >
                       <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
@@ -294,11 +298,11 @@ export default function UnitPage({ facilityId }) {
                       <td
                         className={`px-6 py-3 whitespace-nowrap text-sm text-center ${
                           unit.climateControlled == true
-                            ? "text-blue-500"
-                            : "text-red-500"
+                            ? "text-blue-500 font-bold"
+                            : "text-red-500  font-bold"
                         }`}
                       >
-                        {unit.climateControlled == true && `✔`}
+                        {unit.climateControlled == true && "✓"}
                         {unit.climateControlled == false && `✕`}
                       </td>
                       <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
@@ -316,11 +320,11 @@ export default function UnitPage({ facilityId }) {
                       <td
                         className={`px-6 py-3 whitespace-nowrap text-sm text-center ${
                           unit.availability == true
-                            ? "text-blue-500"
-                            : "text-red-500"
+                            ? "text-blue-500 font-bold"
+                            : "text-red-500  font-bold"
                         }`}
                       >
-                        {unit.availability == true && `✔`}
+                        {unit.availability == true && `✓`}
                         {unit.availability == false && `✕`}
                       </td>
                       <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
@@ -410,8 +414,8 @@ export default function UnitPage({ facilityId }) {
                               )}
 
                               {isRentModalOpen && (
-                                <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                                  <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+                                <div className="fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+                                  <div className="relative mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
                                     <h3 className="text-lg font-bold">
                                       Renting Unit {unit.unitNumber}
                                     </h3>
@@ -420,7 +424,7 @@ export default function UnitPage({ facilityId }) {
                                     </p>
                                     <div className="flex justify-end mt-4">
                                       <button
-                                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
+                                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-600 mr-2"
                                         onClick={() =>
                                           setTenancy(false) &
                                           setIsRentModalMainOpen(true) &
@@ -430,7 +434,7 @@ export default function UnitPage({ facilityId }) {
                                         New Tenant
                                       </button>
                                       <button
-                                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-primary-500 text-sm font-medium text-white hover:bg-secondary-500 mr-2"
+                                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-600 mr-2"
                                         onClick={() =>
                                           setTenancy(true) &
                                           setIsRentModalMainOpen(true) &
