@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { RiMoonClearFill, RiSunFill } from "react-icons/ri";
 import { FaBars } from "react-icons/fa";
 import { MdExpandLess, MdExpandMore } from "react-icons/md";
+import { RiMenuFold2Fill, RiMenuUnfold2Fill } from "react-icons/ri";
 
 export default function Navbar({
   isCollapsed,
@@ -34,10 +35,10 @@ export default function Navbar({
         <div className="flex items-center flex-shrink-0 text-text-950 mr-6 select-none">
           {location.pathname === "/dashboard" && (
             <button
-              className="block p-3 font-semibold rounded-3xl hover:bg-background-100 mr-4 hover:bg-slate-100 dark:hover:bg-darkNavSecondary"
+              className="block p-3 font-semibold rounded-full text-xl hover:bg-background-100 mr-4 hover:bg-slate-100 dark:hover:bg-darkNavSecondary"
               onClick={() => setIsCollapsed(!isCollapsed)}
             >
-              <FaBars />
+              {isCollapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
             </button>
           )}
           <span

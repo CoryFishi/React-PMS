@@ -53,8 +53,16 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
     }
   };
   return (
-    <div className="fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white">
-      <div className="relative top-36 mx-auto p-5 w-fit shadow-lg rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center 
+              bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+              overflow-y-auto"
+    >
+      <div
+        className="relative w-fit shadow-lg rounded-md 
+                bg-gray-100 dark:bg-darkPrimary dark:text-white 
+                 overflow-y-auto p-5"
+      >
         <h2 className="text-xl font-bold mb-4">Editing {companyId}</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">

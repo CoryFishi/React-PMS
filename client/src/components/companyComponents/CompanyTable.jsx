@@ -1,34 +1,40 @@
-import axios from "axios";
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import toast from "react-hot-toast";
-import EditCompany from "../companyComponents/EditCompany";
-import CreateCompany from "./CreateCompany";
 import {
   BiChevronLeft,
   BiChevronRight,
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+import EditCompany from "../companyComponents/EditCompany";
+import CreateCompany from "./CreateCompany";
 
 export default function CompanyTable() {
   const [companies, setCompanies] = useState([]);
+
+  // Modal states
   const [openDropdown, setOpenDropdown] = useState(null);
-  const containerRef = useRef(null);
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [companyIdToDelete, setCompanyIdToDelete] = useState(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const containerRef = useRef(null);
+
+  //  Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredCompanies, setFilteredCompanies] = useState([]);
+  const [paginationLevels, setPaginationLevels] = useState([
+    5, 10, 25, 50, 100, 250,
+  ]);
 
-  const promptdeleteCompany = (id) => {
-    setCompanyIdToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
+  //  Sorting states
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortedColumn, setSortedColumn] = useState(null);
 
-  // Submit edit
+  // Submit company edit
   const handleSubmit = (e) => {
     toast.success("Company updated!");
     setEditOpen(false);
@@ -41,12 +47,16 @@ export default function CompanyTable() {
     setCompanies(updatedCompanies);
     setOpenDropdown(null);
   };
-  // Update companies table on change
+
+  // Get all companies on component mount
   useEffect(() => {
     axios.get("/companies").then(({ data }) => {
       setCompanies(data);
+      setSortedColumn("Name");
     });
   }, []);
+
+  // Handler to close dropdown if clicking outside of the dropdown area
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -62,6 +72,10 @@ export default function CompanyTable() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openDropdown]);
+
+  //
+  //  Modal Logic
+  //
 
   // Delete selected company
   const deleteCompany = async (id) => {
@@ -79,7 +93,7 @@ export default function CompanyTable() {
     }
   };
 
-  // Open/close actions drop down
+  // Toggle dropdown
   const toggleDropdown = (companyId) => {
     setOpenDropdown(openDropdown === companyId ? null : companyId);
   };
@@ -90,6 +104,7 @@ export default function CompanyTable() {
     setOpenDropdown(null);
   };
 
+  // Close create modal
   const handleCloseCreate = () => {
     setCreateOpen(false);
     setOpenDropdown(null);
@@ -104,13 +119,9 @@ export default function CompanyTable() {
     setOpenDropdown(null);
   };
 
-  // Calculate the indices of the companies to display on the current page
-  const indexOfLastCompany = currentPage * itemsPerPage;
-  const indexOfFirstCompany = indexOfLastCompany - itemsPerPage;
-  const currentCompanies = companies.slice(
-    indexOfFirstCompany,
-    indexOfLastCompany
-  );
+  //
+  //  Pagination
+  //
 
   // Calculate total number of pages
   const totalPages = Math.ceil(companies.length / itemsPerPage);
@@ -124,6 +135,54 @@ export default function CompanyTable() {
 
   return (
     <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
+      {/* Edit Company Modal */}
+      {isEditOpen && (
+        <EditCompany
+          companyId={selectedCompany}
+          onClose={handleCloseEdit}
+          onSubmit={handleSubmit}
+        />
+      )}
+      {/* Create Company Modal */}
+      {isCreateOpen && (
+        <CreateCompany
+          onClose={handleCloseCreate}
+          onSubmit={handleCreateSubmit}
+        />
+      )}
+      {/* Delete Company Modal */}
+      {isDeleteModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center 
+                      bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+                      overflow-y-auto"
+        >
+          <div
+            className="relative w-fit shadow-lg rounded-md 
+                        bg-gray-100 dark:bg-darkPrimary dark:text-white 
+                         overflow-y-auto p-5"
+          >
+            <h3 className="text-lg font-bold">Confirm Delete</h3>
+            <p>Are you sure you want to delete this company?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                onClick={() => deleteCompany(selectedCompany)}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                onClick={() =>
+                  setIsDeleteModalOpen(false) & setOpenDropdown(null)
+                }
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
         <h2 className="text-xl font-bold">Company Statistics</h2>
         <p className="text-sm">Total: {companies.length}</p>
@@ -143,28 +202,105 @@ export default function CompanyTable() {
           Create Company
         </button>
       </div>
-
-      {isCreateOpen && (
-        <CreateCompany
-          onClose={handleCloseCreate}
-          onSubmit={handleCreateSubmit}
-        />
-      )}
       <div className="flex-1 min-h-0 overflow-y-auto px-4">
         <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
+          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary select-none">
             <tr>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Name");
+                  setFilteredCompanies(
+                    [...filteredCompanies].sort((a, b) => {
+                      if (a.displayName < b.displayName)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.displayName > b.displayName)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Name
+                {sortedColumn === "Name" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Address");
+                  setFilteredCompanies(
+                    [...filteredCompanies].sort((a, b) => {
+                      if (a.address?.street1 < b.address?.street1)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.address?.street1 > b.address?.street1)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Address
+                {sortedColumn === "Address" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Facilities");
+                  setFilteredCompanies(
+                    [...filteredCompanies].sort((a, b) => {
+                      if (a.facilities?.length < b.facilities?.length)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.facilities?.length > b.facilities?.length)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Facilities
+                {sortedColumn === "Facilities" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Status");
+                  setFilteredCompanies(
+                    [...filteredCompanies].sort((a, b) => {
+                      if (a.status < b.status)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.status > b.status)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Status
+                {sortedColumn === "Status" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Actions
@@ -233,62 +369,31 @@ export default function CompanyTable() {
                           tabIndex="-1"
                           ref={containerRef}
                         >
-                          <div className="py-1" role="none">
+                          <div role="none">
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              className="block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                               role="menuitem"
                               tabIndex="-1"
-                              onClick={() => setEditOpen(true)}
+                              onClick={() =>
+                                setSelectedCompany(company._id) &
+                                setEditOpen(true) &
+                                setOpenDropdown(null)
+                              }
                             >
                               Edit
                             </a>
-                            {isEditOpen && (
-                              <EditCompany
-                                companyId={company._id}
-                                onClose={handleCloseEdit}
-                                onSubmit={handleSubmit}
-                              />
-                            )}
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
+                              className="block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
                               role="menuitem"
                               tabIndex="-1"
-                              onClick={() => promptdeleteCompany(company._id)}
+                              onClick={() =>
+                                setSelectedCompany(company._id) &
+                                setIsDeleteModalOpen(true) &
+                                setOpenDropdown(false)
+                              }
                             >
                               Delete
                             </a>
-                            {isDeleteModalOpen && (
-                              <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                                <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
-                                  <h3 className="text-lg font-bold">
-                                    Confirm Delete
-                                  </h3>
-                                  <p>
-                                    Are you sure you want to delete this
-                                    company?
-                                  </p>
-                                  <div className="flex justify-end mt-4">
-                                    <button
-                                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                      onClick={() =>
-                                        deleteCompany(companyIdToDelete)
-                                      }
-                                    >
-                                      Delete
-                                    </button>
-                                    <button
-                                      className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                      onClick={() =>
-                                        setIsDeleteModalOpen(false) &
-                                        setOpenDropdown(null)
-                                      }
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
                           </div>
                         </div>
                       )}
@@ -298,6 +403,7 @@ export default function CompanyTable() {
               ))}
           </tbody>
         </table>
+        {/* Pagination footer */}
         <div className="flex justify-between items-center dark:text-white">
           <div className="flex gap-3">
             <div>
@@ -307,13 +413,14 @@ export default function CompanyTable() {
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page on rows per page change
+                  setCurrentPage(1);
                 }}
               >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
+                {paginationLevels.map((level, index) => (
+                  <option key={index} value={level}>
+                    {level}
+                  </option>
+                ))}
               </select>
             </div>
             <p className="text-sm">

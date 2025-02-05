@@ -141,7 +141,7 @@ export default function AdminConfigurationDashboard() {
       });
 
     axios
-      .get("/facilities&company")
+      .get("/facilities/company")
       .then(({ data }) => {
         if (data?.facilities && Array.isArray(data.facilities)) {
           const totalFacilities = data.facilities.length;

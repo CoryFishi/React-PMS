@@ -1,34 +1,54 @@
 const express = require("express");
-const dotenv = require("dotenv").config();
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const { mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const { exec } = require("child_process");
+const bodyParser = require("body-parser");
+const cors = require("cors"); // Import CORS
+require("dotenv").config();
+
 const app = express();
 
-const allowedOrigins = [
-  "https://front-34ee.onrender.com", // Deployed frontend URL
-  "https://localhost:5173", // Local development URL
-];
+// ✅ Enable CORS globally
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Allow frontend requests
+    credentials: true, // Allow cookies and auth headers
+  })
+);
 
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Logging of incoming requests
+// app.use((req, res, next) => {
+//   console.log(`Incoming request: ${req.method} ${req.url}`);
+//   next();
+// });
+
+// Import & Use Routes
+app.use("/companies", require("./routes/companyRoutes"));
+app.use("/facilities", require("./routes/facilityRoutes"));
+app.use("/tenants", require("./routes/tenantRoutes"));
+app.use("/events", require("./routes/eventRoutes"));
+app.use("/payments", require("./routes/paymentRoutes"));
+app.use("/", require("./routes/userRoutes"));
+
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
     console.log("🟢 Database connected");
 
-    // middleware
-    app.use(express.json());
-    app.use(cookieParser());
-    app.use(bodyParser.json());
-    app.use(express.urlencoded({ extended: false }));
-
-    app.use("/", require("./routes/authRoutes"));
-
-    const port = process.env.PORT;
+    // Start the server
+    const port = process.env.PORT || 3000;
     app.listen(port, () => console.log(`🟢 Server is running on port ${port}`));
   })
-  .catch((err) => console.log("🔴 Database not connected:", err));
+  .catch((err) => {
+    console.error("🔴 Database not connected:", err);
+    process.exit(1);
+  });
 
 // const runDelinquency = () => {
 //   exec("node ./processes/delinquency.js", (error, stdout, stderr) => {

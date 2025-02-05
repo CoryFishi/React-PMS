@@ -16,24 +16,29 @@ export default function FacilityTable({
   setFacilityName,
   setOpenDashboard,
 }) {
-  // Facilities
   const [facilities, setFacilities] = useState([]);
   const [units, setUnits] = useState(0);
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const containerRef = useRef(null);
+
+  // Modal states
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [facilityIdToDelete, setFacilityIdToDelete] = useState(null);
+  const containerRef = useRef(null);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [selectedFacility, setSelectedFacility] = useState(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredFacilities, setFilteredFacilities] = useState([]);
 
-  const promptDeleteFacility = (id) => {
-    setFacilityIdToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
+  // Pagination states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [filteredFacilities, setFilteredFacilities] = useState([]);
+  const [paginationLevels, setPaginationLevels] = useState([
+    5, 10, 25, 50, 100, 250,
+  ]);
+
+  //  Sorting states
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortedColumn, setSortedColumn] = useState(null);
 
   // Submit edit
   const handleEditSubmit = (e) => {
@@ -49,19 +54,19 @@ export default function FacilityTable({
     setOpenDropdown(null);
   };
 
-  // Update users table on change
+  // Get facilities on component mount
   useEffect(() => {
-    axios.get("/facilities&company").then(({ data }) => {
+    axios.get("/facilities/company").then(({ data }) => {
       setFacilities(data.facilities);
-      // Calculate total units after Axios call is completed
+      // Calculate total units
       const totalUnits = Object.values(data.facilities).reduce(
         (total, json) => {
           // Add the length of units array from the current JSON to the total
-          return total + (json.units.length || 0); // Ensure units property exists and is an array
+          return total + (json.units.length || 0);
         },
         0
       );
-
+      setSortedColumn("Name");
       // Set the total units
       setUnits(totalUnits);
     });
@@ -105,18 +110,19 @@ export default function FacilityTable({
     setOpenDropdown(openDropdown === facilityId ? null : facilityId);
   };
 
-  // Close edit modal
+  // Close Edit Facility Modal
   const handleCloseEdit = () => {
     setEditOpen(false);
     setOpenDropdown(null);
   };
 
+  // Close Create Facility Modal
   const handleCloseCreate = () => {
     setCreateOpen(false);
     setOpenDropdown(null);
   };
 
-  // Submit create=
+  // Submit Create Facility
   const handleCreateSubmit = (e) => {
     toast.success("Facility created!");
     setCreateOpen(false);
@@ -155,6 +161,10 @@ export default function FacilityTable({
     }
   };
 
+  //
+  //  Pagination
+  //
+
   // Calculate total number of pages
   const totalPages = Math.ceil(filteredFacilities.length / itemsPerPage);
 
@@ -167,6 +177,47 @@ export default function FacilityTable({
 
   return (
     <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
+      {/* Create Facility Modal */}
+      {isCreateOpen && (
+        <CreateFacility
+          onClose={handleCloseCreate}
+          onSubmit={handleCreateSubmit}
+        />
+      )}
+      {/* Edit Facility Modal */}
+      {isEditOpen && (
+        <EditFacility
+          facilityId={selectedFacility}
+          onClose={handleCloseEdit}
+          onSubmit={handleEditSubmit}
+        />
+      )}
+      {/* Delete Facility Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+          <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+            <h3 className="text-lg font-bold">Confirm Delete</h3>
+            <p>Are you sure you want to delete this facility?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                onClick={() => deleteFacility(selectedFacility)}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                onClick={() =>
+                  setIsDeleteModalOpen(false) & setOpenDropdown(null)
+                }
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Facility Statisics Header */}
       <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
         <h2 className="text-xl font-bold">Facility Statistics</h2>
         <p className="text-sm">
@@ -194,6 +245,7 @@ export default function FacilityTable({
         <p className="text-sm">Total Units: {units}</p>
         <p className="text-sm">Total Facilities: {facilities.length}</p>
       </div>
+      {/* Search Bar and Create Facility Button */}
       <div className="my-4 flex items-center justify-end text-center mx-5">
         <input
           type="text"
@@ -209,34 +261,155 @@ export default function FacilityTable({
           Create Facility
         </button>
       </div>
-
-      {isCreateOpen && (
-        <CreateFacility
-          onClose={handleCloseCreate}
-          onSubmit={handleCreateSubmit}
-        />
-      )}
+      {/* Facilities Table */}
       <div className="flex-1 min-h-0 overflow-y-auto px-4">
         <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
+          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary select-none">
             <tr>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Name");
+                  setFilteredFacilities(
+                    [...filteredFacilities].sort((a, b) => {
+                      if (a.facilityName < b.facilityName)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.facilityName > b.facilityName)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Name
+                {sortedColumn === "Name" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Company");
+                  setFilteredFacilities(
+                    [...filteredFacilities].sort((a, b) => {
+                      if (a.company?.companyName < b.company?.companyName)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.company?.companyName > b.company?.companyName)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Company
+                {sortedColumn === "Company" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Address");
+                  setFilteredFacilities(
+                    [...filteredFacilities].sort((a, b) => {
+                      if (a.address?.street1 < b.address?.street1)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.address?.street1 > b.address?.street1)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Address
+                {sortedColumn === "Address" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Manager");
+                  setFilteredFacilities(
+                    [...filteredFacilities].sort((a, b) => {
+                      const nameA = a.manager || ""; // Default to empty string if undefined
+                      const nameB = b.manager || "";
+
+                      if (nameA < nameB) return newDirection === "asc" ? -1 : 1;
+                      if (nameA > nameB) return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Manager
+                {sortedColumn === "Manager" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Units");
+                  setFilteredFacilities(
+                    [...filteredFacilities].sort((a, b) => {
+                      if (a.units?.length < b.units?.length)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.units?.length > b.units?.length)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Units
+                {sortedColumn === "Units" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Status");
+                  setFilteredFacilities(
+                    [...filteredFacilities].sort((a, b) => {
+                      if (a.status < b.status)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.status > b.status)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Status
+                {sortedColumn === "Status" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
               <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Actions
@@ -302,6 +475,7 @@ export default function FacilityTable({
                           Actions
                         </button>
                       </div>
+                      {/* Facility Action Dropdown */}
                       {openDropdown === facility._id && (
                         <div
                           className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
@@ -311,9 +485,9 @@ export default function FacilityTable({
                           tabIndex="-1"
                           ref={containerRef}
                         >
-                          <div className="py-1" role="none">
+                          <div role="none">
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() =>
@@ -337,23 +511,21 @@ export default function FacilityTable({
                               Select
                             </a>
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                               role="menuitem"
                               tabIndex="-1"
-                              onClick={() => setEditOpen(true)}
+                              onClick={() =>
+                                setSelectedFacility(facility._id) &
+                                setEditOpen(true) &
+                                setOpenDropdown(null)
+                              }
                             >
                               Edit
                             </a>
-                            {isEditOpen && (
-                              <EditFacility
-                                facilityId={facility._id}
-                                onClose={handleCloseEdit}
-                                onSubmit={handleEditSubmit}
-                              />
-                            )}
+
                             {facility.status === "Pending Deployment" && (
                               <a
-                                className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
+                                className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
                                 role="menuitem"
                                 tabIndex="-1"
                                 onClick={() => deploy(facility._id)}
@@ -362,45 +534,17 @@ export default function FacilityTable({
                               </a>
                             )}
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
                               role="menuitem"
                               tabIndex="-1"
-                              onClick={() => promptDeleteFacility(facility._id)}
+                              onClick={() =>
+                                setSelectedFacility(facility._id) &
+                                setIsDeleteModalOpen(true) &
+                                setOpenDropdown(false)
+                              }
                             >
                               Delete
                             </a>
-                            {isDeleteModalOpen && (
-                              <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                                <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
-                                  <h3 className="text-lg font-bold">
-                                    Confirm Delete
-                                  </h3>
-                                  <p>
-                                    Are you sure you want to delete this
-                                    facility?
-                                  </p>
-                                  <div className="flex justify-end mt-4">
-                                    <button
-                                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                      onClick={() =>
-                                        deleteFacility(facilityIdToDelete)
-                                      }
-                                    >
-                                      Delete
-                                    </button>
-                                    <button
-                                      className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                      onClick={() =>
-                                        setIsDeleteModalOpen(false) &
-                                        setOpenDropdown(null)
-                                      }
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
                           </div>
                         </div>
                       )}
@@ -410,6 +554,7 @@ export default function FacilityTable({
               ))}
           </tbody>
         </table>
+        {/* Pagination Footer */}
         <div className="flex justify-between items-center dark:text-white">
           <div className="flex gap-3">
             <div>
@@ -419,13 +564,14 @@ export default function FacilityTable({
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page on rows per page change
+                  setCurrentPage(1);
                 }}
               >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
+                {paginationLevels.map((level, index) => (
+                  <option key={index} value={level}>
+                    {level}
+                  </option>
+                ))}
               </select>
             </div>
             <p className="text-sm">

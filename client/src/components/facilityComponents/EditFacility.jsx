@@ -122,8 +122,16 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white">
-      <div className="relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center 
+              bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+              overflow-y-auto hover:cursor-default"
+    >
+      <div
+        className="relative w-fit shadow-lg rounded-md 
+                bg-gray-100 dark:bg-darkPrimary dark:text-white 
+                 overflow-y-auto p-5"
+      >
         <h2 className="text-xl font-bold mb-4">Editing {facilityId}</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -274,14 +282,14 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
               <div>
                 <label
                   htmlFor="amenities"
-                  className="block text-sm font-semibold  mt-0"
+                  className="block text-sm font-semibold mt-0"
                 >
                   Amenities:
                 </label>
                 <div className="relative" ref={amenitiesDropdownRef}>
                   <button
                     type="button"
-                    className="block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="bg-white block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     style={{ width: "17rem" }}
                     onClick={() =>
                       setAmenitiesDropdownOpen(!amenitiesDropdownOpen)
@@ -294,7 +302,14 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                   {amenitiesDropdownOpen && (
                     <div
                       id="amenitiesDropdown"
-                      className="absolute w-full dark:bg-darkSecondary dark:border-border bg-white border border-gray-300 rounded-md shadow-lg m-0"
+                      className="fixed z-50 bg-white dark:bg-darkSecondary dark:border-border border border-gray-300 rounded-md shadow-lg w-[17rem]"
+                      style={{
+                        top:
+                          amenitiesDropdownRef.current?.getBoundingClientRect()
+                            .bottom + 5,
+                        left: amenitiesDropdownRef.current?.getBoundingClientRect()
+                          .left,
+                      }}
                     >
                       {amenities.map((amenity) => (
                         <label
@@ -309,7 +324,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                             onChange={() =>
                               handleAmenityChange(amenity.amenityName)
                             }
-                            className="mr-2  cursor-pointer"
+                            className="mr-2 cursor-pointer"
                           />
                           {amenity.amenityName}
                         </label>
@@ -318,6 +333,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                   )}
                 </div>
               </div>
+
               <div className="flex items-center justify-between">
                 <label htmlFor="status" className="flex items-center">
                   <input
@@ -391,7 +407,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                       )
                     }
                     style={{ width: "17rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="hover:cursor-pointer mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   >
                     <option value="null">Select a company</option>
                     {companies.map((company) => (
@@ -416,7 +432,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                       )
                     }
                     style={{ width: "17rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="hover:cursor-pointer mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   >
                     <option value="null">Select a manager</option>
                     {managers.map((manager) => (
@@ -433,7 +449,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                   </label>
                   <select
                     id="securityLevel"
-                    className="block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="hover:cursor-pointer block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     value={selectedSecurityLevel}
                     onChange={(e) => setSelectedSecurityLevel(e.target.value)}
                   >

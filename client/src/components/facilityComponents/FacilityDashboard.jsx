@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import UnitPage from "./facilityPages/UnitPage";
 import TenantPage from "./facilityPages/TenantPage";
-import ReportsPage from "./facilityPages/ReportsPage";
+import ReportsPage from "./facilityPages/AdminReportsPage";
 import SettingsPage from "./facilityPages/SettingsPage";
 import FacilityConfigurationDashboard from "./facilityPages/FacilityConfigurationDashboard";
 

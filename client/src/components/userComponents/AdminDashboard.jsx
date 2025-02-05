@@ -7,9 +7,9 @@ import { RiAdminFill } from "react-icons/ri";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
-import Reports from "../adminReportComponents/Reports";
 import FacilityDashboard from "../facilityComponents/FacilityDashboard";
 import AdminConfigurationDashboard from "./AdminConfigurationDashboard";
+import AdminReportsPage from "../facilityComponents/facilityPages/AdminReportsPage";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [openDashboard, setOpenDashboard] = useState(
@@ -349,7 +349,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
               facility={facility}
             />
           )}
-          {openDashboard === "reports" && <Reports />}
+          {openDashboard === "reports" && <AdminReportsPage />}
         </div>
       </div>
     </div>

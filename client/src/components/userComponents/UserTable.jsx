@@ -1,32 +1,42 @@
-import axios from "axios";
 import { useState, useEffect, useRef, useContext } from "react";
+import axios from "axios";
 import toast from "react-hot-toast";
-import EditUser from "./EditUser";
-import { UserContext } from "../../../context/userContext";
-import CreateUser from "./CreateUser";
 import {
   BiChevronLeft,
   BiChevronRight,
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+import EditUser from "./EditUser";
+import { UserContext } from "../../../context/userContext";
+import CreateUser from "./CreateUser";
 
 export default function UserTable() {
   const { user } = useContext(UserContext);
-  const rootUser = user;
   const [users, setUsers] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [openDropdown, setOpenDropdown] = useState(null);
+
+  //  Modal states
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [userIdToDelete, setUserIdToDelete] = useState(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const containerRef = useRef(null);
-  const [filteredUsers, setFilteredUsers] = useState([]);
 
-  // Totale user calculations
+  //  Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [paginationLevels, setPaginationLevels] = useState([
+    5, 10, 25, 50, 100, 250,
+  ]);
+
+  //  Sorting states
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortedColumn, setSortedColumn] = useState(null);
+
+  // Total user calculations
   const companyUserCount = users.filter(
     (user) => user.role === "Company_User"
   ).length;
@@ -40,12 +50,14 @@ export default function UserTable() {
     (user) => user.role === "System_User"
   ).length;
 
-  // Update users table on change
+  // Get all users on component mount
   useEffect(() => {
     axios.get("/users").then(({ data }) => {
       setUsers(data);
+      setSortedColumn("Display Name");
     });
   }, []);
+
   // Handler to close dropdown if clicking outside of the dropdown area
   useEffect(() => {
     function handleClickOutside(event) {
@@ -63,12 +75,11 @@ export default function UserTable() {
     };
   }, [openDropdown]);
 
-  // Delete modal logic
-  const promptDeleteUser = (id) => {
-    setUserIdToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
-  // Submit edit
+  //
+  //  Modal Logic
+  //
+
+  // Submit user edit
   const handleEditSubmit = (e) => {
     toast.success("User updated!");
     setEditOpen(false);
@@ -80,9 +91,43 @@ export default function UserTable() {
     });
     setUsers(updatedUsers);
   };
+
+  // Open edit modal
+  const openEdit = async (id) => {
+    if (id === user._id) {
+      alert("Can't edit your own User.");
+      setOpenDropdown(null);
+    } else {
+      setSelectedUser(id);
+      setEditOpen(true);
+      setOpenDropdown(null);
+    }
+  };
+
+  // Close edit modal
+  const handleCloseEdit = () => {
+    setEditOpen(false);
+    setOpenDropdown(null);
+  };
+
+  // Close create modal
+  const handleCloseCreate = () => {
+    setCreateOpen(false);
+    setOpenDropdown(null);
+  };
+
+  // Submit create
+  const handleCreateSubmit = (e) => {
+    toast.success("User created!");
+    setCreateOpen(false);
+    const updatedUsers = [...users, e.data];
+    setUsers(updatedUsers);
+    setOpenDropdown(null);
+  };
+
   // Delete selected user
   const deleteUser = async (id) => {
-    if (id === rootUser._id) {
+    if (id === user._id) {
       alert("Can't delete your own User.");
       setIsDeleteModalOpen(false);
       setOpenDropdown(null);
@@ -99,9 +144,10 @@ export default function UserTable() {
       setIsDeleteModalOpen(false); // Close the modal on error as well
     }
   };
-  // Send email to selected user
+
+  //  Send confirmation email
   const sendEmail = async (userId) => {
-    if (userId === rootUser._id) {
+    if (userId === user._id) {
       alert("Can't confirm your own user.");
       setOpenDropdown(null);
       return;
@@ -116,36 +162,15 @@ export default function UserTable() {
       setOpenDropdown(null);
     }
   };
-  // Open edit modal
-  const openEdit = (id) => {
-    if (id === rootUser._id) {
-      alert("Can't edit your own User.");
-      setOpenDropdown(null);
-    } else {
-      setEditOpen(true);
-    }
-  };
-  // Close edit modal
-  const handleCloseEdit = () => {
-    setEditOpen(false);
-    setOpenDropdown(null);
-  };
-  const handleCloseCreate = () => {
-    setCreateOpen(false);
-    setOpenDropdown(null);
-  };
-  // Submit create
-  const handleCreateSubmit = (e) => {
-    toast.success("User created!");
-    setCreateOpen(false);
-    const updatedUsers = [...users, e.data];
-    setUsers(updatedUsers);
-    setOpenDropdown(null);
-  };
+
+  //
+  //  Pagination Logic
+  //
 
   // Calculate total number of pages
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
+  // Filter users based on search query
   useEffect(() => {
     const filteredUsers = users.filter(
       (user) =>
@@ -164,6 +189,52 @@ export default function UserTable() {
 
   return (
     <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
+      {/* Edit user modal */}
+      {isEditOpen && (
+        <EditUser
+          userId={selectedUser}
+          onClose={handleCloseEdit}
+          onSubmit={handleEditSubmit}
+        />
+      )}
+      {/* Create user modal */}
+      {isCreateOpen && (
+        <CreateUser onClose={handleCloseCreate} onSubmit={handleCreateSubmit} />
+      )}
+      {/* Delete user modal */}
+      {isDeleteModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center 
+                      bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+                      overflow-y-auto"
+        >
+          <div
+            className="relative w-fit shadow-lg rounded-md 
+                        bg-gray-100 dark:bg-darkPrimary dark:text-white 
+                         overflow-y-auto p-5"
+          >
+            <h3 className="text-lg font-bold">Confirm Delete</h3>
+            <p>Are you sure you want to delete this user?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                onClick={() => deleteUser(selectedUser)}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                onClick={() =>
+                  setIsDeleteModalOpen(false) & setOpenDropdown(null)
+                }
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* User statistics header */}
       <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
         <h2 className="text-xl font-bold">User Statistics</h2>
         <p className="text-sm">Sys-Admins: {systemAdminCount}</p>
@@ -172,6 +243,7 @@ export default function UserTable() {
         <p className="text-sm">Comp-User: {companyUserCount}</p>
         <p className="text-sm">Total Users: {users.length}</p>
       </div>
+      {/* Search bar and create user button */}
       <div className="my-4 flex items-center justify-end text-center mx-5">
         <input
           type="text"
@@ -187,31 +259,156 @@ export default function UserTable() {
           Create User
         </button>
       </div>
-
-      {isCreateOpen && (
-        <CreateUser onClose={handleCloseCreate} onSubmit={handleCreateSubmit} />
-      )}
+      {/* User table */}
       <div className="flex-1 min-h-0 overflow-y-auto px-4">
         <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
+          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary select-none">
             <tr>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Display Name");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.displayName < b.displayName)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.displayName > b.displayName)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Display Name
+                {sortedColumn === "Display Name" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Name");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.name < b.name)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.name > b.name)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Name
+                {sortedColumn === "Name" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Email");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.email < b.email)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.email > b.email)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Email
+                {sortedColumn === "Email" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Role");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.role < b.role)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.role > b.role)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Role
+                {sortedColumn === "Role" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Company");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      const nameA = a.company?.companyName || "";
+                      const nameB = b.company?.companyName || "";
+
+                      if (nameA < nameB) return newDirection === "asc" ? -1 : 1;
+                      if (nameA > nameB) return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Company
+                {sortedColumn === "Company" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
+
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Status");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.status < b.status)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.status > b.status)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
                 Status
+                {sortedColumn === "Status" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
               </th>
               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 Actions
@@ -219,6 +416,18 @@ export default function UserTable() {
             </tr>
           </thead>
           <tbody>
+            {/* Display no users when there are no users */}
+            {filteredUsers.length === 0 && (
+              <tr
+                key={user._id}
+                className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border text-center"
+              >
+                <td colSpan={7} className="py-4 text-center">
+                  No users to display...
+                </td>
+              </tr>
+            )}
+            {/* Display user rows */}
             {filteredUsers
               .slice(
                 (currentPage - 1) * itemsPerPage,
@@ -276,6 +485,7 @@ export default function UserTable() {
                           Actions
                         </button>
                       </div>
+                      {/* User Actions drop down */}
                       {openDropdown === user._id && (
                         <div
                           className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
@@ -285,9 +495,9 @@ export default function UserTable() {
                           tabIndex="-1"
                           ref={containerRef}
                         >
-                          <div className="py-1" role="none">
+                          <div role="none">
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() => openEdit(user._id)}
@@ -295,57 +505,25 @@ export default function UserTable() {
                               Edit
                             </a>
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() => sendEmail(user._id)}
                             >
                               Send Confirmation
                             </a>
-                            {isEditOpen && (
-                              <EditUser
-                                userId={user._id}
-                                onClose={handleCloseEdit}
-                                onSubmit={handleEditSubmit}
-                              />
-                            )}
                             <a
-                              className=" block px-4 py-2 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
                               role="menuitem"
                               tabIndex="-1"
-                              onClick={() => promptDeleteUser(user._id)}
+                              onClick={() =>
+                                setSelectedUser(user._id) &
+                                setIsDeleteModalOpen(true) &
+                                setOpenDropdown(false)
+                              }
                             >
                               Delete
                             </a>
-                            {isDeleteModalOpen && (
-                              <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                                <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
-                                  <h3 className="text-lg font-bold">
-                                    Confirm Delete
-                                  </h3>
-                                  <p>
-                                    Are you sure you want to delete this user?
-                                  </p>
-                                  <div className="flex justify-end mt-4">
-                                    <button
-                                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                      onClick={() => deleteUser(userIdToDelete)}
-                                    >
-                                      Delete
-                                    </button>
-                                    <button
-                                      className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                      onClick={() =>
-                                        setIsDeleteModalOpen(false) &
-                                        setOpenDropdown(null)
-                                      }
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
                           </div>
                         </div>
                       )}
@@ -355,6 +533,7 @@ export default function UserTable() {
               ))}
           </tbody>
         </table>
+        {/* Pagination footer */}
         <div className="flex justify-between items-center dark:text-white">
           <div className="flex gap-3">
             <div>
@@ -364,13 +543,14 @@ export default function UserTable() {
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1); // Reset to first page on rows per page change
+                  setCurrentPage(1);
                 }}
               >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
+                {paginationLevels.map((level, index) => (
+                  <option key={index} value={level}>
+                    {level}
+                  </option>
+                ))}
               </select>
             </div>
             <p className="text-sm">
