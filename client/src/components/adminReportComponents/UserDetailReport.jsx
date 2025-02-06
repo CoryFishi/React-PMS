@@ -1,4 +1,5 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import {
   BiChevronLeft,
@@ -19,7 +20,7 @@ export default function UserDetailReport() {
 
   //  Sorting states
   const [sortDirection, setSortDirection] = useState("asc");
-  const [sortedColumn, setSortedColumn] = useState(null);
+  const [sortedColumn, setSortedColumn] = useState("Name");
 
   // Get all users on component mount
   useEffect(() => {
@@ -29,35 +30,97 @@ export default function UserDetailReport() {
   }, []);
 
   const exportToCSV = () => {
-    const headers = ["Name"];
+    try {
+      const headers = [
+        "Id",
+        "Display Name",
+        "Name",
+        "Email",
+        "Phone",
+        "Role",
+        "Company",
+        "Status",
+        "Address",
+        "Created At",
+        "Created By",
+        "Updated At",
+        "Email Confirmed",
+        "Facilities",
+      ];
 
-    const rows = users.map((user) => [user.name]);
+      const rows = users.map((user) => [
+        user._id,
+        user.displayName,
+        user.name,
+        user.email,
+        user.phone,
+        user.role,
+        user.company?.companyName || "",
+        user.status,
+        `${user.address?.street1 || ""} ${user.address?.street2 || ""} ${
+          user.address?.city || ""
+        } ${user.address?.state || ""} ${user.address?.country || ""} ${
+          user.address?.zipCode || ""
+        }`,
+        user.createdAt,
+        user.createdBy,
+        user.updatedAt,
+        user.confirmed ? "true" : "false",
+        user.facilities,
+      ]);
 
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "user_detail_report.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "user_detail_report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Successfully exported!");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to export...");
+    }
   };
 
   // Calculate total number of pages
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   useEffect(() => {
-    const filteredUsers = users.filter((user) =>
-      user.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    console.log(users);
+    const filteredUsers = users.filter((user) => {
+      const query = searchQuery.toLowerCase();
+      return (
+        user.name.toLowerCase().includes(query) ||
+        user._id.toLowerCase().includes(query) ||
+        user.displayName.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query) ||
+        user.phone.toLowerCase().includes(query) ||
+        user.createdAt.toLowerCase().includes(query) ||
+        user.updatedAt.toLowerCase().includes(query) ||
+        user.status.toLowerCase().includes(query) ||
+        user.role.toLowerCase().includes(query) ||
+        user.company?.companyName?.toLowerCase().includes(query) ||
+        user.company?._id?.toLowerCase().includes(query) ||
+        user.address?.street1?.toLowerCase().includes(query) ||
+        user.address?.street2?.toLowerCase().includes(query) ||
+        user.address?.city?.toLowerCase().includes(query) ||
+        user.address?.state?.toLowerCase().includes(query) ||
+        user.address?.country?.toLowerCase().includes(query) ||
+        user.address?.zipCode?.toLowerCase().includes(query)
+      );
+    });
     setFilteredUsers(filteredUsers);
   }, [users, searchQuery]);
 
   return (
+    // Container
     <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-border dark:bg-darkPrimary">
+      {/* Header */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold">User Detail Report</h2>
@@ -71,19 +134,43 @@ export default function UserDetailReport() {
           Export
         </button>
       </div>
+      {/* Search Bar */}
       <div className="my-2">
         <input
           type="text"
-          placeholder="Search units..."
+          placeholder="Search users..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
           className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
         />
       </div>
+      {/* Table */}
       <div className="flex-1 min-h-0 overflow-y-auto">
         <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
           <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary select-none">
             <tr>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("ID");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a._id < b._id) return newDirection === "asc" ? -1 : 1;
+                      if (a._id > b._id) return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                ID
+                {sortedColumn === "ID" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
               <th
                 className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
                 onClick={() => {
@@ -161,6 +248,30 @@ export default function UserDetailReport() {
                 onClick={() => {
                   const newDirection = sortDirection === "asc" ? "desc" : "asc";
                   setSortDirection(newDirection);
+                  setSortedColumn("Phone");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.phone < b.phone)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.phone > b.phone)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                Phone
+                {sortedColumn === "Phone" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
                   setSortedColumn("Role");
                   setFilteredUsers(
                     [...filteredUsers].sort((a, b) => {
@@ -205,7 +316,6 @@ export default function UserDetailReport() {
                   </span>
                 )}
               </th>
-
               <th
                 className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
                 onClick={() => {
@@ -230,13 +340,157 @@ export default function UserDetailReport() {
                   </span>
                 )}
               </th>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Address");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.address.street1 < b.address.street1)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.address.street1 > b.address.street1)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                Address
+                {sortedColumn === "Address" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Created At");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.createdAt < b.createdAt)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.createdAt > b.createdAt)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                Created At
+                {sortedColumn === "Created At" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Created By");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.createdBy < b.createdBy)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.createdBy > b.createdBy)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                Created By
+                {sortedColumn === "Created By" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Updated At");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.updatedAt < b.updatedAt)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.updatedAt > b.updatedAt)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                Updated At
+                {sortedColumn === "Updated At" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Email Confirmed");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.confirmed < b.confirmed)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.confirmed > b.confirmed)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                Email Confirmed
+                {sortedColumn === "Email Confirmed" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
+              <th
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                onClick={() => {
+                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
+                  setSortDirection(newDirection);
+                  setSortedColumn("Facilities");
+                  setFilteredUsers(
+                    [...filteredUsers].sort((a, b) => {
+                      if (a.facilities < b.facilities)
+                        return newDirection === "asc" ? -1 : 1;
+                      if (a.facilities > b.facilities)
+                        return newDirection === "asc" ? 1 : -1;
+                      return 0;
+                    })
+                  );
+                }}
+              >
+                Facilities
+                {sortedColumn === "Facilities" && (
+                  <span className="ml-2">
+                    {sortDirection === "asc" ? "▲" : "▼"}
+                  </span>
+                )}
+              </th>
             </tr>
           </thead>
           <tbody>
             {/* Display no users when there are no users */}
             {filteredUsers.length === 0 && (
               <tr className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border text-center">
-                <td colSpan={7} className="py-4 text-center">
+                <td colSpan={14} className="py-4 text-center">
                   No users to display...
                 </td>
               </tr>
@@ -249,9 +503,12 @@ export default function UserDetailReport() {
               )
               .map((user, index) => (
                 <tr
-                  key={user._id}
+                  key={index}
                   className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
                 >
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {user._id}
+                  </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.displayName}
                   </td>
@@ -262,6 +519,9 @@ export default function UserDetailReport() {
                     {user.email}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {user.phone}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.role}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
@@ -270,11 +530,36 @@ export default function UserDetailReport() {
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {user.status}
                   </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {`${user.address?.street1 || ""} ${
+                      user.address?.street2 || ""
+                    }, ${user.address?.city || ""}, ${
+                      user.address?.state || ""
+                    }, ${user.address?.country || ""}, ${
+                      user.address?.zipCode || ""
+                    }`}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {user.createdAt}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {user.createdBy}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {user.updatedAt}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {user.confirmed ? "true" : "false"}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center text-wrap">
+                    {user.facilities.join(", ")}
+                  </td>
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
+      {/* Pagination Footer */}
       <div className="flex justify-between items-center dark:text-white">
         <div className="flex gap-3">
           <div>
@@ -284,13 +569,14 @@ export default function UserDetailReport() {
               value={itemsPerPage}
               onChange={(e) => {
                 setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1); // Reset to first page on rows per page change
+                setCurrentPage(1);
               }}
             >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
+              {paginationLevels.map((level, index) => (
+                <option key={index} value={level}>
+                  {level}
+                </option>
+              ))}
             </select>
           </div>
           <p className="text-sm">

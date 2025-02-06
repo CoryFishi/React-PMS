@@ -9,7 +9,7 @@ import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
 import FacilityDashboard from "../facilityComponents/FacilityDashboard";
 import AdminConfigurationDashboard from "./AdminConfigurationDashboard";
-import AdminReportsPage from "../facilityComponents/facilityPages/AdminReportsPage";
+import AdminReportsPage from "../adminReportComponents/AdminReportsPage";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [openDashboard, setOpenDashboard] = useState(

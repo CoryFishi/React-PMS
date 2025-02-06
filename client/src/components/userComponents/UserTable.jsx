@@ -172,18 +172,29 @@ export default function UserTable() {
 
   // Filter users based on search query
   useEffect(() => {
-    const filteredUsers = users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.phone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.company?.companyName
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase())
-    );
+    const filteredUsers = users.filter((user) => {
+      const query = searchQuery.toLowerCase();
+
+      return (
+        user.name.toLowerCase().includes(query) ||
+        user._id.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query) ||
+        user.displayName.toLowerCase().includes(query) ||
+        user.phone.toLowerCase().includes(query) ||
+        user.role.toLowerCase().includes(query) ||
+        user.status.toLowerCase().includes(query) ||
+        user.company?.companyName.toLowerCase().includes(query) ||
+        user.company?._id.toLowerCase().includes(query) ||
+        user.createdAt.toLowerCase().includes(query) ||
+        user.updatedAt.toLowerCase().includes(query) ||
+        user.address?.street1?.toLowerCase().includes(query) ||
+        user.address?.street2?.toLowerCase().includes(query) ||
+        user.address?.city?.toLowerCase().includes(query) ||
+        user.address?.state?.toLowerCase().includes(query) ||
+        user.address?.country?.toLowerCase().includes(query) ||
+        user.address?.zipCode?.toLowerCase().includes(query)
+      );
+    });
     setFilteredUsers(filteredUsers);
   }, [users, searchQuery]);
 

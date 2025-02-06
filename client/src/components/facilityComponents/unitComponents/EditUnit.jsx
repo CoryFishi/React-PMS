@@ -18,7 +18,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   const [tenant, setTenat] = useState([]);
 
   useEffect(() => {
-    axios.get(`/units/${unitId}`).then(({ data }) => {
+    axios.get(`/facilities/units/unit/${unitId}`).then(({ data }) => {
       setUnitNumber(data.unitNumber);
       setSize(data.size);
       setClimateControlled(data.climateControlled);
@@ -254,7 +254,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                       type="checkbox"
                       id="status"
                       checked={availability}
-                      onClick={toggleStatus}
+                      onChange={toggleStatus}
                       className="mr-2"
                     />
                     <span>{availability ? "Available" : "Unavailable"}</span>

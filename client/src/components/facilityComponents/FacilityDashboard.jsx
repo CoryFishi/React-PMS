@@ -2,9 +2,9 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import UnitPage from "./facilityPages/UnitPage";
 import TenantPage from "./facilityPages/TenantPage";
-import ReportsPage from "./facilityPages/AdminReportsPage";
 import SettingsPage from "./facilityPages/SettingsPage";
 import FacilityConfigurationDashboard from "./facilityPages/FacilityConfigurationDashboard";
+import ReportsPage from "./facilityPages/ReportsPage";
 
 const today = new Date().toLocaleDateString("en-US", {
   weekday: "short",
@@ -36,10 +36,6 @@ export default function FacilityDashboard({ facility, facilityPage }) {
           {facilityData.facilityName}
         </h1>
         <h2 className="text-lg">&nbsp;/ {today}</h2>
-        <h3>
-          {facilityData.status !== "Enabled" &&
-            "Status: " + facilityData.status}
-        </h3>
       </div>
 
       {facilityPage === "units" && <UnitPage facilityId={facility} />}

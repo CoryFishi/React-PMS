@@ -11,7 +11,6 @@ import {
 } from "react-icons/bi";
 
 export default function FacilityTable({
-  facility,
   setFacility,
   setFacilityName,
   setOpenDashboard,
@@ -169,9 +168,28 @@ export default function FacilityTable({
   const totalPages = Math.ceil(filteredFacilities.length / itemsPerPage);
 
   useEffect(() => {
-    const filteredFacilities = facilities.filter((facility) =>
-      facility.facilityName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredFacilities = facilities.filter((facility) => {
+      const query = searchQuery.toLowerCase();
+      return (
+        facility.facilityName.toLowerCase().includes(query) ||
+        facility._id.toLowerCase().includes(query) ||
+        facility.company?.companyName?.toLowerCase().includes(query) ||
+        facility.createdAt.toLowerCase().includes(query) ||
+        facility.securityLevel.toLowerCase().includes(query) ||
+        facility.status.toLowerCase().includes(query) ||
+        Object.values(facility.amenities || {}).some((amenity) =>
+          amenity.toLowerCase().includes(query)
+        ) ||
+        facility.updatedAt.toLowerCase().includes(query) ||
+        facility.manager?.name?.toLowerCase().includes(query) ||
+        facility.address?.street1?.toLowerCase().includes(query) ||
+        facility.address?.street2?.toLowerCase().includes(query) ||
+        facility.address?.city?.toLowerCase().includes(query) ||
+        facility.address?.state?.toLowerCase().includes(query) ||
+        facility.address?.country?.toLowerCase().includes(query) ||
+        facility.address?.zipCode?.toLowerCase().includes(query)
+      );
+    });
     setFilteredFacilities(filteredFacilities);
   }, [facilities, searchQuery]);
 
@@ -417,6 +435,15 @@ export default function FacilityTable({
             </tr>
           </thead>
           <tbody>
+            {/* Display no facilities when there are no facilities */}
+            {filteredFacilities.length === 0 && (
+              <tr className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border text-center">
+                <td colSpan={7} className="py-4 text-center">
+                  No facilities to display...
+                </td>
+              </tr>
+            )}
+            {/* Display Facilities */}
             {filteredFacilities
               .slice(
                 (currentPage - 1) * itemsPerPage,

@@ -126,10 +126,28 @@ export default function CompanyTable() {
   // Calculate total number of pages
   const totalPages = Math.ceil(companies.length / itemsPerPage);
 
+  // Filter users based on search query
   useEffect(() => {
-    const filteredCompanies = companies.filter((company) =>
-      company.companyName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredCompanies = companies.filter((company) => {
+      const query = searchQuery.toLowerCase();
+
+      return (
+        company.companyName.toLowerCase().includes(query) ||
+        company.createdAt.toLowerCase().includes(query) ||
+        company._id.toLowerCase().includes(query) ||
+        company.status.toLowerCase().includes(query) ||
+        company.updatedAt.toLowerCase().includes(query) ||
+        company.contactInfo?.phone?.toLowerCase().includes(query) ||
+        company.contactInfo?.email?.toLowerCase().includes(query) ||
+        company.address?.street1?.toLowerCase().includes(query) ||
+        company.address?.street2?.toLowerCase().includes(query) ||
+        company.address?.city?.toLowerCase().includes(query) ||
+        company.address?.state?.toLowerCase().includes(query) ||
+        company.address?.country?.toLowerCase().includes(query) ||
+        company.address?.zipCode?.toLowerCase().includes(query)
+      );
+    });
+
     setFilteredCompanies(filteredCompanies);
   }, [companies, searchQuery]);
 
@@ -185,6 +203,16 @@ export default function CompanyTable() {
       )}
       <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
         <h2 className="text-xl font-bold">Company Statistics</h2>
+        <p className="text-sm">
+          Enabled:{" "}
+          {companies.filter((company) => company.status === "Enabled").length}
+        </p>
+
+        <p className="text-sm">
+          Disabled:{" "}
+          {companies.filter((company) => company.status === "Disabled").length}
+        </p>
+
         <p className="text-sm">Total: {companies.length}</p>
       </div>
       <div className="my-4 flex items-center justify-end text-center mx-5">
@@ -308,6 +336,15 @@ export default function CompanyTable() {
             </tr>
           </thead>
           <tbody>
+            {/* Display no companies when there are no companies */}
+            {filteredCompanies.length === 0 && (
+              <tr className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border text-center">
+                <td colSpan={5} className="py-4 text-center">
+                  No companies to display...
+                </td>
+              </tr>
+            )}
+            {/* Display companies */}
             {filteredCompanies
               .slice(
                 (currentPage - 1) * itemsPerPage,

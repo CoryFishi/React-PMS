@@ -116,7 +116,7 @@ export default function CreateMultipleUnits({ onClose, onSubmit, facilityId }) {
   const handleSubmit = async () => {
     try {
       // The backend must accept an array of units
-      const response = await axios.post(`/facilities/units/create`, {
+      const response = await axios.post(`/facilities/units/unit/create`, {
         facilityId,
         createdBy: user._id,
         units: units,

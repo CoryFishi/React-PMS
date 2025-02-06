@@ -556,7 +556,7 @@ export default function UnitPage({ facilityId }) {
                     value={itemsPerPage}
                     onChange={(e) => {
                       setItemsPerPage(Number(e.target.value));
-                      setCurrentPage(1); // Reset to first page on rows per page change
+                      setCurrentPage(1);
                     }}
                   >
                     <option value={10}>10</option>

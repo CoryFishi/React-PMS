@@ -32,12 +32,12 @@ router.put("/update/status", deployFacility);
 router.put("/update", editFacility);
 
 // Facility Units
-router.post("/units/create", addUnits);
-router.delete("/units/delete", deleteUnit);
+router.post("/units/unit/create", addUnits);
+router.delete("/units/unit/delete", deleteUnit);
 router.get("/units/:facilityId/vacant", getVacantUnits);
 router.get("/units/:facilityId", getUnits);
 router.put("/units/:facilityId/:unitId/moveout", removeTenant);
-router.put("/units/update", editUnit);
-router.get("/units/:unitId", getUnitById);
+router.put("/units/unit/update", editUnit);
+router.get("/units/unit/:unitId", getUnitById);
 
 module.exports = router;

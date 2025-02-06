@@ -24,7 +24,13 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: true,
+  animation: {
+    duration: 0,
+  },
+};
 const today = new Date().toLocaleDateString("en-US", {
   weekday: "short",
   month: "short",
@@ -42,11 +48,6 @@ export default function AdminConfigurationDashboard() {
       disabled: 0,
     },
     companies: { total: 0, enabled: 0, disabled: 0 },
-    errors: [
-      { id: 1, message: "Server downtime detected", severity: "Critical" },
-      { id: 2, message: "API response delay", severity: "Warning" },
-      { id: 3, message: "Unauthorized login attempt", severity: "Alert" },
-    ],
   });
   const [chartData, setChartData] = useState({
     labels: [],
@@ -61,7 +62,7 @@ export default function AdminConfigurationDashboard() {
   });
 
   const companyChartData = {
-    labels: ["Total Companies", "Enabled Companies", "Disabled Companies"],
+    labels: ["Total", "Enabled", "Disabled"],
     datasets: [
       {
         label: "Companies",
@@ -76,7 +77,7 @@ export default function AdminConfigurationDashboard() {
   };
 
   const userChartData = {
-    labels: ["Total Users", "Enabled Users", "Disabled Users"],
+    labels: ["Total", "Enabled", "Disabled"],
     datasets: [
       {
         label: "Users",
@@ -88,7 +89,7 @@ export default function AdminConfigurationDashboard() {
 
   const facilityChartData = {
     labels: [
-      "Total Facilities",
+      "Total",
       "Enabled",
       "Pending Deployment",
       "Maintenance",
@@ -116,6 +117,7 @@ export default function AdminConfigurationDashboard() {
   };
 
   useEffect(() => {
+    // Need to make 1 API call to make a smoother experience! - future time
     axios
       .get("/users")
       .then(({ data }) => {
@@ -246,31 +248,31 @@ export default function AdminConfigurationDashboard() {
         {/* Dashboard Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Users Statistics */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-6 rounded-lg shadow-md dark:bg-darkNavSecondary">
             <h2 className="text-xl font-semibold mb-4">User Statistics</h2>
-            <Bar data={userChartData} />
+            <Bar data={userChartData} options={chartOptions} />
           </div>
           {/* Company Statistics */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
             <h2 className="text-xl font-semibold mb-4">Company Statistics</h2>
-            <Bar data={companyChartData} />
+            <Bar data={companyChartData} options={chartOptions} />
           </div>
           {/* Facilities Statistics */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
             <h2 className="text-xl font-semibold mb-4">Facility Statistics</h2>
-            <Bar data={facilityChartData} />
+            <Bar data={facilityChartData} options={chartOptions} />
           </div>
         </div>
 
         {/* Additional Graphs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
           {/* Line Chart: Application Trends */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
             <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
-            <Line data={chartData} />
+            <Line data={chartData} options={chartOptions} />
           </div>
           {/* Line Chart: Activity Trends */}
-          <div className="p-6 rounded-lg shadow-md">
+          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
             <h2 className="text-xl font-semibold mb-4">Activity Trends</h2>
             <Line
               data={{

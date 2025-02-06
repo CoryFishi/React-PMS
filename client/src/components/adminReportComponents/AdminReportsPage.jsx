@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { FaPerson } from "react-icons/fa6";
 import { BsBuildingFillLock, BsFillBuildingsFill } from "react-icons/bs";
-import UserDetailReport from "../../adminReportComponents/UserDetailReport";
+import UserDetailReport from "./UserDetailReport";
 import { MdSettingsApplications } from "react-icons/md";
-import CompanyDetailReport from "../../adminReportComponents/CompanyDetailReport";
-import FacilityDetailReport from "../../adminReportComponents/FacilityDetailReport";
-import ApplicationEventsReport from "../../adminReportComponents/ApplicationEventsReport";
+import CompanyDetailReport from "./CompanyDetailReport";
+import FacilityDetailReport from "./FacilityDetailReport";
+import ApplicationEventsReport from "./ApplicationEventsReport";
 
 export default function AdminReportsPage() {
   const [selectedReport, setSelectedReport] = useState(null);

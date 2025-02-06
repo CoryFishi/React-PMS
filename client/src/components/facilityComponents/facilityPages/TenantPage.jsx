@@ -323,47 +323,6 @@ export default function TenantPage({ facilityId }) {
                                   onSubmit={handleEditSubmit}
                                 />
                               )}
-                              {/* <a
-                            className=" block px-4 py-2 text-sm hover:bg-background-200"
-                            role="menuitem"
-                            tabIndex="-1"
-                            onClick={() => promptDeleteTenant(tenant._id)}
-                          >
-                            Delete
-                          </a>
-                          {isDeleteModalOpen && (
-                            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                              <div className="bg-background-100 p-4 rounded-lg shadow-lg">
-                                <h3 className="text-lg font-bold">
-                                  Confirm Delete
-                                </h3>
-                                <p>
-                                  Are you sure you want to delete tenant{" "}
-                                  {tenant.firstName} {tenant.lastName}?
-                                </p>
-                                <div className="flex justify-end mt-4">
-                                  <button
-                                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                                    onClick={() =>
-                                      deleteTenant(tenantIdToDelete) &
-                                      setOpenDropdown(null)
-                                    }
-                                  >
-                                    Delete
-                                  </button>
-                                  <button
-                                    className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                    onClick={() =>
-                                      setIsDeleteModalOpen(false) &
-                                      setOpenDropdown(null)
-                                    }
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          )} */}
                             </div>
                           </div>
                         )}

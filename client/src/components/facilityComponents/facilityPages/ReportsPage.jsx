@@ -1,17 +1,17 @@
 import { useState } from "react";
-import UnitDetailReport from "../facilityComponents/reportsComponents/UnitDetailReport";
-import TenantDetailReport from "../facilityComponents/reportsComponents/TenantDetailReport";
-import DelinquencyReport from "../facilityComponents/reportsComponents/DelinquencyReport";
-import VacancyReport from "../facilityComponents/reportsComponents/VacancyReport";
-import PaymentsReport from "../facilityComponents/reportsComponents/PaymentsReport";
-import ApplicationEventsReport from "../facilityComponents/reportsComponents/ApplicationEventsReport";
+import UnitDetailReport from "../reportsComponents/UnitDetailReport";
+import TenantDetailReport from "../reportsComponents/TenantDetailReport";
+import DelinquencyReport from "../reportsComponents/DelinquencyReport";
+import VacancyReport from "../reportsComponents/VacancyReport";
+import PaymentsReport from "../reportsComponents/PaymentsReport";
+import ApplicationEventsReport from "../reportsComponents/ApplicationEventsReport";
 import { FaLock, FaPerson } from "react-icons/fa6";
 import {
   MdPayments,
   MdSettingsApplications,
   MdIntegrationInstructions,
 } from "react-icons/md";
-import GateIntegrationReport from "../facilityComponents/reportsComponents/GateIntegrationReport";
+import GateIntegrationReport from "../reportsComponents/GateIntegrationReport";
 
 export default function ReportsPage({ facilityId }) {
   const [selectedReport, setSelectedReport] = useState(null);
