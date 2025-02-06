@@ -11,7 +11,6 @@ import {
   BiChevronsRight,
 } from "react-icons/bi";
 import facilityMap from "../../../assets/images/MAP.jpg";
-import { FaCheck } from "react-icons/fa6";
 
 export default function UnitPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);

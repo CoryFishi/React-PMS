@@ -61,23 +61,56 @@ const storageFacilitySchema = new mongoose.Schema({
       ],
     },
   },
-  securityLevel: {
-    type: String,
-    enum: ["Basic", "Enhanced", "High"],
-    default: "Basic",
-  },
-  amenities: [
-    {
-      type: String,
-      trim: true,
-    },
-  ],
+  tags: [{ type: String }],
   units: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "StorageUnit",
     },
   ],
+  settings: {
+    amenities: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+    unitTypes: [
+      {
+        name: { type: String },
+        size: {
+          width: { type: Number, required: true },
+          height: { type: Number, required: true },
+          depth: { type: Number, required: true },
+          unit: {
+            type: String,
+            enum: ["ft", "m"],
+            default: "ft",
+          },
+        },
+        paymentInfo: {
+          pricePerMonth: {
+            type: Number,
+            required: true,
+          },
+        },
+        climateControlled: {
+          type: Boolean,
+          default: false,
+        },
+        availability: {
+          type: Boolean,
+          default: true,
+        },
+        condition: {
+          type: String,
+          enum: ["New", "Good", "Fair", "Poor"],
+          default: "Good",
+        },
+        tags: [{ type: String }],
+      },
+    ],
+  },
   status: {
     type: String,
     enum: ["Pending Deployment", "Disabled", "Enabled", "Maintenance"],
@@ -91,6 +124,10 @@ const storageFacilitySchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   updatedAt: {
     type: Date,

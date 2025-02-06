@@ -13,7 +13,7 @@ const storageUnitSchema = new mongoose.Schema({
     depth: { type: Number, required: true },
     unit: {
       type: String,
-      enum: ["ft", "m"], // feet or meters
+      enum: ["ft", "m"],
       default: "ft",
     },
   },
@@ -28,11 +28,6 @@ const storageUnitSchema = new mongoose.Schema({
   climateControlled: {
     type: Boolean,
     default: false,
-  },
-  securityLevel: {
-    type: String,
-    enum: ["Basic", "Enhanced", "High"],
-    default: "Basic",
   },
   availability: {
     type: Boolean,
@@ -66,6 +61,7 @@ const storageUnitSchema = new mongoose.Schema({
       min: [0, "Balance cannot be negative"],
     },
   },
+  tags: [{ type: String }],
   status: {
     type: String,
     default: "Vacant",

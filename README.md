@@ -76,6 +76,7 @@ coryfishburnjr@gmail.com
 - Tenant Lease
 - Tenant Isurance
 - Facility level settings
+- remove security level from unit layer
 
 # Current Bugs
 

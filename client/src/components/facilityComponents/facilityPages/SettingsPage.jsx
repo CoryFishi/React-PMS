@@ -5,6 +5,7 @@ import NotificationSettings from "../settingsComponents/GeneralSettings";
 import BillingSettings from "../settingsComponents/BillingSettings";
 import IntegrationSettings from "../settingsComponents/IntegrationsSettings";
 import { FaLock, FaPerson } from "react-icons/fa6";
+import UnitTypeSettings from "../settingsComponents/UnitTypeSettings";
 
 export default function SettingsPage({ facilityId }) {
   const [selectedSetting, setSelectedSetting] = useState(null);
@@ -15,6 +16,7 @@ export default function SettingsPage({ facilityId }) {
     notifications: <NotificationSettings facilityId={facilityId} />,
     billing: <BillingSettings facilityId={facilityId} />,
     integrations: <IntegrationSettings facilityId={facilityId} />,
+    unitTypes: <UnitTypeSettings facilityId={facilityId} />,
   };
 
   return (
@@ -30,6 +32,12 @@ export default function SettingsPage({ facilityId }) {
               onClick={() => setSelectedSetting("facilitySettings")}
             >
               Facility Settings
+            </button>
+            <button
+              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
+              onClick={() => setSelectedSetting("allTenants")}
+            >
+              Amenities
             </button>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -90,13 +98,7 @@ export default function SettingsPage({ facilityId }) {
             </button>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
-            >
-              Unit Amenities
-            </button>
-            <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              onClick={() => setSelectedSetting("unitTypes")}
             >
               Unit Types
             </button>
