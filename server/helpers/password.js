@@ -17,6 +17,7 @@ const hashPassword = (password) => {
 };
 
 const comparePassword = (password, hashed) => {
+  console.log(password, hashed);
   return bcrpyt.compare(password, hashed);
 };
 

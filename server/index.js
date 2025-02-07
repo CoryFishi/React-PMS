@@ -22,10 +22,10 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Logging of incoming requests
-// app.use((req, res, next) => {
-//   console.log(`Incoming request: ${req.method} ${req.url}`);
-//   next();
-// });
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
 // Import & Use Routes
 app.use("/companies", require("./routes/companyRoutes"));

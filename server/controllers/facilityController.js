@@ -601,6 +601,84 @@ const deployFacility = async (req, res) => {
   }
 };
 
+const addUnitType = async (req, res) => {
+  try {
+    const { facilityId } = req.params;
+    const newUnitType = req.body;
+
+    const facilityExists = await StorageFacility.findById(facilityId);
+    if (!facilityExists) {
+      return res.status(404).json({ error: "Facility not found" });
+    }
+
+    const updatedFacility = await StorageFacility.findByIdAndUpdate(
+      facilityId,
+      { $push: { "settings.unitTypes": newUnitType } },
+      { new: true, useFindAndModify: false }
+    );
+
+    return res.status(201).json(updatedFacility.settings.unitTypes);
+  } catch (err) {
+    console.error("Error adding a new unit type:", err);
+    return res.status(500).json({ error: "Failed to add a new unit type." });
+  }
+};
+
+const deleteUnitType = async (req, res) => {
+  const { facilityId } = req.params;
+  const { unitTypeId } = req.query;
+
+  try {
+    const facility = await StorageFacility.findById(facilityId);
+    if (!facility) {
+      return res.status(404).json({ message: "Facility not found" });
+    }
+
+    // Filter out the unit type with the matching ID
+    const initialLength = facility.settings.unitTypes.length;
+    facility.settings.unitTypes = facility.settings.unitTypes.filter(
+      (unitType) => unitType._id.toString() !== unitTypeId
+    );
+
+    if (initialLength === facility.settings.unitTypes.length) {
+      return res.status(404).json({ message: "Unit Type not found" });
+    }
+
+    await facility.save();
+
+    res.status(200).json({ message: "Unit Type deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting unit type:", error);
+    res.status(500).json({ message: "Failed to delete unit type" });
+  }
+};
+
+const editUnitType = async (req, res) => {
+  const { facilityId } = req.params;
+  const { unitTypeId } = req.query;
+  const updatedData = req.body;
+
+  try {
+    const facility = await StorageFacility.findById(facilityId);
+    if (!facility)
+      return res.status(404).json({ message: "Facility not found" });
+
+    const unitType = facility.settings.unitTypes.id(unitTypeId);
+    if (!unitType)
+      return res.status(404).json({ message: "Unit Type not found" });
+
+    Object.assign(unitType, updatedData);
+    await facility.save();
+
+    res
+      .status(200)
+      .json({ message: "Unit Type updated", updatedUnitType: unitType });
+  } catch (error) {
+    console.error("Error updating unit type:", error);
+    res.status(500).json({ message: "Failed to update unit type" });
+  }
+};
+
 // Helpers
 async function checkUnitInFacility(facilityId, unitNumber) {
   const facility = await StorageFacility.findById(facilityId).populate({
@@ -609,7 +687,6 @@ async function checkUnitInFacility(facilityId, unitNumber) {
   });
   return facility && facility.units && facility.units.length > 0;
 }
-async function updateFacilityWithUnits(facilityId, unitIds) {}
 
 // Exports
 module.exports = {
@@ -629,4 +706,7 @@ module.exports = {
   getUnitById,
   removeTenant,
   getVacantUnits,
+  addUnitType,
+  deleteUnitType,
+  editUnitType,
 };

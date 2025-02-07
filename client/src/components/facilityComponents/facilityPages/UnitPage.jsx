@@ -31,6 +31,9 @@ export default function UnitPage({ facilityId }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUnits, setFilteredUnits] = useState([]);
   const [activeTab, setActiveTab] = useState("Individual");
+  const [paginationLevels, setPaginationLevels] = useState([
+    5, 10, 25, 50, 100, 250,
+  ]);
 
   const promptDeleteUnit = (id) => {
     setUnitIdToDelete(id);
@@ -558,10 +561,11 @@ export default function UnitPage({ facilityId }) {
                       setCurrentPage(1);
                     }}
                   >
-                    <option value={10}>10</option>
-                    <option value={25}>25</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
+                    {paginationLevels.map((level, index) => (
+                      <option key={index} value={level}>
+                        {level}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <p className="text-sm">

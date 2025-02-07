@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import {
   BiChevronLeft,
   BiChevronRight,
@@ -6,39 +8,134 @@ import {
   BiChevronsRight,
 } from "react-icons/bi";
 import CreateUnitType from "./unitTypeComponents/CreateUnitType";
+import EditUnitType from "./unitTypeComponents/EditUnitType";
 
 export default function UnitTypeSettings({ facilityId }) {
-  const [facility, setFacility] = useState(facilityId);
   const [unitTypes, setUnitTypes] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(null);
-  const [isEditOpen, setEditOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isRentModalOpen, setIsRentModalOpen] = useState(false);
-  const [isRentModalMainOpen, setIsRentModalMainOpen] = useState(false);
-  const [isMoveOutModalOpen, setIsMoveOutModalOpen] = useState(false);
-  const [unitIdToDelete, setUnitIdToDelete] = useState(null);
-  const [unitIdToMoveOut, setUnitIdToMoveOut] = useState(null);
-  const [tenancy, setTenancy] = useState(false);
   const containerRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUnitTypes, setFilteredUnitTypes] = useState([]);
-  const [activeTab, setActiveTab] = useState("Individual");
+  const [paginationLevels, setPaginationLevels] = useState([
+    5, 10, 25, 50, 100, 250,
+  ]);
+  const [selectedUnitType, setSelectedUnitType] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const deleteUnitType = async (id) => {
+    try {
+      const response = await axios.delete(
+        `/facilities/${facilityId}/settings/unittypes?unitTypeId=${id}`
+      );
+      toast.success(response.data.message);
+      setUnitTypes(unitTypes.filter((unitType) => unitType._id !== id));
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Failed to delete unit type:", error);
+      toast.error(error.response.data.message);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
+        setOpenDropdown(null);
+      }
+    }
+    // Add event listener when a dropdown is open
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openDropdown]);
+
+  const submitUnitType = (e) => {
+    setUnitTypes(e.data);
+    setIsCreateOpen(false);
+    toast.success("Unit Type Created!");
+  };
 
   // Calculate total number of pages
   const totalPages = Math.ceil(filteredUnitTypes.length / itemsPerPage);
 
   useEffect(() => {
+    axios.get(`/facilities/${facilityId}`).then(({ data }) => {
+      setUnitTypes(data.settings.unitTypes);
+    });
+  }, []);
+
+  useEffect(() => {
     const filteredUnitTypes = unitTypes.filter((unitType) =>
-      unitType.unitNumber.toLowerCase().includes(searchQuery.toLowerCase())
+      unitType.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredUnitTypes(filteredUnitTypes);
   }, [unitTypes, searchQuery]);
+
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
-      {isCreateOpen && <CreateUnitType setIsCreateOpen={setIsCreateOpen} />}
+    <div className="p-4 dark:bg-darkPrimary dark:border-border border bg-white rounded-lg shadow-md">
+      {isCreateOpen && (
+        <CreateUnitType
+          setIsCreateOpen={setIsCreateOpen}
+          onSubmit={submitUnitType}
+          facilityId={facilityId}
+        />
+      )}
+      {isEditModalOpen && selectedUnitType && (
+        <EditUnitType
+          setIsEditModalOpen={setIsEditModalOpen}
+          unitType={selectedUnitType}
+          facilityId={facilityId}
+          onUpdate={(updatedUnit) => {
+            setUnitTypes((prev) =>
+              prev.map((unitType) =>
+                unitType._id === updatedUnit._id ? updatedUnit : unitType
+              )
+            );
+            setIsEditModalOpen(false);
+          }}
+        />
+      )}
+
+      {isDeleteModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center 
+                      bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+                      overflow-y-auto"
+        >
+          <div
+            className="relative w-fit shadow-lg rounded-md 
+                        bg-gray-100 dark:bg-darkPrimary dark:text-white 
+                         overflow-y-auto p-5"
+          >
+            <h3 className="text-lg font-bold">Confirm Delete</h3>
+            <p>Are you sure you want to delete this unit type?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                onClick={() => deleteUnitType(selectedUnitType)}
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                onClick={() =>
+                  setIsDeleteModalOpen(false) & setOpenDropdown(null)
+                }
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <h2 className="text-xl font-bold mb-2">Unit Type Settings</h2>
       <p>Configure unit types.</p>
       <div className="my-4 flex items-center justify-end text-center mx-2">
@@ -92,46 +189,94 @@ export default function UnitTypeSettings({ facilityId }) {
                   className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
                 >
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unitType.unitNumber}
+                    {unitType.name}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    <div>
-                      <button
-                        type="button"
-                        className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-600"
-                        onClick={() =>
-                          setOpenDropdown(
-                            openDropdown === unitType._id ? null : unitType._id
-                          )
-                        }
-                      >
-                        <svg
-                          className="w-4 h-4 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
+                    {unitType.size.width +
+                      "x" +
+                      unitType.size.height +
+                      "x" +
+                      unitType.size.depth +
+                      " " +
+                      unitType.size.unit}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {unitType.climateControlled ? "true" : "false"}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    {unitType.condition}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center text-wrap">
+                    {unitType.tags.join(", ")}
+                  </td>
+                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
+                    <div className="relative inline-block text-left">
+                      <div>
+                        <button
+                          type="button"
+                          className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-700"
+                          onClick={() =>
+                            setOpenDropdown((prev) =>
+                              prev === unitType._id ? null : unitType._id
+                            )
+                          }
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 9l-7 7-7-7"
-                          ></path>
-                        </svg>
-                        Actions
-                      </button>
+                          <svg
+                            className="w-4 h-4 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            ></path>
+                          </svg>
+                          Actions
+                        </button>
+                      </div>
+                      {/* User Actions drop down */}
+                      {openDropdown === unitType._id && (
+                        <div
+                          className="origin-top-right absolute left-1/2 -translate-x-1/2 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
+                          role="menu"
+                          aria-orientation="vertical"
+                          aria-labelledby="menu-button"
+                          tabIndex="-1"
+                          ref={containerRef}
+                        >
+                          <div role="none">
+                            <a
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              role="menuitem"
+                              tabIndex="-1"
+                              onClick={() => {
+                                setSelectedUnitType(unitType);
+                                setIsEditModalOpen(true);
+                                setOpenDropdown(false);
+                              }}
+                            >
+                              Edit
+                            </a>
+                            <a
+                              className=" block px-4 py-3 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
+                              role="menuitem"
+                              tabIndex="-1"
+                              onClick={() => {
+                                setSelectedUnitType(unitType._id);
+                                setIsDeleteModalOpen(true);
+                                setOpenDropdown(false);
+                              }}
+                            >
+                              Delete
+                            </a>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    {openDropdown === unitType._id && (
-                      <div
-                        className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
-                        role="menu"
-                        aria-orientation="vertical"
-                        aria-labelledby="menu-button"
-                        tabIndex="-1"
-                        ref={containerRef}
-                      ></div>
-                    )}
                   </td>
                 </tr>
               ))}
@@ -149,10 +294,11 @@ export default function UnitTypeSettings({ facilityId }) {
                   setCurrentPage(1);
                 }}
               >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
+                {paginationLevels.map((level, index) => (
+                  <option key={index} value={level}>
+                    {level}
+                  </option>
+                ))}
               </select>
             </div>
             <p className="text-sm">
