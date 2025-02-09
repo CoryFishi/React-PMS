@@ -21,6 +21,9 @@ const {
   addUnitType,
   deleteUnitType,
   editUnitType,
+  deleteAmenity,
+  editAmenity,
+  addAmenity,
 } = require("../controllers/facilityController");
 
 // Facility Routes
@@ -36,6 +39,9 @@ router.put("/update", editFacility);
 router.post("/:facilityId/settings/unittypes", addUnitType);
 router.delete("/:facilityId/settings/unittypes", deleteUnitType);
 router.put("/:facilityId/settings/unittypes", editUnitType);
+router.post("/:facilityId/settings/amenities", addAmenity);
+router.delete("/:facilityId/settings/amenities", deleteAmenity);
+router.put("/:facilityId/settings/amenities", editAmenity);
 
 // Facility Units
 router.post("/units/unit/create", addUnits);

@@ -71,8 +71,14 @@ const storageFacilitySchema = new mongoose.Schema({
   settings: {
     amenities: [
       {
-        type: String,
-        trim: true,
+        name: {
+          type: String,
+          trim: true,
+        },
+        priority: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     unitTypes: [
@@ -107,7 +113,7 @@ const storageFacilitySchema = new mongoose.Schema({
           enum: ["New", "Good", "Fair", "Poor"],
           default: "Good",
         },
-        tags: [{ type: String }],
+        tags: [{ type: String, trim: true }],
       },
     ],
   },

@@ -679,6 +679,83 @@ const editUnitType = async (req, res) => {
   }
 };
 
+const addAmenity = async (req, res) => {
+  try {
+    const { facilityId } = req.params;
+    const newAmenity = req.body;
+
+    const facilityExists = await StorageFacility.findById(facilityId);
+    if (!facilityExists) {
+      return res.status(404).json({ error: "Facility not found" });
+    }
+
+    const updatedFacility = await StorageFacility.findByIdAndUpdate(
+      facilityId,
+      { $push: { "settings.amenities": newAmenity } },
+      { new: true, useFindAndModify: false }
+    );
+
+    return res.status(201).json(updatedFacility.settings.amenities);
+  } catch (err) {
+    console.error("Error adding a new unit type:", err);
+    return res.status(500).json({ error: "Failed to add a new unit type." });
+  }
+};
+
+const deleteAmenity = async (req, res) => {
+  const { facilityId } = req.params;
+  const { amenityId } = req.query;
+
+  try {
+    const facility = await StorageFacility.findById(facilityId);
+    if (!facility) {
+      return res.status(404).json({ message: "Facility not found" });
+    }
+
+    // Filter out the amenity with the matching ID
+    const initialLength = facility.settings.amenities.length;
+    facility.settings.amenities = facility.settings.amenities.filter(
+      (amenity) => amenity._id.toString() !== amenityId
+    );
+
+    if (initialLength === facility.settings.amenities.length) {
+      return res.status(404).json({ message: "Amenity not found" });
+    }
+
+    await facility.save();
+
+    res.status(200).json({ message: "Amenity deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting amenity:", error);
+    res.status(500).json({ message: "Failed to delete amenity" });
+  }
+};
+
+const editAmenity = async (req, res) => {
+  const { facilityId } = req.params;
+  const { amenityId } = req.query;
+  const updatedData = req.body;
+
+  try {
+    const facility = await StorageFacility.findById(facilityId);
+    if (!facility)
+      return res.status(404).json({ message: "Facility not found" });
+
+    const amenity = facility.settings.amenities.id(amenityId);
+    if (!amenity) return res.status(404).json({ message: "Amenity not found" });
+
+    Object.assign(amenity, updatedData);
+    await facility.save();
+
+    res
+      .status(200)
+      .json({ message: "Amenity updated", updatedAmenity: amenity });
+  } catch (error) {
+    console.error("Error updating amenity:", error);
+    res.status(500).json({ message: "Failed to update amenity" });
+  }
+};
+
 // Helpers
 async function checkUnitInFacility(facilityId, unitNumber) {
   const facility = await StorageFacility.findById(facilityId).populate({
@@ -690,6 +767,9 @@ async function checkUnitInFacility(facilityId, unitNumber) {
 
 // Exports
 module.exports = {
+  deleteAmenity,
+  editAmenity,
+  addAmenity,
   createFacility,
   getFacilities,
   deleteFacility,

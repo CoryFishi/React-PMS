@@ -11,21 +11,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
   const [companies, setCompanies] = useState([]);
   const [manager, setManager] = useState("");
   const [managers, setManagers] = useState([]);
-  const [amenities, setAmenities] = useState([]);
-  const [facilityAmenities, setFacilityAmenities] = useState([]);
-  const [securityLevels, setSecurityLevels] = useState([]);
-  const [selectedSecurityLevel, setSelectedSecurityLevel] = useState("Basic");
-  const [amenitiesDropdownOpen, setAmenitiesDropdownOpen] = useState(false);
-  const amenitiesDropdownRef = useRef(null);
   const { user } = useContext(UserContext);
-
-  const handleAmenityChange = (amenityId) => {
-    setFacilityAmenities((prev) =>
-      prev.includes(amenityId)
-        ? prev.filter((id) => id !== amenityId)
-        : [...prev, amenityId]
-    );
-  };
 
   const handleCompanyChange = (e) => {
     const selectedCompany = e.target.value;
@@ -41,9 +27,6 @@ export default function CreateFacility({ onClose, onSubmit }) {
     axios.get("/companies").then(({ data }) => {
       setCompanies(data);
     });
-    axios.get("/facilities/security").then(({ data }) => {
-      setSecurityLevels(data);
-    });
   }, []);
 
   const handleSubmit = async () => {
@@ -55,8 +38,6 @@ export default function CreateFacility({ onClose, onSubmit }) {
         address: address,
         company: selectedCompany,
         manager: manager,
-        amenities: facilityAmenities,
-        securityLevel: selectedSecurityLevel,
         createdBy: user._id,
       });
       onSubmit(response);
@@ -65,22 +46,6 @@ export default function CreateFacility({ onClose, onSubmit }) {
       toast.error(error.response.data.error);
     }
   };
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        amenitiesDropdownRef.current &&
-        !amenitiesDropdownRef.current.contains(event.target)
-      ) {
-        setAmenitiesDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [amenitiesDropdownRef]);
 
   return (
     <div
@@ -94,9 +59,9 @@ export default function CreateFacility({ onClose, onSubmit }) {
                  overflow-y-auto p-5"
       >
         <h2 className="text-xl font-bold mb-4">Creating Facility</h2>
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+        <form onSubmit={(e) => e.preventDefault()}>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
+            <div>
               <div>
                 <label
                   htmlFor="facilityName"
@@ -108,7 +73,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                   type="text"
                   name="facilityName"
                   id="facilityName"
-                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="Facility name"
                   onChange={(e) => setName(e.target.value)}
                   style={{ width: "17rem" }}
@@ -118,7 +83,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                 <div className="flex-1">
                   <label
                     htmlFor="street1"
-                    className="block text-sm font-semibold  mt-1"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     Street 1:<span className="text-red-500">*</span>
                   </label>
@@ -134,7 +99,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="country"
@@ -154,7 +119,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="city"
@@ -174,13 +139,13 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
                 <div className="flex-1">
                   <label
                     htmlFor="street2"
-                    className="block text-sm font-semibold  mt-1"
+                    className="block text-sm font-semibold  mt-2"
                   >
                     Street 2:
                   </label>
@@ -196,7 +161,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="state"
@@ -216,11 +181,11 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                   <label
                     htmlFor="zipCode"
-                    className="block text-sm font-semibold  mt-2"
+                    className="block text-sm font-semibold mt-2"
                   >
                     ZIP Code:<span className="text-red-500">*</span>
                   </label>
@@ -236,72 +201,21 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       }))
                     }
                     style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
               </div>
-              <div>
-                <label
-                  htmlFor="amenities"
-                  className="block text-sm font-semibold  mt-2"
-                >
-                  Amenities:
-                </label>
-                <div className="relative" ref={amenitiesDropdownRef}>
-                  <button
-                    type="button"
-                    className="block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    style={{ width: "17rem" }}
-                    onClick={() => {
-                      setAmenitiesDropdownOpen(!amenitiesDropdownOpen);
-                      axios.get(`/facilities/amenities`).then(({ data }) => {
-                        setAmenities(data);
-                      });
-                    }}
-                  >
-                    {facilityAmenities.length > 0
-                      ? `${facilityAmenities.length} Amenities Selected`
-                      : "Select Amenities"}
-                  </button>
-                  {amenitiesDropdownOpen && (
-                    <div
-                      id="amenitiesDropdown"
-                      className="dark:bg-darkSecondary dark:border-border hover:cursor-pointer absolute w-full bg-white border border-gray-300 rounded-md shadow-lg m-0"
-                    >
-                      {amenities.map((amenity) => (
-                        <label
-                          key={amenity._id}
-                          className="hover:cursor-pointer block px-4 py-2 text-sm"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={facilityAmenities.includes(
-                              amenity.amenityName
-                            )}
-                            onChange={() =>
-                              handleAmenityChange(amenity.amenityName)
-                            }
-                            className="mr-2 hover:cursor-pointer"
-                          />
-                          {amenity.amenityName}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
-
-            <div className="space-y-4">
+            <div>
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold ">
+                <label htmlFor="email" className="block text-sm font-semibold">
                   Email:
                 </label>
                 <input
                   type="text"
                   name="email"
                   id="email"
-                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   placeholder="example@email.com"
                   onChange={(e) =>
                     setContactIfo((prevContactInfo) => ({
@@ -312,12 +226,12 @@ export default function CreateFacility({ onClose, onSubmit }) {
                   style={{ width: "17rem" }}
                 />
               </div>
-              <div>
-                <div className="space-y-4">
+              <div className="flex space-x-4">
+                <div className="flex-1">
                   <div>
                     <label
                       htmlFor="phone"
-                      className="block text-sm font-semibold mt-5"
+                      className="block text-sm font-semibold mt-2"
                     >
                       Phone Number:
                     </label>
@@ -325,7 +239,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       type="text"
                       name="phone"
                       id="phone"
-                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       placeholder="Phone Number"
                       onChange={(e) =>
                         setContactIfo((prevContactInfo) => ({
@@ -337,7 +251,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                     />
                     <label
                       htmlFor="company"
-                      className="block text-sm font-semibold  mt-1"
+                      className="block text-sm font-semibold mt-2"
                     >
                       Company:<span className="text-red-500">*</span>
                     </label>
@@ -347,7 +261,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       value={company}
                       onChange={handleCompanyChange}
                       style={{ width: "17rem" }}
-                      className="hover:cursor-pointer mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="hover:cursor-pointer mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >
                       <option value="" className="hover:cursor-pointer">
                         Select a company
@@ -364,7 +278,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                     </select>
                     <label
                       htmlFor="company"
-                      className="block text-sm font-semibold  mt-2"
+                      className="block text-sm font-semibold mt-1"
                     >
                       Manager:
                     </label>
@@ -374,7 +288,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       value={manager}
                       onChange={(e) => setManager(e.target.value)}
                       style={{ width: "17rem" }}
-                      className="hover:cursor-pointer mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      className="hover:cursor-pointer mt-2 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >
                       <option value="" className="hover:cursor-pointer">
                         Select a manager
@@ -390,35 +304,11 @@ export default function CreateFacility({ onClose, onSubmit }) {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label
-                      htmlFor="securityLevel"
-                      className="block text-sm font-semibold pt-1"
-                    >
-                      Security Level:<span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      id="securityLevel"
-                      className="hover:cursor-pointer block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      value={selectedSecurityLevel}
-                      onChange={(e) => setSelectedSecurityLevel(e.target.value)}
-                    >
-                      {securityLevels.map((level) => (
-                        <option
-                          key={level._id}
-                          value={level.name}
-                          className="hover:cursor-pointer"
-                        >
-                          {level.securityLevelName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end mt-5">
             <button
               type="button"
               onClick={handleSubmit}

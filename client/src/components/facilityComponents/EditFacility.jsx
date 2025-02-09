@@ -16,8 +16,6 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
   const [managers, setManagers] = useState([]);
   const [amenities, setAmenities] = useState([]);
   const [facilityAmenities, setFacilityAmenities] = useState([]);
-  const [securityLevels, setSecurityLevels] = useState([]);
-  const [selectedSecurityLevel, setSelectedSecurityLevel] = useState("Basic");
   const [amenitiesDropdownOpen, setAmenitiesDropdownOpen] = useState(false);
   const amenitiesDropdownRef = useRef(null);
 
@@ -39,19 +37,10 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
       setCompany(data.company);
       setManager(data.manager);
       setFacilityAmenities(data.amenities);
-      setSelectedSecurityLevel(data.securityLevel);
     });
 
     axios.get("/companies").then(({ data }) => {
       setCompanies(data);
-    });
-
-    axios.get("/facilities/amenities").then(({ data }) => {
-      setAmenities(data);
-    });
-
-    axios.get("/facilities/security").then(({ data }) => {
-      setSecurityLevels(data);
     });
   }, [facilityId]);
 
@@ -105,7 +94,6 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
           amenities: facilityAmenities,
           company: company,
           manager: manager,
-          securityLevel: selectedSecurityLevel,
         },
         {
           params: {
@@ -279,60 +267,6 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                   />
                 </div>
               </div>
-              <div>
-                <label
-                  htmlFor="amenities"
-                  className="block text-sm font-semibold mt-0"
-                >
-                  Amenities:
-                </label>
-                <div className="relative" ref={amenitiesDropdownRef}>
-                  <button
-                    type="button"
-                    className="bg-white block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    style={{ width: "17rem" }}
-                    onClick={() =>
-                      setAmenitiesDropdownOpen(!amenitiesDropdownOpen)
-                    }
-                  >
-                    {facilityAmenities.length > 0
-                      ? `${facilityAmenities.length} Amenities Selected`
-                      : "Select Amenities"}
-                  </button>
-                  {amenitiesDropdownOpen && (
-                    <div
-                      id="amenitiesDropdown"
-                      className="fixed z-50 bg-white dark:bg-darkSecondary dark:border-border border border-gray-300 rounded-md shadow-lg w-[17rem]"
-                      style={{
-                        top:
-                          amenitiesDropdownRef.current?.getBoundingClientRect()
-                            .bottom + 5,
-                        left: amenitiesDropdownRef.current?.getBoundingClientRect()
-                          .left,
-                      }}
-                    >
-                      {amenities.map((amenity) => (
-                        <label
-                          key={amenity._id}
-                          className="block px-4 py-2 text-sm cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={facilityAmenities.includes(
-                              amenity.amenityName
-                            )}
-                            onChange={() =>
-                              handleAmenityChange(amenity.amenityName)
-                            }
-                            className="mr-2 cursor-pointer"
-                          />
-                          {amenity.amenityName}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
 
               <div className="flex items-center justify-between">
                 <label htmlFor="status" className="flex items-center">
@@ -438,24 +372,6 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
                     {managers.map((manager) => (
                       <option key={manager._id} value={manager._id}>
                         {manager.name}
-                      </option>
-                    ))}
-                  </select>
-                  <label
-                    htmlFor="securityLevel"
-                    className="block text-sm font-semibold mt-5"
-                  >
-                    Security Level:
-                  </label>
-                  <select
-                    id="securityLevel"
-                    className="hover:cursor-pointer block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    value={selectedSecurityLevel}
-                    onChange={(e) => setSelectedSecurityLevel(e.target.value)}
-                  >
-                    {securityLevels.map((level) => (
-                      <option key={level._id} value={level.name}>
-                        {level.securityLevelName}
                       </option>
                     ))}
                   </select>

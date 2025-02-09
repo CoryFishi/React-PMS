@@ -17,21 +17,7 @@ export default function GeneralSettings({ facilityId }) {
   const [status, setStatus] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [amenities, setAmenities] = useState("");
-  const [securityLevel, setSecurityLevel] = useState("");
   const [company, setCompany] = useState("");
-  const [amenitiesDropdownOpen, setAmenitiesDropdownOpen] = useState(false);
-  const amenitiesDropdownRef = useRef(null);
-  const [facilityAmenities, setFacilityAmenities] = useState([]);
-  const [securityLevels, setSecurityLevels] = useState([]);
-
-  const handleAmenityChange = (amenityId) => {
-    setFacilityAmenities((prev) =>
-      prev.includes(amenityId)
-        ? prev.filter((id) => id !== amenityId)
-        : [...prev, amenityId]
-    );
-  };
 
   useEffect(() => {
     axios.get(`/facilities/${facilityId}`).then(({ data }) => {
@@ -41,35 +27,9 @@ export default function GeneralSettings({ facilityId }) {
       setEmail(data.contactInfo.email);
       setPhone(data.contactInfo.phone);
       setManager(data.manager);
-      setFacilityAmenities(data.amenities);
-      setSecurityLevel(data.securityLevel);
       setCompany(data.company);
     });
-
-    axios.get("/facilities/amenities").then(({ data }) => {
-      setAmenities(data);
-    });
-
-    axios.get("/facilities/security").then(({ data }) => {
-      setSecurityLevels(data);
-    });
   }, [facilityId]);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        amenitiesDropdownRef.current &&
-        !amenitiesDropdownRef.current.contains(event.target)
-      ) {
-        setAmenitiesDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [amenitiesDropdownRef]);
 
   useEffect(() => {
     if (company) {
@@ -99,9 +59,7 @@ export default function GeneralSettings({ facilityId }) {
           },
           status: status,
           address: address,
-          amenities: facilityAmenities,
           manager: manager,
-          securityLevel: securityLevel,
         },
         {
           params: {
@@ -118,27 +76,22 @@ export default function GeneralSettings({ facilityId }) {
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-md">
+    <div className="p-4 dark:bg-darkPrimary dark:border-border border bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-bold">General Settings</h2>
       <p>Manage general settings for your facility.</p>
       <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
         <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-x-4 mt-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Facility Name
-            </label>
+            <label className="block text-sm font-medium">Facility Name</label>
             <input
               type="text"
               value={facilityName}
               onChange={(e) => setFacilityName(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             />
           </div>
           <div>
-            <label
-              htmlFor="manager"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="manager" className="block text-sm font-medium">
               Manager
             </label>
             <select
@@ -146,7 +99,7 @@ export default function GeneralSettings({ facilityId }) {
               id="manager"
               value={manager || ""}
               onChange={(e) => setManager(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
               <option value="">Select a manager</option>
               {managers.map((manager) => (
@@ -158,9 +111,7 @@ export default function GeneralSettings({ facilityId }) {
           </div>
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Address
-          </label>
+          <label className="block text-sm font-medium">Address</label>
           <div className="grid grid-cols-1 gap-x-4 gap-y-2 md:grid-cols-2">
             <div>
               <label
@@ -175,7 +126,7 @@ export default function GeneralSettings({ facilityId }) {
                 id="street1"
                 value={address.street1}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
@@ -189,9 +140,9 @@ export default function GeneralSettings({ facilityId }) {
                 type="text"
                 name="street2"
                 id="street2"
-                value={address.street2}
+                value={address.street2 || ""}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
@@ -203,7 +154,7 @@ export default function GeneralSettings({ facilityId }) {
                 name="city"
                 value={address.city}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
@@ -215,7 +166,7 @@ export default function GeneralSettings({ facilityId }) {
                 name="state"
                 value={address.state}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
@@ -227,7 +178,7 @@ export default function GeneralSettings({ facilityId }) {
                 name="zipCode"
                 value={address.zipCode}
                 onChange={handleAddressChange}
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
@@ -239,7 +190,7 @@ export default function GeneralSettings({ facilityId }) {
                 name="country"
                 value={address.country}
                 onChange={handleAddressChange}
-                className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
           </div>
@@ -247,10 +198,7 @@ export default function GeneralSettings({ facilityId }) {
 
         <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-x-4 mt-5">
           <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="status" className="block text-sm font-medium">
               Status
             </label>
             <select
@@ -258,37 +206,20 @@ export default function GeneralSettings({ facilityId }) {
               id="status"
               value={status || ""}
               onChange={(e) => setStatus(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
               <option value="">Select a status</option>
+              {status === "Pending Deployment" && (
+                <option value="Pending Deployment">Pending Deployment</option>
+              )}
               <option value="Enabled">Enabled</option>
               <option value="Disabled">Disabled</option>
               <option value="Maintenance">Maintenance</option>
             </select>
           </div>
-          <div>
-            <label
-              htmlFor="securityLevel"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Security Level:
-            </label>
-            <select
-              id="securityLevel"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
-              value={securityLevel}
-              onChange={(e) => setSecurityLevel(e.target.value)}
-            >
-              {securityLevels.map((level) => (
-                <option key={level._id} value={level.name}>
-                  {level.securityLevelName}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium">
             Contact Information
           </label>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-x-4">
@@ -300,7 +231,7 @@ export default function GeneralSettings({ facilityId }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
             <div>
@@ -311,60 +242,20 @@ export default function GeneralSettings({ facilityId }) {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
           </div>
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="amenities"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Amenities:
-          </label>
-          <div className="relative" ref={amenitiesDropdownRef}>
+          <div className="text-right w-full">
             <button
-              type="button"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white text-black"
-              onClick={() => setAmenitiesDropdownOpen(!amenitiesDropdownOpen)}
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              onClick={handleSubmit}
             >
-              {facilityAmenities.length > 0
-                ? `${facilityAmenities} Selected`
-                : "Select Amenities"}
+              Save Settings
             </button>
-            {amenitiesDropdownOpen && (
-              <div
-                id="amenitiesDropdown"
-                className="absolute w-full bg-white border border-gray-300 rounded-md shadow-lg m-0"
-              >
-                {amenities.map((amenity) => (
-                  <label
-                    key={amenity._id}
-                    className="block px-4 py-2 text-sm text-black"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={facilityAmenities.includes(amenity.amenityName)}
-                      onChange={() => handleAmenityChange(amenity.amenityName)}
-                      className="mr-2"
-                    />
-                    {amenity.amenityName}
-                  </label>
-                ))}
-              </div>
-            )}
           </div>
         </div>
-
-        <button
-          type="submit"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          onClick={handleSubmit}
-        >
-          Save Settings
-        </button>
       </form>
     </div>
   );
