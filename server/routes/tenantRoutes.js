@@ -1,21 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const tenantController = require("../controllers/tenantController");
+const authenticateAPIKey = require("../middleware/apiKeyAuth");
 
-const {
-  createTenant,
-  getTenants,
-  editTenant,
-  deleteTenant,
-  addUnitToTenant,
-  getTenantById,
-} = require("../controllers/tenantController");
-
-// Tenant Routes
-router.post("/create", createTenant);
-router.get("/", getTenants);
-router.get("/:tenantId", getTenantById);
-router.put("/update/:tenantId", addUnitToTenant);
-router.put("/update", editTenant);
-router.delete("/delete", deleteTenant);
+// Base route: `/tenants`
+router.post("/create", authenticateAPIKey, tenantController.createTenant);
+router.get("/", authenticateAPIKey, tenantController.getTenants);
+router.get("/:tenantId", authenticateAPIKey, tenantController.getTenantById);
+router.put(
+  "/update/:tenantId",
+  authenticateAPIKey,
+  tenantController.addUnitToTenant
+);
+router.put("/update", authenticateAPIKey, tenantController.editTenant);
+router.delete("/delete", authenticateAPIKey, tenantController.deleteTenant);
 
 module.exports = router;

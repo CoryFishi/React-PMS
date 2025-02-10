@@ -28,7 +28,7 @@ export default function CreateTenantUnitPage({
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    axios.get(`/units/${unitId}`).then(({ data }) => {
+    axios.get(`/facilities/units/unit/${unitId}`).then(({ data }) => {
       setUnitData(data);
       setBalance(data.paymentInfo?.pricePerMonth);
     });
@@ -118,7 +118,7 @@ export default function CreateTenantUnitPage({
           },
         });
       }
-      await axios.get(`/units/${unitId}`).then(({ data }) => {
+      await axios.get(`/facilities/units/unit/${unitId}`).then(({ data }) => {
         response = data;
       });
       await onSubmit(response);

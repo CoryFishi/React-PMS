@@ -162,7 +162,7 @@ export default function SettingsPage({ facilityId }) {
       ) : (
         <div>
           <button
-            className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
+            className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 h-full"
             onClick={() => setSelectedSetting(null)}
           >
             Back to Settings

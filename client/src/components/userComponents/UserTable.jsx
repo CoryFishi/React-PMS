@@ -10,6 +10,7 @@ import {
 import EditUser from "./EditUser";
 import { UserContext } from "../../../context/userContext";
 import CreateUser from "./CreateUser";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UserTable() {
   const { user } = useContext(UserContext);
@@ -52,10 +53,19 @@ export default function UserTable() {
 
   // Get all users on component mount
   useEffect(() => {
-    axios.get("/users").then(({ data }) => {
-      setUsers(data);
-      setSortedColumn("Display Name");
-    });
+    axios
+      .get("/users", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUsers(data);
+        setSortedColumn("Display Name");
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
   }, []);
 
   // Handler to close dropdown if clicking outside of the dropdown area
@@ -134,14 +144,18 @@ export default function UserTable() {
       return;
     }
     try {
-      const res = await axios.delete(`/users/delete?userId=${id}`);
+      const res = await axios.delete(`/users/delete?userId=${id}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
       toast.success(res.data.message);
       setUsers(users.filter((user) => user._id !== id));
-      setIsDeleteModalOpen(false); // Close the modal
+      setIsDeleteModalOpen(false);
     } catch (error) {
       console.error("Failed to delete user:", error.response.data.message);
       toast.error("User not found");
-      setIsDeleteModalOpen(false); // Close the modal on error as well
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -153,7 +167,15 @@ export default function UserTable() {
       return;
     }
     try {
-      const res = await axios.post("/users/sendconfirmation", { userId });
+      const res = await axios.post(
+        "/users/sendconfirmation",
+        { userId },
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
       toast.success(res.data.message);
       setOpenDropdown(null);
     } catch (error) {

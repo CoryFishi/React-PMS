@@ -17,20 +17,36 @@ export default function DelinquencyReport({ facilityId }) {
   useEffect(() => {
     refreshTenantTable(facilityId);
   }, [facilityId]);
-
   const refreshTenantTable = async (facilityId) => {
-    axios
-      .get(`/tenants`, {
-        params: {
-          facilityId: facilityId,
-        },
-      })
-      .then(({ data }) => {
-        setTenants(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching tenants:", error);
+    try {
+      const { data } = await axios.get(`/facilities/units/${facilityId}`);
+      console.log(data);
+      const delinquentUnits = data.units.filter(
+        (unit) => unit.status === "Delinquent"
+      );
+
+      const tenantMap = {};
+
+      delinquentUnits.forEach((unit) => {
+        const tenant = unit.tenant;
+        if (tenant) {
+          if (!tenantMap[tenant._id]) {
+            tenantMap[tenant._id] = {
+              ...tenant,
+              balance: 0,
+              units: [],
+            };
+          }
+          tenantMap[tenant._id].balance += unit.paymentInfo.balance || 0;
+          tenantMap[tenant._id].units.push(unit);
+        }
       });
+
+      const delinquentTenants = Object.values(tenantMap);
+      setTenants(delinquentTenants);
+    } catch (error) {
+      console.error("Error fetching units:", error);
+    }
   };
 
   const exportToCSV = () => {
@@ -147,44 +163,40 @@ export default function DelinquencyReport({ facilityId }) {
                 (currentPage - 1) * itemsPerPage,
                 currentPage * itemsPerPage
               )
-              .filter((tenant) => tenant.status === "Delinquent")
-              .map((tenant, index) => (
+              .map((tenant) => (
                 <tr
-                  key={delinquentTenant._id}
+                  key={tenant._id}
                   className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
                 >
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.firstName}
+                  <td className="px-6 py-3 text-sm text-center">
+                    {tenant.firstName}
                   </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.lastName}
+                  <td className="px-6 py-3 text-sm text-center">
+                    {tenant.lastName}
                   </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.accessCode}
+                  <td className="px-6 py-3 text-sm text-center">
+                    {tenant.accessCode}
                   </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.units?.length}
+                  <td className="px-6 py-3 text-sm text-center">
+                    {tenant.units?.length || 0}
                   </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    ${delinquentTenant.balance}
+                  <td className="px-6 py-3 text-sm text-center">
+                    ${tenant.balance.toFixed(2)}
                   </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.status}
+                  <td className="px-6 py-3 text-sm text-center">Delinquent</td>
+                  <td className="px-6 py-3 text-sm text-center">
+                    {tenant.contactInfo?.phone || "-"}
                   </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.contactInfo?.phone}
+                  <td className="px-6 py-3 text-sm text-center">
+                    {tenant.contactInfo?.email || "-"}
                   </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.contactInfo?.email}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {delinquentTenant.address.street1}
-                    {delinquentTenant.address.street2
-                      ? `, ${delinquentTenant.address.street2}`
+                  <td className="px-6 py-3 text-sm text-center">
+                    {tenant.address?.street1 || ""}{" "}
+                    {tenant.address?.street2
+                      ? `, ${tenant.address.street2}`
                       : ""}
-                    , {delinquentTenant.address.city},{" "}
-                    {delinquentTenant.address.state}{" "}
-                    {delinquentTenant.address.zipCode}
+                    , {tenant.address?.city}, {tenant.address?.state}{" "}
+                    {tenant.address?.zipCode}
                   </td>
                 </tr>
               ))}

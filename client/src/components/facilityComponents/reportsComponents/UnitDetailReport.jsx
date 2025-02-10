@@ -21,7 +21,6 @@ export default function UnitDetailReport({ facilityId }) {
   const refreshUnitTable = async (facilityId) => {
     axios.get(`/facilities/units/${facilityId}`).then(({ data }) => {
       setUnits(data.units);
-      console.log(data);
     });
   };
 
@@ -30,7 +29,6 @@ export default function UnitDetailReport({ facilityId }) {
       "Unit Number",
       "Climate Controlled",
       "Condition",
-      "Security Level",
       "Width",
       "Height",
       "Depth",
@@ -43,7 +41,6 @@ export default function UnitDetailReport({ facilityId }) {
       unit.unitNumber,
       unit.climateControlled ? "true" : "false",
       unit.condition,
-      unit.securityLevel,
       `${unit.size?.width} ${unit.size?.unit}`,
       `${unit.size?.height} ${unit.size?.unit}`,
       `${unit.size?.depth} ${unit.size?.unit}`,
@@ -116,7 +113,7 @@ export default function UnitDetailReport({ facilityId }) {
                 Condition
               </th>
               <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Security
+                Tags
               </th>
               <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Width
@@ -172,7 +169,7 @@ export default function UnitDetailReport({ facilityId }) {
                     {unit.condition}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.securityLevel}
+                    {unit.tags.map((tag) => tag).join(", ")}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {unit.size?.width} {unit.size?.unit}

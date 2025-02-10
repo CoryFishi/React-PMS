@@ -1,21 +1,18 @@
 const express = require("express");
 const router = express.Router();
-
-const {
-  createCompany,
-  getCompanies,
-  deleteCompany,
-  editCompany,
-  getFacilitiesByCompany,
-  getCompanyById,
-} = require("../controllers/companyController");
+const companyController = require("../controllers/companyController");
+const authenticateAPIKey = require("../middleware/apiKeyAuth");
 
 // Base route: `/companies`
-router.get("/", getCompanies);
-router.get("/:companyId", getCompanyById);
-router.get("/:companyId/facilities", getFacilitiesByCompany);
-router.post("/create", createCompany);
-router.delete("/delete", deleteCompany);
-router.put("/update", editCompany);
+router.get("/", authenticateAPIKey, companyController.getCompanies);
+router.get("/:companyId", authenticateAPIKey, companyController.getCompanyById);
+router.get(
+  "/:companyId/facilities",
+  authenticateAPIKey,
+  companyController.getFacilitiesByCompany
+);
+router.post("/create", authenticateAPIKey, companyController.createCompany);
+router.delete("/delete", authenticateAPIKey, companyController.deleteCompany);
+router.put("/update", authenticateAPIKey, companyController.editCompany);
 
 module.exports = router;

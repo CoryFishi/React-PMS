@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import axios from "axios";
 import moment from "moment";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 ChartJS.register(
   CategoryScale,
@@ -119,7 +120,11 @@ export default function AdminConfigurationDashboard() {
   useEffect(() => {
     // Need to make 1 API call to make a smoother experience! - future time
     axios
-      .get("/users")
+      .get("/users", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
       .then(({ data }) => {
         if (Array.isArray(data)) {
           const totalUsers = data.length;
@@ -143,7 +148,11 @@ export default function AdminConfigurationDashboard() {
       });
 
     axios
-      .get("/facilities/company")
+      .get("/facilities/company", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
       .then(({ data }) => {
         if (data?.facilities && Array.isArray(data.facilities)) {
           const totalFacilities = data.facilities.length;
@@ -176,7 +185,11 @@ export default function AdminConfigurationDashboard() {
         console.error("Error fetching facilities:", error);
       });
     axios
-      .get("/companies")
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
       .then(({ data }) => {
         if (Array.isArray(data)) {
           const totalCompanies = data.length;
@@ -199,7 +212,11 @@ export default function AdminConfigurationDashboard() {
         console.error("Error fetching companies:", error);
       });
     axios
-      .get("/events")
+      .get("/events", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
       .then(({ data }) => {
         if (Array.isArray(data.events)) {
           const currentMonth = moment().format("MMM");

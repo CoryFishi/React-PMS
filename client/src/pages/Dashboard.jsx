@@ -1,10 +1,20 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import UserAdminDashboard from "../components/userComponents/UserAdminDashboard";
 import AdminDashboard from "../components/userComponents/AdminDashboard";
 
 export default function Dashboard({ darkMode, toggleDarkMode }) {
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  if (!user) return null;
 
   return (
     <div className="flex flex-col h-screen">
@@ -17,9 +27,7 @@ export default function Dashboard({ darkMode, toggleDarkMode }) {
             toggleDarkMode={toggleDarkMode}
           />
         ) : (
-          <p onClick={() => console.log(user)}>
-            Role not recognized or user data incomplete
-          </p>
+          <p>Role not recognized or user data incomplete</p>
         )}
       </div>
     </div>

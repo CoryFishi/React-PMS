@@ -230,12 +230,11 @@ const loginUser = async (req, res) => {
         (err, token) => {
           if (err) throw err;
 
-          // Set the cookie with appropriate attributes
           res.cookie("token", token, {
-            httpOnly: true, // Prevent JavaScript access
-            secure: true, // Send cookie over HTTPS only
-            sameSite: "None", // Allow cross-site cookie usage
-            maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7-day expiration
+            httpOnly: true,
+            secure: true,
+            sameSite: "None",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
           });
 
           // Send the user data as a response
@@ -295,6 +294,15 @@ const processJWTData = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+const logoutUser = async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 };
 
 // Delete User
@@ -602,4 +610,5 @@ module.exports = {
   getUserById,
   setUserPassword,
   getUsersByCompany,
+  logoutUser,
 };

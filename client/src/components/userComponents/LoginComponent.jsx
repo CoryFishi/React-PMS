@@ -3,6 +3,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function LoginComponent() {
   const navigate = useNavigate();
@@ -16,16 +17,23 @@ export default function LoginComponent() {
     e.preventDefault();
     const { email, password } = data;
     try {
-      const { data } = await axios.post("/login", {
-        email,
-        password,
-      });
+      const { data } = await axios.post(
+        "/login",
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
       if (data.error) {
         toast.error(data.error);
       } else {
-        setData({});
         navigate("/dashboard");
-        window.location.reload();
+        setData({});
       }
     } catch (error) {
       console.log(error);

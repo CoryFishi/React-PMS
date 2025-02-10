@@ -1,16 +1,14 @@
 const express = require("express");
 const router = express.Router();
+const eventsController = require("../controllers/eventsController");
+const authenticateAPIKey = require("../middleware/apiKeyAuth");
 
-const {
-  getApplicationEventsByFacility,
-  getAllEvents,
-} = require("../controllers/eventsController");
-
-// Events Routes
+// Base route: `/events`
 router.get(
   "/facilities/:facilityId/application",
-  getApplicationEventsByFacility
+  authenticateAPIKey,
+  eventsController.getApplicationEventsByFacility
 );
-router.get("/", getAllEvents);
+router.get("/", authenticateAPIKey, eventsController.getAllEvents);
 
 module.exports = router;

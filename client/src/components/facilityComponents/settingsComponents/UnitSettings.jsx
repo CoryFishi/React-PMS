@@ -3,7 +3,6 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import CreateUnit from "../unitComponents/CreateUnit";
 import EditUnit from "../unitComponents/EditUnit";
-import CreateTenantUnitPage from "../tenantComponents/CreateTenantUnitPage";
 import {
   BiChevronLeft,
   BiChevronRight,
@@ -17,12 +16,7 @@ export default function UnitSettings({ facilityId }) {
   const [isCreateOpen, setCreateOpen] = useState(null);
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isRentModalOpen, setIsRentModalOpen] = useState(false);
-  const [isRentModalMainOpen, setIsRentModalMainOpen] = useState(false);
-  const [isMoveOutModalOpen, setIsMoveOutModalOpen] = useState(false);
   const [unitIdToDelete, setUnitIdToDelete] = useState(null);
-  const [unitIdToMoveOut, setUnitIdToMoveOut] = useState(null);
-  const [tenancy, setTenancy] = useState(false);
   const containerRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -31,24 +25,12 @@ export default function UnitSettings({ facilityId }) {
   const [paginationLevels, setPaginationLevels] = useState([
     5, 10, 25, 50, 100, 250,
   ]);
+  const [selectedUnit, setSelectedUnit] = useState(null);
 
   const promptDeleteUnit = (id) => {
     setUnitIdToDelete(id);
     setIsDeleteModalOpen(true);
   };
-
-  const promptMoveOut = async (unitId) => {
-    setUnitIdToMoveOut(unitId);
-    setIsMoveOutModalOpen(true);
-  };
-
-  const rentedCount = units.filter((unit) => unit.status === "Rented").length;
-
-  const vacantCount = units.filter((units) => units.status === "Vacant").length;
-
-  const delinquentCount = units.filter(
-    (units) => units.status === "Delinquent"
-  ).length;
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -88,28 +70,11 @@ export default function UnitSettings({ facilityId }) {
     setOpenDropdown(null);
   };
 
-  const handleTenantSubmit = (e) => {
-    toast.success(
-      e.unitNumber +
-        " Rented to " +
-        e.tenant.firstName +
-        " " +
-        e.tenant.lastName
-    );
-    setIsRentModalMainOpen(false);
-    refreshUnitTable(facilityId);
-    setOpenDropdown(null);
-  };
-
-  const handleCloseTenant = () => {
-    setIsRentModalMainOpen(false);
-    setOpenDropdown(null);
-  };
-
   const handleCloseEdit = () => {
     setEditOpen(false);
     setOpenDropdown(null);
   };
+
   const handleEditSubmit = (e) => {
     toast.success("Unit updated!");
     setEditOpen(false);
@@ -126,7 +91,7 @@ export default function UnitSettings({ facilityId }) {
   const deleteUnit = async (id) => {
     try {
       const response = await axios.delete(
-        `/facilities/units/delete?unitId=${id}`
+        `/facilities/units/unit/delete?unitId=${id}`
       );
       toast.success(response.data.message);
       setUnits(units.filter((unit) => unit._id !== id));
@@ -135,28 +100,6 @@ export default function UnitSettings({ facilityId }) {
       console.error("Failed to delete unit:", error);
       toast.error(error.response.data.message);
       setIsDeleteModalOpen(false);
-    }
-  };
-
-  const moveOutUnit = async (id) => {
-    try {
-      const response = await axios.put(
-        `/facilities/units/${facilityId}/${id}/moveout`
-      );
-      toast.success("Tenant has been moved out!");
-      const updatedUnits = units.map((unit) => {
-        if (unit._id === response.data._id) {
-          return { ...unit, ...response.data };
-        }
-        return unit;
-      });
-      setUnits(updatedUnits);
-      setIsMoveOutModalOpen(false); // Close the modal
-      setOpenDropdown(null);
-    } catch (error) {
-      console.error("Failed to delete unit:", error);
-      toast.error(error.response.data.message);
-      setIsMoveOutModalOpen(false); // Close the modal
     }
   };
 
@@ -196,11 +139,45 @@ export default function UnitSettings({ facilityId }) {
           facilityId={facilityId}
         />
       )}
+      {isEditOpen && (
+        <EditUnit
+          facilityId={facilityId}
+          unitId={selectedUnit}
+          onClose={handleCloseEdit}
+          onSubmit={handleEditSubmit}
+        />
+      )}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+          <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+            <h3 className="text-lg font-bold">Confirm Delete</h3>
+            <p>Are you sure you want to delete this unit?</p>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2"
+                onClick={() =>
+                  deleteUnit(unitIdToDelete) & setOpenDropdown(null)
+                }
+              >
+                Delete
+              </button>
+              <button
+                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                onClick={() =>
+                  setIsDeleteModalOpen(false) & setOpenDropdown(null)
+                }
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="border-b flex items-center justify-between mx-5 dark:border-border">
         <h1 className="text-xl font-bold dark:text-white">Units</h1>
       </div>
 
-      <div>
+      <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
         <div className="my-4 flex items-center justify-end text-center mx-5">
           <input
             type="text"
@@ -216,7 +193,7 @@ export default function UnitSettings({ facilityId }) {
             Create Unit
           </button>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto px-5">
+        <div className="flex-1 overflow-y-auto min-h-96 px-5">
           <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
             <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
               <tr>
@@ -236,10 +213,7 @@ export default function UnitSettings({ facilityId }) {
                   Availability
                 </th>
                 <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                  Tenant
-                </th>
-                <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                  Outstanding Balance
+                  Tags
                 </th>
                 <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                   Status
@@ -250,6 +224,16 @@ export default function UnitSettings({ facilityId }) {
               </tr>
             </thead>
             <tbody>
+              {filteredUnits.length === 0 && (
+                <tr className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border">
+                  <td
+                    className="px-6 py-3 whitespace-nowrap text-sm text-center"
+                    colSpan={8}
+                  >
+                    No units found...
+                  </td>
+                </tr>
+              )}
               {filteredUnits
                 .slice(
                   (currentPage - 1) * itemsPerPage,
@@ -257,8 +241,8 @@ export default function UnitSettings({ facilityId }) {
                 )
                 .map((unit, index) => (
                   <tr
-                    key={unit._id}
-                    className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
+                    key={index}
+                    className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
                   >
                     <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                       {unit.unitNumber}
@@ -295,15 +279,10 @@ export default function UnitSettings({ facilityId }) {
                       {unit.availability == true && `✓`}
                       {unit.availability == false && `✕`}
                     </td>
-                    <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                      {unit.tenant?.firstName
-                        ? unit.tenant.firstName + " " + unit.tenant?.lastName
-                        : "-"}
-                    </td>
-                    <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                      {unit.paymentInfo?.balance !== undefined
-                        ? `$${unit.paymentInfo?.balance}`
-                        : "$" + 0}
+                    <td className="px-6 py-3 whitespace-nowrap text-sm text-center text-wrap">
+                      {unit.tags.map((tag, index) => (
+                        <span key={index}>{tag} </span>
+                      ))}
                     </td>
                     <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                       {unit.status || "-"}
@@ -346,71 +325,29 @@ export default function UnitSettings({ facilityId }) {
                             tabIndex="-1"
                             ref={containerRef}
                           >
-                            {isRentModalMainOpen && (
-                              <CreateTenantUnitPage
-                                onClose={handleCloseTenant}
-                                onSubmit={handleTenantSubmit}
-                                unitId={unit._id}
-                                tenancy={tenancy}
-                              />
-                            )}
                             <div role="none">
                               <a
                                 className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                                 role="menuitem"
                                 tabIndex="-1"
-                                onClick={() => setEditOpen(unit._id)}
+                                onClick={() =>
+                                  setEditOpen(unit._id) &
+                                  setSelectedUnit(unit._id)
+                                }
                               >
                                 Edit
                               </a>
-                              {isEditOpen && (
-                                <EditUnit
-                                  facilityId={facilityId}
-                                  unitId={unit._id}
-                                  onClose={handleCloseEdit}
-                                  onSubmit={handleEditSubmit}
-                                />
-                              )}
                               <a
                                 className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                                 role="menuitem"
                                 tabIndex="-1"
-                                onClick={() => promptDeleteUnit(unit._id)}
+                                onClick={() =>
+                                  promptDeleteUnit(unit._id) &
+                                  setSelectedUnit(unit._id)
+                                }
                               >
                                 Delete
                               </a>
-                              {isDeleteModalOpen && (
-                                <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50  bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-                                  <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
-                                    <h3 className="text-lg font-bold">
-                                      Confirm Delete
-                                    </h3>
-                                    <p>
-                                      Are you sure you want to delete this unit?
-                                    </p>
-                                    <div className="flex justify-end mt-4">
-                                      <button
-                                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2"
-                                        onClick={() =>
-                                          deleteUnit(unitIdToDelete) &
-                                          setOpenDropdown(null)
-                                        }
-                                      >
-                                        Delete
-                                      </button>
-                                      <button
-                                        className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                                        onClick={() =>
-                                          setIsDeleteModalOpen(false) &
-                                          setOpenDropdown(null)
-                                        }
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
                         )}

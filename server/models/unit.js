@@ -61,7 +61,7 @@ const storageUnitSchema = new mongoose.Schema({
       min: [0, "Balance cannot be negative"],
     },
   },
-  tags: [{ type: String }],
+  tags: [{ type: String, trim: true }],
   status: {
     type: String,
     default: "Vacant",

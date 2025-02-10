@@ -1,13 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
-import { useContext, useState, useRef } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { UserContext } from "../../context/userContext";
 import Cookies from "universal-cookie";
 import { AiFillCode } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { RiMoonClearFill, RiSunFill } from "react-icons/ri";
-import { FaBars } from "react-icons/fa";
+import axios from "axios";
 import { MdExpandLess, MdExpandMore } from "react-icons/md";
 import { RiMenuFold2Fill, RiMenuUnfold2Fill } from "react-icons/ri";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function Navbar({
   isCollapsed,
@@ -22,12 +23,40 @@ export default function Navbar({
   const userRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const logoutUser = () => {
-    cookies.remove("token");
-    setIsLoggedIn(false);
-    navigate("/");
-    window.location.reload();
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "/logout",
+        {},
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+          withCredentials: true,
+        }
+      );
+
+      setUser(null);
+      setIsLoggedIn(false);
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error.response?.data || error.message);
+    }
   };
+
+  // Handler to close dropdown if clicking outside of the dropdown area
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (userRef.current && !userRef.current.contains(event.target)) {
+        setIsDropdownOpen(null);
+      }
+    }
+    // Add event listener when a dropdown is open
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   return (
     <nav className="bg-background-50 p-4 w-full border-background-200 border-b dark:bg-darkPrimary dark:text-white dark:border-darkNavSecondary">
@@ -109,7 +138,7 @@ export default function Navbar({
                   </Link>
                   <button
                     className="hover:bg-slate-100 dark:hover:bg-darkPrimary px-3 py-2 text-md font-medium border-opacity-50 border-t border-t-gray-100 dark:border-t-border rounded-b-lg"
-                    onClick={() => logoutUser()}
+                    onClick={() => handleLogout()}
                   >
                     Logout
                   </button>

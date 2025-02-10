@@ -6,8 +6,6 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   const [unitNumber, setUnitNumber] = useState("");
   const [size, setSize] = useState("");
   const [climateControlled, setClimateControlled] = useState(false);
-  const [securityLevels, setSecurityLevels] = useState([]);
-  const [selectedSecurityLevel, setSelectedSecurityLevel] = useState("Basic");
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("");
   const [notes, setNotes] = useState("");
@@ -15,14 +13,15 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   const [moveOutDate, setMoveOutDate] = useState([]);
   const [availability, setAvailability] = useState(false);
   const [createdAt, setCreatedAt] = useState("");
-  const [tenant, setTenat] = useState([]);
+  const [tenant, setTenant] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState("");
 
   useEffect(() => {
     axios.get(`/facilities/units/unit/${unitId}`).then(({ data }) => {
       setUnitNumber(data.unitNumber);
       setSize(data.size);
       setClimateControlled(data.climateControlled);
-      setSelectedSecurityLevel(data.securityLevel);
       setPrice(data.paymentInfo?.pricePerMonth);
       setCondition(data.condition);
       setNotes(data.notes);
@@ -30,13 +29,21 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
       setMoveInDate(data.paymentInfo?.moveInDate);
       setCreatedAt(data.createdAt);
       setAvailability(data.availability);
-      setTenat(data.tenant);
-    });
-
-    axios.get("/facilities/security").then(({ data }) => {
-      setSecurityLevels(data);
+      setTenant(data.tenant);
+      setTags(data.tags);
     });
   }, [unitId]);
+
+  const handleAddTag = () => {
+    if (tagInput.trim() !== "") {
+      setTags((prev) => [...prev, tagInput]);
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (index) => {
+    setTags((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const toggleStatus = () => {
     setAvailability((prevState) => (prevState === true ? false : true));
@@ -44,7 +51,7 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.put(`/facilities/units/update`, {
+      const response = await axios.put(`/facilities/units/unit/update`, {
         unitId,
         facilityId,
         updateData: {
@@ -52,10 +59,10 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
           size,
           paymentInfo: { pricePerMonth: price },
           climateControlled,
-          securityLevel: selectedSecurityLevel,
           condition,
           notes,
           availability,
+          tags,
         },
       });
       onSubmit(response);
@@ -70,8 +77,16 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white text-left">
-      <div className="relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center 
+                bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+                overflow-y-auto"
+    >
+      <div
+        className="relative w-fit shadow-lg rounded-md 
+                  bg-gray-100 dark:bg-darkPrimary dark:text-white 
+                   overflow-y-auto p-5"
+      >
         <h2 className="text-xl font-bold mb-4">Editing Unit {unitNumber}</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -212,24 +227,6 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
                 <div className="space-y-4">
                   <div>
                     <label
-                      htmlFor="securityLevel"
-                      className="mt-5 block text-sm font-semibold "
-                    >
-                      Security Level:
-                    </label>
-                    <select
-                      id="securityLevel"
-                      className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                      value={selectedSecurityLevel}
-                      onChange={(e) => setSelectedSecurityLevel(e.target.value)}
-                    >
-                      {securityLevels.map((level) => (
-                        <option key={level._id} value={level.name}>
-                          {level.securityLevelName}
-                        </option>
-                      ))}
-                    </select>
-                    <label
                       htmlFor="condition"
                       className="block text-sm font-semibold  mt-2"
                     >
@@ -277,6 +274,43 @@ export default function EditUnit({ onClose, onSubmit, unitId, facilityId }) {
               onChange={(e) => setNotes(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm min-h-56"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Tags</label>
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-darkSecondary dark:border-border"
+                placeholder="Add a tag"
+              />
+              <button
+                type="button"
+                onClick={handleAddTag}
+                className="bg-blue-500 text-white px-4 rounded hover:bg-blue-700"
+              >
+                Add
+              </button>
+            </div>
+
+            <div className="flex flex-wrap mt-2 gap-2">
+              {tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="bg-gray-200 dark:bg-darkSecondary px-2 py-1 rounded-md flex items-center"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(index)}
+                    className="ml-2 text-red-500"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
           <div className="flex justify-between pt-2">
             <p className="ml-3 text-base">

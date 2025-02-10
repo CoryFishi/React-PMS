@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useRef, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../context/userContext";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateUser({ onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -34,9 +35,15 @@ export default function CreateUser({ onClose, onSubmit }) {
     setCompany(selectedCompany);
     setUserFacilities([]);
 
-    axios.get(`/companies/${selectedCompany}/facilities`).then(({ data }) => {
-      setFacilities(data);
-    });
+    axios
+      .get(`/companies/${selectedCompany}/facilities`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setFacilities(data);
+      });
   };
 
   const handleFacilityChange = (facilityId) => {
@@ -54,9 +61,15 @@ export default function CreateUser({ onClose, onSubmit }) {
   };
 
   useEffect(() => {
-    axios.get("/companies").then(({ data }) => {
-      setCompanies(data);
-    });
+    axios
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanies(data);
+      });
   }, []);
 
   const handleSubmit = async () => {
@@ -64,18 +77,26 @@ export default function CreateUser({ onClose, onSubmit }) {
       setCompany(null);
     }
     try {
-      const response = await axios.post(`/users/register`, {
-        name: name,
-        email: email,
-        phone: phone,
-        displayName: displayName,
-        role: role,
-        company: company,
-        facilities: userFacilities,
-        status: status,
-        address: address,
-        createdBy: user._id,
-      });
+      const response = await axios.post(
+        `/users/register`,
+        {
+          name: name,
+          email: email,
+          phone: phone,
+          displayName: displayName,
+          role: role,
+          company: company,
+          facilities: userFacilities,
+          status: status,
+          address: address,
+          createdBy: user._id,
+        },
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
       onSubmit(response);
     } catch (error) {
       console.error("Failed to create user:", error.response.data.error);

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditUser({ userId, onClose, onSubmit }) {
   const [userData, setUserData] = useState({});
@@ -34,9 +35,15 @@ export default function EditUser({ userId, onClose, onSubmit }) {
     setCompany(selectedCompany);
     setUserFacilities([]);
     if (e !== "") {
-      axios.get(`/companies/${selectedCompany}/facilities`).then(({ data }) => {
-        setFacilities(data);
-      });
+      axios
+        .get(`/companies/${selectedCompany}/facilities`, {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        })
+        .then(({ data }) => {
+          setFacilities(data);
+        });
     }
   };
 
@@ -55,28 +62,46 @@ export default function EditUser({ userId, onClose, onSubmit }) {
   };
 
   useEffect(() => {
-    axios.get("/companies").then(({ data }) => {
-      setCompanies(data);
-    });
-    axios.get(`/users/${userId}`).then(({ data }) => {
-      setUserData(data);
-      setName(data.name);
-      setDisplayName(data.displayName);
-      setRole(data.role);
-      setCompany(data.company);
-      setUserFacilities(data.facilities);
-      setIsConfirmed(data.confirmed);
-      setStatus(data.status);
-      setAddress(data.address);
-      setOldAddress(data.address);
-      setPhone(data.phone);
-    });
+    axios
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanies(data);
+      });
+    axios
+      .get(`/users/${userId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUserData(data);
+        setName(data.name);
+        setDisplayName(data.displayName);
+        setRole(data.role);
+        setCompany(data.company);
+        setUserFacilities(data.facilities);
+        setIsConfirmed(data.confirmed);
+        setStatus(data.status);
+        setAddress(data.address);
+        setOldAddress(data.address);
+        setPhone(data.phone);
+      });
   }, [userId]);
 
   useEffect(() => {
-    axios.get("/companies").then(({ data }) => {
-      setCompanies(data);
-    });
+    axios
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanies(data);
+      });
   }, []);
 
   const updateAddressWithOldValues = (address, oldAddress) => {
@@ -100,18 +125,26 @@ export default function EditUser({ userId, onClose, onSubmit }) {
       }
       const submittedRole = role.trim() === "" ? role : role;
       setAddress(updateAddressWithOldValues(address, oldAddress));
-      const response = await axios.put(`/users/update`, {
-        userId: userId,
-        name: submittedName,
-        displayName: submittedDisplayName,
-        confirmed: isConfirmed,
-        role: submittedRole,
-        company: company,
-        facilities: userFacilities,
-        status: status,
-        address: address,
-        phone: phone,
-      });
+      const response = await axios.put(
+        `/users/update`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        },
+        {
+          userId: userId,
+          name: submittedName,
+          displayName: submittedDisplayName,
+          confirmed: isConfirmed,
+          role: submittedRole,
+          company: company,
+          facilities: userFacilities,
+          status: status,
+          address: address,
+          phone: phone,
+        }
+      );
       onSubmit(response);
     } catch (error) {
       console.log(error);

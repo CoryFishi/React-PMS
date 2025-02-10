@@ -21,7 +21,7 @@ export default function ApplicationEventsReport({ facilityId }) {
   const refreshEventTable = async (facilityId) => {
     try {
       const { data } = await axios.get(
-        `/facilities/events/${facilityId}/application`
+        `/events/facilities/${facilityId}/application`
       );
       setEvents(data.events);
     } catch (error) {

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditProfile({ user, onClose, onSubmit }) {
   const [newName, setNewName] = useState("");
@@ -44,14 +45,22 @@ export default function EditProfile({ user, onClose, onSubmit }) {
             : newAddress.country,
       };
 
-      const response = await axios.put(`/users/update`, {
-        userId: user._id,
-        name: submittedName,
-        displayName: submittedDisplayName,
-        confirmed: user.confirmed,
-        role: user.role,
-        address: submittedAddress,
-      });
+      const response = await axios.put(
+        `/users/update`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        },
+        {
+          userId: user._id,
+          name: submittedName,
+          displayName: submittedDisplayName,
+          confirmed: user.confirmed,
+          role: user.role,
+          address: submittedAddress,
+        }
+      );
       onSubmit(response);
     } catch (error) {
       console.error("Failed to update user:", error);
