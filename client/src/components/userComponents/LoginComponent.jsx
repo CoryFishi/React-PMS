@@ -1,18 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function LoginComponent() {
-  const navigate = useNavigate();
   const [data, setData] = useState({
     email: "",
     password: "",
   });
   const [passwordEye, setPasswordEye] = useState(false);
-
   const loginUser = async (e) => {
     e.preventDefault();
     const { email, password } = data;
@@ -32,8 +29,9 @@ export default function LoginComponent() {
       if (data.error) {
         toast.error(data.error);
       } else {
+        toast.success("Login successful!");
         console.log(data);
-        navigate("/dashboard");
+        window.location.reload();
       }
     } catch (error) {
       console.log(error);

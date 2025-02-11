@@ -67,8 +67,6 @@ const createUser = async (req, res) => {
       "company",
       "companyName"
     );
-    console.log("User created id:" + user._id);
-
     // Send confirmation email
     const subject = "Confirm your SafePhish account";
     const to = email;
@@ -184,15 +182,9 @@ const createUser = async (req, res) => {
           error.errors[firstErrorKey].message
       );
       res.status(500).send({ error: error.errors[firstErrorKey].message });
-    } else if (error.code === 11000) {
-      const duplicateField = Object.keys(error.keyValue)[0];
-      const duplicateValue = error.keyValue[duplicateField];
-      console.error("Rejecting due to duplicate value");
-      res.status(409).send({ error: `${duplicateValue} is already taken!` });
     } else {
-      res.status(500).send({ error: error.name });
-      console.log(error);
-      console.error("Rejecting due to unknown error: " + error.name);
+      res.status(500).send({ error: error.message });
+      console.error("Rejecting due to unknown error: " + error.message);
     }
   }
 };
@@ -212,6 +204,14 @@ const loginUser = async (req, res) => {
     if (!user.password) {
       return res.status(401).json({
         error: "Password does not match!",
+      });
+    }
+    if (!user.confirmed) {
+      return res.status(403).json({ error: "Please confirm your email" });
+    }
+    if (user.status === "Disabled") {
+      return res.status(403).json({
+        error: "Your account has been disabled. Please contact support.",
       });
     }
 

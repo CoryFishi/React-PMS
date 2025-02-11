@@ -128,11 +128,6 @@ export default function EditUser({ userId, onClose, onSubmit }) {
       const response = await axios.put(
         `/users/update`,
         {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        },
-        {
           userId: userId,
           name: submittedName,
           displayName: submittedDisplayName,
@@ -143,6 +138,11 @@ export default function EditUser({ userId, onClose, onSubmit }) {
           status: status,
           address: address,
           phone: phone,
+        },
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
         }
       );
       onSubmit(response);
