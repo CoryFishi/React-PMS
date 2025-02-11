@@ -2,15 +2,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const cors = require("cors"); // Import CORS
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 
-// ✅ Enable CORS globally
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow frontend requests
+    origin: process.env.BACKEND_URL || "http://localhost:5173", // Allow frontend requests
     credentials: true, // Allow cookies and auth headers
   })
 );
