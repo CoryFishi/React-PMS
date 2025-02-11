@@ -9,6 +9,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function FacilityTable({
   setFacility,
@@ -55,20 +56,26 @@ export default function FacilityTable({
 
   // Get facilities on component mount
   useEffect(() => {
-    axios.get("/facilities/company").then(({ data }) => {
-      setFacilities(data.facilities);
-      // Calculate total units
-      const totalUnits = Object.values(data.facilities).reduce(
-        (total, json) => {
-          // Add the length of units array from the current JSON to the total
-          return total + (json.units.length || 0);
+    axios
+      .get("/facilities/company", {
+        headers: {
+          "x-api-key": API_KEY,
         },
-        0
-      );
-      setSortedColumn("Name");
-      // Set the total units
-      setUnits(totalUnits);
-    });
+      })
+      .then(({ data }) => {
+        setFacilities(data.facilities);
+        // Calculate total units
+        const totalUnits = Object.values(data.facilities).reduce(
+          (total, json) => {
+            // Add the length of units array from the current JSON to the total
+            return total + (json.units.length || 0);
+          },
+          0
+        );
+        setSortedColumn("Name");
+        // Set the total units
+        setUnits(totalUnits);
+      });
   }, []);
 
   useEffect(() => {
@@ -91,7 +98,12 @@ export default function FacilityTable({
   const deleteFacility = async (id) => {
     try {
       const response = await axios.delete(
-        `/facilities/delete?facilityId=${id}`
+        `/facilities/delete?facilityId=${id}`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
       toast.success(response.data.message);
       setFacilities(facilities.filter((facility) => facility._id !== id));
@@ -139,6 +151,9 @@ export default function FacilityTable({
           status: "Enabled",
         },
         {
+          headers: {
+            "x-api-key": API_KEY,
+          },
           params: {
             facilityId: facilityId,
           },

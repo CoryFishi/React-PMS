@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import axios from "axios";
 import moment from "moment";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 ChartJS.register(
   CategoryScale,
@@ -124,7 +125,11 @@ export default function FacilityConfigurationDashboard({ facilityId }) {
   useEffect(() => {
     // Need to make 1 API call to make a smoother experience! - future time
     axios
-      .get(`/facilities/units/${facilityId}`)
+      .get(`/facilities/units/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
       .then(({ data }) => {
         if (Array.isArray(data.units)) {
           const totalUnits = data.units.length;
@@ -153,9 +158,11 @@ export default function FacilityConfigurationDashboard({ facilityId }) {
         console.error("Error fetching users:", error);
       });
 
-    axios;
     axios
       .get(`/tenants`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
         params: {
           facilityId: facilityId,
         },
@@ -192,7 +199,11 @@ export default function FacilityConfigurationDashboard({ facilityId }) {
         console.error("Error fetching facilities:", error);
       });
     axios
-      .get(`/events/facilities/${facilityId}/application`)
+      .get(`/events/facilities/${facilityId}/application`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
       .then(({ data }) => {
         if (Array.isArray(data.events)) {
           const currentMonth = moment().format("MMM");

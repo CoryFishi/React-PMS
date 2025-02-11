@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditFacility({ facilityId, onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -14,10 +15,6 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
   const [companies, setCompanies] = useState([]);
   const [manager, setManager] = useState("");
   const [managers, setManagers] = useState([]);
-  const [amenities, setAmenities] = useState([]);
-  const [facilityAmenities, setFacilityAmenities] = useState([]);
-  const [amenitiesDropdownOpen, setAmenitiesDropdownOpen] = useState(false);
-  const amenitiesDropdownRef = useRef(null);
 
   const toggleStatus = () => {
     setStatus((prevState) =>
@@ -26,55 +23,48 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
   };
 
   useEffect(() => {
-    axios.get(`/facilities/${facilityId}`).then(({ data }) => {
-      setFacilityData(data);
-      setName(data.facilityName);
-      setStatus(data.status);
-      setAddress(data.address);
-      setOldAddress(data.address);
-      setContactInfo(data.contactInfo);
-      setOldContactInfo(data.contactInfo);
-      setCompany(data.company);
-      setManager(data.manager);
-      setFacilityAmenities(data.amenities);
-    });
+    axios
+      .get(`/facilities/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setFacilityData(data);
+        setName(data.facilityName);
+        setStatus(data.status);
+        setAddress(data.address);
+        setOldAddress(data.address);
+        setContactInfo(data.contactInfo);
+        setOldContactInfo(data.contactInfo);
+        setCompany(data.company);
+        setManager(data.manager);
+      });
 
-    axios.get("/companies").then(({ data }) => {
-      setCompanies(data);
-    });
+    axios
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanies(data);
+      });
   }, [facilityId]);
 
   useEffect(() => {
     if (company) {
-      axios.get(`/users/company/${company}`).then(({ data }) => {
-        setManagers(data);
-      });
+      axios
+        .get(`/users/company/${company}`, {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        })
+        .then(({ data }) => {
+          setManagers(data);
+        });
     }
   }, [company]);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        amenitiesDropdownRef.current &&
-        !amenitiesDropdownRef.current.contains(event.target)
-      ) {
-        setAmenitiesDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [amenitiesDropdownRef]);
-
-  const handleAmenityChange = (amenityId) => {
-    setFacilityAmenities((prev) =>
-      prev.includes(amenityId)
-        ? prev.filter((id) => id !== amenityId)
-        : [...prev, amenityId]
-    );
-  };
 
   const handleCompanyChange = (e) => {
     const selectedCompany = e;
@@ -91,11 +81,13 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
           contactInfo,
           status: status,
           address: address,
-          amenities: facilityAmenities,
           company: company,
           manager: manager,
         },
         {
+          headers: {
+            "x-api-key": API_KEY,
+          },
           params: {
             facilityId: facilityId,
           },

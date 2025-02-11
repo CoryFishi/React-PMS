@@ -9,6 +9,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function TenantPage({ facilityId }) {
   const [facility, setFacility] = useState(facilityId);
@@ -40,27 +41,15 @@ export default function TenantPage({ facilityId }) {
   );
 
   const refreshUnitTable = async (facilityId) => {
-    axios.get(`/facilities/units/${facilityId}`).then(({ data }) => {
-      setUnits(data.units);
-    });
-  };
-
-  const promptDeleteTenant = (id) => {
-    setTenantIdToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
-
-  const deleteTenant = async (id) => {
-    try {
-      const response = await axios.delete(`/tenants/delete?tenantId=${id}`);
-      toast.success(response.data.message);
-      setTenants(tenants.filter((tenant) => tenant._id !== id));
-      setIsDeleteModalOpen(false);
-    } catch (error) {
-      console.error("Failed to delete tenant:", error);
-      toast.error(error.response.data.error);
-      setIsDeleteModalOpen(false);
-    }
+    axios
+      .get(`/facilities/units/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUnits(data.units);
+      });
   };
 
   useEffect(() => {
@@ -88,6 +77,9 @@ export default function TenantPage({ facilityId }) {
   const refreshTenantTable = async (facilityId) => {
     axios
       .get(`/tenants`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
         params: {
           facilityId: facilityId,
         },
@@ -101,7 +93,6 @@ export default function TenantPage({ facilityId }) {
   };
 
   const handleCreateSubmit = (e) => {
-    console.log(e);
     toast.success("Tenant " + e.data.firstName + e.data.lastName + " Created");
     setCreateOpen(false);
     refreshTenantTable(facilityId);
@@ -199,7 +190,7 @@ export default function TenantPage({ facilityId }) {
           className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-600 ml-3 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
         >
-          Create Tenant
+          New Rental
         </button>
       </div>
       {activeTab === "Current" ? (

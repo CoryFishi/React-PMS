@@ -7,6 +7,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UserDetailReport() {
   const [users, setUsers] = useState([]);
@@ -24,9 +25,15 @@ export default function UserDetailReport() {
 
   // Get all users on component mount
   useEffect(() => {
-    axios.get("/users").then(({ data }) => {
-      setUsers(data);
-    });
+    axios
+      .get("/users", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUsers(data);
+      });
   }, []);
 
   const exportToCSV = () => {
@@ -91,7 +98,6 @@ export default function UserDetailReport() {
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   useEffect(() => {
-    console.log(users);
     const filteredUsers = users.filter((user) => {
       const query = searchQuery.toLowerCase();
       return (

@@ -6,6 +6,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function VacancyReport({ facilityId }) {
   const [units, setUnits] = useState([]);
@@ -19,9 +20,15 @@ export default function VacancyReport({ facilityId }) {
   }, [facilityId]);
 
   const refreshUnitTable = async (facilityId) => {
-    axios.get(`/facilities/units/${facilityId}`).then(({ data }) => {
-      setUnits(data.units);
-    });
+    axios
+      .get(`/facilities/units/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUnits(data.units);
+      });
   };
 
   const exportToCSV = () => {

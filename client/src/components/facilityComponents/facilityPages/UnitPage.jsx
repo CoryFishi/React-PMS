@@ -9,6 +9,7 @@ import {
   BiChevronsRight,
 } from "react-icons/bi";
 import facilityMap from "../../../assets/images/MAP.jpg";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UnitPage({ facilityId }) {
   const [units, setUnits] = useState([]);
@@ -34,7 +35,6 @@ export default function UnitPage({ facilityId }) {
   const [selectedUnit, setSelectedUnit] = useState(null);
 
   const promptMoveOut = async (unit) => {
-    console.log(unit);
     setSelectedUnit(unit);
     setIsMoveOutModalOpen(true);
   };
@@ -80,8 +80,15 @@ export default function UnitPage({ facilityId }) {
   const moveOutUnit = async (id) => {
     try {
       const response = await axios.put(
-        `/facilities/units/${facilityId}/${id}/moveout`
+        `/facilities/units/${facilityId}/${id}/moveout`,
+        {},
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
+
       toast.success("Tenant has been moved out!");
       const updatedUnits = units.map((unit) => {
         if (unit._id === response.data._id) {
@@ -100,9 +107,15 @@ export default function UnitPage({ facilityId }) {
   };
 
   const refreshUnitTable = async (facilityId) => {
-    axios.get(`/facilities/units/${facilityId}`).then(({ data }) => {
-      setUnits(data.units);
-    });
+    axios
+      .get(`/facilities/units/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUnits(data.units);
+      });
   };
 
   // Calculate total number of pages

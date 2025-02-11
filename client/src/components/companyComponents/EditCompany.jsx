@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditCompany({ companyId, onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -16,15 +17,21 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
     );
   };
   useEffect(() => {
-    axios.get(`/companies/${companyId}`).then(({ data }) => {
-      setCompanyData(data);
-      setName(data.companyName);
-      setStatus(data.status);
-      setAddress(data.address);
-      setOldAddress(data.address);
-      setContactInfo(data.contactInfo);
-      setOldContactInfo(data.contactInfo);
-    });
+    axios
+      .get(`/companies/${companyId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanyData(data);
+        setName(data.companyName);
+        setStatus(data.status);
+        setAddress(data.address);
+        setOldAddress(data.address);
+        setContactInfo(data.contactInfo);
+        setOldContactInfo(data.contactInfo);
+      });
   }, []);
   const handleSubmit = async () => {
     try {
@@ -40,6 +47,9 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
           address: address,
         },
         {
+          headers: {
+            "x-api-key": API_KEY,
+          },
           params: {
             companyId: companyId,
           },
@@ -48,10 +58,11 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
 
       onSubmit(response);
     } catch (error) {
-      console.error("Failed to create company:", error);
-      toast.error(error.response.data.error);
+      console.error("Failed to update company:", error);
+      toast.error(error.response?.data?.error || "An error occurred");
     }
   };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center 

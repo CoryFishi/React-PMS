@@ -7,6 +7,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function FacilityDetailReport() {
   const [facilities, setFacilities] = useState([]);
@@ -24,9 +25,15 @@ export default function FacilityDetailReport() {
 
   // Get all users on component mount
   useEffect(() => {
-    axios.get("/facilities/company").then(({ data }) => {
-      setFacilities(data.facilities);
-    });
+    axios
+      .get("/facilities/company", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setFacilities(data.facilities);
+      });
   }, []);
 
   const exportToCSV = () => {
@@ -42,7 +49,6 @@ export default function FacilityDetailReport() {
         "Security",
         "Status",
         "Address",
-        "Amenities",
         "Created At",
         "Created By",
         "Updated At",
@@ -63,7 +69,6 @@ export default function FacilityDetailReport() {
         } ${facility.address?.city || ""} ${facility.address?.state || ""} ${
           facility.address?.country || ""
         } ${facility.address?.zipCode || ""}`,
-        facility.amenities.join(" "),
         facility.createdAt,
         facility.createdBy,
         facility.updatedAt,
@@ -375,30 +380,7 @@ export default function FacilityDetailReport() {
                   </span>
                 )}
               </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Amenities");
-                  setFilteredFacilities(
-                    [...filteredFacilities].sort((a, b) => {
-                      if (a.amenities < b.amenities)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.amenities > b.amenities)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Amenities
-                {sortedColumn === "Amenities" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
+
               <th
                 className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
                 onClick={() => {
@@ -528,9 +510,6 @@ export default function FacilityDetailReport() {
                     }, ${facility.address?.country || ""}, ${
                       facility.address?.zipCode || ""
                     }`}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {facility.amenities.join(", ")}
                   </td>
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {facility.createdAt}

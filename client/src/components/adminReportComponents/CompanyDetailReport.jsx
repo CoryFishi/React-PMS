@@ -7,6 +7,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CompanyDetailReport() {
   const [companies, setCompanies] = useState([]);
@@ -24,9 +25,15 @@ export default function CompanyDetailReport() {
 
   // Get all users on component mount
   useEffect(() => {
-    axios.get("/companies").then(({ data }) => {
-      setCompanies(data);
-    });
+    axios
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanies(data);
+      });
   }, []);
 
   const exportToCSV = () => {

@@ -9,6 +9,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UnitSettings({ facilityId }) {
   const [units, setUnits] = useState([]);
@@ -91,7 +92,12 @@ export default function UnitSettings({ facilityId }) {
   const deleteUnit = async (id) => {
     try {
       const response = await axios.delete(
-        `/facilities/units/unit/delete?unitId=${id}`
+        `/facilities/units/unit/delete?unitId=${id}`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
       toast.success(response.data.message);
       setUnits(units.filter((unit) => unit._id !== id));
@@ -104,9 +110,15 @@ export default function UnitSettings({ facilityId }) {
   };
 
   const refreshUnitTable = async (facilityId) => {
-    axios.get(`/facilities/units/${facilityId}`).then(({ data }) => {
-      setUnits(data.units);
-    });
+    axios
+      .get(`/facilities/units/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUnits(data.units);
+      });
   };
 
   // Calculate total number of pages

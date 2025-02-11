@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function GeneralSettings({ facilityId }) {
   const [facilityName, setFacilityName] = useState("");
@@ -20,22 +21,34 @@ export default function GeneralSettings({ facilityId }) {
   const [company, setCompany] = useState("");
 
   useEffect(() => {
-    axios.get(`/facilities/${facilityId}`).then(({ data }) => {
-      setFacilityName(data.facilityName);
-      setStatus(data.status);
-      setAddress(data.address);
-      setEmail(data.contactInfo.email);
-      setPhone(data.contactInfo.phone);
-      setManager(data.manager);
-      setCompany(data.company);
-    });
+    axios
+      .get(`/facilities/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setFacilityName(data.facilityName);
+        setStatus(data.status);
+        setAddress(data.address);
+        setEmail(data.contactInfo.email);
+        setPhone(data.contactInfo.phone);
+        setManager(data.manager);
+        setCompany(data.company);
+      });
   }, [facilityId]);
 
   useEffect(() => {
     if (company) {
-      axios.get(`/users/company/${company}`).then(({ data }) => {
-        setManagers(data);
-      });
+      axios
+        .get(`/users/company/${company}`, {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        })
+        .then(({ data }) => {
+          setManagers(data);
+        });
     }
   }, [company]);
 
@@ -62,6 +75,9 @@ export default function GeneralSettings({ facilityId }) {
           manager: manager,
         },
         {
+          headers: {
+            "x-api-key": API_KEY,
+          },
           params: {
             facilityId: facilityId,
           },

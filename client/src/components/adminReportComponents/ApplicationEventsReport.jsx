@@ -7,6 +7,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function ApplicationEventsReport() {
   const [events, setEvents] = useState([]);
@@ -24,9 +25,15 @@ export default function ApplicationEventsReport() {
 
   // Get all events on component mount
   useEffect(() => {
-    axios.get("/events").then(({ data }) => {
-      setEvents(data.events);
-    });
+    axios
+      .get("/events", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setEvents(data.events);
+      });
   }, []);
 
   const exportToCSV = () => {

@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useRef, useContext, useEffect } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../../context/userContext";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateTenantTenantPage({
   onClose,
@@ -43,34 +44,46 @@ export default function CreateTenantTenantPage({
   };
 
   useEffect(() => {
-    axios.get(`/facilities/${facilityId}`).then(({ data }) => {
-      setFacilityData(data);
-    });
+    axios
+      .get(`/facilities/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setFacilityData(data);
+      });
   }, [facilityId]);
 
   const handleSubmit = async () => {
     try {
       const total = selectedUnits.map((unit) => unit.price);
       const ids = selectedUnits.map((unit) => unit.id);
-      console.log(total);
-      console.log(ids);
-      const response = await axios.post(`/tenants/create`, {
-        facilityId: facilityId,
-        firstName,
-        lastName,
-        contactInfo: {
-          phone: phone,
-          email: email,
+      const response = await axios.post(
+        `/tenants/create`,
+        {
+          facilityId: facilityId,
+          firstName,
+          lastName,
+          contactInfo: {
+            phone: phone,
+            email: email,
+          },
+          createdBy: user._id,
+          accessCode,
+          company: facilityData.company,
+          address,
+          units: selectedUnits,
+          unitData: {
+            paidInCash: paidInCash,
+          },
         },
-        createdBy: user._id,
-        accessCode,
-        company: facilityData.company,
-        address,
-        units: selectedUnits,
-        unitData: {
-          paidInCash: paidInCash,
-        },
-      });
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
       await onSubmit(response);
     } catch (error) {
       console.error("Failed to create tenant:", error);
@@ -326,7 +339,11 @@ export default function CreateTenantTenantPage({
                     onClick={() => {
                       setUnitsDropdownOpen(!unitsDropdownOpen);
                       axios
-                        .get(`/facilities/units/${facilityId}/vacant`)
+                        .get(`/facilities/units/${facilityId}/vacant`, {
+                          headers: {
+                            "x-api-key": API_KEY,
+                          },
+                        })
                         .then(({ data }) => {
                           setUnits(data.units);
                         });

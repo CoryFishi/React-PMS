@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useRef, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../context/userContext";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateFacility({ onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -18,28 +19,48 @@ export default function CreateFacility({ onClose, onSubmit }) {
     setCompany(selectedCompany);
     setManager(undefined);
 
-    axios.get(`/users/company/${selectedCompany}`).then(({ data }) => {
-      setManagers(data);
-    });
+    axios
+      .get(`/users/company/${selectedCompany}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setManagers(data);
+      });
   };
 
   useEffect(() => {
-    axios.get("/companies").then(({ data }) => {
-      setCompanies(data);
-    });
+    axios
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanies(data);
+      });
   }, []);
 
   const handleSubmit = async () => {
     try {
       const selectedCompany = company === "" ? null : company;
-      const response = await axios.post(`/facilities/create`, {
-        facilityName: name,
-        contactInfo: contactInfo,
-        address: address,
-        company: selectedCompany,
-        manager: manager,
-        createdBy: user._id,
-      });
+      const response = await axios.post(
+        `/facilities/create`,
+        {
+          facilityName: name,
+          contactInfo: contactInfo,
+          address: address,
+          company: selectedCompany,
+          manager: manager,
+          createdBy: user._id,
+        },
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
       onSubmit(response);
     } catch (error) {
       console.error("Failed to create company:", error);

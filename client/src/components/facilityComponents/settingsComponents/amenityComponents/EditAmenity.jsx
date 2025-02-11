@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditAmenity({
   amenity,
@@ -30,7 +31,12 @@ export default function EditAmenity({
       };
       const response = await axios.put(
         `/facilities/${facilityId}/settings/amenities?amenityId=${amenity._id}`,
-        updatedAmenity
+        updatedAmenity,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
 
       onUpdate(response.data.updatedAmenity);

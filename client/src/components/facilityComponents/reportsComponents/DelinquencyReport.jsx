@@ -6,6 +6,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function DelinquencyReport({ facilityId }) {
   const [tenants, setTenants] = useState([]);
@@ -19,8 +20,11 @@ export default function DelinquencyReport({ facilityId }) {
   }, [facilityId]);
   const refreshTenantTable = async (facilityId) => {
     try {
-      const { data } = await axios.get(`/facilities/units/${facilityId}`);
-      console.log(data);
+      const { data } = await axios.get(`/facilities/units/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
       const delinquentUnits = data.units.filter(
         (unit) => unit.status === "Delinquent"
       );

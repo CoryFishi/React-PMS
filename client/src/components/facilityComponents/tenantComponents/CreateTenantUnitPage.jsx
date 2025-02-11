@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../../context/userContext";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateTenantUnitPage({
   onClose,
@@ -28,18 +29,30 @@ export default function CreateTenantUnitPage({
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    axios.get(`/facilities/units/unit/${unitId}`).then(({ data }) => {
-      setUnitData(data);
-      setBalance(data.paymentInfo?.pricePerMonth);
-    });
+    axios
+      .get(`/facilities/units/unit/${unitId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUnitData(data);
+        setBalance(data.paymentInfo?.pricePerMonth);
+      });
   }, [unitId]);
 
   useEffect(() => {
     if (unitData.facility) {
       const timeoutId = setTimeout(() => {
-        axios.get(`/facilities/${unitData.facility}`).then(({ data }) => {
-          setCompany(data.company);
-        });
+        axios
+          .get(`/facilities/${unitData.facility}`, {
+            headers: {
+              "x-api-key": API_KEY,
+            },
+          })
+          .then(({ data }) => {
+            setCompany(data.company);
+          });
       }, 1000);
 
       // Cleanup the timeout if unitData.facility changes or the component unmounts
@@ -50,6 +63,9 @@ export default function CreateTenantUnitPage({
   const facilityTenants = (facilityId) => {
     axios
       .get(`/tenants`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
         params: {
           facilityId: facilityId,
         },
@@ -65,6 +81,9 @@ export default function CreateTenantUnitPage({
   const companyTenants = (companyId) => {
     axios
       .get(`/tenants`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
         params: {
           companyId: companyId,
         },
@@ -89,38 +108,60 @@ export default function CreateTenantUnitPage({
     var response;
     try {
       if (isTenancy) {
-        await axios.put(`/tenants/update/${selectedTenant}`, {
-          unitId: unitId,
-          paidInCash: paidInCash,
-          balance: unitData.paymentInfo?.pricePerMonth,
-        });
-      } else {
-        await axios.post(`/tenants/create`, {
-          facilityId: unitData.facility,
-          firstName,
-          lastName,
-          contactInfo: {
-            phone: phone,
-            email: email,
-          },
-          createdBy: user._id,
-          accessCode,
-          company,
-          address,
-          units: [
-            {
-              id: unitData._id,
-              price: unitData.paymentInfo?.pricePerMonth,
-            },
-          ],
-          unitData: {
+        await axios.put(
+          `/tenants/update/${selectedTenant}`,
+          {
+            unitId: unitId,
             paidInCash: paidInCash,
+            balance: unitData.paymentInfo?.pricePerMonth,
           },
-        });
+          {
+            headers: {
+              "x-api-key": API_KEY,
+            },
+          }
+        );
+      } else {
+        await axios.post(
+          `/tenants/create`,
+          {
+            facilityId: unitData.facility,
+            firstName,
+            lastName,
+            contactInfo: {
+              phone: phone,
+              email: email,
+            },
+            createdBy: user._id,
+            accessCode,
+            company,
+            address,
+            units: [
+              {
+                id: unitData._id,
+                price: unitData.paymentInfo?.pricePerMonth,
+              },
+            ],
+            unitData: {
+              paidInCash: paidInCash,
+            },
+          },
+          {
+            headers: {
+              "x-api-key": API_KEY,
+            },
+          }
+        );
       }
-      await axios.get(`/facilities/units/unit/${unitId}`).then(({ data }) => {
-        response = data;
-      });
+      await axios
+        .get(`/facilities/units/unit/${unitId}`, {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        })
+        .then(({ data }) => {
+          response = data;
+        });
       await onSubmit(response);
     } catch (error) {
       console.error("Failed to create tenant:", error);

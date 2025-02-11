@@ -9,6 +9,7 @@ import {
 } from "react-icons/bi";
 import CreateUnitType from "./unitTypeComponents/CreateUnitType";
 import EditUnitType from "./unitTypeComponents/EditUnitType";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UnitTypeSettings({ facilityId }) {
   const [unitTypes, setUnitTypes] = useState([]);
@@ -29,7 +30,12 @@ export default function UnitTypeSettings({ facilityId }) {
   const deleteUnitType = async (id) => {
     try {
       const response = await axios.delete(
-        `/facilities/${facilityId}/settings/unittypes?unitTypeId=${id}`
+        `/facilities/${facilityId}/settings/unittypes?unitTypeId=${id}`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
       toast.success(response.data.message);
       setUnitTypes(unitTypes.filter((unitType) => unitType._id !== id));
@@ -67,9 +73,15 @@ export default function UnitTypeSettings({ facilityId }) {
   const totalPages = Math.ceil(filteredUnitTypes.length / itemsPerPage);
 
   useEffect(() => {
-    axios.get(`/facilities/${facilityId}`).then(({ data }) => {
-      setUnitTypes(data.settings.unitTypes);
-    });
+    axios
+      .get(`/facilities/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setUnitTypes(data.settings.unitTypes);
+      });
   }, []);
 
   useEffect(() => {

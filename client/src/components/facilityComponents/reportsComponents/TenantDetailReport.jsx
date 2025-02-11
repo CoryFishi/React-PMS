@@ -6,6 +6,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function TenantDetailReport({ facilityId }) {
   const [tenants, setTenants] = useState([]);
@@ -21,6 +22,9 @@ export default function TenantDetailReport({ facilityId }) {
   const refreshTenantTable = async (facilityId) => {
     axios
       .get(`/tenants`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
         params: {
           facilityId: facilityId,
         },

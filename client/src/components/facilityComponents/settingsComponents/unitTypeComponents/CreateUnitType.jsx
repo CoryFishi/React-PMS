@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateUnitType({
   setIsCreateOpen,
@@ -68,7 +69,12 @@ export default function CreateUnitType({
 
       const newUnitType = await axios.post(
         `/facilities/${facilityId}/settings/unittypes`,
-        formattedUnitType
+        formattedUnitType,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
       onSubmit(newUnitType);
     } catch (error) {

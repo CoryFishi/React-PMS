@@ -11,9 +11,17 @@ router.get(
 );
 router.get("/", authenticateAPIKey, facilityController.getFacilities);
 router.get("/amenities", authenticateAPIKey, facilityController.getAmenities);
-router.get("/security", facilityController.getSecurityLevels);
-router.get("/:facilityId", facilityController.getFacilityById);
-router.post("/create", facilityController.createFacility);
+router.get(
+  "/security",
+  authenticateAPIKey,
+  facilityController.getSecurityLevels
+);
+router.get(
+  "/:facilityId",
+  authenticateAPIKey,
+  facilityController.getFacilityById
+);
+router.post("/create", authenticateAPIKey, facilityController.createFacility);
 router.delete("/delete", authenticateAPIKey, facilityController.deleteFacility);
 router.put(
   "/update/status",
@@ -68,7 +76,11 @@ router.get(
   authenticateAPIKey,
   facilityController.getVacantUnits
 );
-router.get("/units/:facilityId", facilityController.getUnits);
+router.get(
+  "/units/:facilityId",
+  authenticateAPIKey,
+  facilityController.getUnits
+);
 router.put(
   "/units/:facilityId/:unitId/moveout",
   authenticateAPIKey,

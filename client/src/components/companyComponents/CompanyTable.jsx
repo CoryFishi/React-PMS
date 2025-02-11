@@ -9,6 +9,7 @@ import {
 } from "react-icons/bi";
 import EditCompany from "../companyComponents/EditCompany";
 import CreateCompany from "./CreateCompany";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CompanyTable() {
   const [companies, setCompanies] = useState([]);
@@ -50,10 +51,16 @@ export default function CompanyTable() {
 
   // Get all companies on component mount
   useEffect(() => {
-    axios.get("/companies").then(({ data }) => {
-      setCompanies(data);
-      setSortedColumn("Name");
-    });
+    axios
+      .get("/companies", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setCompanies(data);
+        setSortedColumn("Name");
+      });
   }, []);
 
   // Handler to close dropdown if clicking outside of the dropdown area
@@ -80,7 +87,11 @@ export default function CompanyTable() {
   // Delete selected company
   const deleteCompany = async (id) => {
     try {
-      const response = await axios.delete(`/companies/delete?id=${id}`);
+      const response = await axios.delete(`/companies/delete?id=${id}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
       toast.success(response.data.message);
       setCompanies(companies.filter((company) => company._id !== id));
       setIsDeleteModalOpen(false); // Close the modal

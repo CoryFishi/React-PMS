@@ -5,6 +5,7 @@ import TenantPage from "./facilityPages/TenantPage";
 import SettingsPage from "./facilityPages/SettingsPage";
 import FacilityConfigurationDashboard from "./facilityPages/FacilityConfigurationDashboard";
 import ReportsPage from "./facilityPages/ReportsPage";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 const today = new Date().toLocaleDateString("en-US", {
   weekday: "short",
@@ -17,13 +18,19 @@ export default function FacilityDashboard({ facility, facilityPage }) {
 
   useEffect(() => {
     if (facility) {
-      axios.get(`/facilities/${facility}`).then(({ data }) => {
-        if (data) {
-          setFacilityData(data);
-        } else {
-          setFacilityData([]);
-        }
-      });
+      axios
+        .get(`/facilities/${facility}`, {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        })
+        .then(({ data }) => {
+          if (data) {
+            setFacilityData(data);
+          } else {
+            setFacilityData([]);
+          }
+        });
     } else {
       setFacilityData([]);
     }

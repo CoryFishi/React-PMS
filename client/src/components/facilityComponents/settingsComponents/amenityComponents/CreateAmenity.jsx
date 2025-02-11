@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateAmenity({
   setIsCreateOpen,
@@ -29,7 +30,12 @@ export default function CreateAmenity({
 
       const newAmenity = await axios.post(
         `/facilities/${facilityId}/settings/amenities`,
-        formattedAmenity
+        formattedAmenity,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
       onSubmit(newAmenity);
     } catch (error) {

@@ -130,7 +130,6 @@ const deleteFacility = async (req, res) => {
 
 // Edit Facility
 const editFacility = async (req, res) => {
-  console.log(req.body);
   const facilityId = req.query.facilityId;
   // Find manager by id
   if (req.body.manager) {

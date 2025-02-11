@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditUnitType({
   unitType,
@@ -69,7 +70,12 @@ export default function EditUnitType({
       };
       const response = await axios.put(
         `/facilities/${facilityId}/settings/unittypes?unitTypeId=${unitType._id}`,
-        updatedUnitType
+        updatedUnitType,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
 
       onUpdate(response.data.updatedUnitType);

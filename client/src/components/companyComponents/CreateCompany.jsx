@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../context/userContext";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateCompany({ onClose, onSubmit }) {
   const [name, setName] = useState("");
@@ -18,16 +19,24 @@ export default function CreateCompany({ onClose, onSubmit }) {
   };
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(`/companies/create`, {
-        companyName: name,
-        contactInfo: {
-          phone: phone,
-          email: email,
+      const response = await axios.post(
+        `/companies/create`,
+        {
+          companyName: name,
+          contactInfo: {
+            phone: phone,
+            email: email,
+          },
+          status: status,
+          address: address,
+          createdBy: user._id,
         },
-        status: status,
-        address: address,
-        createdBy: user._id,
-      });
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
       onSubmit(response);
     } catch (error) {
       console.error("Failed to create company:", error);

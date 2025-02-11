@@ -6,6 +6,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function ApplicationEventsReport({ facilityId }) {
   const [events, setEvents] = useState([]);
@@ -21,7 +22,12 @@ export default function ApplicationEventsReport({ facilityId }) {
   const refreshEventTable = async (facilityId) => {
     try {
       const { data } = await axios.get(
-        `/events/facilities/${facilityId}/application`
+        `/events/facilities/${facilityId}/application`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
       setEvents(data.events);
     } catch (error) {

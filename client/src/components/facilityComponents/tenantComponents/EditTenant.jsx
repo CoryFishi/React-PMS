@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditTenant({
   facilityId,
@@ -21,37 +22,51 @@ export default function EditTenant({
   const unitsDropdownRef = useRef(null);
 
   useEffect(() => {
-    axios.get(`/tenants/${tenantId}`).then(({ data }) => {
-      setTenantData(data);
-      setFirstName(data.firstName);
-      setLastName(data.lastName);
-      setPhone(data.contactInfo?.phone);
-      setEmail(data.contactInfo?.email);
-      setAddress(data.address);
-      setAccessCode(data.accessCode);
-      setStatus(data.status);
-      setNotes(data.notes);
-    });
+    axios
+      .get(`/tenants/${tenantId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setTenantData(data);
+        setFirstName(data.firstName);
+        setLastName(data.lastName);
+        setPhone(data.contactInfo?.phone);
+        setEmail(data.contactInfo?.email);
+        setAddress(data.address);
+        setAccessCode(data.accessCode);
+        setStatus(data.status);
+        setNotes(data.notes);
+      });
   }, [tenantId]);
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.put(`/tenants/update`, {
-        tenantId,
-        updateData: {
-          firstName,
-          lastName,
-          contactInfo: {
-            phone: phone,
-            email: email,
+      const response = await axios.put(
+        `/tenants/update`,
+        {
+          tenantId,
+          updateData: {
+            firstName,
+            lastName,
+            contactInfo: {
+              phone: phone,
+              email: email,
+            },
+            accessCode,
+            address,
+            status,
+            facilityId,
+            notes,
           },
-          accessCode,
-          address,
-          status,
-          facilityId,
-          notes,
         },
-      });
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
       await onSubmit(response);
     } catch (error) {
       console.error("Failed to create tenant:", error);

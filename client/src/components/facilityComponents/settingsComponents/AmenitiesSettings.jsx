@@ -9,6 +9,7 @@ import {
 } from "react-icons/bi";
 import CreateAmenity from "./amenityComponents/CreateAmenity";
 import EditAmenity from "./amenityComponents/EditAmenity";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function AmenitiesSettings({ facilityId }) {
   const [amenities, setAmenities] = useState([]);
@@ -29,7 +30,12 @@ export default function AmenitiesSettings({ facilityId }) {
   const deleteAmenity = async (id) => {
     try {
       const response = await axios.delete(
-        `/facilities/${facilityId}/settings/amenities?amenityId=${id}`
+        `/facilities/${facilityId}/settings/amenities?amenityId=${id}`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
       );
       toast.success(response.data.message);
       setAmenities(amenities.filter((amenity) => amenity._id !== id));
@@ -67,9 +73,15 @@ export default function AmenitiesSettings({ facilityId }) {
   const totalPages = Math.ceil(filteredAmenities.length / itemsPerPage);
 
   useEffect(() => {
-    axios.get(`/facilities/${facilityId}`).then(({ data }) => {
-      setAmenities(data.settings.amenities);
-    });
+    axios
+      .get(`/facilities/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        setAmenities(data.settings.amenities);
+      });
   }, []);
 
   useEffect(() => {
