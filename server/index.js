@@ -9,7 +9,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.BACKEND_URL || "http://localhost:5173", // Allow frontend requests
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", // Allow frontend requests
     credentials: true, // Allow cookies and auth headers
   })
 );
