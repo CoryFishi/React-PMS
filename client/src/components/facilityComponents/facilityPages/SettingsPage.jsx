@@ -4,10 +4,12 @@ import TenantManagementSettings from "../settingsComponents/TenantManagementSett
 import NotificationSettings from "../settingsComponents/GeneralSettings";
 import BillingSettings from "../settingsComponents/BillingSettings";
 import IntegrationSettings from "../settingsComponents/IntegrationsSettings";
-import { FaLock, FaPerson } from "react-icons/fa6";
+import { FaLock, FaPerson, FaCashRegister } from "react-icons/fa6";
 import UnitTypeSettings from "../settingsComponents/UnitTypeSettings";
 import AmenitiesSettings from "../settingsComponents/AmenitiesSettings";
 import UnitSettings from "../settingsComponents/UnitSettings";
+import { IoIosSettings, IoIosNotifications } from "react-icons/io";
+import { MdConnectWithoutContact } from "react-icons/md";
 
 export default function SettingsPage({ facilityId }) {
   const [selectedSetting, setSelectedSetting] = useState(null);
@@ -29,13 +31,13 @@ export default function SettingsPage({ facilityId }) {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
           {/* Settings Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaLock className="mb-2 text-blue-500" />
+            <IoIosSettings className="text-blue-500 text-4xl" />
             <h1>Settings</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
               onClick={() => setSelectedSetting("facilitySettings")}
             >
-              Facility Settings
+              Facility Information
             </button>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -53,7 +55,7 @@ export default function SettingsPage({ facilityId }) {
           </div>
           {/* Notifications Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaLock className="mb-2 text-blue-500" />
+            <IoIosNotifications className="text-blue-500 text-4xl" />
             <h1>Notifications</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -65,7 +67,7 @@ export default function SettingsPage({ facilityId }) {
           </div>
           {/* Tenants Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaLock className="mb-2 text-blue-500" />
+            <FaPerson className="text-blue-500 text-4xl" />
             <h1>Tenants</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -84,7 +86,7 @@ export default function SettingsPage({ facilityId }) {
           </div>
           {/* Units Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaLock className="mb-2 text-blue-500" />
+            <FaLock className="text-blue-500 text-3xl" />
             <h1>Units</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -115,7 +117,7 @@ export default function SettingsPage({ facilityId }) {
           </div>
           {/* Billing Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaLock className="mb-2 text-blue-500" />
+            <FaCashRegister className="text-3xl text-blue-500" />
             <h1>Billing</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
@@ -148,7 +150,7 @@ export default function SettingsPage({ facilityId }) {
           </div>
           {/* Integrations Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaLock className="mb-2 text-blue-500" />
+            <MdConnectWithoutContact className="text-3xl text-blue-500" />
             <h1>Integrations</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"

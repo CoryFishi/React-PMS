@@ -8,8 +8,9 @@ import { UserContextProvider } from "../context/userContext";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
-import TenantPayment from "./pages/TenantPayment";
 import { useState, useEffect } from "react";
+import PaymentForm from "./components/paymentComponents/Payment";
+import TenantPayment from "./pages/TenantPayment";
 
 axios.defaults.baseURL =
   import.meta.env.VITE_BASE_URL || "http://localhost:8000";

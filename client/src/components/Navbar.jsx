@@ -115,6 +115,16 @@ export default function Navbar({
               Dashboard
             </Link>
           )}
+          <Link
+            to="/payments"
+            className={`hover:bg-slate-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-darkNavSecondary ${
+              location.pathname === "/payments"
+                ? "border-b-2 border-blue-400"
+                : ""
+            }`}
+          >
+            Payment
+          </Link>
           {isLoggedIn ? (
             <div className="relative" ref={userRef}>
               <h2

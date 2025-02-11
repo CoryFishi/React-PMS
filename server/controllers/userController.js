@@ -12,6 +12,10 @@ const {
 // Schemas
 const User = require("../models/user");
 const StorageFacility = require("../models/facility");
+const Company = require("../models/company");
+const Event = require("../models/event");
+const StorageUnit = require("../models/unit");
+const Tenant = require("../models/tenant");
 
 // .env imports
 require("dotenv").config();
@@ -599,6 +603,142 @@ const getUserById = async (req, res) => {
   }
 };
 
+const getAdminDashboardData = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const startDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - 2,
+      1
+    ); // Start from two months ago
+
+    // User counts
+    const totalUsers = await User.countDocuments();
+    const enabledUsers = await User.countDocuments({ status: "Enabled" });
+    const disabledUsers = await User.countDocuments({ status: "Disabled" });
+
+    // Company counts
+    const totalCompanies = await Company.countDocuments();
+    const enabledCompanies = await Company.countDocuments({
+      status: "Enabled",
+    });
+    const disabledCompanies = await Company.countDocuments({
+      status: "Disabled",
+    });
+
+    // Facility counts
+    const totalFacilities = await StorageFacility.countDocuments();
+    const enabledFacilities = await StorageFacility.countDocuments({
+      status: "Enabled",
+    });
+    const pendingDeploymentFacilities = await StorageFacility.countDocuments({
+      status: "Pending Deployment",
+    });
+    const maintenanceFacilities = await StorageFacility.countDocuments({
+      status: "Maintenance",
+    });
+    const disabledFacilities = await StorageFacility.countDocuments({
+      status: "Disabled",
+    });
+
+    // Unit counts
+    const totalUnits = await StorageUnit.countDocuments();
+    const rentedUnits = await StorageUnit.countDocuments({
+      status: "Rented",
+    });
+    const delinquentUnits = await StorageUnit.countDocuments({
+      status: "Delinquent",
+    });
+    const vacantUnits = await StorageUnit.countDocuments({
+      status: "Vacant",
+    });
+
+    // Tenant counts
+    const totalTenants = await Tenant.countDocuments();
+    const activeTenants = await Tenant.countDocuments({
+      status: "Active",
+    });
+    const disabledTenants = await Tenant.countDocuments({
+      status: "Disabled",
+    });
+
+    // Events count per month (for current and past 2 months)
+    const eventCounts = await Event.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: currentDate }, // Filter for the last 3 months
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 }, // Sort chronologically
+      },
+    ]);
+
+    // Convert month number to month name
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    res.status(200).json({
+      users: {
+        total: totalUsers,
+        enabled: enabledUsers,
+        disabled: disabledUsers,
+      },
+      companies: {
+        total: totalCompanies,
+        enabled: enabledCompanies,
+        disabled: disabledCompanies,
+      },
+      facilities: {
+        total: totalFacilities,
+        enabled: enabledFacilities,
+        pendingDeployment: pendingDeploymentFacilities,
+        maintenance: maintenanceFacilities,
+        disabled: disabledFacilities,
+      },
+      units: {
+        total: totalUnits,
+        rented: rentedUnits,
+        delinquent: delinquentUnits,
+        vacant: vacantUnits,
+      },
+      tenants: {
+        total: totalTenants,
+        active: activeTenants,
+        disabled: disabledTenants,
+      },
+      events: eventCounts.map((event) => ({
+        month: monthNames[event._id.month - 1],
+        count: event.count,
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({ message: "Error fetching dashboard data", error });
+  }
+};
+
 // Exports
 module.exports = {
   createUser,
@@ -614,4 +754,5 @@ module.exports = {
   setUserPassword,
   getUsersByCompany,
   logoutUser,
+  getAdminDashboardData,
 };

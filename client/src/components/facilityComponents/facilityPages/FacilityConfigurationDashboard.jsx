@@ -123,6 +123,16 @@ export default function FacilityConfigurationDashboard({ facilityId }) {
   };
 
   useEffect(() => {
+    axios
+      .get(`/facilities/dashboard/${facilityId}`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      })
+      .then(({ data }) => {
+        console.log(data);
+      });
+
     // Need to make 1 API call to make a smoother experience! - future time
     axios
       .get(`/facilities/units/${facilityId}`, {

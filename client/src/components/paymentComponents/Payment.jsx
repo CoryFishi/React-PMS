@@ -1,36 +1,16 @@
 import React, { useState } from "react";
-
-import axios from "axios";
 import toast from "react-hot-toast";
 
-const PaymentForm = ({ data }) => {
-  const elements = useElements();
+export default function PaymentForm({ data }) {
   const [amount, setAmount] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
 
   const handleSubmit = async (event) => {
-    const card = elements.getElement(CardElement);
-
     if (result.error) {
       toast.error(result.error.message);
     } else {
-      const paymentMethodId = result.paymentMethod.id;
-      const response = await axios.post("/payments/create", {
-        amount,
-        paymentMethodId,
-        tenantId: data._id,
-        unitId: data._id,
-        name,
-        email,
-        address,
-      });
-      if (response.data.error) {
-        toast.error(response.data.error);
-      } else {
-        toast.success("Payment successful");
-      }
     }
   };
 
@@ -114,7 +94,6 @@ const PaymentForm = ({ data }) => {
           <label className="block text-sm font-medium text-gray-700">
             Card Details
           </label>
-          <CardElement className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
         </div>
         <button
           type="submit"
@@ -124,13 +103,5 @@ const PaymentForm = ({ data }) => {
         </button>
       </form>
     </>
-  );
-};
-
-export default function Payment({ data }) {
-  return (
-    <Elements>
-      <PaymentForm data={data} />
-    </Elements>
   );
 }

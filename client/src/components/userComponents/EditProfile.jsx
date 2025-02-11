@@ -48,17 +48,17 @@ export default function EditProfile({ user, onClose, onSubmit }) {
       const response = await axios.put(
         `/users/update`,
         {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        },
-        {
           userId: user._id,
           name: submittedName,
           displayName: submittedDisplayName,
           confirmed: user.confirmed,
           role: user.role,
           address: submittedAddress,
+        },
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
         }
       );
       onSubmit(response);

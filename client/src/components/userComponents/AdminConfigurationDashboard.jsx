@@ -39,8 +39,8 @@ const today = new Date().toLocaleDateString("en-US", {
 });
 
 export default function AdminConfigurationDashboard() {
-  const [stats, setStats] = useState({
-    users: { total: 0, active: 0, inactive: 0 },
+  const [dashboardData, setDashboardData] = useState({
+    users: { total: 0, enabled: 0, disabled: 0 },
     facilities: {
       total: 0,
       enabled: 0,
@@ -49,45 +49,57 @@ export default function AdminConfigurationDashboard() {
       disabled: 0,
     },
     companies: { total: 0, enabled: 0, disabled: 0 },
+    events: [],
+    units: { total: 0, rented: 0, delinquent: 0, vacant: 0 },
+    tenants: { total: 0, enabled: 0, disabled: 0 },
   });
-  const [chartData, setChartData] = useState({
-    labels: [],
+  const applicationChartData = {
+    labels: [
+      dashboardData.events[2]?.month,
+      dashboardData.events[1]?.month,
+      dashboardData.events[0]?.month,
+    ],
     datasets: [
       {
         label: "Total Events",
-        data: [],
+        data: [
+          dashboardData.events[2]?.count,
+          dashboardData.events[0]?.count,
+          dashboardData.events[1]?.count,
+        ],
         borderColor: "#145ac9",
         borderWidth: 2,
       },
     ],
-  });
-
+  };
   const companyChartData = {
     labels: ["Total", "Enabled", "Disabled"],
     datasets: [
       {
         label: "Companies",
         data: [
-          stats.companies.total,
-          stats.companies.enabled,
-          stats.companies.disabled,
+          dashboardData.companies.total,
+          dashboardData.companies.enabled,
+          dashboardData.companies.disabled,
         ],
         backgroundColor: ["#145ac9", "#006900", "#990003"],
       },
     ],
   };
-
   const userChartData = {
     labels: ["Total", "Enabled", "Disabled"],
     datasets: [
       {
         label: "Users",
-        data: [stats.users.total, stats.users.active, stats.users.inactive],
+        data: [
+          dashboardData.users.total,
+          dashboardData.users.enabled,
+          dashboardData.users.disabled,
+        ],
         backgroundColor: ["#145ac9", "#006900", "#990003"],
       },
     ],
   };
-
   const facilityChartData = {
     labels: [
       "Total",
@@ -100,11 +112,11 @@ export default function AdminConfigurationDashboard() {
       {
         label: "Facilities",
         data: [
-          stats.facilities.total,
-          stats.facilities.enabled,
-          stats.facilities.pending,
-          stats.facilities.maintenance,
-          stats.facilities.disabled,
+          dashboardData.facilities.total,
+          dashboardData.facilities.enabled,
+          dashboardData.facilities.pending,
+          dashboardData.facilities.maintenance,
+          dashboardData.facilities.disabled,
         ],
         backgroundColor: [
           "#145ac9",
@@ -116,143 +128,49 @@ export default function AdminConfigurationDashboard() {
       },
     ],
   };
+  const unitChartData = {
+    labels: ["Total", "Rented", "Delinquent", "Vacant"],
+    datasets: [
+      {
+        label: "Units",
+        data: [
+          dashboardData.units.total,
+          dashboardData.units.rented,
+          dashboardData.units.delinquent,
+          dashboardData.units.vacant,
+        ],
+        backgroundColor: ["#145ac9", "#006900", "#990003", "#bdb600"],
+      },
+    ],
+  };
+  const tenantChartData = {
+    labels: ["Total", "Active", "Disabled"],
+    datasets: [
+      {
+        label: "Tenants",
+        data: [
+          dashboardData.tenants.total,
+          dashboardData.tenants.active,
+          dashboardData.tenants.disabled,
+        ],
+        backgroundColor: ["#145ac9", "#006900", "#990003"],
+      },
+    ],
+  };
 
   useEffect(() => {
-    // Need to make 1 API call to make a smoother experience! - future time
     axios
-      .get("/users", {
+      .get("/admin/dashboard", {
         headers: {
           "x-api-key": API_KEY,
         },
       })
       .then(({ data }) => {
-        if (Array.isArray(data)) {
-          const totalUsers = data.length;
-          const activeUsers = data.filter(
-            (user) => user.status === "Enabled"
-          ).length;
-          const inactiveUsers = totalUsers - activeUsers;
-
-          setStats((prevStats) => ({
-            ...prevStats,
-            users: {
-              total: totalUsers,
-              active: activeUsers,
-              inactive: inactiveUsers,
-            },
-          }));
-        }
+        setDashboardData(data);
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching dashboard data:", error);
       });
-
-    axios
-      .get("/facilities/company", {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      })
-      .then(({ data }) => {
-        if (data?.facilities && Array.isArray(data.facilities)) {
-          const totalFacilities = data.facilities.length;
-          const activeFacilities = data.facilities.filter(
-            (facility) => facility.status === "Enabled"
-          ).length;
-          const disabledFacilities = data.facilities.filter(
-            (facility) => facility.status === "Disabled"
-          ).length;
-          const maintenanceFacilities = data.facilities.filter(
-            (facility) => facility.status === "Maintenance"
-          ).length;
-          const pendingDeploymentFacilities = data.facilities.filter(
-            (facility) => facility.status === "Pending Deployment"
-          ).length;
-
-          setStats((prevStats) => ({
-            ...prevStats,
-            facilities: {
-              total: totalFacilities,
-              enabled: activeFacilities,
-              pending: pendingDeploymentFacilities,
-              maintenance: maintenanceFacilities,
-              disabled: disabledFacilities,
-            },
-          }));
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching facilities:", error);
-      });
-    axios
-      .get("/companies", {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      })
-      .then(({ data }) => {
-        if (Array.isArray(data)) {
-          const totalCompanies = data.length;
-          const activeCompanies = data.filter(
-            (company) => company.status === "Enabled"
-          ).length;
-          const inactiveCompanies = totalCompanies - activeCompanies;
-
-          setStats((prevStats) => ({
-            ...prevStats,
-            companies: {
-              total: totalCompanies,
-              enabled: activeCompanies,
-              disabled: inactiveCompanies,
-            },
-          }));
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching companies:", error);
-      });
-    axios
-      .get("/events", {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      })
-      .then(({ data }) => {
-        if (Array.isArray(data.events)) {
-          const currentMonth = moment().format("MMM");
-          const lastMonth = moment().subtract(1, "months").format("MMM");
-          const twoMonthsAgo = moment().subtract(2, "months").format("MMM");
-
-          const relevantMonths = [twoMonthsAgo, lastMonth, currentMonth];
-
-          const eventCounts = {
-            [twoMonthsAgo]: 0,
-            [lastMonth]: 0,
-            [currentMonth]: 0,
-          };
-
-          data.events.forEach((event) => {
-            const eventMonth = moment(event.createdAt).format("MMM");
-
-            if (relevantMonths.includes(eventMonth)) {
-              eventCounts[eventMonth]++;
-            }
-          });
-
-          setChartData({
-            labels: relevantMonths,
-            datasets: [
-              {
-                label: "Total Events",
-                data: relevantMonths.map((month) => eventCounts[month] || 0),
-                borderColor: "#145ac9",
-                borderWidth: 2,
-              },
-            ],
-          });
-        }
-      })
-      .catch((error) => console.error("Error fetching events:", error));
   }, []);
 
   return (
@@ -280,30 +198,21 @@ export default function AdminConfigurationDashboard() {
             <Bar data={facilityChartData} options={chartOptions} />
           </div>
         </div>
-
-        {/* Additional Graphs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          {/* Unit Statistics */}
+          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
+            <h2 className="text-xl font-semibold mb-4">Unit Statistics</h2>
+            <Bar data={unitChartData} options={chartOptions} />
+          </div>
+          {/* Tenant Statistics */}
+          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
+            <h2 className="text-xl font-semibold mb-4">Tenant Statistics</h2>
+            <Bar data={tenantChartData} options={chartOptions} />
+          </div>
           {/* Line Chart: Application Trends */}
           <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
             <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
-            <Line data={chartData} options={chartOptions} />
-          </div>
-          {/* Line Chart: Activity Trends */}
-          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
-            <h2 className="text-xl font-semibold mb-4">Activity Trends</h2>
-            <Line
-              data={{
-                labels: ["Jan", "Feb", "Mar"],
-                datasets: [
-                  {
-                    label: "User Signups",
-                    data: [0, 0, 0],
-                    borderColor: "#145ac9",
-                    borderWidth: 2,
-                  },
-                ],
-              }}
-            />
+            <Line data={applicationChartData} options={chartOptions} />
           </div>
         </div>
       </div>

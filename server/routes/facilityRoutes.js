@@ -9,6 +9,11 @@ router.get(
   authenticateAPIKey,
   facilityController.getFacilitiesAndCompany
 );
+router.get(
+  "/dashboard/:facilityId",
+  authenticateAPIKey,
+  facilityController.getFacilityDashboardData
+);
 router.get("/", authenticateAPIKey, facilityController.getFacilities);
 router.get("/amenities", authenticateAPIKey, facilityController.getAmenities);
 router.get(

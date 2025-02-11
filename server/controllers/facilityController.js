@@ -764,9 +764,111 @@ async function checkUnitInFacility(facilityId, unitNumber) {
   return facility && facility.units && facility.units.length > 0;
 }
 
+const getFacilityDashboardData = async (req, res) => {
+  try {
+    const { facilityId } = req.params;
+    console.log(facilityId);
+    const currentDate = new Date();
+    const startDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - 2,
+      1
+    );
+
+    if (!facilityId) {
+      return res.status(400).json({ message: "Facility ID is required" });
+    }
+
+    // Unit counts specific to the facility
+    const totalUnits = await StorageUnit.countDocuments({ facilityId });
+    const rentedUnits = await StorageUnit.countDocuments({
+      facility: facilityId,
+      status: "Rented",
+    });
+    const delinquentUnits = await StorageUnit.countDocuments({
+      facility: facilityId,
+      status: "Delinquent",
+    });
+    const vacantUnits = await StorageUnit.countDocuments({
+      facility: facilityId,
+      status: "Vacant",
+    });
+
+    // Tenant counts specific to the facility
+    const totalTenants = await Tenant.countDocuments({ facilityId });
+    const activeTenants = await Tenant.countDocuments({
+      facility: facilityId,
+      status: "Active",
+    });
+    const disabledTenants = await Tenant.countDocuments({
+      facility: facilityId,
+      status: "Disabled",
+    });
+
+    // Events count per month (for current and past 2 months) specific to the facility
+    const eventCounts = await Event.aggregate([
+      {
+        $match: {
+          facilityId: facilityId, // Filter events for the specific facility
+          createdAt: { $gte: startDate, $lte: currentDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { "_id.year": 1, "_id.month": 1 },
+      },
+    ]);
+
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    res.status(200).json({
+      units: {
+        total: totalUnits,
+        rented: rentedUnits,
+        delinquent: delinquentUnits,
+        vacant: vacantUnits,
+      },
+      tenants: {
+        total: totalTenants,
+        active: activeTenants,
+        disabled: disabledTenants,
+      },
+      events: eventCounts.map((event) => ({
+        month: monthNames[event._id.month - 1],
+        count: event.count,
+      })),
+    });
+  } catch (error) {
+    console.error("Error fetching facility dashboard data:", error);
+    res.status(500).json({ message: "Error fetching dashboard data", error });
+  }
+};
+
 // Exports
 module.exports = {
   deleteAmenity,
+  getFacilityDashboardData,
   editAmenity,
   addAmenity,
   createFacility,

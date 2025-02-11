@@ -93,8 +93,8 @@ export default function GeneralSettings({ facilityId }) {
 
   return (
     <div className="p-4 dark:bg-darkPrimary dark:border-border border bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold">General Settings</h2>
-      <p>Manage general settings for your facility.</p>
+      <h2 className="text-xl font-bold">Facility Information</h2>
+      <p>Manage facility information.</p>
       <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
         <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-x-4 mt-5">
           <div>

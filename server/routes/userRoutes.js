@@ -36,6 +36,11 @@ router.post(
   authenticateAPIKey,
   userController.sendUserConfirmationEmail
 ); // May want to make this a post /users/confirm?=userId
+router.get(
+  "/admin/dashboard",
+  authenticateAPIKey,
+  userController.getAdminDashboardData
+);
 
 // Authentication
 router.post("/logout", authenticateAPIKey, userController.logoutUser); // May want to make this a post /auth/logout
