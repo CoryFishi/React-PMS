@@ -209,6 +209,11 @@ const loginUser = async (req, res) => {
         error: "No user found",
       });
     }
+    if (!user.password) {
+      return res.status(401).json({
+        error: "Password does not match!",
+      });
+    }
 
     // Check if passwords match
     const match = await comparePassword(password, user.password);
@@ -262,7 +267,6 @@ const getLoginData = async (req, res) => {
 
     // Verify the JWT and extract the payload
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
     if (!decoded || !decoded._id) {
       return res.status(401).json({ error: "Invalid token" });
     }
@@ -542,7 +546,6 @@ const setUserPassword = async (req, res) => {
     }
 
     const hashedPassword = await hashPassword(password);
-    console.log(hashedPassword);
     const existUser = await User.findById(id);
     if (!existUser) {
       return res.status(404).send({ message: "User not found" });

@@ -18,7 +18,7 @@ export default function Navbar({
 }) {
   const cookies = new Cookies();
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn, user } = useContext(UserContext);
+  const { isLoggedIn, setIsLoggedIn, user, setUser } = useContext(UserContext);
   const location = useLocation();
   const userRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -59,12 +59,12 @@ export default function Navbar({
   }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-background-50 p-4 w-full border-background-200 border-b dark:bg-darkPrimary dark:text-white dark:border-darkNavSecondary">
+    <nav className="bg-gray-50 p-4 w-full border-gray-200 border-b dark:bg-darkPrimary dark:text-white dark:border-darkNavSecondary">
       <div className="flex items-center justify-between">
-        <div className="flex items-center flex-shrink-0 text-text-950 mr-6 select-none">
+        <div className="flex items-center flex-shrink-0 mr-6 select-none">
           {location.pathname === "/dashboard" && (
             <button
-              className="block p-3 font-semibold rounded-full text-xl hover:bg-background-100 mr-4 hover:bg-slate-100 dark:hover:bg-darkNavSecondary"
+              className="block p-3 font-semibold rounded-full text-xlmr-4 hover:bg-slate-100 dark:hover:bg-darkNavSecondary"
               onClick={() => setIsCollapsed(!isCollapsed)}
             >
               {isCollapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}

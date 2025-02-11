@@ -32,8 +32,8 @@ export default function LoginComponent() {
       if (data.error) {
         toast.error(data.error);
       } else {
+        console.log(data);
         navigate("/dashboard");
-        setData({});
       }
     } catch (error) {
       console.log(error);
@@ -46,12 +46,12 @@ export default function LoginComponent() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md shadow-background-0">
+    <div className="min-w-96 mx-auto p-5 bg-white rounded-lg shadow-md shadow-gray-0 dark:bg-darkPrimary dark:border-border border">
       <h2 className="text-2xl font-semibold mb-4">Login</h2>
       <form onSubmit={loginUser}>
         {/* Email Section */}
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 font-semibold">
+        <div className="mb-2">
+          <label htmlFor="email" className="block font-semibold">
             Email
           </label>
           <input
@@ -60,33 +60,33 @@ export default function LoginComponent() {
             placeholder="Enter email..."
             value={data.email}
             onChange={(e) => setData({ ...data, email: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+            className="mt-1 block w-full px-3 py-3 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
         {/* Password Section */}
-        <div className="mb-4 relative">
-          <label
-            htmlFor="password"
-            className="block text-gray-700 font-semibold"
-          >
+        <div className="mb-4">
+          <label htmlFor="password" className="block font-semibold">
             Password
           </label>
-          <input
-            id="password"
-            type={passwordEye === false ? "password" : "text"}
-            placeholder="Enter password..."
-            value={data.password}
-            onChange={(e) => setData({ ...data, password: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-          />
-          <div className="absolute bottom-1 right-3 pointer-events-auto cursor-pointer hover:text-blue-500">
-            {passwordEye === false ? (
-              <AiFillEyeInvisible onClick={handlePasswordClick} />
-            ) : (
-              <AiFillEye onClick={handlePasswordClick} />
-            )}
+          <div className="relative mt-1">
+            <input
+              id="password"
+              type={passwordEye === false ? "password" : "text"}
+              placeholder="Enter password..."
+              value={data.password}
+              onChange={(e) => setData({ ...data, password: e.target.value })}
+              className="block w-full px-3 py-3 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-auto cursor-pointer hover:text-blue-500">
+              {passwordEye === false ? (
+                <AiFillEyeInvisible onClick={handlePasswordClick} />
+              ) : (
+                <AiFillEye onClick={handlePasswordClick} />
+              )}
+            </div>
           </div>
         </div>
+
         {/* Submit Button */}
         <button
           type="submit"
