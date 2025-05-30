@@ -10,6 +10,8 @@ import { UserContext } from "../../../context/userContext";
 import FacilityDashboard from "../facilityComponents/FacilityDashboard";
 import AdminConfigurationDashboard from "./AdminConfigurationDashboard";
 import AdminReportsPage from "../adminReportComponents/AdminReportsPage";
+import { useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [openDashboard, setOpenDashboard] = useState(
@@ -23,14 +25,17 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
     facilities: false,
     currentFacility: false,
   });
-  const [facilityPage, setFacilityPage] = useState("units");
   const [company, setCompany] = useState(
     localStorage.getItem("selectedCompany") || ""
   );
-  const [facility, setFacility] = useState(
+  const [facilityId, setFacilityId] = useState(
     localStorage.getItem("selectedFacility") || ""
   );
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+  const { section } = useParams();
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/dashboard/admin");
 
   useEffect(() => {
     const updateFacilityName = () => {
@@ -89,7 +94,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                   openDashboard === "reports" ||
                   openDashboard === "companies" ||
                   openDashboard === "facilities" ||
-                  openDashboard === "adminDashboard"
+                  openDashboard === "adminOverview"
                     ? "bg-navSecondary border-l-blue-500 border-l-4 dark:bg-darkPrimary"
                     : ""
                 }`}
@@ -105,7 +110,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                         openDashboard === "reports" ||
                         openDashboard === "companies" ||
                         openDashboard === "facilities" ||
-                        openDashboard === "adminDashboard"
+                        openDashboard === "adminOverview"
                           ? "text-blue-500"
                           : ""
                       }`}
@@ -122,64 +127,53 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 {!openSections.currentFacility && (
                   <div className="mx-4 mt-4 space-y-2">
                     <button
-                      onClick={() =>
-                        setOpenDashboard("adminDashboard") &
-                        localStorage.setItem("openPage2", "adminDashboard")
-                      }
+                      onClick={() => navigate("/dashboard/admin/overview")}
                       className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                        openDashboard === "adminDashboard"
+                        isAdmin && section === "overview"
                           ? "bg-background-100 border-b-blue-500 border-b-2"
                           : ""
                       }`}
                     >
-                      Dashboard
+                      Overview
                     </button>
+
                     <button
-                      onClick={() =>
-                        setOpenDashboard("users") &
-                        localStorage.setItem("openPage2", "users")
-                      }
+                      onClick={() => navigate("/dashboard/admin/users")}
                       className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                        openDashboard === "users"
+                        section === "users"
                           ? "bg-background-100 border-b-blue-500 border-b-2"
                           : ""
                       }`}
                     >
                       Users
                     </button>
+
                     <button
-                      onClick={() =>
-                        setOpenDashboard("companies") &
-                        localStorage.setItem("openPage2", "companies")
-                      }
+                      onClick={() => navigate("/dashboard/admin/companies")}
                       className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                        openDashboard === "companies"
+                        section === "companies"
                           ? "bg-background-100 border-b-blue-500 border-b-2"
                           : ""
                       }`}
                     >
                       Companies
                     </button>
+
                     <button
-                      onClick={() =>
-                        setOpenDashboard("facilities") &
-                        localStorage.setItem("openPage2", "facilities")
-                      }
+                      onClick={() => navigate("/dashboard/admin/facilities")}
                       className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                        openDashboard === "facilities"
+                        section === "facilities"
                           ? "bg-background-100 border-b-blue-500 border-b-2"
                           : ""
                       }`}
                     >
                       Facilities
                     </button>
+
                     <button
-                      onClick={() =>
-                        setOpenDashboard("reports") &
-                        localStorage.setItem("openPage2", "reports")
-                      }
+                      onClick={() => navigate("/dashboard/admin/reports")}
                       className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                        openDashboard === "reports"
+                        isAdmin && section === "reports"
                           ? "bg-background-100 border-b-blue-500 border-b-2"
                           : ""
                       }`}
@@ -190,7 +184,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 )}
               </div>
               {/* Facilities Side Bar */}
-              {facility !== "" && (
+              {facilityId !== "" && (
                 <div
                   className={`border-t border-b pl-2 pr-2 border-navSecondary pb-8 ${
                     openDashboard === "units" ||
@@ -233,83 +227,73 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     <div className="mx-4 mt-4 space-y-2">
                       <button
                         onClick={() =>
-                          setOpenDashboard("facility") &
-                          localStorage.setItem("openPage2", "facility") &
-                          setFacilityPage("dashboard")
+                          navigate(`/dashboard/${facilityId}/overview`)
                         }
                         className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                          facilityPage === "dashboard" &&
-                          openDashboard === "dashboard"
+                          !isAdmin && section === "overview"
                             ? "bg-background-100 border-b-blue-500 border-b-2"
                             : ""
                         }`}
                       >
-                        Dashboard
+                        Overview
                       </button>
+
                       <button
                         onClick={() =>
-                          setOpenDashboard("facility") &
-                          localStorage.setItem("openPage2", "facility") &
-                          setFacilityPage("units")
+                          navigate(`/dashboard/${facilityId}/units`)
                         }
                         className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                          facilityPage === "units" &&
-                          openDashboard === "facility"
+                          section === "units"
                             ? "bg-background-100 border-b-blue-500 border-b-2"
                             : ""
                         }`}
                       >
                         Units
                       </button>
+
                       <button
                         onClick={() =>
-                          setOpenDashboard("facility") &
-                          localStorage.setItem("openPage2", "facility") &
-                          setFacilityPage("tenants")
+                          navigate(`/dashboard/${facilityId}/tenants`)
                         }
                         className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                          facilityPage === "tenants" &&
-                          openDashboard === "facility"
+                          section === "tenants"
                             ? "bg-background-100 border-b-blue-500 border-b-2"
                             : ""
                         }`}
                       >
                         Tenants
                       </button>
+
                       <button
                         onClick={() =>
-                          setOpenDashboard("facility") &
-                          localStorage.setItem("openPage2", "facility") &
-                          setFacilityPage("reports")
+                          navigate(`/dashboard/${facilityId}/reports`)
                         }
                         className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                          facilityPage === "reports" &&
-                          openDashboard === "facility"
+                          !isAdmin && section === "reports"
                             ? "bg-background-100 border-b-blue-500 border-b-2"
                             : ""
                         }`}
                       >
                         Reports
                       </button>
+
                       <button
                         onClick={() =>
-                          setOpenDashboard("facility") &
-                          localStorage.setItem("openPage2", "facility") &
-                          setFacilityPage("settings")
+                          navigate(`/dashboard/${facilityId}/settings`)
                         }
                         className={`px-2 block hover:bg-darkNavSecondary w-full text-left ${
-                          facilityPage === "settings" &&
-                          openDashboard === "facility"
+                          section === "settings"
                             ? "bg-background-100 border-b-blue-500 border-b-2"
                             : ""
                         }`}
                       >
                         Settings
                       </button>
+
                       <button
                         onClick={() =>
                           localStorage.setItem("selectedFacility", "") &
-                          setFacility("") &
+                          setFacilityId("") &
                           setCompany("") &
                           localStorage.setItem("selectedCompany", "") &
                           setOpenDashboard("facilities") &
@@ -328,28 +312,26 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           </div>
         )}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          {openDashboard === "adminDashboard" && (
-            <AdminConfigurationDashboard />
-          )}
-          {openDashboard === "users" && <UserTable />}
-          {openDashboard === "companies" && <CompanyTable />}
-          {openDashboard === "facilities" && (
+          {isAdmin && section === "overview" && <AdminConfigurationDashboard />}
+          {section === "users" && <UserTable />}
+          {section === "companies" && <CompanyTable />}
+          {section === "facilities" && (
             <FacilityTable
-              facility={facility}
-              setFacility={setFacility}
+              facility={facilityId}
+              setFacility={setFacilityId}
               company={company}
               setCompany={setCompany}
               setFacilityName={setFacilityName}
               setOpenDashboard={setOpenDashboard}
             />
           )}
-          {openDashboard === "facility" && (
-            <FacilityDashboard
-              facilityPage={facilityPage}
-              facility={facility}
-            />
-          )}
-          {openDashboard === "reports" && <AdminReportsPage />}
+          {!isAdmin &&
+            facilityId &&
+            ["overview", "units", "tenants", "reports", "settings"].includes(
+              section
+            ) && <FacilityDashboard facility={facilityId} section={section} />}
+
+          {section === "reports" && <AdminReportsPage />}
         </div>
       </div>
     </div>

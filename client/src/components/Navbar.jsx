@@ -59,12 +59,12 @@ export default function Navbar({
   }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-gray-50 p-4 w-full border-gray-200 border-b dark:bg-darkPrimary dark:text-white dark:border-darkNavSecondary">
+    <nav className="bg-zinc-50 p-4 w-full border-zinc-200 border-b dark:bg-zinc-900 dark:text-white dark:border-zinc-800">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-shrink-0 mr-6 select-none">
           {location.pathname === "/dashboard" && (
             <button
-              className="block p-3 font-semibold rounded-full text-xlmr-4 hover:bg-slate-100 dark:hover:bg-darkNavSecondary"
+              className="block p-3 font-semibold rounded-full text-xlmr-4 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               onClick={() => setIsCollapsed(!isCollapsed)}
             >
               {isCollapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
@@ -74,16 +74,17 @@ export default function Navbar({
             className={`${
               location.pathname === "/dashboard" ? "ml-1" : "ml-5"
             } font-semibold text-xl flex items-center`}
+            onClick={() => console.log(user)}
           >
             <AiFillCode />
             SafeManager
           </span>
         </div>
-        <div className="flex space-x-4 items-center">
+        <div className="flex space-x-4 items-center pr-5">
           <div className="flex items-center">
             <label
               htmlFor="dark-mode-toggle"
-              className="hover:bg-slate-100 dark:hover:bg-darkNavSecondary p-3 rounded-full text-sm font-medium hover:cursor-pointer"
+              className="hover:bg-zinc-100 dark:hover:bg-zinc-800 p-3 rounded-full text-sm font-medium hover:cursor-pointer"
             >
               {darkMode ? <RiMoonClearFill /> : <RiSunFill />}
             </label>
@@ -97,7 +98,7 @@ export default function Navbar({
           </div>
           <Link
             to="/"
-            className={`hover:bg-slate-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-darkNavSecondary ${
+            className={`hover:bg-zinc-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-zinc-800 ${
               location.pathname === "/" ? "border-b-2 border-blue-400" : ""
             }`}
           >
@@ -106,7 +107,7 @@ export default function Navbar({
           {isLoggedIn && (
             <Link
               to="/dashboard"
-              className={`hover:bg-slate-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-darkNavSecondary ${
+              className={`hover:bg-zinc-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-zinc-800 ${
                 location.pathname === "/dashboard"
                   ? "border-b-2 border-blue-400"
                   : ""
@@ -115,39 +116,35 @@ export default function Navbar({
               Dashboard
             </Link>
           )}
-          <Link
+          {/* <Link
             to="/payments"
-            className={`hover:bg-slate-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-darkNavSecondary ${
+            className={`hover:bg-zinc-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-zinc-800 ${
               location.pathname === "/payments"
                 ? "border-b-2 border-blue-400"
                 : ""
             }`}
           >
             Payment
-          </Link>
+          </Link> */}
           {isLoggedIn ? (
             <div className="relative" ref={userRef}>
               <h2
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`cursor-pointer bg-gray-100  rounded-md p-2 px-4 flex items-center text-center hover:bg-gray-200 dark:bg-darkSecondary dark:hover:bg-darkPrimary ${
-                  location.pathname === "/users/profile"
-                    ? "border-b-2 border-blue-400"
-                    : ""
-                }`}
+                className={`select-none cursor-pointer bg-zinc-100 p-2 px-4 flex items-center justify-center text-center hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-950`}
               >
-                {user?.email}{" "}
-                {isDropdownOpen ? <MdExpandLess /> : <MdExpandMore />}
+                {isDropdownOpen ? <MdExpandMore /> : <MdExpandLess />}{" "}
+                {user?.email}
               </h2>
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-1 w-full bg-white border border-gray-200 dark:bg-darkNavSecondary dark:border-darkNavSecondary rounded-lg shadow-lg z-20 flex flex-col">
+                <div className="select-none absolute mt-1 right-0 w-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-800 shadow-lg z-20 flex flex-col">
                   <Link
-                    to={`/users/profile`}
-                    className="hover:bg-slate-100 dark:hover:bg-darkPrimary px-3 py-2 text-md font-medium text-center dark:border-t-border rounded-t-lg"
+                    to={`/users/${user?._id}`}
+                    className="hover:bg-zinc-100 dark:hover:bg-zinc-900 px-3 py-2 text-md font-medium text-center dark:border-t-border"
                   >
                     Profile
                   </Link>
                   <button
-                    className="hover:bg-slate-100 dark:hover:bg-darkPrimary px-3 py-2 text-md font-medium border-opacity-50 border-t border-t-gray-100 dark:border-t-border rounded-b-lg"
+                    className="hover:bg-zinc-100 dark:hover:bg-zinc-900 px-3 py-2 text-md font-medium border-opacity-50 border-t border-t-zinc-100 dark:border-t-border"
                     onClick={() => handleLogout()}
                   >
                     Logout
@@ -158,7 +155,7 @@ export default function Navbar({
           ) : (
             <Link
               to="/login"
-              className={`hover:bg-slate-100 dark:hover:bg-gray-200 px-3 py-2 text-md font-medium ${
+              className={`hover:bg-zinc-100 dark:hover:bg-zinc-200 px-3 py-2 text-md font-medium ${
                 location.pathname === "/login"
                   ? "border-b-2 border-blue-400"
                   : ""

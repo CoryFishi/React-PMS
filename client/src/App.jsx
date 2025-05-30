@@ -11,6 +11,7 @@ import UserProfile from "./pages/UserProfile";
 import { useState, useEffect } from "react";
 import PaymentForm from "./components/paymentComponents/Payment";
 import TenantPayment from "./pages/TenantPayment";
+import { Navigate } from "react-router-dom";
 
 axios.defaults.baseURL =
   import.meta.env.VITE_BASE_URL || "http://localhost:8000";
@@ -19,7 +20,6 @@ axios.defaults.withCredentials = true;
 function App() {
   const [darkMode, setDarkMode] = useState(false);
 
-  // Check localStorage for dark mode preference on initial render
   useEffect(() => {
     const storedPreference = localStorage.getItem("darkMode");
     if (storedPreference === "true") {
@@ -28,7 +28,6 @@ function App() {
     }
   }, []);
 
-  // Toggle dark mode and save preference to localStorage
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     if (!darkMode) {
@@ -60,12 +59,24 @@ function App() {
             <Login toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
           }
         />
+
         <Route
-          path="/dashboard"
+          path="/dashboard/admin/:section"
           element={
             <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
           }
         />
+        <Route
+          path="/dashboard/:facilityId/:section"
+          element={
+            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={<Navigate to="/dashboard/admin/overview" />}
+        />
+
         <Route
           path="/users/:id"
           element={

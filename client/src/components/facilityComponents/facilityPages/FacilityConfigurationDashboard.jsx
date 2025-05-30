@@ -14,6 +14,7 @@ import {
 import axios from "axios";
 import moment from "moment";
 const API_KEY = import.meta.env.VITE_API_KEY;
+import { useParams } from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +39,9 @@ const today = new Date().toLocaleDateString("en-US", {
   day: "numeric",
 });
 
-export default function FacilityConfigurationDashboard({ facilityId }) {
+export default function FacilityConfigurationDashboard() {
+  const { facilityId } = useParams();
+
   const [stats, setStats] = useState({
     units: { total: 0, vacant: 0, delinquent: 0, rented: 0 },
     facilities: {
@@ -123,15 +126,11 @@ export default function FacilityConfigurationDashboard({ facilityId }) {
   };
 
   useEffect(() => {
-    axios
-      .get(`/facilities/dashboard/${facilityId}`, {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      })
-      .then(({ data }) => {
-        console.log(data);
-      });
+    axios.get(`/facilities/dashboard/${facilityId}`, {
+      headers: {
+        "x-api-key": API_KEY,
+      },
+    });
 
     // Need to make 1 API call to make a smoother experience! - future time
     axios
@@ -250,7 +249,7 @@ export default function FacilityConfigurationDashboard({ facilityId }) {
         }
       })
       .catch((error) => console.error("Error fetching events:", error));
-  }, []);
+  }, [facilityId]);
 
   return (
     <div className="flex flex-col h-full w-full relative dark:text-white">

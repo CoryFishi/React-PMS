@@ -6,6 +6,7 @@ import SettingsPage from "./facilityPages/SettingsPage";
 import FacilityConfigurationDashboard from "./facilityPages/FacilityConfigurationDashboard";
 import ReportsPage from "./facilityPages/ReportsPage";
 const API_KEY = import.meta.env.VITE_API_KEY;
+import { useParams } from "react-router-dom";
 
 const today = new Date().toLocaleDateString("en-US", {
   weekday: "short",
@@ -13,13 +14,13 @@ const today = new Date().toLocaleDateString("en-US", {
   day: "numeric",
 });
 
-export default function FacilityDashboard({ facility, facilityPage }) {
+export default function FacilityDashboard() {
   const [facilityData, setFacilityData] = useState("");
-
+  const { facilityId, section } = useParams();
   useEffect(() => {
-    if (facility) {
+    if (facilityId) {
       axios
-        .get(`/facilities/${facility}`, {
+        .get(`/facilities/${facilityId}`, {
           headers: {
             "x-api-key": API_KEY,
           },
@@ -34,7 +35,7 @@ export default function FacilityDashboard({ facility, facilityPage }) {
     } else {
       setFacilityData([]);
     }
-  }, [facility]);
+  }, [facilityId]);
 
   return (
     <div className="h-full">
@@ -45,12 +46,12 @@ export default function FacilityDashboard({ facility, facilityPage }) {
         <h2 className="text-lg">&nbsp;/ {today}</h2>
       </div>
 
-      {facilityPage === "units" && <UnitPage facilityId={facility} />}
-      {facilityPage === "tenants" && <TenantPage facilityId={facility} />}
-      {facilityPage === "reports" && <ReportsPage facilityId={facility} />}
-      {facilityPage === "settings" && <SettingsPage facilityId={facility} />}
-      {facilityPage === "dashboard" && (
-        <FacilityConfigurationDashboard facilityId={facility} />
+      {section === "units" && <UnitPage facilityId={facilityId} />}
+      {section === "tenants" && <TenantPage facilityId={facilityId} />}
+      {section === "reports" && <ReportsPage facilityId={facilityId} />}
+      {section === "settings" && <SettingsPage facilityId={facilityId} />}
+      {section === "overview" && (
+        <FacilityConfigurationDashboard facilityId={facilityId} />
       )}
     </div>
   );
