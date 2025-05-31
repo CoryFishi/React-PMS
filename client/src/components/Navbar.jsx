@@ -59,10 +59,10 @@ export default function Navbar({
   }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-zinc-50 p-4 w-full border-zinc-200 border-b dark:bg-zinc-900 dark:text-white dark:border-zinc-800">
+    <nav className="bg-zinc-50 p-4 w-full border-zinc-200 border-b dark:bg-zinc-950 dark:text-white dark:border-zinc-800">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-shrink-0 mr-6 select-none">
-          {location.pathname === "/dashboard" && (
+          {location.pathname.startsWith("/dashboard") && (
             <button
               className="block p-3 font-semibold rounded-full text-xlmr-4 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               onClick={() => setIsCollapsed(!isCollapsed)}
@@ -130,7 +130,7 @@ export default function Navbar({
             <div className="relative" ref={userRef}>
               <h2
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`select-none cursor-pointer bg-zinc-100 p-2 px-4 flex items-center justify-center text-center hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-950`}
+                className={`select-none cursor-pointer bg-zinc-100 p-2 px-4 flex items-center justify-center text-center hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800`}
               >
                 {isDropdownOpen ? <MdExpandMore /> : <MdExpandLess />}{" "}
                 {user?.email}

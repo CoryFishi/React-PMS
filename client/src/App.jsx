@@ -14,7 +14,7 @@ import TenantPayment from "./pages/TenantPayment";
 import { Navigate } from "react-router-dom";
 
 axios.defaults.baseURL =
-  import.meta.env.VITE_BASE_URL || "http://localhost:8000";
+  import.meta.env.VITE_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
 
 function App() {
