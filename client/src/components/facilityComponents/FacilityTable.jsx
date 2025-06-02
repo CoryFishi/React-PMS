@@ -209,7 +209,7 @@ export default function FacilityTable({
   }, [facilities, searchQuery]);
 
   return (
-    <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
+    <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
       {/* Create Facility Modal */}
       {isCreateOpen && (
         <CreateFacility
@@ -227,8 +227,8 @@ export default function FacilityTable({
       )}
       {/* Delete Facility Modal */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 bg-gray-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-          <div className="bg-gray-200 dark:bg-darkPrimary dark:text-white p-4 rounded-lg shadow-lg">
+        <div className="fixed inset-0 dark:bg-zinc-950 dark:bg-opacity-50 bg-opacity-50 bg-zinc-600 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+          <div className="bg-zinc-200 dark:bg-zinc-900 dark:text-white p-4 rounded-lg shadow-lg">
             <h3 className="text-lg font-bold">Confirm Delete</h3>
             <p>Are you sure you want to delete this facility?</p>
             <div className="flex justify-end mt-4">
@@ -239,7 +239,7 @@ export default function FacilityTable({
                 Delete
               </button>
               <button
-                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                className="bg-zinc-300 hover:bg-zinc-500 text-black font-bold py-2 px-4 rounded"
                 onClick={() =>
                   setIsDeleteModalOpen(false) & setOpenDropdown(null)
                 }
@@ -251,7 +251,7 @@ export default function FacilityTable({
         </div>
       )}
       {/* Facility Statisics Header */}
-      <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
+      <div className="w-full p-5 bg-zinc-200 flex justify-around items-center dark:bg-zinc-950 dark:text-white">
         <h2 className="text-xl font-bold">Facility Statistics</h2>
         <p className="text-sm">
           Pending Deployment:{" "}
@@ -285,7 +285,7 @@ export default function FacilityTable({
           placeholder="Search facilities..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+          className="border dark:text-white p-2 w-full dark:bg-zinc-800 rounded dark:border-zinc-800"
         />
         <button
           className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-700 ml-3 w-44 font-bold"
@@ -296,11 +296,11 @@ export default function FacilityTable({
       </div>
       {/* Facilities Table */}
       <div className="flex-1 min-h-0 overflow-y-auto px-4">
-        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary select-none">
+        <table className="w-full dark:text-white dark:bg-zinc-900 dark:border-zinc-800 border-b-2">
+          <thead className="border-b dark:border-zinc-800 sticky top-0 z-10 bg-zinc-200 dark:bg-zinc-800 select-none">
             <tr>
               <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-zinc-300 dark:hover:bg-zinc-950"
                 onClick={() => {
                   const newDirection = sortDirection === "asc" ? "desc" : "asc";
                   setSortDirection(newDirection);
@@ -324,7 +324,7 @@ export default function FacilityTable({
                 )}
               </th>
               <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-zinc-300 dark:hover:bg-zinc-950"
                 onClick={() => {
                   const newDirection = sortDirection === "asc" ? "desc" : "asc";
                   setSortDirection(newDirection);
@@ -348,7 +348,7 @@ export default function FacilityTable({
                 )}
               </th>
               <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-zinc-300 dark:hover:bg-zinc-950"
                 onClick={() => {
                   const newDirection = sortDirection === "asc" ? "desc" : "asc";
                   setSortDirection(newDirection);
@@ -372,7 +372,7 @@ export default function FacilityTable({
                 )}
               </th>
               <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-zinc-300 dark:hover:bg-zinc-950"
                 onClick={() => {
                   const newDirection = sortDirection === "asc" ? "desc" : "asc";
                   setSortDirection(newDirection);
@@ -397,7 +397,7 @@ export default function FacilityTable({
                 )}
               </th>
               <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-zinc-300 dark:hover:bg-zinc-950"
                 onClick={() => {
                   const newDirection = sortDirection === "asc" ? "desc" : "asc";
                   setSortDirection(newDirection);
@@ -421,7 +421,7 @@ export default function FacilityTable({
                 )}
               </th>
               <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
+                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-zinc-300 dark:hover:bg-zinc-950"
                 onClick={() => {
                   const newDirection = sortDirection === "asc" ? "desc" : "asc";
                   setSortDirection(newDirection);
@@ -452,7 +452,7 @@ export default function FacilityTable({
           <tbody>
             {/* Display no facilities when there are no facilities */}
             {filteredFacilities.length === 0 && (
-              <tr className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border text-center">
+              <tr className="border-b rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:border-zinc-800 text-center">
                 <td colSpan={7} className="py-4 text-center">
                   No facilities to display...
                 </td>
@@ -467,7 +467,7 @@ export default function FacilityTable({
               .map((facility, index) => (
                 <tr
                   key={facility._id}
-                  className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
+                  className="border-b rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:border-zinc-800"
                 >
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {facility.facilityName}
@@ -520,7 +520,7 @@ export default function FacilityTable({
                       {/* Facility Action Dropdown */}
                       {openDropdown === facility._id && (
                         <div
-                          className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
+                          className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-zinc-100 dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
                           role="menu"
                           aria-orientation="vertical"
                           aria-labelledby="menu-button"
@@ -529,7 +529,7 @@ export default function FacilityTable({
                         >
                           <div role="none">
                             <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              className=" block px-4 py-3 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t-md"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() =>
@@ -553,7 +553,7 @@ export default function FacilityTable({
                               Select
                             </a>
                             <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              className=" block px-4 py-3 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t-md"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() =>
@@ -567,7 +567,7 @@ export default function FacilityTable({
 
                             {facility.status === "Pending Deployment" && (
                               <a
-                                className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
+                                className=" block px-4 py-3 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
                                 role="menuitem"
                                 tabIndex="-1"
                                 onClick={() => deploy(facility._id)}
@@ -576,7 +576,7 @@ export default function FacilityTable({
                               </a>
                             )}
                             <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
+                              className=" block px-4 py-3 text-sm hover:bg-zinc-200 rounded-b-md dark:hover:bg-zinc-900 dark:border-zinc-800"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() =>
@@ -601,7 +601,7 @@ export default function FacilityTable({
           <div className="flex gap-3">
             <div>
               <select
-                className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
+                className="border rounded ml-2 dark:bg-zinc-800 dark:border-zinc-800"
                 id="itemsPerPage"
                 value={itemsPerPage}
                 onChange={(e) => {
@@ -629,14 +629,14 @@ export default function FacilityTable({
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                className="disabled:cursor-not-allowed p-1 disabled:text-zinc-500"
               >
                 <BiChevronsLeft />
               </button>
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                className="disabled:cursor-not-allowed p-1 disabled:text-zinc-500"
               >
                 <BiChevronLeft />
               </button>
@@ -646,14 +646,14 @@ export default function FacilityTable({
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                className="disabled:cursor-not-allowed p-1 disabled:text-zinc-500"
               >
                 <BiChevronRight />
               </button>
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(totalPages)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
+                className="disabled:cursor-not-allowed p-1 disabled:text-zinc-500"
               >
                 <BiChevronsRight />
               </button>

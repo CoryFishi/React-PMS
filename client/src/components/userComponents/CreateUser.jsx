@@ -1,7 +1,12 @@
 import axios from "axios";
-import React, { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../context/userContext";
+import ModalContainer from "../sharedComponents/ModalContainer";
+import { IoIosCreate } from "react-icons/io";
+import InputBox from "../sharedComponents/InputBox";
+import SelectOption from "../sharedComponents/SelectOption";
+import MultiSelectDropdown from "../sharedComponents/MultiSelectDropdown";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateUser({ onClose, onSubmit }) {
@@ -16,9 +21,13 @@ export default function CreateUser({ onClose, onSubmit }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState("Enabled");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
   const { user } = useContext(UserContext);
+  const [roleOptions, setRoleOptions] = useState([
+    { id: "Company_User", name: "Company User" },
+    { id: "Company_Admin", name: "Company Admin" },
+    { id: "System_Admin", name: "System Admin" },
+    { id: "System_User", name: "System User" },
+  ]);
 
   const handleChange = (e) => {
     if (e.target.value === "System_Admin" || e.target.value === "System_User") {
@@ -42,7 +51,12 @@ export default function CreateUser({ onClose, onSubmit }) {
         },
       })
       .then(({ data }) => {
-        setFacilities(data);
+        setFacilities(
+          data.map((f) => ({
+            id: f._id,
+            name: f.facilityName,
+          }))
+        );
       });
   };
 
@@ -68,7 +82,12 @@ export default function CreateUser({ onClose, onSubmit }) {
         },
       })
       .then(({ data }) => {
-        setCompanies(data);
+        setCompanies(
+          data.map((c) => ({
+            id: c._id,
+            name: c.companyName,
+          }))
+        );
       });
   }, []);
 
@@ -104,356 +123,179 @@ export default function CreateUser({ onClose, onSubmit }) {
     }
   };
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdownRef]);
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center 
-              bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
-              overflow-y-auto"
-    >
-      <div
-        className="relative w-fit shadow-lg rounded-md 
-                bg-gray-100 dark:bg-darkPrimary dark:text-white 
-                 overflow-y-auto p-5"
-      >
-        <h2 className="text-xl font-bold mb-4">Creating User</h2>
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="displayName"
-                  className="block text-sm font-semibold"
-                >
-                  Display Name:<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="displayName"
-                  id="displayName"
-                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="display name"
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  style={{ width: "17rem" }}
-                />
-              </div>
-              <div>
-                <label htmlFor="name" className="block text-sm font-semibold ">
-                  Name:<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="name"
-                  onChange={(e) => setName(e.target.value)}
-                  style={{ width: "17rem" }}
-                />
-              </div>
-              <div className="flex space-x-4">
-                <div className="flex-1">
-                  <label
-                    htmlFor="street1"
-                    className="block text-sm font-semibold "
-                  >
-                    Street 1:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="street1"
-                    id="street1"
-                    placeholder="street"
-                    onChange={(e) =>
-                      setAddress((prevAddress) => ({
-                        ...prevAddress,
-                        street1: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                  <label
-                    htmlFor="country"
-                    className="block text-sm font-semibold  mt-2"
-                  >
-                    Country:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="country"
-                    id="country"
-                    placeholder="country"
-                    onChange={(e) =>
-                      setAddress((prevAddress) => ({
-                        ...prevAddress,
-                        country: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                  <label
-                    htmlFor="city"
-                    className="block text-sm font-semibold  mt-2"
-                  >
-                    City:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    id="city"
-                    placeholder="city"
-                    onChange={(e) =>
-                      setAddress((prevAddress) => ({
-                        ...prevAddress,
-                        city: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label
-                    htmlFor="street2"
-                    className="block text-sm font-semibold "
-                  >
-                    Street 2:
-                  </label>
-                  <input
-                    type="text"
-                    name="street2"
-                    id="street2"
-                    placeholder=""
-                    onChange={(e) =>
-                      setAddress((prevAddress) => ({
-                        ...prevAddress,
-                        street2: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                  <label
-                    htmlFor="state"
-                    className="block text-sm font-semibold  mt-2"
-                  >
-                    State:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="state"
-                    id="state"
-                    placeholder="state"
-                    onChange={(e) =>
-                      setAddress((prevAddress) => ({
-                        ...prevAddress,
-                        state: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                  <label
-                    htmlFor="zipCode"
-                    className="block text-sm font-semibold  mt-2"
-                  >
-                    ZIP Code:<span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    id="zipCode"
-                    placeholder="zipcode"
-                    onChange={(e) =>
-                      setAddress((prevAddress) => ({
-                        ...prevAddress,
-                        zipCode: e.target.value,
-                      }))
-                    }
-                    style={{ width: "8rem" }}
-                    className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  />
-                </div>
-              </div>
-              <div className="mt-4 ml-4 flex items-center justify-between ">
-                <label
-                  htmlFor="status"
-                  className="flex items-center hover:cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    id="status"
-                    checked={status === "Enabled"}
-                    onChange={toggleStatus}
-                    className="mr-2 hover:cursor-pointer"
-                  />
-                  <span>{status}</span>
-                </label>
-              </div>
+    <ModalContainer
+      title={"Creating User"}
+      icon={<IoIosCreate />}
+      mainContent={
+        <div className="grid grid-cols-2 gap-3 pt-3 sm:grid-cols-1">
+          {(role === "System_User" || role === "System_Admin") && (
+            <div className="text-red-500">
+              <h2 className="font-bold text-lg">Warning!</h2>
+              <p className="text-wrap">
+                This user will have full control and visibility over every
+                company!
+              </p>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold ">
-                  Email:<span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="email"
-                  id="email"
-                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="example@email.com"
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ width: "17rem" }}
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="block text-sm font-semibold ">
-                  Phone:
-                </label>
-                <input
-                  type="text"
-                  name="phone"
-                  id="phone"
-                  className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Phone Number"
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{ width: "17rem" }}
-                />
-              </div>
-              <div>
-                <label htmlFor="role" className="block text-sm font-semibold ">
-                  Role:<span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="role"
-                  id="role"
-                  value={role}
-                  onChange={handleChange}
-                  style={{ width: "17rem" }}
-                  className="hover:cursor-pointer mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                >
-                  <option value="" disabled>
-                    Select a role
-                  </option>
-                  <option value="Company_User">Company User</option>
-                  <option value="Company_Admin">Company Admin</option>
-                  <option value="System_Admin">System Admin</option>
-                  <option value="System_User">System User</option>
-                </select>
-                {(role === "System_User" || role === "System_Admin") && (
-                  <div className="mt-3 text-red-500">
-                    <h2 className="font-bold text-lg">Warning!</h2>
-                    <p style={{ width: "17rem" }} className="text-wrap">
-                      This user will have full control and visibility over every
-                      company!
-                    </p>
-                  </div>
-                )}
-                {(role === "Company_User" || role === "Company_Admin") && (
-                  <div>
-                    <label
-                      htmlFor="company"
-                      className="block text-sm font-semibold  mt-2"
-                    >
-                      Company:<span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      name="company"
-                      id="company"
-                      value={company}
-                      onChange={handleCompanyChange}
-                      style={{ width: "17rem" }}
-                      className="hover:cursor-pointer mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    >
-                      <option value="">Select a company</option>
-                      {companies.map((company) => (
-                        <option key={company._id} value={company._id}>
-                          {company.companyName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                {role === "Company_User" && company && (
-                  <div>
-                    <label
-                      htmlFor="facility"
-                      className="block text-sm font-semibold  mt-2"
-                    >
-                      Facilities:<span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative" ref={dropdownRef}>
-                      <button
-                        type="button"
-                        className="bg-white mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        style={{ width: "17rem" }}
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                      >
-                        {userFacilities.length > 0
-                          ? `${userFacilities.length} Facilities Selected`
-                          : "Select Facilities"}
-                      </button>
-                      {dropdownOpen && (
-                        <div
-                          id="facilityDropdown"
-                          className="absolute w-full bg-white border border-gray-300 dark:bg-darkSecondary dark:border-border rounded-md shadow-lg z-10"
-                        >
-                          {facilities.map((facility) => (
-                            <label
-                              key={facility._id}
-                              className="block px-4 py-2 text-sm text-black dark:text-white"
-                            >
-                              <input
-                                type="checkbox"
-                                checked={userFacilities.includes(facility._id)}
-                                onChange={() =>
-                                  handleFacilityChange(facility._id)
-                                }
-                                className="mr-2"
-                              />
-                              {facility.facilityName}
-                            </label>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+          )}
+          <InputBox
+            value={displayName}
+            onchange={(e) => setDisplayName(e.target.value)}
+            placeholder={"Display Name"}
+            required={true}
+          />
+          <InputBox
+            value={name}
+            onchange={(e) => setName(e.target.value)}
+            placeholder={"Name"}
+            required={true}
+          />
+          <InputBox
+            value={email}
+            onchange={(e) => setEmail(e.target.value)}
+            placeholder={"Email Address"}
+            required={true}
+          />
+          <InputBox
+            value={phone}
+            onchange={(e) => setPhone(e.target.value)}
+            placeholder={"Phone Number"}
+          />
+          <div className="flex gap-3">
+            <div className="flex flex-col gap-3">
+              <InputBox
+                value={address.street1}
+                onchange={(e) =>
+                  setAddress((prevAddress) => ({
+                    ...prevAddress,
+                    street1: e.target.value,
+                  }))
+                }
+                placeholder={"Street Address 1"}
+                required={true}
+              />
+              <InputBox
+                value={address.country}
+                onchange={(e) =>
+                  setAddress((prevAddress) => ({
+                    ...prevAddress,
+                    country: e.target.value,
+                  }))
+                }
+                placeholder={"Country"}
+                required={true}
+              />
+              <InputBox
+                value={address.city}
+                onchange={(e) =>
+                  setAddress((prevAddress) => ({
+                    ...prevAddress,
+                    city: e.target.value,
+                  }))
+                }
+                placeholder={"City"}
+                required={true}
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <InputBox
+                value={address.street2}
+                onchange={(e) =>
+                  setAddress((prevAddress) => ({
+                    ...prevAddress,
+                    street2: e.target.value,
+                  }))
+                }
+                placeholder={"Street Address 2"}
+              />
+
+              <InputBox
+                value={address.state}
+                onchange={(e) =>
+                  setAddress((prevAddress) => ({
+                    ...prevAddress,
+                    state: e.target.value,
+                  }))
+                }
+                placeholder={"State"}
+                required={true}
+              />
+              <InputBox
+                value={address.zipCode}
+                onchange={(e) =>
+                  setAddress((prevAddress) => ({
+                    ...prevAddress,
+                    zipCode: e.target.value,
+                  }))
+                }
+                placeholder={"Zip Code"}
+                required={true}
+              />
             </div>
           </div>
-          <div className="flex justify-end pt-2">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
-            >
-              Submit
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="ml-4 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 transition ease-in duration-200"
-            >
-              Close
-            </button>
+
+          <SelectOption
+            required={true}
+            value={role}
+            onChange={handleChange}
+            options={Array.isArray(roleOptions) ? roleOptions : []}
+            placeholder="Role"
+          />
+          <div>
+            {(role === "Company_User" || role === "Company_Admin") && (
+              <SelectOption
+                required={true}
+                value={company}
+                onChange={handleCompanyChange}
+                options={Array.isArray(companies) ? companies : []}
+                placeholder="Company"
+              />
+            )}
+            {role === "Company_User" && company && (
+              <MultiSelectDropdown
+                label="Facilities"
+                options={facilities}
+                selected={userFacilities}
+                onChange={setUserFacilities}
+                required
+              />
+            )}
           </div>
-        </form>
-      </div>
-    </div>
+          <div className="flex items-center ml-5">
+            <label
+              htmlFor="status"
+              className="flex items-center cursor-pointer gap-2"
+            >
+              <input
+                type="checkbox"
+                id="status"
+                checked={status === "Enabled"}
+                onChange={toggleStatus}
+                className="hover:cursor-pointer"
+              />
+              <span>{status}</span>
+            </label>
+          </div>
+        </div>
+      }
+      responseContent={
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 bg-zinc-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-zinc-700 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 transition ease-in duration-200"
+          >
+            Close
+          </button>
+        </div>
+      }
+    />
   );
 }

@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useContext, useState, useEffect, useRef } from "react";
 import { UserContext } from "../../context/userContext";
-import Cookies from "universal-cookie";
 import { AiFillCode } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { RiMoonClearFill, RiSunFill } from "react-icons/ri";
@@ -16,7 +15,6 @@ export default function Navbar({
   toggleDarkMode,
   darkMode,
 }) {
-  const cookies = new Cookies();
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn, user, setUser } = useContext(UserContext);
   const location = useLocation();
@@ -108,7 +106,7 @@ export default function Navbar({
             <Link
               to="/dashboard"
               className={`hover:bg-zinc-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-zinc-800 ${
-                location.pathname === "/dashboard"
+                location.pathname.includes("/dashboard")
                   ? "border-b-2 border-blue-400"
                   : ""
               }`}
@@ -116,16 +114,6 @@ export default function Navbar({
               Dashboard
             </Link>
           )}
-          {/* <Link
-            to="/payments"
-            className={`hover:bg-zinc-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-zinc-800 ${
-              location.pathname === "/payments"
-                ? "border-b-2 border-blue-400"
-                : ""
-            }`}
-          >
-            Payment
-          </Link> */}
           {isLoggedIn ? (
             <div className="relative" ref={userRef}>
               <h2

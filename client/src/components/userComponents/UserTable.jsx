@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import {
-  BiChevronLeft,
-  BiChevronRight,
-  BiChevronsLeft,
-  BiChevronsRight,
-} from "react-icons/bi";
 import EditUser from "./EditUser";
 import { UserContext } from "../../../context/userContext";
 import CreateUser from "./CreateUser";
+import PaginationFooter from "../sharedComponents/PaginationFooter";
+import DataTable from "../sharedComponents/DataTable";
+import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
+import InputBox from "../sharedComponents/InputBox";
+import ModalContainer from "../sharedComponents/ModalContainer";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UserTable() {
@@ -29,9 +28,6 @@ export default function UserTable() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [paginationLevels, setPaginationLevels] = useState([
-    5, 10, 25, 50, 100, 250,
-  ]);
 
   //  Sorting states
   const [sortDirection, setSortDirection] = useState("asc");
@@ -51,6 +47,36 @@ export default function UserTable() {
     (user) => user.role === "System_User"
   ).length;
 
+  const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
+    let newDirection;
+
+    if (sortedColumn !== columnKey) {
+      newDirection = "asc";
+    } else if (sortDirection === "asc") {
+      newDirection = "desc";
+    } else if (sortDirection === "desc") {
+      newDirection = null;
+    }
+
+    setSortedColumn(newDirection ? columnKey : null);
+    setSortDirection(newDirection);
+
+    if (!newDirection) {
+      setFilteredUsers([...users]);
+      return;
+    }
+
+    const sorted = [...filteredUsers].sort((a, b) => {
+      const aVal = accessor(a) ?? "";
+      const bVal = accessor(b) ?? "";
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setFilteredUsers(sorted);
+  };
   // Get all users on component mount
   useEffect(() => {
     axios
@@ -189,39 +215,128 @@ export default function UserTable() {
   //  Pagination Logic
   //
 
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
   // Filter users based on search query
   useEffect(() => {
-    const filteredUsers = users.filter((user) => {
+    const filteredUsers = users.filter((u) => {
       const query = searchQuery.toLowerCase();
 
       return (
-        user.name.toLowerCase().includes(query) ||
-        user._id.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query) ||
-        user.displayName.toLowerCase().includes(query) ||
-        user.phone.toLowerCase().includes(query) ||
-        user.role.toLowerCase().includes(query) ||
-        user.status.toLowerCase().includes(query) ||
-        user.company?.companyName.toLowerCase().includes(query) ||
-        user.company?._id.toLowerCase().includes(query) ||
-        user.createdAt.toLowerCase().includes(query) ||
-        user.updatedAt.toLowerCase().includes(query) ||
-        user.address?.street1?.toLowerCase().includes(query) ||
-        user.address?.street2?.toLowerCase().includes(query) ||
-        user.address?.city?.toLowerCase().includes(query) ||
-        user.address?.state?.toLowerCase().includes(query) ||
-        user.address?.country?.toLowerCase().includes(query) ||
-        user.address?.zipCode?.toLowerCase().includes(query)
+        u.name.toLowerCase().includes(query) ||
+        u._id.toLowerCase().includes(query) ||
+        u.email.toLowerCase().includes(query) ||
+        u.displayName.toLowerCase().includes(query) ||
+        u.phone.toLowerCase().includes(query) ||
+        u.role.toLowerCase().includes(query) ||
+        u.status.toLowerCase().includes(query) ||
+        u.company?.companyName.toLowerCase().includes(query) ||
+        u.company?._id.toLowerCase().includes(query) ||
+        u.createdAt.toLowerCase().includes(query) ||
+        u.updatedAt.toLowerCase().includes(query) ||
+        u.address?.street1?.toLowerCase().includes(query) ||
+        u.address?.street2?.toLowerCase().includes(query) ||
+        u.address?.city?.toLowerCase().includes(query) ||
+        u.address?.state?.toLowerCase().includes(query) ||
+        u.address?.country?.toLowerCase().includes(query) ||
+        u.address?.zipCode?.toLowerCase().includes(query)
       );
     });
     setFilteredUsers(filteredUsers);
-  }, [users, searchQuery]);
+  }, [searchQuery, users]);
+
+  const columns = [
+    {
+      key: "displayName",
+      label: "Display Name",
+      accessor: (u) => u.displayName || "-",
+    },
+    {
+      key: "name",
+      label: "Name",
+      accessor: (u) => u.name || "-",
+    },
+    {
+      key: "email",
+      label: "Email",
+      accessor: (u) => u.email || "-",
+    },
+    {
+      key: "role",
+      label: "Role",
+      accessor: (u) => u.role || "-",
+    },
+    {
+      key: "company",
+      label: "Company",
+      accessor: (u) => u.company?.companyName || "-",
+    },
+    {
+      key: "status",
+      label: "Status",
+      accessor: (u) => u.status || "-",
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      sortable: false,
+      render: (user, index) => (
+        <div
+          className="relative inline-block text-left"
+          key={index}
+          ref={openDropdown === user._id ? containerRef : null}
+        >
+          <div>
+            <button
+              type="button"
+              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-600 font-medium text-white hover:bg-blue-700 items-center"
+              onClick={() =>
+                setOpenDropdown((prev) => (prev === user._id ? null : user._id))
+              }
+            >
+              {openDropdown === user._id ? (
+                <IoMdArrowDropdown />
+              ) : (
+                <IoMdArrowDropup />
+              )}
+              Actions
+            </button>
+          </div>
+          {/* User Actions drop down */}
+          {openDropdown === user._id && (
+            <div
+              className="origin-top-right absolute right-0 mt-1 w-56 flex flex-col rounded shadow-lg bg-zinc-100 dark:bg-zinc-800 border dark:border-zinc-600 ring-1 ring-black/5 z-10 hover:cursor-pointer"
+              ref={containerRef}
+            >
+              <a
+                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
+                onClick={() => openEdit(user._id)}
+              >
+                Edit User
+              </a>
+              <a
+                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
+                onClick={() => sendEmail(user._id)}
+              >
+                Send Email Confirmation
+              </a>
+              <a
+                className="px-4 py-3 hover:bg-zinc-200 rounded-b dark:hover:bg-zinc-900 dark:border-zinc-800"
+                onClick={() =>
+                  setSelectedUser(user._id) &
+                  setIsDeleteModalOpen(true) &
+                  setOpenDropdown(false)
+                }
+              >
+                Delete User
+              </a>
+            </div>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
+    <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
       {/* Edit user modal */}
       {isEditOpen && (
         <EditUser
@@ -238,37 +353,37 @@ export default function UserTable() {
       {isDeleteModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center 
-                      bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+                      bg-zinc-600/50 dark:bg-zinc-950/50 
                       overflow-y-auto"
         >
-          <div
-            className="relative w-fit shadow-lg rounded-md 
-                        bg-gray-100 dark:bg-darkPrimary dark:text-white 
-                         overflow-y-auto p-5"
-          >
-            <h3 className="text-lg font-bold">Confirm Delete</h3>
-            <p>Are you sure you want to delete this user?</p>
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
-                onClick={() => deleteUser(selectedUser)}
-              >
-                Delete
-              </button>
-              <button
-                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
-                onClick={() =>
-                  setIsDeleteModalOpen(false) & setOpenDropdown(null)
-                }
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+          <ModalContainer
+            title={`Delete ${selectedUser}`}
+            mainContent={
+              <p className="pt-2">Are you sure you want to delete this user?</p>
+            }
+            responseContent={
+              <div className="flex justify-end gap-2">
+                <button
+                  className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 transition ease-in duration-200"
+                  onClick={() => deleteUser(selectedUser)}
+                >
+                  Delete
+                </button>
+                <button
+                  className="px-4 py-2 bg-zinc-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-zinc-700 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 transition ease-in duration-200"
+                  onClick={() =>
+                    setIsDeleteModalOpen(false) & setOpenDropdown(null)
+                  }
+                >
+                  Cancel
+                </button>
+              </div>
+            }
+          />
         </div>
       )}
       {/* User statistics header */}
-      <div className="w-full p-5 bg-gray-200 flex justify-around items-center dark:bg-darkNavPrimary dark:text-white">
+      <div className="w-full p-5 bg-zinc-200 flex justify-around items-center dark:bg-zinc-950 dark:text-white">
         <h2 className="text-xl font-bold">User Statistics</h2>
         <p className="text-sm">Sys-Admins: {systemAdminCount}</p>
         <p className="text-sm">Sys-Users: {systemUserCount}</p>
@@ -277,16 +392,15 @@ export default function UserTable() {
         <p className="text-sm">Total Users: {users.length}</p>
       </div>
       {/* Search bar and create user button */}
-      <div className="my-4 flex items-center justify-end text-center mx-5">
-        <input
-          type="text"
-          placeholder="Search users..."
+      <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
+        <InputBox
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+          onchange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
+          placeholder={"Search users..."}
         />
+
         <button
-          className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-700 ml-3 w-44 font-bold"
+          className="bg-blue-600 text-white h-full p-1 py-2 rounded-lg hover:bg-blue-700 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
         >
           Create User
@@ -294,341 +408,24 @@ export default function UserTable() {
       </div>
       {/* User table */}
       <div className="flex-1 min-h-0 overflow-y-auto px-4">
-        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary select-none">
-            <tr>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Display Name");
-                  setFilteredUsers(
-                    [...filteredUsers].sort((a, b) => {
-                      if (a.displayName < b.displayName)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.displayName > b.displayName)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Display Name
-                {sortedColumn === "Display Name" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Name");
-                  setFilteredUsers(
-                    [...filteredUsers].sort((a, b) => {
-                      if (a.name < b.name)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.name > b.name)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Name
-                {sortedColumn === "Name" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Email");
-                  setFilteredUsers(
-                    [...filteredUsers].sort((a, b) => {
-                      if (a.email < b.email)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.email > b.email)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Email
-                {sortedColumn === "Email" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Role");
-                  setFilteredUsers(
-                    [...filteredUsers].sort((a, b) => {
-                      if (a.role < b.role)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.role > b.role)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Role
-                {sortedColumn === "Role" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Company");
-                  setFilteredUsers(
-                    [...filteredUsers].sort((a, b) => {
-                      const nameA = a.company?.companyName || "";
-                      const nameB = b.company?.companyName || "";
-
-                      if (nameA < nameB) return newDirection === "asc" ? -1 : 1;
-                      if (nameA > nameB) return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Company
-                {sortedColumn === "Company" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Status");
-                  setFilteredUsers(
-                    [...filteredUsers].sort((a, b) => {
-                      if (a.status < b.status)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.status > b.status)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Status
-                {sortedColumn === "Status" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Display no users when there are no users */}
-            {filteredUsers.length === 0 && (
-              <tr
-                key={user._id}
-                className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border text-center"
-              >
-                <td colSpan={7} className="py-4 text-center">
-                  No users to display...
-                </td>
-              </tr>
-            )}
-            {/* Display user rows */}
-            {filteredUsers
-              .slice(
-                (currentPage - 1) * itemsPerPage,
-                currentPage * itemsPerPage
-              )
-              .map((user, index) => (
-                <tr
-                  key={user._id}
-                  className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
-                >
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {user.displayName}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {user.name}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {user.role}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {user?.company?.companyName ?? "-"}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {user.status}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    <div className="relative inline-block text-left">
-                      <div>
-                        <button
-                          type="button"
-                          className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-700"
-                          onClick={() =>
-                            setOpenDropdown((prev) =>
-                              prev === user._id ? null : user._id
-                            )
-                          }
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                            ></path>
-                          </svg>
-                          Actions
-                        </button>
-                      </div>
-                      {/* User Actions drop down */}
-                      {openDropdown === user._id && (
-                        <div
-                          className="origin-top-right absolute right-0 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
-                          role="menu"
-                          aria-orientation="vertical"
-                          aria-labelledby="menu-button"
-                          tabIndex="-1"
-                          ref={containerRef}
-                        >
-                          <div role="none">
-                            <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
-                              role="menuitem"
-                              tabIndex="-1"
-                              onClick={() => openEdit(user._id)}
-                            >
-                              Edit
-                            </a>
-                            <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border"
-                              role="menuitem"
-                              tabIndex="-1"
-                              onClick={() => sendEmail(user._id)}
-                            >
-                              Send Confirmation
-                            </a>
-                            <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
-                              role="menuitem"
-                              tabIndex="-1"
-                              onClick={() =>
-                                setSelectedUser(user._id) &
-                                setIsDeleteModalOpen(true) &
-                                setOpenDropdown(false)
-                              }
-                            >
-                              Delete
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          data={filteredUsers}
+          currentPage={currentPage}
+          rowsPerPage={itemsPerPage}
+          sortDirection={sortDirection}
+          sortedColumn={sortedColumn}
+          onSort={handleColumnSort}
+        />
         {/* Pagination footer */}
-        <div className="flex justify-between items-center dark:text-white">
-          <div className="flex gap-3">
-            <div>
-              <select
-                className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
-                id="itemsPerPage"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-              >
-                {paginationLevels.map((level, index) => (
-                  <option key={index} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <p className="text-sm">
-              {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-              {currentPage * itemsPerPage > filteredUsers.length
-                ? filteredUsers.length
-                : currentPage * itemsPerPage}{" "}
-              of {filteredUsers.length}
-            </p>
-          </div>
-          <div className="px-2 py-5 mx-1">
-            <div className="gap-2 flex">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronsLeft />
-              </button>
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronLeft />
-              </button>
-              <p>
-                {currentPage} of {totalPages}
-              </p>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronRight />
-              </button>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(totalPages)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronsRight />
-              </button>
-            </div>
-          </div>
+        <div className="px-2 py-5 mx-1">
+          <PaginationFooter
+            rowsPerPage={itemsPerPage}
+            setRowsPerPage={setItemsPerPage}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            items={filteredUsers}
+          />
         </div>
       </div>
     </div>
