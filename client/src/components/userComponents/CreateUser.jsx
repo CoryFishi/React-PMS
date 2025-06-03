@@ -60,14 +60,6 @@ export default function CreateUser({ onClose, onSubmit }) {
       });
   };
 
-  const handleFacilityChange = (facilityId) => {
-    setUserFacilities((prevSelectedFacilities) =>
-      prevSelectedFacilities.includes(facilityId)
-        ? prevSelectedFacilities.filter((id) => id !== facilityId)
-        : [...prevSelectedFacilities, facilityId]
-    );
-  };
-
   const toggleStatus = () => {
     setStatus((prevState) =>
       prevState === "Enabled" ? "Disabled" : "Enabled"
@@ -139,32 +131,32 @@ export default function CreateUser({ onClose, onSubmit }) {
             </div>
           )}
           <InputBox
-            value={displayName}
+            value={displayName ?? ""}
             onchange={(e) => setDisplayName(e.target.value)}
             placeholder={"Display Name"}
             required={true}
           />
           <InputBox
-            value={name}
+            value={name ?? ""}
             onchange={(e) => setName(e.target.value)}
             placeholder={"Name"}
             required={true}
           />
           <InputBox
-            value={email}
+            value={email ?? ""}
             onchange={(e) => setEmail(e.target.value)}
             placeholder={"Email Address"}
             required={true}
           />
           <InputBox
-            value={phone}
+            value={phone ?? ""}
             onchange={(e) => setPhone(e.target.value)}
             placeholder={"Phone Number"}
           />
           <div className="flex gap-3">
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street1}
+                value={address.street1 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -175,7 +167,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.country}
+                value={address.country ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -186,7 +178,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.city}
+                value={address.city ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -199,7 +191,7 @@ export default function CreateUser({ onClose, onSubmit }) {
             </div>
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street2}
+                value={address.street2 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -210,7 +202,7 @@ export default function CreateUser({ onClose, onSubmit }) {
               />
 
               <InputBox
-                value={address.state}
+                value={address.state ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -221,7 +213,7 @@ export default function CreateUser({ onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.zipCode}
+                value={address.zipCode ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -233,7 +225,6 @@ export default function CreateUser({ onClose, onSubmit }) {
               />
             </div>
           </div>
-
           <SelectOption
             required={true}
             value={role}

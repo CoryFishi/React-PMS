@@ -297,7 +297,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           {isAdmin && section === "overview" && <AdminConfigurationDashboard />}
           {isAdmin && section === "users" && <UserTable />}
           {isAdmin && section === "companies" && <CompanyTable />}
-          {isAdmin && section === "reports" && <AdminReportsPage />}
+          {isAdmin &&
+            location.pathname.startsWith("/dashboard/admin/reports") && (
+              <AdminReportsPage />
+            )}
           {isAdmin && section === "facilities" && (
             <FacilityTable
               facility={facilityId}

@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { FaPerson } from "react-icons/fa6";
 import { BsBuildingFillLock, BsFillBuildingsFill } from "react-icons/bs";
-import UserDetailReport from "./UserDetailReport";
 import { MdSettingsApplications } from "react-icons/md";
+import UserDetailReport from "./UserDetailReport";
 import CompanyDetailReport from "./CompanyDetailReport";
 import FacilityDetailReport from "./FacilityDetailReport";
 import ApplicationEventsReport from "./ApplicationEventsReport";
 
 export default function AdminReportsPage() {
-  const [selectedReport, setSelectedReport] = useState(null);
+  const { reportId } = useParams();
+  const navigate = useNavigate();
 
   const reports = {
     allUsers: <UserDetailReport />,
@@ -17,50 +18,54 @@ export default function AdminReportsPage() {
     allEvents: <ApplicationEventsReport />,
   };
 
+  const handleNavigation = (id) => {
+    navigate(`/dashboard/admin/reports/${id}`);
+  };
+
   return (
     <div className="p-5 dark:text-white">
-      {selectedReport === null ? (
+      {!reportId ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
-          {/* Units Section */}
+          {/* Users Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaPerson className="mb-2 text-blue-500" />
+            <FaPerson className="mb-2 text-blue-600" />
             <h1>USERS</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedReport("allUsers")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              onClick={() => handleNavigation("allUsers")}
             >
               User Detail
             </button>
           </div>
           {/* Companies Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <BsFillBuildingsFill className="mb-2 text-blue-500" />
+            <BsFillBuildingsFill className="mb-2 text-blue-600" />
             <h1>COMPANIES</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedReport("allCompanies")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              onClick={() => handleNavigation("allCompanies")}
             >
               Company Detail
             </button>
           </div>
           {/* Facilities Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <BsBuildingFillLock className="mb-2 text-blue-500" />
+            <BsBuildingFillLock className="mb-2 text-blue-600" />
             <h1>FACILITIES</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedReport("allFacilities")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              onClick={() => handleNavigation("allFacilities")}
             >
               Facility Detail
             </button>
           </div>
           {/* Application Events Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <MdSettingsApplications className="mb-2 text-blue-500" />
+            <MdSettingsApplications className="mb-2 text-blue-600" />
             <h1>APPLICATION</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedReport("allEvents")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              onClick={() => handleNavigation("allEvents")}
             >
               Events Detail
             </button>
@@ -69,12 +74,12 @@ export default function AdminReportsPage() {
       ) : (
         <div>
           <button
-            className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
-            onClick={() => setSelectedReport(null)}
+            className="mb-4 px-4 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700"
+            onClick={() => navigate("/dashboard/admin/reports")}
           >
             Back to Reports
           </button>
-          {reports[selectedReport]}
+          {reports[reportId] || <p>Report not found.</p>}
         </div>
       )}
     </div>

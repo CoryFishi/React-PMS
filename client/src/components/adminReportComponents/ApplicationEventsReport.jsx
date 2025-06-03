@@ -1,12 +1,9 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
-import {
-  BiChevronLeft,
-  BiChevronRight,
-  BiChevronsLeft,
-  BiChevronsRight,
-} from "react-icons/bi";
+import PaginationFooter from "../sharedComponents/PaginationFooter";
+import InputBox from "../sharedComponents/InputBox";
+import DataTable from "../sharedComponents/DataTable";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function ApplicationEventsReport() {
@@ -22,6 +19,37 @@ export default function ApplicationEventsReport() {
   //  Sorting states
   const [sortDirection, setSortDirection] = useState("asc");
   const [sortedColumn, setSortedColumn] = useState("");
+
+  const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
+    let newDirection;
+
+    if (sortedColumn !== columnKey) {
+      newDirection = "asc";
+    } else if (sortDirection === "asc") {
+      newDirection = "desc";
+    } else if (sortDirection === "desc") {
+      newDirection = null;
+    }
+
+    setSortedColumn(newDirection ? columnKey : null);
+    setSortDirection(newDirection);
+
+    if (!newDirection) {
+      setFilteredEvents([...events]);
+      return;
+    }
+
+    const sorted = [...filteredEvents].sort((a, b) => {
+      const aVal = accessor(a) ?? "";
+      const bVal = accessor(b) ?? "";
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setFilteredEvents(sorted);
+  };
 
   // Get all events on component mount
   useEffect(() => {
@@ -82,9 +110,6 @@ export default function ApplicationEventsReport() {
     }
   };
 
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
-
   useEffect(() => {
     const filteredEvents = events.filter((event) =>
       event.eventName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -92,9 +117,42 @@ export default function ApplicationEventsReport() {
     setFilteredEvents(filteredEvents);
   }, [events, searchQuery]);
 
+  const columns = [
+    {
+      key: "_id",
+      label: "ID",
+      accessor: (e) => e._id || "-",
+    },
+    {
+      key: "eventType",
+      label: "Event Type",
+      accessor: (e) => e.eventType || "-",
+    },
+    {
+      key: "eventName",
+      label: "Event Name",
+      accessor: (e) => e.eventName || "-",
+    },
+    {
+      key: "facility",
+      label: "Facility",
+      accessor: (c) => c.facility || "-",
+    },
+    {
+      key: "eventMessage",
+      label: "Event Message",
+      accessor: (c) => c.message || "-",
+    },
+    {
+      key: "createdAt",
+      label: "Created At",
+      accessor: (c) => c.createdAt || "-",
+    },
+  ];
+
   return (
     // Container
-    <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-border dark:bg-darkPrimary">
+    <div className="p-4 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -103,7 +161,7 @@ export default function ApplicationEventsReport() {
         </div>
 
         <button
-          className="w-24 py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
+          className="w-24 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700"
           onClick={exportToCSV}
         >
           Export
@@ -111,269 +169,33 @@ export default function ApplicationEventsReport() {
       </div>
       {/* Search Bar */}
       <div className="my-2">
-        <input
-          type="text"
-          placeholder="Search users..."
+        <InputBox
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+          onchange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
+          placeholder={"Search events..."}
         />
       </div>
       {/* Table */}
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary select-none">
-            <tr>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("ID");
-                  setFilteredEvents(
-                    [...filteredEvents].sort((a, b) => {
-                      if (a._id < b._id) return newDirection === "asc" ? -1 : 1;
-                      if (a._id > b._id) return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                ID
-                {sortedColumn === "ID" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Event Type");
-                  setFilteredEvents(
-                    [...filteredEvents].sort((a, b) => {
-                      if (a.eventType < b.eventType)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.eventType > b.eventType)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Event Type
-                {sortedColumn === "Event Type" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Event Name");
-                  setFilteredEvents(
-                    [...filteredEvents].sort((a, b) => {
-                      if (a.eventName < b.eventName)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.eventName > b.eventName)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Event Name
-                {sortedColumn === "Event Name" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Facility");
-                  setFilteredEvents(
-                    [...filteredEvents].sort((a, b) => {
-                      if (a.facility < b.facility)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.facility > b.facility)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Facility
-                {sortedColumn === "Facility" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Event Message");
-                  setFilteredEvents(
-                    [...filteredEvents].sort((a, b) => {
-                      if (a.message < b.message)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.message > b.message)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Event Message
-                {sortedColumn === "Event Message" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-              <th
-                className="px-6 py-3 text-xs font-medium uppercase tracking-wider hover:cursor-pointer hover:bg-gray-300 dark:hover:bg-darkNavPrimary"
-                onClick={() => {
-                  const newDirection = sortDirection === "asc" ? "desc" : "asc";
-                  setSortDirection(newDirection);
-                  setSortedColumn("Created At");
-                  setFilteredEvents(
-                    [...filteredEvents].sort((a, b) => {
-                      if (a.createdAt < b.createdAt)
-                        return newDirection === "asc" ? -1 : 1;
-                      if (a.createdAt > b.createdAt)
-                        return newDirection === "asc" ? 1 : -1;
-                      return 0;
-                    })
-                  );
-                }}
-              >
-                Created At
-                {sortedColumn === "Created At" && (
-                  <span className="ml-2">
-                    {sortDirection === "asc" ? "▲" : "▼"}
-                  </span>
-                )}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Display no events when there are no events */}
-            {filteredEvents.length === 0 && (
-              <tr className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border text-center">
-                <td colSpan={7} className="py-4 text-center">
-                  No events to display...
-                </td>
-              </tr>
-            )}
-            {/* Display user rows */}
-            {filteredEvents
-              .slice(
-                (currentPage - 1) * itemsPerPage,
-                currentPage * itemsPerPage
-              )
-              .map((event, index) => (
-                <tr
-                  key={index}
-                  className="border-b rounded hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
-                >
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {event._id}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {event.eventType}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {event.eventName}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {event.facility}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center text-wrap">
-                    {event.message}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {event.createdAt}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          data={filteredEvents}
+          currentPage={currentPage}
+          rowsPerPage={itemsPerPage}
+          sortDirection={sortDirection}
+          sortedColumn={sortedColumn}
+          onSort={handleColumnSort}
+        />
       </div>
       {/* Pagination Footer */}
-      <div className="flex justify-between items-center dark:text-white">
-        <div className="flex gap-3">
-          <div>
-            <select
-              className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
-              id="itemsPerPage"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              {paginationLevels.map((level, index) => (
-                <option key={index} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
-          </div>
-          <p className="text-sm">
-            {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-            {currentPage * itemsPerPage > filteredEvents.length
-              ? filteredEvents.length
-              : currentPage * itemsPerPage}{" "}
-            of {filteredEvents.length}
-          </p>
-        </div>
-        <div className="px-2 py-5 mx-1">
-          <div className="gap-2 flex">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronsLeft />
-            </button>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronLeft />
-            </button>
-            <p>
-              {currentPage} of {totalPages}
-            </p>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronRight />
-            </button>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(totalPages)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronsRight />
-            </button>
-          </div>
-        </div>
+      <div className="px-2 py-5 mx-1">
+        <PaginationFooter
+          rowsPerPage={itemsPerPage}
+          setRowsPerPage={setItemsPerPage}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          items={filteredEvents}
+        />
       </div>
     </div>
   );

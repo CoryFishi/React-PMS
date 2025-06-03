@@ -8,11 +8,9 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 export default function EditCompany({ companyId, onClose, onSubmit }) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState([]);
-  const [oldAddress, setOldAddress] = useState([]);
   const [status, setStatus] = useState("Enabled");
   const [companyData, setCompanyData] = useState([]);
   const [contactInfo, setContactInfo] = useState([]);
-  const [oldContactInfo, setOldContactInfo] = useState([]);
   const toggleStatus = () => {
     setStatus((prevState) =>
       prevState === "Enabled" ? "Disabled" : "Enabled"
@@ -30,9 +28,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
         setName(data.companyName);
         setStatus(data.status);
         setAddress(data.address);
-        setOldAddress(data.address);
         setContactInfo(data.contactInfo);
-        setOldContactInfo(data.contactInfo);
       });
   }, []);
   const handleSubmit = async () => {
@@ -71,13 +67,13 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
       mainContent={
         <div className="grid grid-cols-2 gap-3 pt-3 sm:grid-cols-1">
           <InputBox
-            value={name}
+            value={name ?? ""}
             onchange={(e) => setName(e.target.value)}
             placeholder={"Company Name"}
             required={true}
           />
           <InputBox
-            value={contactInfo.email || ""}
+            value={contactInfo.email ?? ""}
             onchange={(e) =>
               setContactInfo((prevContact) => ({
                 ...prevContact,
@@ -88,7 +84,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
             required={true}
           />
           <InputBox
-            value={contactInfo.phone || ""}
+            value={contactInfo.phone ?? ""}
             onchange={(e) =>
               setContactInfo((prevContact) => ({
                 ...prevContact,
@@ -101,7 +97,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
           <div className="flex gap-3">
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street1}
+                value={address.street1 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -112,7 +108,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.country}
+                value={address.country ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -123,7 +119,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.city}
+                value={address.city ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -136,7 +132,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
             </div>
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street2}
+                value={address.street2 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -146,7 +142,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
                 placeholder="Street Address 2"
               />
               <InputBox
-                value={address.state}
+                value={address.state ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -157,7 +153,7 @@ export default function EditCompany({ companyId, onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.zipCode}
+                value={address.zipCode ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,

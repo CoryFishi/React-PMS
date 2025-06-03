@@ -95,7 +95,7 @@ export default function DataTable({
               {columns.map(({ key, accessor, render }) => (
                 <td
                   key={key}
-                  className="border-y border-zinc-300 dark:border-zinc-700 px-4 py-2 text-center items-center justify-center"
+                  className="border-y border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm text-center whitespace-nowrap"
                   onContextMenu={(e) => {
                     e.preventDefault();
                     const value =

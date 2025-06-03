@@ -9,7 +9,6 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
 import { useState, useEffect } from "react";
-import PaymentForm from "./components/paymentComponents/Payment";
 import TenantPayment from "./pages/TenantPayment";
 import { Navigate } from "react-router-dom";
 
@@ -59,7 +58,12 @@ function App() {
             <Login toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
           }
         />
-
+        <Route
+          path="/dashboard/admin/reports/:reportId"
+          element={
+            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+          }
+        />
         <Route
           path="/dashboard/admin/:section"
           element={
@@ -76,7 +80,6 @@ function App() {
           path="/dashboard"
           element={<Navigate to="/dashboard/admin/overview" />}
         />
-
         <Route
           path="/users/:id"
           element={

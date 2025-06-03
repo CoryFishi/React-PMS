@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "../../../context/userContext";
 import ModalContainer from "../sharedComponents/ModalContainer";
@@ -14,11 +14,6 @@ export default function CreateCompany({ onClose, onSubmit }) {
   const [status, setStatus] = useState("Enabled");
   const { user } = useContext(UserContext);
 
-  const toggleStatus = () => {
-    setStatus((prevState) =>
-      prevState === "Enabled" ? "Disabled" : "Enabled"
-    );
-  };
   const handleSubmit = async () => {
     try {
       const response = await axios.post(
@@ -51,26 +46,26 @@ export default function CreateCompany({ onClose, onSubmit }) {
       mainContent={
         <div className="grid grid-cols-2 gap-3 pt-3 sm:grid-cols-1">
           <InputBox
-            value={name}
+            value={name ?? ""}
             onchange={(e) => setName(e.target.value)}
             placeholder={"Company Name"}
             required={true}
           />
           <InputBox
-            value={email}
+            value={email ?? ""}
             onchange={(e) => setEmail(e.target.value)}
             placeholder="Email Address"
             required={true}
           />
           <InputBox
-            value={phone}
+            value={phone ?? ""}
             onchange={(e) => setPhone(e.target.value)}
             placeholder="Phone Number"
           />
           <div className="flex gap-3">
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street1}
+                value={address.street1 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -81,7 +76,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.country}
+                value={address.country ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -92,7 +87,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.city}
+                value={address.city ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -105,7 +100,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
             </div>
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street2}
+                value={address.street2 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -115,7 +110,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                 placeholder="Street Address 2"
               />
               <InputBox
-                value={address.state}
+                value={address.state ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -126,7 +121,7 @@ export default function CreateCompany({ onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.zipCode}
+                value={address.zipCode ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,

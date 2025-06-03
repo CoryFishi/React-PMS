@@ -46,11 +46,11 @@ export default function CompanyTable() {
     setSortDirection(newDirection);
 
     if (!newDirection) {
-      setFilteredUsers([...users]);
+      setFilteredCompanies([...companies]);
       return;
     }
 
-    const sorted = [...filteredUsers].sort((a, b) => {
+    const sorted = [...filteredCompanies].sort((a, b) => {
       const aVal = accessor(a) ?? "";
       const bVal = accessor(b) ?? "";
 
@@ -59,7 +59,7 @@ export default function CompanyTable() {
       return 0;
     });
 
-    setFilteredUsers(sorted);
+    setFilteredCompanies(sorted);
   };
 
   // Submit company edit

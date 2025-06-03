@@ -398,7 +398,6 @@ export default function UserTable() {
           onchange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
           placeholder={"Search users..."}
         />
-
         <button
           className="bg-blue-600 text-white h-full p-1 py-2 rounded-lg hover:bg-blue-700 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
