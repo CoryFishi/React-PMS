@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useState, useEffect, useRef } from "react";
+import { UserContext } from "../../../context/userContext";
+import { useState, useEffect, useRef, useContext } from "react";
 import toast from "react-hot-toast";
 import EditFacility from "../facilityComponents/EditFacility";
 import CreateFacility from "./CreateFacility";
@@ -29,6 +30,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filteredFacilities, setFilteredFacilities] = useState([]);
+  const { user } = useContext(UserContext);
 
   const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
     let newDirection;
@@ -294,10 +296,25 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
             >
               <a
                 className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
-                onClick={() => {
-                  setFacility(f._id);
-                  setFacilityName(f.facilityName);
-                  navigate(`/dashboard/${f._id}/overview`);
+                onClick={async () => {
+                  try {
+                    await axios.put(
+                      "/users/select-facility",
+                      { facilityId: f._id, userId: user._id },
+                      {
+                        headers: {
+                          "x-api-key": API_KEY,
+                        },
+                      }
+                    );
+                    toast.success("Facility selected!");
+                    setFacility(f._id);
+                    setFacilityName(f.facilityName);
+                    navigate(`/dashboard/${f._id}/overview`);
+                  } catch (err) {
+                    toast.error("Failed to select facility.");
+                    console.error(err);
+                  }
                 }}
               >
                 Select

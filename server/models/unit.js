@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
 
 const storageUnitSchema = new mongoose.Schema({
   unitNumber: {
@@ -7,10 +6,28 @@ const storageUnitSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  size: {
+  unitType: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  location: {
+    type: String,
+  },
+  directions: {
+    type: String,
+  },
+  specifications: {
     width: { type: Number, required: true },
-    height: { type: Number, required: true },
     depth: { type: Number, required: true },
+    height: { type: Number },
+    doorSize: { type: String },
+    doorType: { type: String },
+    accessType: { type: String },
+    climateControlled: {
+      type: Boolean,
+      default: false,
+    },
     unit: {
       type: String,
       enum: ["ft", "m"],
@@ -20,14 +37,11 @@ const storageUnitSchema = new mongoose.Schema({
   facility: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "StorageFacility",
+    required: true,
   },
   tenant: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Tenant",
-  },
-  climateControlled: {
-    type: Boolean,
-    default: false,
   },
   availability: {
     type: Boolean,
@@ -38,30 +52,19 @@ const storageUnitSchema = new mongoose.Schema({
     enum: ["New", "Good", "Fair", "Poor"],
     default: "Good",
   },
-  notes: {
-    type: String,
+  notes: [{ type: String }],
+  lastMoveInDate: {
+    type: Date,
   },
-  paymentInfo: {
-    moveInDate: {
-      type: Date,
-    },
-    moveOutDate: {
-      type: Date,
-    },
-    paymentDate: {
-      type: Date,
-    },
-    pricePerMonth: {
-      type: Number,
-      required: true,
-    },
-    balance: {
-      type: Number,
-      default: 0,
-      min: [0, "Balance cannot be negative"],
-    },
+  lastMoveOutDate: {
+    type: Date,
+  },
+  pricePerMonth: {
+    type: Number,
+    required: true,
   },
   tags: [{ type: String, trim: true }],
+  amenities: [{ type: String, trim: true }],
   status: {
     type: String,
     default: "Vacant",

@@ -9,7 +9,6 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
 import { useState, useEffect } from "react";
-import TenantPayment from "./pages/TenantPayment";
 import { Navigate } from "react-router-dom";
 
 axios.defaults.baseURL =
@@ -43,8 +42,34 @@ function App() {
       <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
       <Routes>
         <Route
-          path="/"
-          element={<Home toggleDarkMode={toggleDarkMode} darkMode={darkMode} />}
+          path="/dashboard/admin/reports/:reportId"
+          element={
+            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+          }
+        />
+        <Route
+          path="/dashboard/admin/:section"
+          element={
+            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+          }
+        />
+        <Route
+          path="/dashboard/:facilityId/:section/:unitId"
+          element={
+            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+          }
+        />
+        <Route
+          path="/dashboard/:facilityId/:section"
+          element={
+            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <UserProfile toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+          }
         />
         <Route
           path="/register/:userId"
@@ -59,41 +84,8 @@ function App() {
           }
         />
         <Route
-          path="/dashboard/admin/reports/:reportId"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/dashboard/admin/:section"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/dashboard/:facilityId/:section"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={<Navigate to="/dashboard/admin/overview" />}
-        />
-        <Route
-          path="/users/:id"
-          element={
-            <UserProfile toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/payments"
-          element={
-            <TenantPayment
-              toggleDarkMode={toggleDarkMode}
-              darkMode={darkMode}
-            />
-          }
+          path="/"
+          element={<Home toggleDarkMode={toggleDarkMode} darkMode={darkMode} />}
         />
         <Route
           path="*"

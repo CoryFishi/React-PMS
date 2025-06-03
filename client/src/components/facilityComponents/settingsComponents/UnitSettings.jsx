@@ -9,6 +9,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+import CreateUnitsModal from "../unitComponents/CreateUnitsModal";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UnitSettings({ facilityId }) {
@@ -144,8 +145,15 @@ export default function UnitSettings({ facilityId }) {
 
   return (
     <div>
-      {isCreateOpen && (
+      {/* {isCreateOpen && (
         <CreateUnit
+          onClose={handleCloseCreate}
+          onSubmit={handleCreateSubmit}
+          facilityId={facilityId}
+        />
+      )} */}
+      {isCreateOpen && (
+        <CreateUnitsModal
           onClose={handleCloseCreate}
           onSubmit={handleCreateSubmit}
           facilityId={facilityId}

@@ -199,7 +199,7 @@ const addUnits = async (req, res) => {
           error: "unitNumber is required",
         });
       }
-      if (!singleUnit.paymentInfo?.pricePerMonth) {
+      if (singleUnit.pricePerMonth == null) {
         return res.status(400).json({
           error: "pricePerMonth is required",
         });

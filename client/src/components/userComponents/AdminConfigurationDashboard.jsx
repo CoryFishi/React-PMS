@@ -183,34 +183,34 @@ export default function AdminConfigurationDashboard() {
         {/* Dashboard Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Users Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">User Statistics</h2>
             <Bar data={userChartData} options={chartOptions} />
           </div>
           {/* Company Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Company Statistics</h2>
             <Bar data={companyChartData} options={chartOptions} />
           </div>
           {/* Facilities Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Facility Statistics</h2>
             <Bar data={facilityChartData} options={chartOptions} />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Unit Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Unit Statistics</h2>
             <Bar data={unitChartData} options={chartOptions} />
           </div>
           {/* Tenant Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Tenant Statistics</h2>
             <Bar data={tenantChartData} options={chartOptions} />
           </div>
           {/* Line Chart: Application Trends */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-700 dark:bg-zinc-900">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
             <Line data={applicationChartData} options={chartOptions} />
           </div>

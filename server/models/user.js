@@ -84,6 +84,11 @@ const userSchema = new Schema(
         ref: "StorageFacility",
       },
     ],
+    selectedFacility: {
+      type: Schema.Types.ObjectId,
+      ref: "StorageFacility",
+      default: null,
+    },
     status: {
       type: String,
       enum: ["Disabled", "Enabled"],

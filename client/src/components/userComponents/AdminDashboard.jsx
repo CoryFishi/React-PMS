@@ -12,15 +12,13 @@ import AdminConfigurationDashboard from "./AdminConfigurationDashboard";
 import AdminReportsPage from "../adminReportComponents/AdminReportsPage";
 import { useNavigate } from "react-router-dom";
 import { useParams, useLocation } from "react-router-dom";
+import axios from "axios";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
-  const [openDashboard, setOpenDashboard] = useState(
-    localStorage.getItem("openDashboard") || "users"
-  );
-  const [facilityName, setFacilityName] = useState(
-    localStorage.getItem("selectedFacilityName") || "Facility Dashboard"
-  );
+  const [facilityName, setFacilityName] = useState("Facility Dashboard");
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { user } = useContext(UserContext);
+  const [facilityId, setFacilityId] = useState(user.selectedFacility || "");
   const [openSections, setOpenSections] = useState({
     facilities: false,
     currentFacility: false,
@@ -28,39 +26,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [company, setCompany] = useState(
     localStorage.getItem("selectedCompany") || ""
   );
-  const [facilityId, setFacilityId] = useState(
-    localStorage.getItem("selectedFacility") || ""
-  );
-  const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const { section } = useParams();
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/dashboard/admin");
-
-  useEffect(() => {
-    const updateFacilityName = () => {
-      const selectedFacilityName = localStorage.getItem("selectedFacilityName");
-
-      if (selectedFacilityName) {
-        setFacilityName(selectedFacilityName);
-      } else {
-        setFacilityName("Facility Dashboard");
-      }
-    };
-
-    updateFacilityName(); // Call once on mount
-
-    // Add event listener for storage changes
-    window.addEventListener("storage", updateFacilityName);
-
-    return () => {
-      window.removeEventListener("storage", updateFacilityName);
-    };
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("openDashboard", openDashboard);
-  }, [openDashboard]);
 
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
@@ -68,6 +37,26 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
       [section]: !prev[section],
     }));
   };
+
+  useEffect(() => {
+    const fetchFacilityName = async () => {
+      if (!facilityId) return;
+      try {
+        const { data } = await axios.get(`/facilities/${facilityId}`, {
+          headers: { "x-api-key": import.meta.env.VITE_API_KEY },
+        });
+
+        if (data?.facilityName) {
+          setFacilityName(data.facilityName);
+          localStorage.setItem("selectedFacilityName", data.facilityName);
+        }
+      } catch (err) {
+        console.error("Error fetching facility name:", err);
+      }
+    };
+
+    fetchFacilityName();
+  }, [facilityId]);
 
   return (
     <div className="flex flex-col w-screen h-screen dark:bg-zinc-900">
@@ -293,7 +282,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             </div>
           </div>
         )}
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto"
+          onClick={() => console.log(section, facilityId)}
+        >
           {isAdmin && section === "overview" && <AdminConfigurationDashboard />}
           {isAdmin && section === "users" && <UserTable />}
           {isAdmin && section === "companies" && <CompanyTable />}
@@ -304,18 +296,17 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           {isAdmin && section === "facilities" && (
             <FacilityTable
               facility={facilityId}
-              setFacility={setFacilityId}
               company={company}
               setCompany={setCompany}
               setFacilityName={setFacilityName}
-              setOpenDashboard={setOpenDashboard}
+              setFacility={setFacilityId}
             />
           )}
           {!isAdmin &&
             facilityId &&
             ["overview", "units", "tenants", "reports", "settings"].includes(
               section
-            ) && <FacilityDashboard facility={facilityId} section={section} />}
+            ) && <FacilityDashboard />}
         </div>
       </div>
     </div>

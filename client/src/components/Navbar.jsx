@@ -57,7 +57,7 @@ export default function Navbar({
   }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-zinc-50 p-4 w-full border-zinc-200 border-b dark:bg-zinc-950 dark:text-white dark:border-zinc-800">
+    <nav className="bg-zinc-50 p-2 w-full border-zinc-200 border-b dark:bg-zinc-950 dark:text-white dark:border-zinc-800">
       <div className="flex items-center justify-between">
         <div className="flex items-center flex-shrink-0 mr-6 select-none">
           {location.pathname.startsWith("/dashboard") && (

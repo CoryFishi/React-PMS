@@ -5,14 +5,18 @@ import UserAdminDashboard from "../components/userComponents/UserAdminDashboard"
 import AdminDashboard from "../components/userComponents/AdminDashboard";
 
 export default function Dashboard({ darkMode, toggleDarkMode }) {
-  const { user } = useContext(UserContext);
+  const { user, isLoading } = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    if (!user && !isLoading) {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    localStorage.setItem("lastDashboardPath", window.location.pathname);
+  }, []);
 
   if (!user) return null;
 

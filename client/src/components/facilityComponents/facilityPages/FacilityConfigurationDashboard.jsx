@@ -253,35 +253,33 @@ export default function FacilityConfigurationDashboard() {
 
   return (
     <div className="flex flex-col h-full w-full relative dark:text-white">
-      <div className="m-2">
+      <div className="m-2 flex-col flex gap-2">
         {/* Dashboard Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Users Statistics */}
-          <div className="p-6 rounded-lg shadow-md dark:bg-darkNavSecondary">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Unit Statistics</h2>
             <Bar data={userChartData} options={chartOptions} />
           </div>
           {/* Company Statistics */}
-          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Tenant Statistics</h2>
             <Bar data={companyChartData} options={chartOptions} />
           </div>
           {/* Facilities Statistics */}
-          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Facility Statistics</h2>
             <Bar data={facilityChartData} options={chartOptions} />
           </div>
         </div>
-
-        {/* Additional Graphs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Line Chart: Application Trends */}
-          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
             <Line data={chartData} options={chartOptions} />
           </div>
           {/* Line Chart: Activity Trends */}
-          <div className="p-6 rounded-lg shadow-md dark:bg-darkSecondary">
+          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
             <h2 className="text-xl font-semibold mb-4">Cash Flow</h2>
             <Line
               data={{

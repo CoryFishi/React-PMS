@@ -739,6 +739,48 @@ const getAdminDashboardData = async (req, res) => {
   }
 };
 
+const selectFacility = async (req, res) => {
+  const { userId, facilityId } = req.body;
+  console.log(req.body);
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { selectedFacility: facilityId },
+      { new: true }
+    ).populate("selectedFacility");
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "Facility selected", user });
+  } catch (error) {
+    console.error("Error selecting facility:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const clearSelectedFacility = async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { selectedFacility: null },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "Selected facility cleared", user });
+  } catch (error) {
+    console.error("Error clearing facility:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Exports
 module.exports = {
   createUser,
@@ -755,4 +797,6 @@ module.exports = {
   getUsersByCompany,
   logoutUser,
   getAdminDashboardData,
+  selectFacility,
+  clearSelectedFacility,
 };

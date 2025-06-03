@@ -7,6 +7,7 @@ export const UserContext = createContext({});
 export function UserContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     if (!user) {
       axios
@@ -20,16 +21,20 @@ export function UserContextProvider({ children }) {
           if (data !== null) {
             setIsLoggedIn(true);
           }
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching profile:", error);
           setIsLoggedIn(false);
+          setIsLoading(false);
         });
     }
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, isLoggedIn, setIsLoggedIn }}>
+    <UserContext.Provider
+      value={{ user, setUser, isLoggedIn, setIsLoggedIn, isLoading }}
+    >
       {children}
     </UserContext.Provider>
   );

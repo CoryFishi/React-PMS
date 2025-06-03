@@ -22,6 +22,16 @@ router.post("/users/register", authenticateAPIKey, userController.createUser); /
 router.delete("/users/delete", authenticateAPIKey, userController.deleteUser); // May want to make this a delete /users
 router.put("/users/update", authenticateAPIKey, userController.editUser); // may want to make this a put /users
 router.put(
+  "/users/select-facility",
+  authenticateAPIKey,
+  userController.selectFacility
+);
+router.put(
+  "/users/clear-facility",
+  authenticateAPIKey,
+  userController.clearSelectedFacility
+);
+router.put(
   "/users/confirm/:userId",
   authenticateAPIKey,
   userController.setUserPassword
