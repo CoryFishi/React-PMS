@@ -282,10 +282,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             </div>
           </div>
         )}
-        <div
-          className="flex-1 min-h-0 overflow-y-auto"
-          onClick={() => console.log(section, facilityId)}
-        >
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {isAdmin && section === "overview" && <AdminConfigurationDashboard />}
           {isAdmin && section === "users" && <UserTable />}
           {isAdmin && section === "companies" && <CompanyTable />}

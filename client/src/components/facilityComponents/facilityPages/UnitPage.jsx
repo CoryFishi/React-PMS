@@ -9,9 +9,17 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 import InputBox from "../../sharedComponents/InputBox";
 import ModalContainer from "../../sharedComponents/ModalContainer";
 import { useNavigate } from "react-router-dom";
-import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
+import { PiGarageFill } from "react-icons/pi";
 import { useParams } from "react-router-dom";
 import UnitDetail from "../unitComponents/UnitDetail";
+import { BsBuildingFill } from "react-icons/bs";
+import { FaDoorClosed, FaDoorOpen } from "react-icons/fa6";
+import { FaParking } from "react-icons/fa";
+import {
+  BiArrowFromBottom,
+  BiArrowFromLeft,
+  BiArrowFromTop,
+} from "react-icons/bi";
 
 export default function UnitPage() {
   const [units, setUnits] = useState([]);
@@ -27,7 +35,12 @@ export default function UnitPage() {
   const [filteredUnits, setFilteredUnits] = useState([]);
   const [activeTab, setActiveTab] = useState("Individual");
   const navigate = useNavigate();
-  const { facilityId, section, unitId, reportId } = useParams();
+  const { facilityId, unitId } = useParams();
+  const [statusFilters, setStatusFilters] = useState({
+    Rented: true,
+    Delinquent: true,
+    Vacant: true,
+  });
 
   const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
     let newDirection;
@@ -155,117 +168,177 @@ export default function UnitPage() {
   };
 
   useEffect(() => {
-    const filteredUnits = units.filter(
-      (unit) =>
+    const filteredUnits = units.filter((unit) => {
+      const matchesSearch =
         unit.unitNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         unit.condition.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        unit.securityLevel.toLowerCase().includes(searchQuery.toLowerCase()) ||
         unit.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
         unit.tenant?.firstName
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        unit.tenant?.lastName
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        unit.paymentInfo?.balance.toString().includes(searchQuery)
-    );
+        unit.tenant?.lastName.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesStatus = statusFilters[unit.status];
+
+      return matchesSearch && matchesStatus;
+    });
+
     setFilteredUnits(filteredUnits);
-  }, [units, searchQuery]);
+  }, [units, searchQuery, statusFilters]);
 
   const columns = [
     {
       key: "type",
       label: "Type",
-      accessor: (u) => u.type || "-",
+      accessor: (u) => u.unitType ?? "Storage Unit",
+      render: (u, index) => (
+        <div
+          key={index}
+          className="flex w-full items-center text-center justify-center text-xl"
+          title={`${u.unitType ?? "Storage Unit"}`}
+        >
+          {u.unitType === "Storage Unit" && <PiGarageFill />}
+          {u.unitType === "Parking" && <FaParking />}
+        </div>
+      ),
     },
     {
       key: "size",
       label: "Size",
       accessor: (u) =>
-        u.size?.width + "x" + u.size?.depth + " " + u.size?.unit || "-",
+        u.specifications?.width +
+          "x" +
+          u.specifications?.depth +
+          " " +
+          u.specifications?.unit || "-",
     },
     {
       key: "unit",
       label: "Unit",
       accessor: (u) => u.unitNumber || "-",
+      render: (u, index) => (
+        <div
+          key={index}
+          className={`w-full justify-center items-center flex gap-1 dark:text-black cursor-pointer group`}
+          onClick={() => navigate(`/dashboard/${facilityId}/units/${u._id}`)}
+        >
+          {u.status === "Vacant" ? (
+            <div className="p-0.5 bg-green-300 rounded-lg group-hover:bg-green-600">
+              <FaDoorOpen />
+            </div>
+          ) : u.status === "Rented" ? (
+            <div className="p-0.5 bg-blue-300 rounded-lg group-hover:bg-blue-600">
+              <FaDoorClosed />
+            </div>
+          ) : (
+            <div className="p-0.5 bg-red-400 rounded-lg group-hover:bg-red-600">
+              <FaDoorClosed />
+            </div>
+          )}
+          <p
+            className={`font-semibold ${
+              u.status === "Vacant"
+                ? "text-green-400 group-hover:text-green-600"
+                : u.status === "Delinquent"
+                ? "text-red-400 group-hover:text-red-600"
+                : "text-blue-400 group-hover:text-blue-600"
+            }`}
+          >
+            {u.unitNumber}
+          </p>
+        </div>
+      ),
     },
     {
-      key: "tenant",
-      label: "Tenant",
-      accessor: (u) =>
-        u.tenant?.firstName
-          ? u.tenant.firstName + " " + u.tenant?.lastName
-          : "-",
+      key: "area",
+      label: "Area",
+      accessor: (u) => {
+        if (
+          u.specifications?.width &&
+          u.specifications?.depth &&
+          u.specifications?.unit
+        ) {
+          const area = u.specifications?.width * u.specifications?.depth;
+          const unitLabel = u.specifications?.unit === "ft" ? " sqft" : " sqm";
+          return `${area} ${unitLabel}`;
+        }
+        return "-";
+      },
     },
     {
       key: "location",
       label: "Location",
-      accessor: (u) => u.location ?? "",
+      accessor: (u) => u.location ?? "-",
     },
     {
       key: "status",
       label: "Status",
       accessor: (u) =>
         u.status !== "Vacant"
-          ? u.status + " by " + u.tenant.firstName + " " + u.tenant?.lastName
+          ? u.tenant.firstName + " " + u.tenant?.lastName
           : u.status,
+      render: (u, index) => (
+        <div key={index} className="flex flex-col">
+          <p>
+            {u.status !== "Vacant" ? "Occupied by " : u.status}{" "}
+            {u.status !== "Vacant" && (
+              <span
+                className={`${
+                  u.status === "Rented"
+                    ? "text-blue-400 hover:text-blue-600 cursor-pointer"
+                    : u.status === "Delinquent" &&
+                      "text-red-400 hover:text-red-600 cursor-pointer"
+                }`}
+                onClick={() =>
+                  alert(
+                    `This would bring you to /dashboard/${facilityId}/tenants/${u.tenant?._id}`
+                  )
+                }
+              >
+                {u.tenant.firstName + " " + u.tenant?.lastName}
+              </span>
+            )}
+          </p>
+          <p className="text-xs text-zinc-400">
+            on{" "}
+            {u.lastMoveOutDate
+              ? new Date(u.lastMoveOutDate).toLocaleDateString()
+              : u.lastMoveInDate
+              ? new Date(u.lastMoveInDate).toLocaleDateString()
+              : "-"}
+          </p>
+        </div>
+      ),
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "",
       sortable: false,
       render: (u, index) => (
-        <div
-          className="relative inline-block text-left"
-          key={index}
-          ref={openDropdown === u._id ? containerRef : null}
-        >
-          <div>
-            <button
-              type="button"
-              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-600 font-medium text-white hover:bg-blue-700 items-center"
-              onClick={() =>
-                setOpenDropdown((prev) => (prev === u._id ? null : u._id))
-              }
+        <div key={index} className="items-center flex justify-center gap-1">
+          {u.availability === true && (
+            <a
+              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              onClick={() => setIsRentModalOpen(true) & setSelectedUnit(u)}
             >
-              {openDropdown === u._id ? (
-                <IoMdArrowDropdown />
-              ) : (
-                <IoMdArrowDropup />
-              )}
-              Actions
-            </button>
-          </div>
-          {openDropdown === u._id && (
-            <div
-              className="origin-top-right absolute right-0 mt-1 w-56 flex flex-col rounded shadow-lg bg-zinc-100 dark:bg-zinc-800 border dark:border-zinc-600 ring-1 ring-black/5 z-10 hover:cursor-pointer"
-              ref={containerRef}
+              <BiArrowFromTop /> Rent
+            </a>
+          )}
+          {u.status !== "Vacant" && (
+            <a
+              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              onClick={() => promptMoveOut(u)}
             >
-              <a
-                className="px-4 py-3 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700"
-                onClick={() =>
-                  navigate(`/dashboard/${facilityId}/units/${u._id}`)
-                }
-              >
-                View Details
-              </a>
-              {u.availability === true && (
-                <a
-                  className="px-4 py-3 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700"
-                  onClick={() => setIsRentModalOpen(true) & setSelectedUnit(u)}
-                >
-                  Rent
-                </a>
-              )}
-              {u.status !== "Vacant" && (
-                <a
-                  className="px-4 py-3 text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700"
-                  onClick={() => promptMoveOut(u)}
-                >
-                  Move Out
-                </a>
-              )}
-            </div>
+              <BiArrowFromBottom /> Move Out
+            </a>
+          )}
+          {u.status !== "Vacant" && (
+            <a
+              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              onClick={() => promptMoveOut(u)}
+            >
+              <BiArrowFromLeft /> Transfer
+            </a>
           )}
         </div>
       ),
@@ -362,13 +435,7 @@ export default function UnitPage() {
           }
         />
       )}
-      <div className="p-5 bg-zinc-200 dark:text-white dark:bg-zinc-800 flex justify-evenly items-center rounded-lg shadow-sm m-5 mt-3">
-        <p className="text-sm">Rented: {rentedCount}</p>
-        <p className="text-sm">Vacant: {vacantCount}</p>
-        <p className="text-sm">Delinquent: {delinquentCount}</p>
-        <p className="text-sm">Total: {units.length}</p>
-      </div>
-      <div className="border-b flex items-center justify-between mx-5 dark:border-zinc-700">
+      <div className="border-b flex items-center justify-between mx-5 dark:border-zinc-700 mt-3">
         <h1 className="text-xl font-bold dark:text-white">Units</h1>
         <div className="flex mr-5 space-x-1">
           <button
@@ -395,7 +462,7 @@ export default function UnitPage() {
       </div>
       {activeTab === "Individual" ? (
         <div>
-          <div className="my-4 flex items-center justify-end text-center mx-5">
+          <div className="mt-4 mb-1 flex flex-col items-center justify-end text-center mx-5">
             <InputBox
               value={searchQuery}
               onchange={(e) =>
@@ -403,6 +470,33 @@ export default function UnitPage() {
               }
               placeholder={"Search units..."}
             />
+            <div className="flex justify-between w-full ml-2">
+              <div className="flex gap-3 text-sm justify-center items-center dark:text-white">
+                <p>{vacantCount} Vacant</p>
+                <p>{rentedCount} Rented</p>
+                <p>{delinquentCount} Delinquent</p>
+              </div>
+              <div className="flex gap-4">
+                {["Rented", "Delinquent", "Vacant"].map((status) => (
+                  <label
+                    key={status}
+                    className="flex items-center gap-1 cursor-pointer select-none dark:text-white"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={statusFilters[status]}
+                      onChange={(e) =>
+                        setStatusFilters((prev) => ({
+                          ...prev,
+                          [status]: e.target.checked,
+                        }))
+                      }
+                    />
+                    {status}
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto px-5">
             <DataTable

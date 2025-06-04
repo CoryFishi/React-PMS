@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import UserAdminDashboard from "../components/userComponents/UserAdminDashboard";
 import AdminDashboard from "../components/userComponents/AdminDashboard";
@@ -7,12 +7,30 @@ import AdminDashboard from "../components/userComponents/AdminDashboard";
 export default function Dashboard({ darkMode, toggleDarkMode }) {
   const { user, isLoading } = useContext(UserContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!user && !isLoading) {
       navigate("/login");
     }
-  }, [user, navigate]);
+  }, [user, isLoading, navigate]);
+
+  useEffect(() => {
+    if (
+      user &&
+      !isLoading &&
+      location.pathname === "/dashboard" &&
+      (user.role === "System_Admin" || user.role === "System_User")
+    ) {
+      navigate("/dashboard/admin/overview");
+    } else if (
+      user &&
+      !isLoading &&
+      location.pathname === "/dashboard" &&
+      (user.role === "System_Admin" || user.role === "System_User")
+    ) {
+    }
+  }, [user, isLoading, location.pathname, navigate]);
 
   useEffect(() => {
     localStorage.setItem("lastDashboardPath", window.location.pathname);
