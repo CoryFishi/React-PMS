@@ -223,24 +223,24 @@ export default function EditUser({ userId, onClose, onSubmit }) {
             </div>
           )}
           <InputBox
-            value={displayName || ""}
+            value={displayName ?? ""}
             onchange={(e) => setDisplayName(e.target.value)}
             placeholder={"Display Name"}
             required={true}
           />
           <InputBox
-            value={name || ""}
+            value={name ?? ""}
             onchange={(e) => setName(e.target.value)}
             placeholder={"Name"}
             required={true}
           />
           <InputBox
-            value={userData.email || ""}
+            value={userData.email ?? ""}
             placeholder="Email Address"
             required={true}
           />
           <InputBox
-            value={phone || ""}
+            value={phone ?? ""}
             onchange={(e) => setPhone(e.target.value)}
             placeholder={"Phone Number"}
           />
@@ -248,7 +248,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
           <div className="flex gap-3">
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street1}
+                value={address.street1 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -259,7 +259,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.country}
+                value={address.country ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -270,7 +270,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.city}
+                value={address.city ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -283,7 +283,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
             </div>
             <div className="flex flex-col gap-3">
               <InputBox
-                value={address.street2}
+                value={address.street2 ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -294,7 +294,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
               />
 
               <InputBox
-                value={address.state}
+                value={address.state ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -305,7 +305,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
                 required={true}
               />
               <InputBox
-                value={address.zipCode}
+                value={address.zipCode ?? ""}
                 onchange={(e) =>
                   setAddress((prevAddress) => ({
                     ...prevAddress,
@@ -319,7 +319,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
           </div>
           <SelectOption
             required={true}
-            value={role || ""}
+            value={role ?? ""}
             onChange={handleChange}
             options={Array.isArray(roleOptions) ? roleOptions : []}
             placeholder="Role"
@@ -328,7 +328,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
             {(role === "Company_User" || role === "Company_Admin") && (
               <SelectOption
                 required={true}
-                value={company || ""}
+                value={company ?? ""}
                 onChange={handleCompanyChange}
                 options={Array.isArray(companies) ? companies : []}
                 placeholder="Company"
@@ -338,7 +338,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
               <MultiSelectDropdown
                 label="Facilities"
                 options={facilities}
-                selected={userFacilities || ""}
+                selected={userFacilities ?? ""}
                 onChange={setUserFacilities}
                 required
               />

@@ -171,77 +171,74 @@ const editFacility = async (req, res) => {
 };
 
 // Add Unit(s)
-const addUnits = async (req, res) => {
+const addUnit = async (req, res) => {
   try {
-    const { facilityId, createdBy, units } = req.body;
+    const { facilityId } = req.params;
+    const { createdBy, unit } = req.body;
+
+    // Validate input
+    if (!unit || typeof unit !== "object") {
+      return res.status(400).json({
+        error: "Must provide a single unit object in the 'unit' field",
+      });
+    }
+
     // Make sure the facility exists
     const facilityExists = await StorageFacility.findById(facilityId);
     if (!facilityExists) {
-      return res.status(406).json({
-        error: `Facility not found`,
+      return res.status(406).json({ error: "Facility not found" });
+    }
+
+    // Check required fields
+    if (!unit.unitNumber) {
+      return res.status(400).json({ error: "Unit Number is required" });
+    }
+    if (unit.pricePerMonth == null) {
+      return res.status(400).json({ error: "Monthly Rate is required" });
+    }
+
+    // Check for duplicates
+    const unitExists = await checkUnitInFacility(facilityId, unit.unitNumber);
+    if (unitExists) {
+      return res.status(409).json({
+        error: `Unit Number ${unit.unitNumber} is already taken in this facility`,
       });
     }
-    // Make sure we have an array of units
-    if (!Array.isArray(units) || units.length === 0) {
-      return res.status(400).json({
-        error: "Must provide an array of units in 'units' field",
-      });
-    }
-    const createdUnits = [];
-    // Iterate over each unit object
-    for (const singleUnit of units) {
-      // Attach createdBy & facility to each object
-      singleUnit.createdBy = createdBy;
-      singleUnit.facility = facilityId;
-      // Check for required fields
-      if (!singleUnit.unitNumber) {
-        return res.status(409).json({
-          error: "unitNumber is required",
-        });
-      }
-      if (singleUnit.pricePerMonth == null) {
-        return res.status(400).json({
-          error: "pricePerMonth is required",
-        });
-      }
-      // Check for duplicates in the same facility
-      const unitExists = await checkUnitInFacility(
-        facilityId,
-        singleUnit.unitNumber
-      );
-      if (unitExists) {
-        return res.status(409).json({
-          error: `Unit Number ${singleUnit.unitNumber} is already taken in this facility`,
-        });
-      }
-      // Create the unit in the DB
-      const createdUnit = await StorageUnit.create(singleUnit);
-      createdUnits.push(createdUnit);
-      // Push the newly created unit into the facility’s units array
-      await StorageFacility.findByIdAndUpdate(
-        facilityId,
-        { $push: { units: createdUnit } },
-        { new: true, useFindAndModify: false }
-      );
-      // Record an event for each unit created
-      await Event.create({
-        eventType: "Application",
-        eventName: "Unit Created",
-        message: `Unit ${createdUnit.unitNumber} created`,
-        facility: facilityExists._id,
-      });
-    }
-    // Return the array of created units
-    return res.status(201).json(createdUnits);
+
+    // Attach ownership fields
+    unit.createdBy = createdBy;
+    unit.facility = facilityId;
+
+    // Create the unit
+    const createdUnit = await StorageUnit.create(unit);
+
+    // Link unit to facility
+    await StorageFacility.findByIdAndUpdate(
+      facilityId,
+      { $push: { units: createdUnit._id } },
+      { new: true }
+    );
+
+    // Log event
+    await Event.create({
+      eventType: "Application",
+      eventName: "Unit Created",
+      message: `Unit ${createdUnit.unitNumber} created`,
+      facility: facilityId,
+    });
+
+    return res.status(201).json(createdUnit);
   } catch (err) {
-    console.error("Error creating units:", err);
-    return res.status(500).json({ error: "Failed to create units: " + err });
+    console.error("Error creating unit:", err);
+    return res
+      .status(500)
+      .json({ error: "Failed to create unit: " + err.message });
   }
 };
 
 // Remove Unit
 const deleteUnit = async (req, res) => {
-  const unitId = req.query.unitId;
+  const unitId = req.params.unitId;
   if (!unitId) {
     console.error("Rejecting delete unit due to no unit id");
     return res.json({
@@ -284,43 +281,39 @@ const deleteUnit = async (req, res) => {
 
 // Edit Unit
 const editUnit = async (req, res) => {
+  const { facilityId, unitId } = req.params;
+  const updateData = req.body;
+
   try {
-    const facilityId = req.body.facilityId;
-    const unitId = req.body.unitId;
-    const updateData = req.body.updateData;
     // Check if facility exists
-    const facilityData = await StorageUnit.findOne({
-      _id: unitId,
-    }).populate("facility");
-    if (!facilityData) {
-      console.error("rejecting edit unit due to no unit found");
-      return res.status(404).json({
-        error: `Unit not found`,
-      });
+    const facilityExists = await StorageFacility.findById(facilityId);
+    if (!facilityExists) {
+      return res.status(404).json({ error: "Facility not found" });
     }
 
-    // Check if unit number already exists
-    const unitExists = await StorageUnit.findOne({
-      facility: facilityData.facility._id,
+    // Check for duplicate unit number in the same facility
+    const unitWithSameNumber = await StorageUnit.findOne({
+      facility: facilityId,
       unitNumber: updateData.unitNumber,
     });
-    if (unitExists && unitExists._id.toString() !== unitId) {
+
+    if (unitWithSameNumber && unitWithSameNumber._id.toString() !== unitId) {
       return res.status(409).json({
         error: `Unit Number ${updateData.unitNumber} is already taken in this facility`,
       });
     }
-    // Validate updateData or sanitize as necessary
+
     const updatedUnit = await StorageUnit.findByIdAndUpdate(
       unitId,
       updateData,
       {
-        new: true, // Return the updated document
-        runValidators: true, // Ensure model validations are run during update
+        new: true,
+        runValidators: true,
       }
-    ).exec();
+    );
 
     if (!updatedUnit) {
-      return res.status(404).send({ message: "Unit not found" });
+      return res.status(404).json({ error: "Unit not found" });
     }
 
     await Event.create({
@@ -329,21 +322,28 @@ const editUnit = async (req, res) => {
       message: `Unit ${updatedUnit.unitNumber} updated`,
       facility: facilityId,
     });
-    res.status(200).json({
-      message: "Unit updated successfully",
-      unit: updatedUnit,
-    });
-  } catch (error) {
-    console.error("Error updating unit:", error);
+
+    res
+      .status(200)
+      .json({ message: "Unit updated successfully", unit: updatedUnit });
+  } catch (err) {
+    // Mongoose validation errors
+    if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map((e) => e.message);
+      return res
+        .status(400)
+        .json({ error: "Validation failed", details: messages });
+    }
+
+    // Generic or unexpected errors
+    console.error("Error updating unit:", err);
     await Event.create({
       eventType: "Application",
       eventName: "Unit Update Failed",
       message: `${unitId} failed to update`,
       facility: facilityId,
     });
-    res
-      .status(500)
-      .send({ message: "Error updating unit", error: error.message });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -359,6 +359,52 @@ const getUnitById = async (req, res) => {
     );
     res.status(400).json({ message: error.message });
   }
+};
+
+const createNote = async (req, res) => {
+  const { facilityId, unitId } = req.params;
+  const { message, createdBy, requiredResponse, responseDate } = req.body;
+
+  try {
+    const unit = await StorageUnit.findById(unitId);
+    if (!unit) return res.status(404).json({ error: "Unit not found" });
+
+    const newNote = {
+      message,
+      createdBy,
+      createdAt: new Date(),
+      requiredResponse: Boolean(requiredResponse),
+      ...(requiredResponse &&
+        responseDate && { responseDate: new Date(responseDate) }),
+    };
+
+    // ✅ Correct: push the full note object
+    unit.notes.push(newNote);
+    await unit.save();
+
+    res.status(201).json({ message: "Note added", note: newNote });
+  } catch (err) {
+    console.error("Error creating note:", err);
+    res
+      .status(500)
+      .json({ error: "Failed to create note", details: err.message });
+  }
+};
+
+const editNote = async (req, res) => {
+  const { unitId, noteIndex } = req.params;
+  const update = req.body;
+
+  const unit = await StorageUnit.findById(unitId);
+  if (!unit) return res.status(404).json({ error: "Unit not found" });
+
+  if (!unit.notes[noteIndex])
+    return res.status(404).json({ error: "Note not found" });
+
+  Object.assign(unit.notes[noteIndex], update);
+  await unit.save();
+
+  res.json({ message: "Note updated", note: unit.notes[noteIndex] });
 };
 
 // Remove tenant from unit
@@ -875,7 +921,7 @@ module.exports = {
   getFacilities,
   deleteFacility,
   editFacility,
-  addUnits,
+  addUnit,
   deleteUnit,
   getUnits,
   editUnit,
@@ -890,4 +936,6 @@ module.exports = {
   addUnitType,
   deleteUnitType,
   editUnitType,
+  createNote,
+  editNote,
 };

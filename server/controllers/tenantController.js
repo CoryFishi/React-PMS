@@ -113,8 +113,8 @@ const createTenant = async (req, res) => {
 
 // Get Tenants by Facility
 const getTenants = async (req, res) => {
-  const facilityId = req.query.facilityId;
-  const companyId = req.query.companyId;
+  const facilityId = req.params.facilityId;
+  const companyId = req.params.companyId;
   try {
     var tenants = [];
     if (facilityId) {

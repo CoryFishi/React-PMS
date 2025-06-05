@@ -1,8 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
 import { TbBuildingWarehouse } from "react-icons/tb";
-
+import toast from "react-hot-toast";
 import axios from "axios";
+import { UserContext } from "../../../../context/userContext";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -11,30 +12,68 @@ export default function UnitDetail() {
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
   const [activeTab, setActiveTab] = useState("General");
-  const [unitHistory, setUnitHistory] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editableUnit, setEditableUnit] = useState(null);
   const [newTag, setNewTag] = useState("");
   const [newAmenity, setNewAmenity] = useState("");
+  const [newNote, setNewNote] = useState({
+    message: "",
+    requiredResponse: false,
+    responseDate: "",
+  });
+  const { user } = useContext(UserContext);
+
+  const handleBack = () => {
+    const isInternalReferrer =
+      document.referrer && document.referrer.startsWith(window.location.origin);
+
+    if (isInternalReferrer && window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate(`/dashboard/${facilityId}/units`);
+    }
+  };
+
+  const addNote = async () => {
+    if (!newNote.message.trim()) return;
+
+    const res = await axios.post(
+      `/facilities/${facilityId}/units/${unitId}/notes`,
+      {
+        message: newNote.message,
+        createdBy: user._id,
+        requiredResponse: newNote.requiredResponse,
+        responseDate: newNote.requiredResponse ? newNote.responseDate : null,
+      },
+      { headers: { "x-api-key": API_KEY } }
+    );
+    setUnit((prev) => ({
+      ...prev,
+      notes: [...(prev.notes || []), res.data.note],
+    }));
+    setNewNote({ message: "", requiredResponse: false, responseDate: "" });
+  };
 
   const handleSave = async () => {
     try {
       const { data } = await axios.put(
-        `/facilities/units/unit/${unitId}`,
+        `/facilities/${facilityId}/units/${unitId}`,
         editableUnit,
         { headers: { "x-api-key": API_KEY } }
       );
-      setUnit(data);
-      setEditableUnit(data);
+      toast.success(data.message);
+      setUnit(data.unit);
+      setEditableUnit(data.unit);
       setIsEditing(false);
     } catch (err) {
+      toast.error(err.response.data.details);
       console.error("Error saving unit:", err);
     }
   };
 
   useEffect(() => {
     axios
-      .get(`/facilities/units/unit/${unitId}`, {
+      .get(`/facilities/${facilityId}/units/${unitId}`, {
         headers: {
           "x-api-key": API_KEY,
         },
@@ -51,9 +90,9 @@ export default function UnitDetail() {
       <div className="flex justify-between mb-4 ">
         <button
           className="px-4 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700"
-          onClick={() => navigate(`/dashboard/${facilityId}/units`)}
+          onClick={handleBack}
         >
-          Back to Units
+          Go Back
         </button>
         <div className="flex justify-end">
           {isEditing ? (
@@ -149,6 +188,7 @@ export default function UnitDetail() {
                 { key: "location", label: "Location", editable: true },
                 { key: "directions", label: "Directions", editable: true },
                 { key: "status", label: "Status", editable: false },
+                { key: "accessCode", label: "Access Code", editable: true },
                 {
                   key: "availability",
                   label: "Available",
@@ -379,21 +419,29 @@ export default function UnitDetail() {
                   <input
                     type="number"
                     className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
-                    value={editableUnit.pricePerMonth ?? ""}
+                    value={editableUnit.paymentInfo?.pricePerMonth ?? ""}
                     onChange={(e) =>
                       setEditableUnit((prev) => ({
                         ...prev,
-                        pricePerMonth: Number(e.target.value),
+                        paymentInfo: {
+                          ...prev.paymentInfo,
+                          pricePerMonth: Number(e.target.value),
+                        },
                       }))
                     }
                   />
                 ) : (
-                  <p>{unit.pricePerMonth ?? "N/A"}</p>
+                  <p>{unit.paymentInfo?.pricePerMonth ?? "N/A"}</p>
                 )}
               </div>
             </div>
+            <div className="flex p-1 border-x border-b dark:border-zinc-700">
+              <h3 className="w-1/2 font-medium">Balance</h3>
+              <div className="w-1/2">
+                <p>{unit.paymentInfo?.balance ?? "N/A"}</p>
+              </div>
+            </div>
           </div>
-
           <div>
             <h3 className="text-lg font-semibold mb-2">Unit Amenities</h3>
             <div className="flex flex-col p-1 border dark:border-zinc-700 gap-2">
@@ -461,26 +509,87 @@ export default function UnitDetail() {
               )}
             </div>
           </div>
-
-          <div className="col-span-2">
-            <h3 className="text-lg font-semibold mb-2">Unit History</h3>
-            <div className="p-3 border dark:border-zinc-700 rounded">
-              {unitHistory.map((h) => {
-                return <div>{h.eventType}</div>;
-              })}
-              {unitHistory.length < 1 && (
-                <p className="w-full text-center">No History</p>
-              )}
-            </div>
-          </div>
         </div>
       ) : activeTab === "History" ? (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3">
-          History
+        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3 text-red-500">
+          Under Development
         </div>
       ) : (
         <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3">
-          Notes
+          {/* Existing Notes */}
+          {unit.notes.map((note, idx) => (
+            <div
+              key={idx}
+              className="p-4 border rounded shadow-sm space-y-2 bg-white dark:bg-zinc-900"
+            >
+              <p className="w-full border p-2 rounded">{note.message}</p>
+              <label className="flex items-center text-sm">
+                <input
+                  type="checkbox"
+                  className="mr-1"
+                  checked={note.requiredResponse}
+                  disabled
+                />
+                Requires follow-up
+                {note.requiredResponse && (
+                  <p type="date" className="rounded text-sm ml-1">
+                    on {note.responseDate?.slice(0, 10) || ""}
+                  </p>
+                )}
+              </label>
+
+              <div className="text-xs text-gray-500">
+                Created by: {note.createdBy} |{" "}
+                {new Date(note.createdAt).toLocaleString()}
+              </div>
+            </div>
+          ))}
+
+          {/* New Note Form */}
+          <div className="p-4 border rounded shadow space-y-2 bg-white dark:bg-zinc-800">
+            <textarea
+              value={newNote.message}
+              onChange={(e) =>
+                setNewNote({ ...newNote, message: e.target.value })
+              }
+              className="w-full border p-2 rounded"
+              placeholder="Add a new note..."
+            />
+            <div className="flex justify-between">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={newNote.requiredResponse}
+                  onChange={(e) =>
+                    setNewNote({
+                      ...newNote,
+                      requiredResponse: e.target.checked,
+                      responseDate: e.target.checked
+                        ? newNote.responseDate
+                        : "",
+                    })
+                  }
+                />
+                Requires follow-up
+              </label>
+              {newNote.requiredResponse && (
+                <input
+                  type="date"
+                  value={newNote.responseDate}
+                  onChange={(e) =>
+                    setNewNote({ ...newNote, responseDate: e.target.value })
+                  }
+                  className="border p-1 rounded text-sm"
+                />
+              )}
+              <button
+                onClick={addNote}
+                className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
+              >
+                Add Note
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

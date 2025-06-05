@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const facilityController = require("../controllers/facilityController");
+const tenantController = require("../controllers/tenantController");
 const authenticateAPIKey = require("../middleware/apiKeyAuth");
 
 // Base route: `/facilities`
@@ -21,11 +22,6 @@ router.get(
   authenticateAPIKey,
   facilityController.getSecurityLevels
 );
-router.get(
-  "/:facilityId",
-  authenticateAPIKey,
-  facilityController.getFacilityById
-);
 router.post("/create", authenticateAPIKey, facilityController.createFacility);
 router.delete("/delete", authenticateAPIKey, facilityController.deleteFacility);
 router.put(
@@ -43,6 +39,16 @@ router.delete(
   "/:facilityId/settings/unittypes",
   authenticateAPIKey,
   facilityController.deleteUnitType
+);
+router.get(
+  "/:facilityId/tenants/:tenantId",
+  authenticateAPIKey,
+  tenantController.getTenantById
+);
+router.get(
+  "/:facilityId/tenants",
+  authenticateAPIKey,
+  tenantController.getTenants
 );
 router.put(
   "/:facilityId/settings/unittypes",
@@ -67,12 +73,12 @@ router.put(
 
 // Facility Units
 router.post(
-  "/units/unit/create",
+  "/:facilityId/units",
   authenticateAPIKey,
-  facilityController.addUnits
+  facilityController.addUnit
 );
 router.delete(
-  "/units/unit/delete",
+  "/:facilityId/units/:unitId",
   authenticateAPIKey,
   facilityController.deleteUnit
 );
@@ -82,7 +88,7 @@ router.get(
   facilityController.getVacantUnits
 );
 router.get(
-  "/units/:facilityId",
+  "/:facilityId/units",
   authenticateAPIKey,
   facilityController.getUnits
 );
@@ -92,14 +98,29 @@ router.put(
   facilityController.removeTenant
 );
 router.put(
-  "/units/unit/update",
+  "/:facilityId/units/:unitId",
   authenticateAPIKey,
   facilityController.editUnit
 );
+router.post(
+  "/:facilityId/units/:unitId/notes",
+  authenticateAPIKey,
+  facilityController.createNote
+);
+router.patch(
+  "/:facilityId/units/:unitId/notes/:index",
+  authenticateAPIKey,
+  facilityController.editNote
+);
 router.get(
-  "/units/unit/:unitId",
+  "/:facilityId/units/:unitId",
   authenticateAPIKey,
   facilityController.getUnitById
+);
+router.get(
+  "/:facilityId",
+  authenticateAPIKey,
+  facilityController.getFacilityById
 );
 
 module.exports = router;

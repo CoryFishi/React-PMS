@@ -11,8 +11,6 @@ import ModalContainer from "../../sharedComponents/ModalContainer";
 import { useNavigate } from "react-router-dom";
 import { PiGarageFill } from "react-icons/pi";
 import { useParams } from "react-router-dom";
-import UnitDetail from "../unitComponents/UnitDetail";
-import { BsBuildingFill } from "react-icons/bs";
 import { FaDoorClosed, FaDoorOpen } from "react-icons/fa6";
 import { FaParking } from "react-icons/fa";
 import {
@@ -157,7 +155,7 @@ export default function UnitPage() {
 
   const refreshUnitTable = async (facilityId) => {
     axios
-      .get(`/facilities/units/${facilityId}`, {
+      .get(`/facilities/${facilityId}/units`, {
         headers: {
           "x-api-key": API_KEY,
         },
@@ -344,14 +342,6 @@ export default function UnitPage() {
       ),
     },
   ];
-
-  if (unitId) {
-    return (
-      <div className="p-5">
-        <UnitDetail unitId={unitId} facilityId={facilityId} />
-      </div>
-    );
-  }
 
   return (
     <div>

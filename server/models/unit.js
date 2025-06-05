@@ -11,6 +11,10 @@ const storageUnitSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  accessCode: {
+    type: Number,
+    trim: true,
+  },
   location: {
     type: String,
   },
@@ -52,7 +56,41 @@ const storageUnitSchema = new mongoose.Schema({
     enum: ["New", "Good", "Fair", "Poor"],
     default: "Good",
   },
-  notes: [{ type: String }],
+  notes: [
+    {
+      message: { type: String, required: true },
+      createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        required: true,
+        default: Date.now,
+      },
+      requiredResponse: {
+        type: Boolean,
+        default: false,
+      },
+      responseDate: {
+        type: Date,
+        required: function () {
+          return this.requiredResponse === true;
+        },
+      },
+    },
+  ],
+  paymentInfo: {
+    pricePerMonth: {
+      type: Number,
+      required: true,
+    },
+    balance: {
+      type: Number,
+      default: 0,
+    },
+  },
   lastMoveInDate: {
     type: Date,
   },

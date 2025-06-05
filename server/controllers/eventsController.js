@@ -1,5 +1,4 @@
 // Schemas
-const StorageFacility = require("../models/facility");
 const Event = require("../models/event");
 
 //
