@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
 import { useState, useEffect } from "react";
 import { HistoryProvider } from "../context/historyContext";
+import RentalCheckout from "./components/rentalCenter/RentalCheckout";
 
 axios.defaults.baseURL =
   import.meta.env.VITE_BASE_URL || "http://localhost:5000";
@@ -86,6 +87,15 @@ function App() {
             element={
               <Register toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }
+          />
+          <Route path="/rental/:companyId" element={<RentalCheckout />} />
+          <Route
+            path="/rental/:companyId/:facilityId"
+            element={<RentalCheckout />}
+          />
+          <Route
+            path="/rental/:companyId/:facilityId/:unitId/*"
+            element={<RentalCheckout />}
           />
           <Route
             path="/login"

@@ -65,7 +65,7 @@ const createFacility = async (req, res) => {
       res.status(409).send({ error: `${duplicateValue} is already taken!` });
     } else {
       res.status(500).send({ error: error.name });
-      console.log(error);
+      console.error(error);
       console.error("Rejecting due to unknown error: " + error.name);
     }
   }
@@ -808,7 +808,6 @@ async function checkUnitInFacility(facilityId, unitNumber) {
 const getFacilityDashboardData = async (req, res) => {
   try {
     const { facilityId } = req.params;
-    console.log(facilityId);
     const currentDate = new Date();
     const startDate = new Date(
       currentDate.getFullYear(),

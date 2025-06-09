@@ -46,6 +46,7 @@ export default function LoginComponent() {
   return (
     <div className="min-w-96 mx-auto p-5 bg-white rounded-lg shadow-md shadow-gray-0 dark:bg-darkPrimary dark:border-border border">
       <h2 className="text-2xl font-semibold mb-4">Login</h2>
+
       <form onSubmit={loginUser}>
         {/* Email Section */}
         <div className="mb-2">
@@ -93,6 +94,11 @@ export default function LoginComponent() {
           Login
         </button>
       </form>
+      <p className="text-sm text-gray-600 mt-4 max-w-96">
+        This website is currently using a shared hosting service provider.
+        Please allow up to 2 minutes for the initial api calls to through. You
+        may have to reattempt login/register again to retry the process.
+      </p>
     </div>
   );
 }

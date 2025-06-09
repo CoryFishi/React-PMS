@@ -300,7 +300,7 @@ const processJWTData = async (req, res) => {
     const user = await User.findById({ _id: id });
     res.status(200).json(user);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -533,7 +533,7 @@ const userConfirmationEmail = async (req, res) => {
     }
     res.status(200).redirect(redirectUrl);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
@@ -741,7 +741,6 @@ const getAdminDashboardData = async (req, res) => {
 
 const selectFacility = async (req, res) => {
   const { userId, facilityId } = req.body;
-  console.log(req.body);
   try {
     const user = await User.findByIdAndUpdate(
       userId,

@@ -10,22 +10,18 @@ import { useNavigate } from "react-router-dom";
 import { FaDoorClosed } from "react-icons/fa6";
 import { PiPersonBold } from "react-icons/pi";
 export default function TenantPage({ facilityId }) {
-  const [facility, setFacility] = useState(facilityId);
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [tenantIdToDelete, setTenantIdToDelete] = useState([]);
-  const containerRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredTenants, setFilteredTenants] = useState([]);
   const [activeTab, setActiveTab] = useState("Current");
-  const navigate = useNavigate();
-
   const [sortDirection, setSortDirection] = useState("asc");
   const [sortedColumn, setSortedColumn] = useState(null);
+  const navigate = useNavigate();
+  const containerRef = useRef(null);
 
   const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
     let newDirection;
@@ -75,7 +71,6 @@ export default function TenantPage({ facilityId }) {
   }, [openDropdown]);
 
   useEffect(() => {
-    setFacility(facilityId);
     refreshTenantTable(facilityId);
   }, [facilityId]);
 
@@ -98,32 +93,11 @@ export default function TenantPage({ facilityId }) {
     toast.success("Tenant " + e.data.firstName + e.data.lastName + " Created");
     setCreateOpen(false);
     refreshTenantTable(facilityId);
-    refreshUnitTable(facilityId);
     setOpenDropdown(null);
   };
 
   const handleCloseCreate = () => {
     setCreateOpen(false);
-    setOpenDropdown(null);
-  };
-
-  // Close edit modal
-  const handleCloseEdit = () => {
-    setEditOpen(false);
-    setOpenDropdown(null);
-  };
-
-  // Submit edit
-  const handleEditSubmit = (e) => {
-    toast.success("Tenant updated!");
-    setEditOpen(false);
-    const updatedTenants = tenants.map((tenant) => {
-      if (tenant._id === e.data._id) {
-        return { ...tenant, ...e.data };
-      }
-      return tenant;
-    });
-    setTenants(updatedTenants);
     setOpenDropdown(null);
   };
 
@@ -200,7 +174,13 @@ export default function TenantPage({ facilityId }) {
     {
       key: "balance",
       label: "Balance",
-      accessor: (t) => t.units.reduce((sum, u) => sum + (u.balance || 0), 0),
+      accessor: (t) =>
+        t.units.reduce((sum, u) => sum + (u.paymentInfo?.balance || 0), 0),
+      render: (t, index) => (
+        <div key={index} className="items-center flex justify-center">
+          ${t.units.reduce((sum, u) => sum + (u.paymentInfo?.balance || 0), 0)}
+        </div>
+      ),
     },
     {
       key: "status",

@@ -105,7 +105,7 @@ const createTenant = async (req, res) => {
       res.status(409).send({ error: `${duplicateValue} is already taken!` });
     } else {
       res.status(500).send({ error: error.name });
-      console.log(error);
+      console.error(error);
       console.error("Rejecting due to unknown error: " + error.name);
     }
   }

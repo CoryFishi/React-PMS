@@ -63,7 +63,9 @@ const getCompanyById = async (req, res) => {
 const getFacilitiesByCompany = async (req, res) => {
   try {
     const { companyId } = req.params;
-    const facilities = await StorageFacility.find({ company: companyId });
+    const facilities = await StorageFacility.find({
+      company: companyId,
+    }).populate("units");
     res.status(200).json(facilities);
   } catch (error) {
     res.status(500).json({ message: "Error fetching facilities", error });
@@ -79,7 +81,7 @@ const editCompany = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!updatedCompany) {
-      console.log("Rejecting edit company due to no company found!");
+      console.error("Rejecting edit company due to no company found!");
       return res.status(404).json({ message: "Company not found" });
     }
     res.status(200).json(updatedCompany);
