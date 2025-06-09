@@ -8,6 +8,7 @@ import ReportsPage from "./facilityPages/ReportsPage";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import { useParams } from "react-router-dom";
 import UnitDetail from "./unitComponents/UnitDetail";
+import TenantDetail from "./tenantComponents/TenantDetail";
 
 const today = new Date().toLocaleDateString("en-US", {
   weekday: "short",
@@ -17,7 +18,7 @@ const today = new Date().toLocaleDateString("en-US", {
 
 export default function FacilityDashboard() {
   const [facilityData, setFacilityData] = useState("");
-  const { facilityId, section, unitId } = useParams();
+  const { facilityId, section, id } = useParams();
   useEffect(() => {
     if (facilityId) {
       axios
@@ -49,11 +50,15 @@ export default function FacilityDashboard() {
       {section === "overview" && (
         <FacilityConfigurationDashboard facilityId={facilityId} />
       )}
-      {section === "units" && !unitId && <UnitPage facilityId={facilityId} />}
-      {section === "units" && unitId && (
-        <UnitDetail facilityId={facilityId} unitId={unitId} />
+      {section === "units" && !id && <UnitPage facilityId={facilityId} />}
+      {section === "units" && id && (
+        <UnitDetail facilityId={facilityId} unitId={id} />
       )}
-      {section === "tenants" && <TenantPage facilityId={facilityId} />}
+      {section === "tenants" && id && (
+        <TenantDetail facilityId={facilityId} tenantId={id} />
+      )}
+      {section === "tenants" && !id && <TenantPage facilityId={facilityId} />}
+
       {section === "reports" && <ReportsPage facilityId={facilityId} />}
       {section === "settings" && <SettingsPage facilityId={facilityId} />}
     </div>

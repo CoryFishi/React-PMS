@@ -8,10 +8,19 @@ const tenantSchema = new Schema(
       required: [true, "First name is required"],
       trim: true,
     },
+    middleName: {
+      type: String,
+      trim: true,
+    },
     lastName: {
       type: String,
       required: [true, "Last name is required"],
       trim: true,
+    },
+    dateOfBirth: {
+      type: String,
+      match: [/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"],
+      required: true,
     },
     contactInfo: {
       phone: {
@@ -30,6 +39,47 @@ const tenantSchema = new Schema(
           /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
           "Please fill a valid email address",
         ],
+      },
+    },
+    vehicle: {
+      DLNumber: {
+        type: String,
+        required: [true, "Last Four of Driver's License Number Required"],
+        trim: true,
+      },
+      DLExpire: {
+        type: Date,
+        required: [true, "Driver's License Expiration Required"],
+        trim: true,
+      },
+      DLState: {
+        type: String,
+        required: [true, "Driver's License State Required"],
+        trim: true,
+      },
+      vehiclePlate: {
+        type: String,
+        trim: true,
+      },
+      vehicleState: {
+        type: String,
+        trim: true,
+      },
+      vehicleMake: {
+        type: String,
+        trim: true,
+      },
+      vehicleModel: {
+        type: String,
+        trim: true,
+      },
+      vehicleVin: {
+        type: String,
+        trim: true,
+      },
+      vehicleDesc: {
+        type: String,
+        trim: true,
       },
     },
     address: {
@@ -70,29 +120,28 @@ const tenantSchema = new Schema(
         ref: "StorageUnit",
       },
     ],
-    accessCode: {
-      type: Number,
-      min: [1000, "Access code must be at least 4 digits"],
-      max: [99999999, "Access code must be at most 8 digits"],
-    },
-    notes: {
-      type: String,
-    },
-    paymentHistory: [
+    notes: [
       {
-        date: {
+        message: { type: String, required: true },
+        createdBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        createdAt: {
           type: Date,
+          required: true,
           default: Date.now,
         },
-        amount: {
-          type: Number,
-          required: [true, "Payment amount is required"],
-          min: [0, "Payment amount cannot be negative"],
+        requiredResponse: {
+          type: Boolean,
+          default: false,
         },
-        method: {
-          type: String,
-          enum: ["credit card", "debit card", "cash", "check"],
-          required: [true, "Payment method is required"],
+        responseDate: {
+          type: Date,
+          required: function () {
+            return this.requiredResponse === true;
+          },
         },
       },
     ],

@@ -13,11 +13,14 @@ import { PiGarageFill } from "react-icons/pi";
 import { useParams } from "react-router-dom";
 import { FaDoorClosed, FaDoorOpen } from "react-icons/fa6";
 import { FaParking } from "react-icons/fa";
+import { PiOfficeChairFill } from "react-icons/pi";
+
 import {
   BiArrowFromBottom,
   BiArrowFromLeft,
   BiArrowFromTop,
 } from "react-icons/bi";
+import { PiLockersFill } from "react-icons/pi";
 
 export default function UnitPage() {
   const [units, setUnits] = useState([]);
@@ -127,7 +130,7 @@ export default function UnitPage() {
   const moveOutUnit = async (id) => {
     try {
       const response = await axios.put(
-        `/facilities/units/${facilityId}/${id}/moveout`,
+        `/facilities/${facilityId}/units/${id}/moveout`,
         {},
         {
           headers: {
@@ -197,6 +200,8 @@ export default function UnitPage() {
         >
           {u.unitType === "Storage Unit" && <PiGarageFill />}
           {u.unitType === "Parking" && <FaParking />}
+          {u.unitType === "Locker" && <PiLockersFill />}
+          {u.unitType === "Office" && <PiOfficeChairFill />}
         </div>
       ),
     },
@@ -219,6 +224,7 @@ export default function UnitPage() {
           key={index}
           className={`w-full justify-center items-center flex gap-1 dark:text-black cursor-pointer group`}
           onClick={() => navigate(`/dashboard/${facilityId}/units/${u._id}`)}
+          title={`/dashboard/${facilityId}/units/${u._id}`}
         >
           {u.status === "Vacant" ? (
             <div className="p-0.5 bg-green-300 rounded-lg group-hover:bg-green-600">
@@ -288,17 +294,16 @@ export default function UnitPage() {
                       "text-red-400 hover:text-red-600 cursor-pointer"
                 }`}
                 onClick={() =>
-                  alert(
-                    `This would bring you to /dashboard/${facilityId}/tenants/${u.tenant?._id}`
-                  )
+                  navigate(`/dashboard/${facilityId}/tenants/${u.tenant?._id}`)
                 }
+                title={`/dashboard/${facilityId}/tenants/${u.tenant?._id}`}
               >
                 {u.tenant.firstName + " " + u.tenant?.lastName}
               </span>
             )}
           </p>
           <p className="text-xs text-zinc-400">
-            on{" "}
+            since{" "}
             {u.lastMoveOutDate
               ? new Date(u.lastMoveOutDate).toLocaleDateString()
               : u.lastMoveInDate

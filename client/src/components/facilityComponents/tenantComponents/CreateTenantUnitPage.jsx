@@ -1,7 +1,9 @@
 import axios from "axios";
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
 import { UserContext } from "../../../../context/userContext";
+import ModalContainer from "../../sharedComponents/ModalContainer";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function CreateTenantUnitPage({
@@ -25,12 +27,13 @@ export default function CreateTenantUnitPage({
   const [paidInCash, setPaidInCash] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [selectedTenant, setSelectedTenant] = useState("");
+  const { facilityId, id } = useParams();
 
   const { user } = useContext(UserContext);
 
   useEffect(() => {
     axios
-      .get(`/facilities/units/unit/${unitId}`, {
+      .get(`/facilities/${facilityId}/units/${unitId}`, {
         headers: {
           "x-api-key": API_KEY,
         },
@@ -154,7 +157,7 @@ export default function CreateTenantUnitPage({
         );
       }
       await axios
-        .get(`/facilities/units/unit/${unitId}`, {
+        .get(`/facilities/${facilityId}/units/${unitId}`, {
           headers: {
             "x-api-key": API_KEY,
           },
@@ -174,13 +177,10 @@ export default function CreateTenantUnitPage({
   };
 
   return (
-    <div className="text-left fixed inset-0 bg-gray-600 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white cursor-default">
-      <div className="min-w-96 relative top-36 mx-auto p-5 w-fit shadow-lg  rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white">
-        <h2 className="text-xl font-bold">
-          Renting Unit {unitData.unitNumber}
-        </h2>
-        {isTenancy === false && <h3 className="mb-3">New Tenant</h3>}
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+    <ModalContainer
+      title={`Renting Unit ${unitData.unitNumber}`}
+      mainContent={
+        <div className="flex flex-col gap-2">
           {isTenancy === true && (
             <div className="space-y-4">
               <div>
@@ -492,24 +492,26 @@ export default function CreateTenantUnitPage({
               </div>
             </div>
           )}
-          <div className="flex justify-end pt-5">
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
-            >
-              Submit
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="ml-4 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 transition ease-in duration-200"
-            >
-              Close
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      }
+      responseContent={
+        <div className="flex justify-end pt-5">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-4 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 transition ease-in duration-200"
+          >
+            Close
+          </button>
+        </div>
+      }
+    />
   );
 }

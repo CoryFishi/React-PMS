@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import UserProfile from "./pages/UserProfile";
 import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { HistoryProvider } from "../context/historyContext";
 
 axios.defaults.baseURL =
   import.meta.env.VITE_BASE_URL || "http://localhost:5000";
@@ -39,67 +39,74 @@ function App() {
 
   return (
     <UserContextProvider>
-      <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
-      <Routes>
-        <Route
-          path="/dashboard/admin/reports/:reportId"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/dashboard/admin/:section"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/dashboard/:facilityId/:section/:unitId"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/dashboard/:facilityId/:section"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/users/:id"
-          element={
-            <UserProfile toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/register/:userId"
-          element={
-            <Register toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <Login toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-        <Route
-          path="/"
-          element={<Home toggleDarkMode={toggleDarkMode} darkMode={darkMode} />}
-        />
-        <Route
-          path="*"
-          element={
-            <NotFound toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
-          }
-        />
-      </Routes>
+      <HistoryProvider>
+        <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
+        <Routes>
+          <Route
+            path="/dashboard/admin/reports/:reportId"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="/dashboard/admin/:section"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="/dashboard/:facilityId/:section/:id"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="/dashboard/:facilityId/:section"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="/users/:id"
+            element={
+              <UserProfile
+                toggleDarkMode={toggleDarkMode}
+                darkMode={darkMode}
+              />
+            }
+          />
+          <Route
+            path="/register/:userId"
+            element={
+              <Register toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <Login toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <Home toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
+            path="*"
+            element={
+              <NotFound toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+        </Routes>
+      </HistoryProvider>
     </UserContextProvider>
   );
 }

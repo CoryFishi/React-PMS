@@ -4,11 +4,12 @@ import { TbBuildingWarehouse } from "react-icons/tb";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { UserContext } from "../../../../context/userContext";
+import { usePreviousPath } from "../../../../context/historyContext";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UnitDetail() {
-  const { facilityId, unitId } = useParams();
+  const { facilityId, id } = useParams();
   const navigate = useNavigate();
   const [unit, setUnit] = useState(null);
   const [activeTab, setActiveTab] = useState("General");
@@ -22,12 +23,10 @@ export default function UnitDetail() {
     responseDate: "",
   });
   const { user } = useContext(UserContext);
+  const { prevPath } = usePreviousPath();
 
   const handleBack = () => {
-    const isInternalReferrer =
-      document.referrer && document.referrer.startsWith(window.location.origin);
-
-    if (isInternalReferrer && window.history.length > 1) {
+    if (prevPath && prevPath !== window.location.pathname) {
       navigate(-1);
     } else {
       navigate(`/dashboard/${facilityId}/units`);
@@ -38,7 +37,7 @@ export default function UnitDetail() {
     if (!newNote.message.trim()) return;
 
     const res = await axios.post(
-      `/facilities/${facilityId}/units/${unitId}/notes`,
+      `/facilities/${facilityId}/units/${id}/notes`,
       {
         message: newNote.message,
         createdBy: user._id,
@@ -57,7 +56,7 @@ export default function UnitDetail() {
   const handleSave = async () => {
     try {
       const { data } = await axios.put(
-        `/facilities/${facilityId}/units/${unitId}`,
+        `/facilities/${facilityId}/units/${id}`,
         editableUnit,
         { headers: { "x-api-key": API_KEY } }
       );
@@ -73,14 +72,14 @@ export default function UnitDetail() {
 
   useEffect(() => {
     axios
-      .get(`/facilities/${facilityId}/units/${unitId}`, {
+      .get(`/facilities/${facilityId}/units/${id}`, {
         headers: {
           "x-api-key": API_KEY,
         },
       })
       .then(({ data }) => setUnit(data) & setEditableUnit(data))
       .catch(() => navigate(`/dashboard/${facilityId}/units`)); // fallback
-  }, [facilityId, unitId, navigate]);
+  }, [facilityId, id, navigate]);
 
   if (!unit)
     return <p className="p-5 dark:text-white">Loading unit details...</p>;
@@ -95,7 +94,7 @@ export default function UnitDetail() {
           Go Back
         </button>
         <div className="flex justify-end">
-          {isEditing ? (
+          {isEditing && activeTab === "General" ? (
             <div className="flex gap-2">
               <button
                 className="px-4 py-2 bg-zinc-500 text-white rounded hover:bg-zinc-600"
@@ -111,12 +110,14 @@ export default function UnitDetail() {
               </button>
             </div>
           ) : (
-            <button
-              className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-              onClick={() => setIsEditing(true)}
-            >
-              Edit
-            </button>
+            activeTab === "General" && (
+              <button
+                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </button>
+            )
           )}
         </div>
       </div>
@@ -126,10 +127,18 @@ export default function UnitDetail() {
           <h2>Unit {unit.unitNumber}</h2>
           <p
             className={`text-xs p-0.5 px-1 text-white rounded-lg ${
-              unit.availability ? "bg-green-600" : "bg-red-600"
+              unit.status === "Vacant"
+                ? "bg-green-500"
+                : unit.status === "Rented"
+                ? "bg-blue-500"
+                : "bg-red-500"
             }`}
           >
-            {unit.availability ? "AVAILABLE" : "UNAVAILABLE"}
+            {unit.status !== "Vacant"
+              ? unit.status
+              : unit.availability
+              ? "AVAILABLE"
+              : "UNAVAILABLE"}
           </p>
         </div>
         <div className="flex gap-2 mr-5">
@@ -175,102 +184,169 @@ export default function UnitDetail() {
               General Information
             </h3>
             <div className="flex flex-col">
-              {[
-                {
-                  key: "unitNumber",
-                  label: "Unit Number",
-                  editable: !(
-                    editableUnit.status === "Rented" ||
-                    editableUnit.status === "Delinquent"
-                  ),
-                },
-                { key: "unitType", label: "Unit Type", editable: true },
-                { key: "location", label: "Location", editable: true },
-                { key: "directions", label: "Directions", editable: true },
-                { key: "status", label: "Status", editable: false },
-                { key: "accessCode", label: "Access Code", editable: true },
-                {
-                  key: "availability",
-                  label: "Available",
-                  editable: !(
-                    editableUnit.status === "Rented" ||
-                    editableUnit.status === "Delinquent"
-                  ),
-                  render: (val) => (val ? "Yes" : "No"),
-                  type: "boolean",
-                },
-                {
-                  key:
-                    editableUnit.status !== "Vacant"
-                      ? "lastMoveInDate"
-                      : "lastMoveOutDate",
-                  label:
-                    editableUnit.status !== "Vacant"
-                      ? "Move In"
-                      : "Last Move Out",
-                  editable: false,
-                  render: (val) =>
-                    val ? new Date(val).toLocaleDateString() : "-",
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex p-1 first:border-t border-x border-b dark:border-zinc-700"
-                >
-                  <h3 className="w-1/2 font-medium">{item.label}</h3>
-                  <div className="w-1/2">
-                    {isEditing && item.editable ? (
-                      item.type === "boolean" ? (
-                        <select
-                          className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none "
-                          value={editableUnit[item.key]}
-                          onChange={(e) =>
-                            setEditableUnit((prev) => ({
-                              ...prev,
-                              [item.key]: e.target.value === "true",
-                            }))
-                          }
-                        >
-                          <option
-                            value="true"
-                            className="bg-zinc-200 dark:bg-zinc-900"
-                          >
-                            Yes
-                          </option>
-                          <option
-                            value="false"
-                            className="bg-zinc-200 dark:bg-zinc-900"
-                          >
-                            No
-                          </option>
-                        </select>
-                      ) : (
-                        <input
-                          type="text"
-                          className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
-                          value={editableUnit[item.key] ?? ""}
-                          onChange={(e) =>
-                            setEditableUnit((prev) => ({
-                              ...prev,
-                              [item.key]: e.target.value,
-                            }))
-                          }
-                        />
-                      )
-                    ) : (
-                      <p>
-                        {item.render
-                          ? item.render(unit[item.key])
-                          : unit[item.key] ?? "-"}
-                      </p>
-                    )}
-                  </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Unit Number</h3>
+                <div className="w-1/2">
+                  {isEditing && unit.status === "Vacant" ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.unitNumber ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          unitNumber: e.target.value,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>{unit.unitNumber ?? "-"}</p>
+                  )}
                 </div>
-              ))}
-
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Unit Type</h3>
+                <div className="w-1/2">
+                  {isEditing && unit.status === "Vacant" ? (
+                    <select
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.unitType ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          unitType: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">Select type</option>
+                      <option value="Locker">Locker</option>
+                      <option value="Storage Unit">Storage Unit</option>
+                      <option value="Parking">Parking</option>
+                      <option value="Office">Office</option>
+                    </select>
+                  ) : (
+                    <p>{unit.unitType ?? "-"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Location</h3>
+                <div className="w-1/2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.location ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          location: e.target.value,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>{unit.location ?? "-"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Directions</h3>
+                <div className="w-1/2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.directions ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          directions: e.target.value,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>{unit.directions ?? "-"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Status</h3>
+                <div className="w-1/2">
+                  <p>{unit.status ?? "-"}</p>
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Access Code</h3>
+                <div className="w-1/2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.accessCode ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          accessCode: e.target.value,
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>{unit.accessCode ?? "-"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Available</h3>
+                <div className="w-1/2">
+                  {isEditing && unit.status === "Vacant" ? (
+                    <select
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none "
+                      value={editableUnit.availability ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          availability: e.target.value === "true",
+                        }))
+                      }
+                    >
+                      <option
+                        value="true"
+                        className="bg-zinc-200 dark:bg-zinc-900"
+                      >
+                        Yes
+                      </option>
+                      <option
+                        value="false"
+                        className="bg-zinc-200 dark:bg-zinc-900"
+                      >
+                        No
+                      </option>
+                    </select>
+                  ) : (
+                    <p>{unit.availability === true ? "Yes" : "No"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">
+                  {editableUnit.status !== "Vacant"
+                    ? "Move In Date"
+                    : "Move Out Date"}
+                </h3>
+                <div className="w-1/2">
+                  <p>
+                    {editableUnit.status !== "Vacant"
+                      ? new Date(
+                          editableUnit.lastMoveInDate
+                        ).toLocaleDateString()
+                      : new Date(
+                          editableUnit.lastMoveOutDate
+                        ).toLocaleDateString() || "-"}
+                  </p>
+                </div>
+              </div>
               <div className="p-1 border-x border-b dark:border-zinc-700 flex">
                 <h3 className="font-medium w-1/2">Tags</h3>
-
                 {isEditing ? (
                   <div className="flex flex-col">
                     <div className="flex gap-2 flex-wrap">
@@ -295,7 +371,6 @@ export default function UnitDetail() {
                         </span>
                       ))}
                     </div>
-
                     <div className="flex gap-2 mt-1">
                       <input
                         type="text"
@@ -333,80 +408,167 @@ export default function UnitDetail() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Specifications</h3>
             <div className="flex flex-col">
-              {[
-                {
-                  key: "width",
-                  label: "Width",
-                  suffix: editableUnit?.specifications?.unit,
-                },
-                {
-                  key: "depth",
-                  label: "Depth",
-                  suffix: editableUnit?.specifications?.unit,
-                },
-                {
-                  key: "height",
-                  label: "Height",
-                  suffix: editableUnit?.specifications?.unit,
-                },
-                {
-                  label: `Square ${
-                    editableUnit?.specifications?.unit === "ft"
-                      ? "Feet"
-                      : "Metres"
-                  }`,
-                  value:
-                    editableUnit?.specifications?.width *
-                      editableUnit?.specifications?.depth +
-                    editableUnit?.specifications?.unit +
-                    "²",
-                  editable: false,
-                },
-                {
-                  key: "doorSize",
-                  label: "Door Size",
-                },
-                {
-                  key: "doorType",
-                  label: "Door Type",
-                },
-                {
-                  key: "accessType",
-                  label: "Access Type",
-                },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex p-1 first:border-t border-x border-b dark:border-zinc-700"
-                >
-                  <h3 className="w-1/2 font-medium">{item.label}</h3>
-                  <div className="w-1/2">
-                    {isEditing && item.key ? (
-                      <input
-                        type="text"
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
-                        value={editableUnit.specifications?.[item.key] ?? ""}
-                        onChange={(e) =>
-                          setEditableUnit((prev) => ({
-                            ...prev,
-                            specifications: {
-                              ...prev.specifications,
-                              [item.key]: e.target.value,
-                            },
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p>
-                        {item.value ??
-                          editableUnit.specifications?.[item.key] +
-                            `${item.suffix || ""}` ??
-                          "-"}
-                      </p>
-                    )}
-                  </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Width</h3>
+                <div className="w-1/2">
+                  {isEditing && unit.status === "Vacant" ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.specifications?.width ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          specifications: {
+                            ...prev.specifications,
+                            width: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>
+                      {unit.specifications.width +
+                        `${editableUnit.specifications?.unit || ""}` ?? "-"}
+                    </p>
+                  )}
                 </div>
-              ))}
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Depth</h3>
+                <div className="w-1/2">
+                  {isEditing && unit.status === "Vacant" ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.specifications?.depth ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          specifications: {
+                            ...prev.specifications,
+                            depth: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>
+                      {unit.specifications.depth +
+                        `${editableUnit.specifications?.unit || ""}` ?? "-"}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Height</h3>
+                <div className="w-1/2">
+                  {isEditing && unit.status === "Vacant" ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.specifications?.height ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          specifications: {
+                            ...prev.specifications,
+                            height: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>
+                      {unit.specifications.height +
+                        `${editableUnit.specifications?.unit || ""}` ?? "-"}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">
+                  Square{" "}
+                  {editableUnit?.specifications?.unit === "ft"
+                    ? "Feet"
+                    : "Metres"}
+                </h3>
+                <div className="w-1/2">
+                  <p>
+                    {unit.specifications.depth * unit.specifications.width +
+                      `${editableUnit.specifications?.unit || ""}²` ?? "-"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Door Size</h3>
+                <div className="w-1/2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.specifications?.doorSize ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          specifications: {
+                            ...prev.specifications,
+                            doorSize: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>{unit.specifications.doorSize ?? "-"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Door Type</h3>
+                <div className="w-1/2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.specifications?.doorType ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          specifications: {
+                            ...prev.specifications,
+                            doorType: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>{unit.specifications.doorType ?? "-"}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+                <h3 className="w-1/2 font-medium">Access Type</h3>
+                <div className="w-1/2">
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.specifications?.accessType ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          specifications: {
+                            ...prev.specifications,
+                            accessType: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  ) : (
+                    <p>{unit.specifications.accessType ?? "-"}</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -416,29 +578,32 @@ export default function UnitDetail() {
               <h3 className="w-1/2 font-medium">Monthly Rate</h3>
               <div className="w-1/2">
                 {isEditing && editableUnit.status === "Vacant" ? (
-                  <input
-                    type="number"
-                    className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
-                    value={editableUnit.paymentInfo?.pricePerMonth ?? ""}
-                    onChange={(e) =>
-                      setEditableUnit((prev) => ({
-                        ...prev,
-                        paymentInfo: {
-                          ...prev.paymentInfo,
-                          pricePerMonth: Number(e.target.value),
-                        },
-                      }))
-                    }
-                  />
+                  <div className="flex items-center gap-1">
+                    $
+                    <input
+                      type="number"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      value={editableUnit.paymentInfo?.pricePerMonth ?? ""}
+                      onChange={(e) =>
+                        setEditableUnit((prev) => ({
+                          ...prev,
+                          paymentInfo: {
+                            ...prev.paymentInfo,
+                            pricePerMonth: Number(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+                  </div>
                 ) : (
-                  <p>{unit.paymentInfo?.pricePerMonth ?? "N/A"}</p>
+                  <p>${unit.paymentInfo?.pricePerMonth ?? "N/A"}</p>
                 )}
               </div>
             </div>
             <div className="flex p-1 border-x border-b dark:border-zinc-700">
               <h3 className="w-1/2 font-medium">Balance</h3>
               <div className="w-1/2">
-                <p>{unit.paymentInfo?.balance ?? "N/A"}</p>
+                <p>${unit.paymentInfo?.balance ?? "N/A"}</p>
               </div>
             </div>
           </div>

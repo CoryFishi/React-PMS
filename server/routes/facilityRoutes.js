@@ -45,6 +45,11 @@ router.get(
   authenticateAPIKey,
   tenantController.getTenantById
 );
+router.put(
+  "/:facilityId/tenants/:tenantId",
+  authenticateAPIKey,
+  tenantController.editTenant
+);
 router.get(
   "/:facilityId/tenants",
   authenticateAPIKey,
@@ -93,7 +98,7 @@ router.get(
   facilityController.getUnits
 );
 router.put(
-  "/units/:facilityId/:unitId/moveout",
+  "/:facilityId/units/:unitId/moveout",
   authenticateAPIKey,
   facilityController.removeTenant
 );

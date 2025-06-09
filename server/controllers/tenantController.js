@@ -172,12 +172,12 @@ const getTenantById = async (req, res) => {
 
 // Edit Tenant
 const editTenant = async (req, res) => {
-  const tenantId = req.body.tenantId;
-  const updateData = req.body.updateData;
+  const tenantId = req.params.tenantId;
+  const updateData = req.body;
 
   try {
     const updatedTenant = await Tenant.findByIdAndUpdate(tenantId, updateData, {
-      new: true, // Return the updated document
+      new: true,
     }).exec();
 
     if (!updatedTenant) {
@@ -193,7 +193,7 @@ const editTenant = async (req, res) => {
 
     res.status(200).json({
       message: "Tenant updated successfully",
-      Tenant: updatedTenant,
+      tenant: updatedTenant,
     });
   } catch (error) {
     console.error("Error updating tenant:", error);

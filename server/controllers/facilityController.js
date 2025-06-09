@@ -412,77 +412,72 @@ const removeTenant = async (req, res) => {
   try {
     const { unitId, facilityId } = req.params;
 
-    // Find the unit by ID
     const unit = await StorageUnit.findById(unitId);
     if (!unit) {
       return res.status(404).json({ error: "Unit not found!" });
     }
+    if (!unit.tenant) {
+      return res.status(404).json({ error: "Unit does not have a tenant" });
+    }
 
-    // Check if the unit has a tenant
-    if (unit.tenant) {
-      const tenantId = unit.tenant;
-
-      // Find the tenant by ID
-      const tenant = await Tenant.findById(tenantId);
-      if (!tenant) {
-        await Event.create({
+    const tenantId = unit.tenant;
+    const tenant = await Tenant.findById(tenantId);
+    if (!tenant) {
+      await Event.create([
+        {
           eventType: "Application",
           eventName: "Unit Update Failed",
           message: `${unitId} failed to update due to tenant not found`,
           facility: facilityId,
-        });
-        await Event.create({
+        },
+        {
           eventType: "Application",
           eventName: "Tenant Update Failed",
           message: `${tenantId} failed to update due to tenant not found`,
           facility: facilityId,
-        });
-        return res.status(404).json({ error: "Tenant not found!" });
-      }
+        },
+      ]);
+      return res.status(404).json({ error: "Tenant not found!" });
+    }
 
-      // Remove the unit reference from the tenant's units array
-      tenant.units = tenant.units.filter((id) => !id.equals(unit._id));
-      await tenant.save({ validateBeforeSave: false });
+    // ✅ Remove unit from tenant's unit list
+    tenant.units = (tenant.units || []).filter(
+      (id) => id.toString() !== unit._id.toString()
+    );
+    await tenant.save({ validateBeforeSave: false });
 
-      // Remove the tenant reference from the unit
-      unit.tenant = null;
-      unit.availability = true;
-      unit.paymentInfo.balance = 0;
-      unit.paymentInfo.moveInDate = null;
-      unit.paymentInfo.moveOutDate = Date.now();
-      unit.status = "Vacant";
-      await unit.save();
+    // ✅ Update unit fields
+    unit.tenant = null;
+    unit.availability = true;
+    unit.status = "Vacant";
+    unit.paymentInfo.balance = 0;
+    unit.lastMoveOutDate = new Date();
+    await unit.save();
 
-      // // Check if the tenant has any other units left
-      // if (tenant.units.length === 0) {
-      //   await Tenant.findByIdAndDelete(tenantId);
-      //   return res.status(200).json(unit);
-      // }
-      await Event.create({
+    // ✅ Log events
+    await Event.create([
+      {
         eventType: "Application",
         eventName: "Unit Updated",
         message: `Unit ${unit.unitNumber} had Tenant ${tenant.firstName} ${tenant.lastName} removed`,
         facility: facilityId,
-      });
-      await Event.create({
+      },
+      {
         eventType: "Application",
         eventName: "Tenant Updated",
         message: `Tenant ${tenant.firstName} ${tenant.lastName} removed from ${unit.unitNumber}`,
         facility: facilityId,
-      });
-      return res.status(200).json(unit);
-    } else {
-      return res.status(404).json({ error: "Unit does not have a tenant" });
-    }
+      },
+    ]);
+
+    return res.status(200).json(unit);
   } catch (error) {
-    console.error(
-      "Error processing the last call! See error below...\n" + error.message
-    );
+    console.error("Error in removeTenant:\n" + error.message);
     await Event.create({
       eventType: "Application",
       eventName: "Unit Update Failed",
-      message: `${unitId} failed to remove tenant`,
-      facility: facilityId,
+      message: `${req.params.unitId} failed to remove tenant`,
+      facility: req.params.facilityId,
     });
     res.status(400).json({ message: error.message });
   }

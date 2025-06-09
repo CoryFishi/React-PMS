@@ -32,10 +32,6 @@ export default function Dashboard({ darkMode, toggleDarkMode }) {
     }
   }, [user, isLoading, location.pathname, navigate]);
 
-  useEffect(() => {
-    localStorage.setItem("lastDashboardPath", window.location.pathname);
-  }, []);
-
   if (!user) return null;
 
   return (

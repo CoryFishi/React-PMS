@@ -2,7 +2,6 @@ import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import CreateTenantTenantPage from "../tenantComponents/CreateTenantTenantPage";
-import EditTenant from "../tenantComponents/EditTenant";
 import DataTable from "../../sharedComponents/DataTable";
 import PaginationFooter from "../../sharedComponents/PaginationFooter";
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -15,7 +14,6 @@ export default function TenantPage({ facilityId }) {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [tenantIdToDelete, setTenantIdToDelete] = useState([]);
   const containerRef = useRef(null);
@@ -133,24 +131,33 @@ export default function TenantPage({ facilityId }) {
     const filteredTenants = tenants.filter((tenant) =>
       tenant.status.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    console.log(filteredTenants);
     setFilteredTenants(filteredTenants);
   }, [tenants, searchQuery]);
 
   const columns = [
     {
-      key: "icon",
-      label: "",
-      render: (t) => (
-        <div className="items-center w-full justify-center flex">
-          <PiPersonBold className="text-xl" />
-        </div>
-      ),
-    },
-    {
       key: "name",
       label: "Name",
       accessor: (t) => t.firstName + " " + t.lastName,
+      render: (t) => (
+        <div
+          className={`${
+            t.units.some((u) => u.status === "Delinquent")
+              ? "text-red-600"
+              : "text-blue-600"
+          } items-center w-full justify-center flex gap-2 cursor-pointer`}
+          onClick={() => navigate(`/dashboard/${facilityId}/tenants/${t._id}`)}
+        >
+          <PiPersonBold
+            className={`${
+              t.units.some((u) => u.status === "Delinquent")
+                ? "bg-red-600"
+                : "bg-blue-600"
+            } text-xl p-0.5 rounded-full text-white dark:text-black`}
+          />
+          {t.firstName + " " + t.lastName}
+        </div>
+      ),
     },
     {
       key: "contactInfo",

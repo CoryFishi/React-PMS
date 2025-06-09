@@ -14,6 +14,7 @@ const storageUnitSchema = new mongoose.Schema({
   accessCode: {
     type: Number,
     trim: true,
+    default: 0,
   },
   location: {
     type: String,
@@ -84,9 +85,14 @@ const storageUnitSchema = new mongoose.Schema({
   paymentInfo: {
     pricePerMonth: {
       type: Number,
+      default: 0,
       required: true,
     },
     balance: {
+      type: Number,
+      default: 0,
+    },
+    prepaidCredit: {
       type: Number,
       default: 0,
     },
@@ -96,10 +102,7 @@ const storageUnitSchema = new mongoose.Schema({
   },
   lastMoveOutDate: {
     type: Date,
-  },
-  pricePerMonth: {
-    type: Number,
-    required: true,
+    default: Date.now,
   },
   tags: [{ type: String, trim: true }],
   amenities: [{ type: String, trim: true }],
