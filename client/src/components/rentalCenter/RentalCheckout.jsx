@@ -5,7 +5,7 @@ import RentalStepThree from "./steps/RentalStepThree";
 import RentalStepFour from "./steps/RentalStepFour";
 import RentalStepFive from "./steps/RentalStepFive";
 import RentalStepSix from "./steps/RentalStepSix";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const steps = [
   { id: 1, title: "Select a Location", component: RentalStepOne },
@@ -18,41 +18,53 @@ const steps = [
 
 export default function RentalCheckout() {
   const { companyId, facilityId, unitId } = useParams();
-  const [stepIndex, setStepIndex] = useState(0);
-  const [selectedFacilityId, setSelectedFacilityId] = useState(
-    facilityId || null
-  );
-  const [selectedUnitId, setSelectedUnitId] = useState(unitId || null);
+
+  const computeIndex = () => {
+    if (unitId) return 2;
+    if (facilityId) return 1;
+    if (companyId) return 0;
+    return 0;
+  };
+  const [stepIndex, setStepIndex] = useState(computeIndex());
+
+  useEffect(() => {
+    setStepIndex(computeIndex());
+  }, [companyId, facilityId, unitId]);
 
   const CurrentStep = steps[stepIndex].component;
 
   return (
-    <div className="max-w-3xl mx-auto p-5">
+    <div className="max-w-5xl mx-auto p-5">
       <h1 className="text-xl font-bold mb-4">Move-In Process</h1>
-      <div className="mb-4">
+      <div>
         {steps.map((step, i) => (
           <div
             key={i}
-            className={`flex items-center gap-2 mb-1 ${
-              i === stepIndex ? "font-bold" : "text-zinc-500"
+            className={`flex flex-col border ${
+              i === stepIndex ? "" : "text-zinc-500"
             }`}
           >
-            <span>{i + 1}.</span>
-            <span>{step.title}</span>
+            <div
+              className={`flex items-start gap-2 px-3 py-2 ${
+                i === stepIndex ? "bg-zinc-600 text-white" : ""
+              } ${i <= stepIndex ? "cursor-pointer" : "cursor-not-allowed"}`}
+              onClick={() => {
+                if (i < stepIndex) {
+                  setStepIndex(i);
+                }
+              }}
+            >
+              <span>{i + 1}.</span>
+              <span>{step.title}</span>
+            </div>
+            {stepIndex === i && (
+              <CurrentStep
+                onNext={() => setStepIndex((prev) => prev + 1)}
+                onBack={() => setStepIndex((prev) => prev - 1)}
+              />
+            )}
           </div>
         ))}
-      </div>
-
-      <div className="border p-4 rounded bg-white shadow">
-        <CurrentStep
-          companyId={companyId}
-          facilityId={selectedFacilityId}
-          unitId={selectedUnitId}
-          onUnitSelect={setSelectedUnitId}
-          onFacilitySelect={setSelectedFacilityId}
-          onNext={() => setStepIndex((prev) => prev + 1)}
-          onBack={() => setStepIndex((prev) => prev - 1)}
-        />
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import axios from "axios";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
+  const [facilityData, setFacilityData] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { user } = useContext(UserContext);
   const [facilityId, setFacilityId] = useState(user.selectedFacility || "");
@@ -39,7 +40,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   };
 
   useEffect(() => {
-    const fetchFacilityName = async () => {
+    const getFacility = async () => {
       if (!facilityId) return;
       try {
         const { data } = await axios.get(`/facilities/${facilityId}`, {
@@ -48,14 +49,14 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
         if (data?.facilityName) {
           setFacilityName(data.facilityName);
-          localStorage.setItem("selectedFacilityName", data.facilityName);
         }
+        setFacilityData(data);
       } catch (err) {
         console.error("Error fetching facility name:", err);
       }
     };
 
-    fetchFacilityName();
+    getFacility();
   }, [facilityId]);
 
   return (
@@ -299,11 +300,13 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
               setFacility={setFacilityId}
             />
           )}
-          {!isAdmin &&
-            facilityId &&
-            ["overview", "units", "tenants", "reports", "settings"].includes(
-              section
-            ) && <FacilityDashboard />}
+          {!isAdmin && facilityId ? (
+            facilityData && facilityData._id ? (
+              <FacilityDashboard facility={facilityData} />
+            ) : (
+              <p className="p-4">Loading facility dashboard...</p>
+            )
+          ) : null}
         </div>
       </div>
     </div>

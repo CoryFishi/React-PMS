@@ -10,29 +10,12 @@ const CompanySchema = new Schema({
     minlength: [3, "Company name must be at least 3 characters long"],
   },
   address: {
-    street1: {
-      type: String,
-      required: [true, "Street address is required"],
-    },
-    street2: {
-      type: String,
-    },
-    city: {
-      type: String,
-      required: [true, "City is required"],
-    },
-    state: {
-      type: String,
-      required: [true, "State is required"],
-    },
-    zipCode: {
-      type: String,
-      required: [true, "Zip code is required"],
-    },
-    country: {
-      type: String,
-      required: [true, "Country is required"],
-    },
+    street1: { type: String, required: [true, "Street address is required"] },
+    street2: { type: String },
+    city: { type: String, required: [true, "City is required"] },
+    state: { type: String, required: [true, "State is required"] },
+    zipCode: { type: String, required: [true, "Zip code is required"] },
+    country: { type: String, required: [true, "Country is required"] },
   },
   contactInfo: {
     phone: {
@@ -63,6 +46,13 @@ const CompanySchema = new Schema({
     type: String,
     enum: ["Disabled", "Enabled"],
     default: "Enabled",
+  },
+  stripe: {
+    accountId: { type: String },
+    onboardingComplete: {
+      type: Boolean,
+      default: false,
+    },
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

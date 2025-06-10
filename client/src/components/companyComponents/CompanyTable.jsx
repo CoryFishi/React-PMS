@@ -9,6 +9,7 @@ import InputBox from "../sharedComponents/InputBox";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../sharedComponents/DataTable";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function CompanyTable() {
   const [companies, setCompanies] = useState([]);
@@ -20,6 +21,7 @@ export default function CompanyTable() {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const containerRef = useRef(null);
+  const navigate = useNavigate();
 
   //  Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,6 +64,32 @@ export default function CompanyTable() {
     setFilteredCompanies(sorted);
   };
 
+  const handleGenerateStripeLink = async (companyId) => {
+    try {
+      const { data } = await axios.post(
+        `/companies/${companyId}/stripe-onboarding`,
+        {},
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+
+      if (data.url) {
+        // Redirect to onboarding link
+        window.location.href = data.url;
+      } else if (data.company) {
+        // Onboarding already complete
+        alert("Onboarding is already complete for this company.");
+        refreshCompanies();
+      }
+    } catch (err) {
+      console.error("Error generating Stripe onboarding link:", err);
+      alert("Failed to initiate Stripe onboarding.");
+    }
+  };
+
   // Submit company edit
   const handleSubmit = (e) => {
     toast.success("Company updated!");
@@ -76,8 +104,7 @@ export default function CompanyTable() {
     setOpenDropdown(null);
   };
 
-  // Get all companies on component mount
-  useEffect(() => {
+  const refreshCompanies = () => {
     axios
       .get("/companies", {
         headers: {
@@ -88,6 +115,11 @@ export default function CompanyTable() {
         setCompanies(data);
         setSortedColumn("Name");
       });
+  };
+
+  // Get all companies on component mount
+  useEffect(() => {
+    refreshCompanies();
   }, []);
 
   // Handler to close dropdown if clicking outside of the dropdown area
@@ -129,11 +161,6 @@ export default function CompanyTable() {
       setIsDeleteModalOpen(false); // Close the modal on error as well
       setOpenDropdown(null);
     }
-  };
-
-  // Toggle dropdown
-  const toggleDropdown = (companyId) => {
-    setOpenDropdown(openDropdown === companyId ? null : companyId);
   };
 
   // Close edit modal
@@ -203,6 +230,12 @@ export default function CompanyTable() {
       accessor: (c) => c.facilities.length || "-",
     },
     {
+      key: "stripe",
+      label: "Stripe",
+      accessor: (c) =>
+        (c.stripe?.onboardingComplete ? "Complete" : "Incomplete") || "-",
+    },
+    {
       key: "status",
       label: "Status",
       accessor: (c) => c.status || "-",
@@ -250,6 +283,23 @@ export default function CompanyTable() {
               >
                 Edit
               </a>
+              <a
+                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
+                onClick={() => navigate(`/rental/${company._id}`)}
+              >
+                Rent a Unit
+              </a>
+              {!company.stripe?.onboardingComplete && (
+                <a
+                  className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
+                  onClick={() => {
+                    handleGenerateStripeLink(company._id);
+                    setOpenDropdown(false);
+                  }}
+                >
+                  Generate Stripe Link
+                </a>
+              )}
               <a
                 className="px-4 py-3 hover:bg-zinc-200 rounded-b dark:hover:bg-zinc-900 dark:border-zinc-800"
                 onClick={() =>

@@ -190,7 +190,7 @@ export default function UnitDetail() {
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.unitNumber ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -209,7 +209,7 @@ export default function UnitDetail() {
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <select
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.unitType ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -235,7 +235,7 @@ export default function UnitDetail() {
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.location ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -255,7 +255,7 @@ export default function UnitDetail() {
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.directions ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -281,7 +281,7 @@ export default function UnitDetail() {
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.accessCode ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -300,7 +300,7 @@ export default function UnitDetail() {
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <select
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none "
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none "
                       value={editableUnit.availability ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -414,7 +414,7 @@ export default function UnitDetail() {
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.specifications?.width ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -429,7 +429,7 @@ export default function UnitDetail() {
                   ) : (
                     <p>
                       {unit.specifications.width +
-                        `${editableUnit.specifications?.unit || ""}` ?? "-"}
+                        `${editableUnit.specifications?.unit || ""}`}
                     </p>
                   )}
                 </div>
@@ -440,7 +440,7 @@ export default function UnitDetail() {
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.specifications?.depth ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -455,7 +455,7 @@ export default function UnitDetail() {
                   ) : (
                     <p>
                       {unit.specifications.depth +
-                        `${editableUnit.specifications?.unit || ""}` ?? "-"}
+                        `${editableUnit.specifications?.unit || ""}`}
                     </p>
                   )}
                 </div>
@@ -466,7 +466,7 @@ export default function UnitDetail() {
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.specifications?.height ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -481,7 +481,7 @@ export default function UnitDetail() {
                   ) : (
                     <p>
                       {unit.specifications.height +
-                        `${editableUnit.specifications?.unit || ""}` ?? "-"}
+                        `${editableUnit.specifications?.unit || ""}`}
                     </p>
                   )}
                 </div>
@@ -496,7 +496,7 @@ export default function UnitDetail() {
                 <div className="w-1/2">
                   <p>
                     {unit.specifications.depth * unit.specifications.width +
-                      `${editableUnit.specifications?.unit || ""}²` ?? "-"}
+                      `${editableUnit.specifications?.unit || ""}²`}
                   </p>
                 </div>
               </div>
@@ -506,7 +506,7 @@ export default function UnitDetail() {
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.specifications?.doorSize ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -529,7 +529,7 @@ export default function UnitDetail() {
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.specifications?.doorType ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -552,7 +552,7 @@ export default function UnitDetail() {
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.specifications?.accessType ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -582,7 +582,7 @@ export default function UnitDetail() {
                     $
                     <input
                       type="number"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
                       value={editableUnit.paymentInfo?.pricePerMonth ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -703,7 +703,7 @@ export default function UnitDetail() {
                 )}
               </label>
 
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-zinc-500">
                 Created by: {note.createdBy} |{" "}
                 {new Date(note.createdAt).toLocaleString()}
               </div>

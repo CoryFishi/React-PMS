@@ -85,7 +85,6 @@ const storageUnitSchema = new mongoose.Schema({
   paymentInfo: {
     pricePerMonth: {
       type: Number,
-      default: 0,
       required: true,
     },
     balance: {

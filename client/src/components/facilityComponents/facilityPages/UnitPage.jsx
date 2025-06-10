@@ -22,7 +22,7 @@ import {
 } from "react-icons/bi";
 import { PiLockersFill } from "react-icons/pi";
 
-export default function UnitPage() {
+export default function UnitPage({ facility }) {
   const [units, setUnits] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isRentModalOpen, setIsRentModalOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function UnitPage() {
   const [filteredUnits, setFilteredUnits] = useState([]);
   const [activeTab, setActiveTab] = useState("Individual");
   const navigate = useNavigate();
-  const { facilityId, unitId } = useParams();
+  const { facilityId } = useParams();
   const [statusFilters, setStatusFilters] = useState({
     Rented: true,
     Delinquent: true,
@@ -322,7 +322,10 @@ export default function UnitPage() {
           {u.availability === true && (
             <a
               className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
-              onClick={() => setIsRentModalOpen(true) & setSelectedUnit(u)}
+              onClick={() =>
+                navigate(`/rental/${facility.company}/${facilityId}/${u._id}`)
+              }
+              title={`/rental/${facility.company}/${facilityId}/${u._id}`}
             >
               <BiArrowFromTop /> Rent
             </a>

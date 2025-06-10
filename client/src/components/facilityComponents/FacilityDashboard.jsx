@@ -16,28 +16,9 @@ const today = new Date().toLocaleDateString("en-US", {
   day: "numeric",
 });
 
-export default function FacilityDashboard() {
-  const [facilityData, setFacilityData] = useState("");
+export default function FacilityDashboard({ facility }) {
+  const [facilityData, setFacilityData] = useState(facility || {});
   const { facilityId, section, id } = useParams();
-  useEffect(() => {
-    if (facilityId) {
-      axios
-        .get(`/facilities/${facilityId}`, {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        })
-        .then(({ data }) => {
-          if (data) {
-            setFacilityData(data);
-          } else {
-            setFacilityData([]);
-          }
-        });
-    } else {
-      setFacilityData([]);
-    }
-  }, [facilityId]);
 
   return (
     <div className="h-full">
@@ -45,12 +26,16 @@ export default function FacilityDashboard() {
         <h1 className="text-xl font-bold uppercase">
           {facilityData.facilityName}
         </h1>
-        <h2 className="text-lg">&nbsp;/ {today}</h2>
+        <h2 className="text-lg" onClick={() => console.log(facilityData)}>
+          &nbsp;/ {today}
+        </h2>
       </div>
       {section === "overview" && (
         <FacilityConfigurationDashboard facilityId={facilityId} />
       )}
-      {section === "units" && !id && <UnitPage facilityId={facilityId} />}
+      {section === "units" && !id && (
+        <UnitPage facilityId={facilityId} facility={facilityData} />
+      )}
       {section === "units" && id && (
         <UnitDetail facilityId={facilityId} unitId={id} />
       )}

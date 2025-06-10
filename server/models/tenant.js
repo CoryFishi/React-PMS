@@ -3,6 +3,17 @@ const { Schema } = mongoose;
 
 const tenantSchema = new Schema(
   {
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
+      select: false,
+    },
     firstName: {
       type: String,
       required: [true, "First name is required"],
@@ -17,6 +28,10 @@ const tenantSchema = new Schema(
       required: [true, "Last name is required"],
       trim: true,
     },
+    businessName: {
+      type: String,
+      trim: true,
+    },
     dateOfBirth: {
       type: String,
       match: [/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"],
@@ -29,6 +44,14 @@ const tenantSchema = new Schema(
         match: [
           /^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$/,
           "Please fill a valid phone number",
+        ],
+      },
+      alternatePhone: {
+        type: String,
+        trim: true,
+        match: [
+          /^\(?([0-9]{3})\)?[-.●]?([0-9]{3})[-.●]?([0-9]{4})$/,
+          "Please fill a valid alternate phone number",
         ],
       },
       email: {

@@ -1,14 +1,34 @@
 // Schemas
 const Company = require("../models/company");
 const StorageFacility = require("../models/facility");
-const StorageUnit = require("../models/unit");
 const User = require("../models/user");
-const Tenant = require("../models/tenant");
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Create a new company
 const createCompany = async (req, res) => {
   try {
-    const newCompany = await Company.create(req.body);
+    // 1. Create the Stripe Connected Account
+    const stripeAccount = await stripe.accounts.create({
+      type: "express",
+      country: "US",
+      email: req.body.contactInfo?.email,
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
+
+    // 2. Add stripe data to the company body
+    const companyWithStripe = {
+      ...req.body,
+      stripe: {
+        accountId: stripeAccount.id,
+        onboardingComplete: false,
+      },
+    };
+
+    // 3. Create the company in MongoDB
+    const newCompany = await Company.create(companyWithStripe);
     res.status(201).json(newCompany);
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -24,10 +44,74 @@ const createCompany = async (req, res) => {
       console.error("Rejecting due to duplicate value");
       res.status(409).send({ error: `${duplicateValue} is already taken!` });
     } else {
-      res.status(500).send({ error: error.name });
       console.error("Rejecting due to unknown error: " + error.name);
+      res.status(500).send({ error: error.name });
     }
   }
+};
+
+const createStripeAccountLink = async (req, res) => {
+  try {
+    const company = await Company.findById(req.params.companyId);
+    if (!company || !company.stripe?.accountId) {
+      return res
+        .status(404)
+        .json({ error: "Company or Stripe account not found" });
+    }
+
+    // Check Stripe account status
+    const account = await stripe.accounts.retrieve(company.stripe.accountId);
+
+    // If onboarding is complete, update the company and return it
+    if (account.details_submitted && account.charges_enabled) {
+      company.stripe.onboardingComplete = true;
+      await company.save();
+      return res.status(200).json({ company });
+    }
+
+    // Otherwise, generate onboarding link
+    const accountLink = await stripe.accountLinks.create({
+      account: company.stripe.accountId,
+      refresh_url: "http://localhost:5173/dashboard/admin/companies",
+      return_url: "http://localhost:5173/dashboard/admin/companies",
+      type: "account_onboarding",
+    });
+
+    res.status(200).json({ url: accountLink.url });
+  } catch (error) {
+    console.error("Stripe account onboarding error:", error);
+    res.status(500).json({ error: "Failed to create account link" });
+  }
+};
+
+const createCheckoutSession = async (req, res) => {
+  const { priceInCents, companyStripeAccountId, url } = req.body;
+
+  const session = await stripe.checkout.sessions.create(
+    {
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Storage Unit Rent",
+            },
+            unit_amount: priceInCents,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: url,
+      cancel_url: url,
+    },
+    {
+      stripeAccount: companyStripeAccountId,
+    }
+  );
+
+  res.json({ url: session.url });
 };
 
 // Get all companies
@@ -144,4 +228,6 @@ module.exports = {
   deleteCompany,
   getFacilitiesByCompany,
   getCompanyById,
+  createStripeAccountLink,
+  createCheckoutSession,
 };

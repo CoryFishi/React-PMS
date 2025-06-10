@@ -5,11 +5,21 @@ const authenticateAPIKey = require("../middleware/apiKeyAuth");
 
 // Base route: `/companies`
 router.get("/", authenticateAPIKey, companyController.getCompanies);
+router.post(
+  "/:companyId/stripe-onboarding",
+  authenticateAPIKey,
+  companyController.createStripeAccountLink
+);
 router.get("/:companyId", authenticateAPIKey, companyController.getCompanyById);
 router.get(
   "/:companyId/facilities",
   authenticateAPIKey,
   companyController.getFacilitiesByCompany
+);
+router.post(
+  "/:companyId/checkout-session",
+  authenticateAPIKey,
+  companyController.createCheckoutSession
 );
 router.post("/create", authenticateAPIKey, companyController.createCompany);
 router.delete("/delete", authenticateAPIKey, companyController.deleteCompany);

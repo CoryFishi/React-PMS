@@ -1,18 +1,36 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
-const ADMIN_FEE = 25.0;
 
-export default function RentalStepThree({
-  unitId,
-  facilityId,
-  onNext,
-  onBack,
-}) {
+export default function RentalStepThree({ onNext, onBack }) {
   const [unit, setUnit] = useState(null);
   const [facility, setFacility] = useState(null);
-  const [proratedAmount, setProratedAmount] = useState(null);
+  const { companyId, facilityId, unitId } = useParams();
+  const navigate = useNavigate();
+
+  const handleCheckout = async () => {
+    try {
+      const { data } = await axios.post(
+        `/companies/${companyId}/checkout-session`,
+        {
+          priceInCents: Math.round(total * 100),
+          companyStripeAccountId: facility.company?.stripe?.accountId,
+          url: `${window.location}`,
+        },
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+
+      window.location.href = data.url;
+    } catch (err) {
+      console.error("Failed to start checkout:", err);
+    }
+  };
 
   useEffect(() => {
     if (unitId) {
@@ -22,7 +40,6 @@ export default function RentalStepThree({
         })
         .then(({ data }) => {
           setUnit(data);
-          calculateProrate(data.paymentInfo?.pricePerMonth);
         });
     }
 
@@ -35,24 +52,12 @@ export default function RentalStepThree({
     }
   }, [unitId, facilityId]);
 
-  const calculateProrate = (monthlyRate) => {
-    const today = new Date();
-    const daysInMonth = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      0
-    ).getDate();
-    const daysRemaining = daysInMonth - today.getDate() + 1;
-    const prorated = (monthlyRate / daysInMonth) * daysRemaining;
-    setProratedAmount(Number(prorated.toFixed(2)));
-  };
-
   if (!unit || !facility) return <p>Loading...</p>;
 
-  const total = (proratedAmount ?? 0) + ADMIN_FEE;
+  const total = unit.paymentInfo?.pricePerMonth ?? 0;
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-2 gap-3 py-2 px-3">
       {/* LEFT: UNIT DETAILS */}
       <div className="bg-gray-50 p-4 rounded border">
         <h2 className="text-lg font-semibold mb-2">Unit Details</h2>
@@ -77,21 +82,12 @@ export default function RentalStepThree({
 
         {/* First Month */}
         <div className="border p-3 mb-2">
-          <p className="line-through text-sm text-gray-400">
-            First Month's Rent: ${unit.paymentInfo?.pricePerMonth.toFixed(2)}
-          </p>
           <p>
-            <strong>First Month Prorated:</strong> ${proratedAmount}
+            <strong>First Month Rent:</strong> $
+            {unit.paymentInfo?.pricePerMonth.toFixed(2)}
           </p>
           <p className="text-xs text-gray-500">
             ({new Date().toLocaleDateString()} - end of month)
-          </p>
-        </div>
-
-        {/* Admin Fee */}
-        <div className="border p-3 mb-3">
-          <p>
-            <strong>Administrative Fee:</strong> ${ADMIN_FEE.toFixed(2)}
           </p>
         </div>
 
@@ -101,25 +97,26 @@ export default function RentalStepThree({
             <span>Subtotal</span>
             <span>${total.toFixed(2)}</span>
           </p>
-          <p className="flex justify-between">
-            <span>Taxes</span>
-            <span>$0.00</span>
-          </p>
-          <p className="flex justify-between font-bold text-red-600 mt-2">
-            <span>Balance</span>
-            <span>${total.toFixed(2)}</span>
+          <p className="flex justify-end">
+            <span className="text-zinc-300 ">Taxes calculated at checkout</span>
           </p>
         </div>
 
         <div className="flex justify-between mt-6">
-          <button onClick={onBack} className="bg-gray-300 px-4 py-2 rounded">
+          <button
+            onClick={() => {
+              onBack();
+              navigate(`/rental/${companyId}/${facilityId}`);
+            }}
+            className="bg-gray-300 px-4 py-2 rounded"
+          >
             Back
           </button>
           <button
-            onClick={onNext}
+            onClick={handleCheckout}
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            Next
+            Pay & Continue
           </button>
         </div>
       </div>

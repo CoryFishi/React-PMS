@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-export default function RentalStepTwo({
-  facilityId,
-  onNext,
-  onUnitSelect,
-  onBack,
-}) {
+export default function RentalStepTwo({ onNext, onBack }) {
   const [units, setUnits] = useState(null);
+  const { facilityId, companyId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!facilityId) return;
@@ -26,35 +24,32 @@ export default function RentalStepTwo({
   const availableUnits = units.filter((u) => u.status === "Vacant");
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Select a Unit</h2>
+    <div className="px-3 py-2 gap-2 flex flex-col">
       {availableUnits.length === 0 ? (
         <p>No available units at this facility.</p>
       ) : (
-        <ul className="space-y-4">
+        <div className="flex flex-col gap-1 mt-2">
           {availableUnits.map((unit) => (
             <div
               key={unit._id}
-              className="p-4 border rounded shadow-sm flex justify-between items-center"
+              className="p-4 border rounded shadow-sm flex justify-between items-center "
             >
               <div>
-                <h3 className="font-bold text-md mb-1">
-                  Unit {unit.unitNumber}
-                </h3>
-                <p>
+                <h3 className="font-bold text-lg">Unit {unit.unitNumber}</h3>
+                <p className="font-thin">
                   {unit.specifications?.width}x{unit.specifications?.depth}{" "}
                   {unit.specifications?.unit ?? "ft"}
                 </p>
-                <p>
+                <p className="font-thin">
                   {unit.climateControlled ? "Climate Controlled" : "Standard"}
                 </p>
               </div>
-              <p className="font-semibold mt-1">
+              <p className="font-semibold">
                 ${unit.paymentInfo?.pricePerMonth?.toFixed(2)} / month
               </p>
               <button
                 onClick={() => {
-                  onUnitSelect(unit._id);
+                  navigate(`/rental/${companyId}/${facilityId}/${unit._id}`);
                   onNext();
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded"
@@ -63,11 +58,14 @@ export default function RentalStepTwo({
               </button>
             </div>
           ))}
-        </ul>
+        </div>
       )}
       <button
-        onClick={onBack}
-        className="mt-6 px-4 py-2 bg-gray-300 text-black rounded"
+        onClick={() => {
+          navigate(`/rental/${companyId}/`);
+          onBack();
+        }}
+        className="px-4 py-2 bg-gray-300 text-black rounded w-fit"
       >
         Back
       </button>

@@ -94,7 +94,7 @@ function App() {
             element={<RentalCheckout />}
           />
           <Route
-            path="/rental/:companyId/:facilityId/:unitId/*"
+            path="/rental/:companyId/:facilityId/:unitId"
             element={<RentalCheckout />}
           />
           <Route
