@@ -47,7 +47,7 @@ router.post(
   userController.sendUserConfirmationEmail
 ); // May want to make this a post /users/confirm?=userId
 router.get(
-  "/admin/dashboard",
+  "/dashboard/overview",
   authenticateAPIKey,
   userController.getAdminDashboardData
 );

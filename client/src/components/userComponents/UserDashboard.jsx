@@ -1,25 +1,27 @@
-import CompanyTable from "../companyComponents/CompanyTable";
-import FacilityTable from "../facilityComponents/FacilityTable";
 import UserTable from "../userComponents/UserTable";
 import { useState, useEffect, useContext } from "react";
-import { FaBuildingLock } from "react-icons/fa6";
-import { RiAdminFill } from "react-icons/ri";
-import { MdExpandMore, MdExpandLess } from "react-icons/md";
-import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
-import FacilityDashboard from "../facilityComponents/FacilityDashboard";
-import ConfigurationDashboard from "./ConfigurationDashboard";
 import { useNavigate } from "react-router-dom";
+import { MdExpandMore, MdExpandLess } from "react-icons/md";
+import { FaBuildingLock } from "react-icons/fa6";
 import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
+import Navbar from "../Navbar";
+import { BiUser } from "react-icons/bi";
+import FacilityTable from "../facilityComponents/FacilityTable";
+import FacilityDashboard from "../facilityComponents/FacilityDashboard";
+import ConfigurationDashboard from "./ConfigurationDashboard";
 import ReportsPage from "../reportComponents/ReportsPage";
 
-export default function AdminDashboard({ darkMode, toggleDarkMode }) {
+export default function UserDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
+  const [facility, setFacility] = useState({});
   const [facilityData, setFacilityData] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { user } = useContext(UserContext);
-  const [facilityId, setFacilityId] = useState(user.selectedFacility || "");
+  const [selectedFacilityId, setSelectedFacilityId] = useState(
+    user.selectedFacility || ""
+  );
   const [openSections, setOpenSections] = useState({
     facilities: false,
     currentFacility: false,
@@ -28,9 +30,8 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
     localStorage.getItem("selectedCompany") || ""
   );
   const navigate = useNavigate();
-  const { section } = useParams();
+  const { section, facilityId } = useParams();
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/dashboard/admin");
 
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
@@ -41,9 +42,9 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
   useEffect(() => {
     const getFacility = async () => {
-      if (!facilityId) return;
+      if (!selectedFacilityId) return;
       try {
-        const { data } = await axios.get(`/facilities/${facilityId}`, {
+        const { data } = await axios.get(`/facilities/${selectedFacilityId}`, {
           headers: { "x-api-key": import.meta.env.VITE_API_KEY },
         });
 
@@ -57,10 +58,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
     };
 
     getFacility();
-  }, [facilityId]);
+  }, [selectedFacilityId]);
 
   return (
-    <div className="flex flex-col w-screen h-screen dark:bg-zinc-900">
+    <div className="flex flex-col w-full h-full overflow-hidden">
       <Navbar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
@@ -73,15 +74,22 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             {/* Header Side Bar */}
             <div>
               <h3 className="text-center m-[18px] text-2xl font-bold">
-                {user.role == "System_Admin" ? "Admin" : "Dashboard"}
+                Dashboard
               </h3>
             </div>
             <div className="flex-grow">
               {/* Current Facility Side Bar */}
               <div
                 className={`border-t border-b pl-2 pr-2 border-zinc-800 pb-8 ${
-                  isAdmin
-                    ? "bg-zinc-800 border-l-blue-500 border-l-4 dark:bg-zinc-900"
+                  section === "users" ||
+                  location.pathname.startsWith("/dashboard/reports") ||
+                  section === "reports" ||
+                  section === "settings" ||
+                  section === "facilities" ||
+                  !section
+                    ? !facilityId
+                      ? "bg-zinc-800 border-l-blue-500 border-l-4 dark:bg-zinc-900"
+                      : ""
                     : ""
                 }`}
               >
@@ -90,8 +98,19 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                   onClick={() => toggleSection("currentFacility")}
                 >
                   <div className="flex items-center space-x-2">
-                    <RiAdminFill
-                      className={`${isAdmin ? "text-blue-500" : ""}`}
+                    <BiUser
+                      className={`${
+                        section === "users" ||
+                        location.pathname.startsWith("/dashboard/reports") ||
+                        section === "reports" ||
+                        section === "settings" ||
+                        section === "facilities" ||
+                        !section
+                          ? !facilityId
+                            ? "text-blue-500"
+                            : ""
+                          : ""
+                      }`}
                     />
                     <span className="pl-2 font-medium">Configuration</span>
                   </div>
@@ -105,18 +124,17 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 {!openSections.currentFacility && (
                   <div className="mx-4 mt-4 space-y-2">
                     <button
-                      onClick={() => navigate("/dashboard/admin/overview")}
+                      onClick={() => navigate("/dashboard")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        isAdmin && section === "overview"
+                        !section && !facilityId
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
                           : ""
                       }`}
                     >
                       Overview
                     </button>
-
                     <button
-                      onClick={() => navigate("/dashboard/admin/users")}
+                      onClick={() => navigate("/dashboard/users")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
                         section === "users"
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
@@ -127,18 +145,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     </button>
 
                     <button
-                      onClick={() => navigate("/dashboard/admin/companies")}
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "companies"
-                          ? "bg-zinc-700 border-b-blue-500 border-b-2"
-                          : ""
-                      }`}
-                    >
-                      Companies
-                    </button>
-
-                    <button
-                      onClick={() => navigate("/dashboard/admin/facilities")}
+                      onClick={() => navigate("/dashboard/facilities")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
                         section === "facilities"
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
@@ -147,11 +154,22 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     >
                       Facilities
                     </button>
-
                     <button
-                      onClick={() => navigate("/dashboard/admin/reports")}
+                      onClick={() => navigate("/dashboard/settings")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        isAdmin && section === "reports"
+                        section === "settings" && !facilityId
+                          ? "bg-zinc-700 border-b-blue-500 border-b-2"
+                          : ""
+                      }`}
+                    >
+                      Settings
+                    </button>
+                    <button
+                      onClick={() => navigate("/dashboard/reports")}
+                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
+                        section === "reports" ||
+                        (location.pathname.startsWith("/dashboard/reports") &&
+                          !facilityId)
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
                           : ""
                       }`}
@@ -162,17 +180,17 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 )}
               </div>
               {/* Facilities Side Bar */}
-              {facilityId !== "" && (
+              {selectedFacilityId !== "" && (
                 <div
                   className={`border-t border-b pl-2 pr-2 border-zinc-800 pb-8 ${
-                    !isAdmin &
-                    (section === "units" ||
-                      section === "tenants" ||
-                      section === "reports" ||
-                      section === "settings" ||
-                      section === "facility" ||
-                      section === "overview")
-                      ? "bg-zinc-800  dark:bg-zinc-900 border-l-blue-500 border-l-4"
+                    section === "units" ||
+                    section === "tenants" ||
+                    section === "reports" ||
+                    section === "settings" ||
+                    section === "facility" ||
+                    section === "overview"
+                      ? facilityId &&
+                        "bg-zinc-800  dark:bg-zinc-900 border-l-blue-500 border-l-4"
                       : ""
                   }`}
                 >
@@ -183,14 +201,13 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     <div className="flex items-center space-x-2">
                       <FaBuildingLock
                         className={`${
-                          !isAdmin &
-                          (section === "units" ||
-                            section === "tenants" ||
-                            section === "reports" ||
-                            section === "settings" ||
-                            section === "facility" ||
-                            section === "overview")
-                            ? "text-blue-500"
+                          section === "units" ||
+                          section === "tenants" ||
+                          section === "reports" ||
+                          section === "settings" ||
+                          section === "facility" ||
+                          section === "overview"
+                            ? facilityId && "text-blue-500"
                             : ""
                         }`}
                       />
@@ -207,10 +224,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     <div className="mx-4 mt-4 space-y-2">
                       <button
                         onClick={() =>
-                          navigate(`/dashboard/${facilityId}/overview`)
+                          navigate(`/dashboard/${selectedFacilityId}/overview`)
                         }
                         className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          !isAdmin && section === "overview"
+                          section === "overview" && facilityId
                             ? "bg-zinc-700 border-b-blue-500 border-b-2"
                             : ""
                         }`}
@@ -220,7 +237,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
                       <button
                         onClick={() =>
-                          navigate(`/dashboard/${facilityId}/units`)
+                          navigate(`/dashboard/${selectedFacilityId}/units`)
                         }
                         className={`px-2 block hover:bg-zinc-700 w-full text-left ${
                           section === "units"
@@ -233,7 +250,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
                       <button
                         onClick={() =>
-                          navigate(`/dashboard/${facilityId}/tenants`)
+                          navigate(`/dashboard/${selectedFacilityId}/tenants`)
                         }
                         className={`px-2 block hover:bg-zinc-700 w-full text-left ${
                           section === "tenants"
@@ -246,10 +263,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
                       <button
                         onClick={() =>
-                          navigate(`/dashboard/${facilityId}/reports`)
+                          navigate(`/dashboard/${selectedFacilityId}/reports`)
                         }
                         className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          !isAdmin && section === "reports"
+                          section === "reports" && facilityId
                             ? "bg-zinc-700 border-b-blue-500 border-b-2"
                             : ""
                         }`}
@@ -259,10 +276,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
                       <button
                         onClick={() =>
-                          navigate(`/dashboard/${facilityId}/settings`)
+                          navigate(`/dashboard/${selectedFacilityId}/settings`)
                         }
                         className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          section === "settings"
+                          section === "settings" && facilityId
                             ? "bg-zinc-700 border-b-blue-500 border-b-2"
                             : ""
                         }`}
@@ -271,7 +288,9 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       </button>
 
                       <button
-                        onClick={() => setFacilityId("") & setCompany("")}
+                        onClick={() =>
+                          setSelectedFacilityId("") & setCompany("")
+                        }
                         className={`px-2 block hover:bg-zinc-700 w-full text-left`}
                       >
                         Clear Current Facility
@@ -284,29 +303,23 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           </div>
         )}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          {isAdmin && !section && <ConfigurationDashboard />}
-          {isAdmin && section === "users" && <UserTable />}
-          {isAdmin && section === "companies" && <CompanyTable />}
-          {isAdmin &&
-            location.pathname.startsWith("/dashboard/admin/reports") && (
-              <ReportsPage />
-            )}
-          {isAdmin && section === "facilities" && (
+          {!section && !facilityId && <ConfigurationDashboard />}
+          {section === "users" && <UserTable />}
+          {location.pathname.startsWith("/dashboard/reports") && (
+            <ReportsPage />
+          )}
+          {section === "facilities" && (
             <FacilityTable
-              facility={facilityId}
-              company={company}
-              setCompany={setCompany}
+              setFacility={setFacility}
               setFacilityName={setFacilityName}
-              setFacility={setFacilityId}
             />
           )}
-          {!isAdmin && facilityId ? (
-            facilityData && facilityData._id ? (
-              <FacilityDashboard facility={facilityData} />
-            ) : (
-              <p className="p-4">Loading facility dashboard...</p>
-            )
-          ) : null}
+          {facilityId && facilityData?._id && (
+            <FacilityDashboard facility={facilityData} />
+          )}
+          {facilityId && !facilityData?._id && (
+            <p className="p-4">Loading facility dashboard...</p>
+          )}
         </div>
       </div>
     </div>

@@ -50,6 +50,12 @@ function App() {
             }
           />
           <Route
+            path="/dashboard/reports/:reportId"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
             path="/dashboard/admin/:section"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
@@ -96,6 +102,12 @@ function App() {
           <Route
             path="/rental/:companyId/:facilityId/:unitId"
             element={<RentalCheckout />}
+          />
+          <Route
+            path="/dashboard/:section"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
           />
           <Route
             path="/login"

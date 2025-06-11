@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Bar, Line } from "react-chartjs-2";
+import { useContext } from "react";
+import { UserContext } from "../../../context/userContext";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,7 +14,6 @@ import {
   Legend,
 } from "chart.js";
 import axios from "axios";
-import moment from "moment";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 ChartJS.register(
@@ -38,7 +39,9 @@ const today = new Date().toLocaleDateString("en-US", {
   day: "numeric",
 });
 
-export default function AdminConfigurationDashboard() {
+export default function ConfigurationDashboard() {
+  const { user } = useContext(UserContext);
+
   const [dashboardData, setDashboardData] = useState({
     users: { total: 0, enabled: 0, disabled: 0 },
     facilities: {
@@ -159,8 +162,11 @@ export default function AdminConfigurationDashboard() {
   };
 
   useEffect(() => {
+    if (!user?._id) return;
+
     axios
-      .get("/admin/dashboard", {
+      .get("/dashboard/overview", {
+        params: { userId: user._id },
         headers: {
           "x-api-key": API_KEY,
         },
@@ -171,12 +177,12 @@ export default function AdminConfigurationDashboard() {
       .catch((error) => {
         console.error("Error fetching dashboard data:", error);
       });
-  }, []);
+  }, [user]);
 
   return (
     <div className="flex flex-col h-full w-full relative dark:text-white">
       <div className="w-full p-5 bg-zinc-200 dark:text-white dark:bg-zinc-950 flex items-center border-b border-b-zinc-300 dark:border-zinc-800">
-        <h1 className="text-xl font-bold uppercase">Admin Dashboard</h1>
+        <h1 className="text-xl font-bold uppercase">OverView</h1>
         <h2 className="text-lg">&nbsp;/ {today}</h2>
       </div>
       <div className="m-2 flex-col flex gap-2">

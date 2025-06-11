@@ -586,10 +586,41 @@ const getUsersByCompany = async (req, res) => {
 
 // Get all Users
 const getUsers = async (req, res) => {
-  const users = await User.find({})
-    .populate("company", "companyName")
-    .sort({ displayName: 1 });
-  res.status(200).json(users);
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Missing userId" });
+    }
+
+    const requestingUser = await User.findById(userId);
+
+    if (!requestingUser) {
+      return res.status(404).json({ message: "Requesting user not found" });
+    }
+
+    let users;
+
+    if (requestingUser.role === "System_Admin") {
+      // Return all users
+      users = await User.find({})
+        .populate("company", "companyName")
+        .sort({ displayName: 1 });
+    } else if (requestingUser.role === "Company_Admin") {
+      // Return users from the same company
+      users = await User.find({ company: requestingUser.company })
+        .populate("company", "companyName")
+        .sort({ displayName: 1 });
+    } else {
+      // Return only the user's own info
+      users = [requestingUser];
+    }
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users" });
+  }
 };
 
 // Get user by Id
@@ -605,68 +636,106 @@ const getUserById = async (req, res) => {
 
 const getAdminDashboardData = async (req, res) => {
   try {
+    const { userId } = req.query;
+    if (!userId) {
+      return res.status(400).json({ message: "Missing userId" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const currentDate = new Date();
     const startDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth() - 2,
       1
-    ); // Start from two months ago
+    );
 
-    // User counts
-    const totalUsers = await User.countDocuments();
-    const enabledUsers = await User.countDocuments({ status: "Enabled" });
-    const disabledUsers = await User.countDocuments({ status: "Disabled" });
+    // Helper to scope queries
+    const companyFilter =
+      user.role === "System_Admin" ? {} : { company: user.company };
 
-    // Company counts
-    const totalCompanies = await Company.countDocuments();
+    // Users
+    const totalUsers =
+      user.role === "System_Admin"
+        ? await User.countDocuments()
+        : await User.countDocuments({ company: user.company });
+    const enabledUsers = await User.countDocuments({
+      ...companyFilter,
+      status: "Enabled",
+    });
+    const disabledUsers = await User.countDocuments({
+      ...companyFilter,
+      status: "Disabled",
+    });
+
+    // Companies
+    const totalCompanies =
+      user.role === "System_Admin"
+        ? await Company.countDocuments()
+        : await Company.countDocuments({ _id: user.company });
     const enabledCompanies = await Company.countDocuments({
+      ...companyFilter,
       status: "Enabled",
     });
     const disabledCompanies = await Company.countDocuments({
+      ...companyFilter,
       status: "Disabled",
     });
 
-    // Facility counts
-    const totalFacilities = await StorageFacility.countDocuments();
+    // Facilities
+    const totalFacilities = await StorageFacility.countDocuments(companyFilter);
     const enabledFacilities = await StorageFacility.countDocuments({
+      ...companyFilter,
       status: "Enabled",
     });
     const pendingDeploymentFacilities = await StorageFacility.countDocuments({
+      ...companyFilter,
       status: "Pending Deployment",
     });
     const maintenanceFacilities = await StorageFacility.countDocuments({
+      ...companyFilter,
       status: "Maintenance",
     });
     const disabledFacilities = await StorageFacility.countDocuments({
+      ...companyFilter,
       status: "Disabled",
     });
 
-    // Unit counts
-    const totalUnits = await StorageUnit.countDocuments();
+    // Units
+    const totalUnits = await StorageUnit.countDocuments(companyFilter);
     const rentedUnits = await StorageUnit.countDocuments({
+      ...companyFilter,
       status: "Rented",
     });
     const delinquentUnits = await StorageUnit.countDocuments({
+      ...companyFilter,
       status: "Delinquent",
     });
     const vacantUnits = await StorageUnit.countDocuments({
+      ...companyFilter,
       status: "Vacant",
     });
 
-    // Tenant counts
-    const totalTenants = await Tenant.countDocuments();
+    // Tenants
+    const totalTenants = await Tenant.countDocuments(companyFilter);
     const activeTenants = await Tenant.countDocuments({
+      ...companyFilter,
       status: "Active",
     });
     const disabledTenants = await Tenant.countDocuments({
+      ...companyFilter,
       status: "Disabled",
     });
 
-    // Events count per month (for current and past 2 months)
+    // Events
     const eventCounts = await Event.aggregate([
       {
         $match: {
-          createdAt: { $gte: startDate, $lte: currentDate }, // Filter for the last 3 months
+          ...companyFilter,
+          createdAt: { $gte: startDate, $lte: currentDate },
         },
       },
       {
@@ -678,12 +747,9 @@ const getAdminDashboardData = async (req, res) => {
           count: { $sum: 1 },
         },
       },
-      {
-        $sort: { "_id.year": 1, "_id.month": 1 }, // Sort chronologically
-      },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
     ]);
 
-    // Convert month number to month name
     const monthNames = [
       "January",
       "February",

@@ -552,22 +552,38 @@ const getFacilities = async (req, res) => {
 
 const getFacilitiesAndCompany = async (req, res) => {
   try {
-    var facilities;
-    if (req.query.company) {
-      facilities = await StorageFacility.find({ company: req.query.company })
-        .populate("company", "companyName")
-        .populate("manager", "name")
-        .sort({ facilityName: 1 });
-    } else {
-      facilities = await StorageFacility.find({})
-        .populate("company", "companyName")
-        .populate("manager", "name")
-        .sort({ facilityName: 1 });
+    const { userId } = req.query;
+    let facilities;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json({ facilities });
+    const isAdmin =
+      user.role === "System_Admin" || user.role === "Company_Admin";
+
+    // If admin, return all or that company's facilities
+    if (isAdmin) {
+      const query =
+        user.role === "Company_Admin" ? { company: user.company } : {};
+
+      facilities = await StorageFacility.find(query)
+        .populate("company", "companyName")
+        .populate("manager", "name")
+        .sort({ facilityName: 1 });
+
+      return res.status(200).json({ facilities });
+    }
+
+    // Otherwise, return facilities for the user's company only
+    facilities = await StorageFacility.find({ company: user.company })
+      .populate("company", "companyName")
+      .populate("manager", "name")
+      .sort({ facilityName: 1 });
+
+    return res.status(200).json({ facilities });
   } catch (error) {
     console.error("Error fetching facilities and companies:", error);
-    res
+    return res
       .status(500)
       .json({ message: "Error fetching facilities and companies" });
   }

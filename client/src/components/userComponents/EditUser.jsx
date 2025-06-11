@@ -74,6 +74,10 @@ export default function EditUser({ userId, onClose, onSubmit }) {
     );
   };
 
+  const toggleEmail = () => {
+    setIsConfirmed((prevState) => (prevState === true ? false : true));
+  };
+
   useEffect(() => {
     axios
       .get("/companies", {
@@ -362,7 +366,7 @@ export default function EditUser({ userId, onClose, onSubmit }) {
                 type="checkbox"
                 id="confirmed"
                 checked={isConfirmed}
-                disabled
+                onChange={toggleEmail}
               />
               <span>Email Confirmed</span>
             </div>

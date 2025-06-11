@@ -83,27 +83,25 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
 
   // Get facilities on component mount
   useEffect(() => {
+    if (!user?._id) return;
     axios
       .get("/facilities/company", {
+        params: { userId: user._id },
         headers: {
           "x-api-key": API_KEY,
         },
       })
       .then(({ data }) => {
         setFacilities(data.facilities);
-        // Calculate total units
+
         const totalUnits = Object.values(data.facilities).reduce(
-          (total, json) => {
-            // Add the length of units array from the current JSON to the total
-            return total + (json.units.length || 0);
-          },
+          (total, json) => total + (json.units.length || 0),
           0
         );
         setSortedColumn("Name");
-        // Set the total units
         setUnits(totalUnits);
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -307,7 +305,6 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
                         },
                       }
                     );
-                    toast.success("Facility selected!");
                     setFacility(f._id);
                     setFacilityName(f.facilityName);
                     navigate(`/dashboard/${f._id}/overview`);

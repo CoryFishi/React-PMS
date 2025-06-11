@@ -79,8 +79,11 @@ export default function UserTable() {
   };
   // Get all users on component mount
   useEffect(() => {
+    if (!user?._id) return;
+
     axios
       .get("/users", {
+        params: { userId: user._id },
         headers: {
           "x-api-key": API_KEY,
         },
@@ -92,7 +95,7 @@ export default function UserTable() {
       .catch((error) => {
         console.error("Error fetching users:", error);
       });
-  }, []);
+  }, [user]);
 
   // Handler to close dropdown if clicking outside of the dropdown area
   useEffect(() => {

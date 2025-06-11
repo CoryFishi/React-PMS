@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
-import UserAdminDashboard from "../components/userComponents/UserAdminDashboard";
+import UserDashboard from "../components/userComponents/UserDashboard";
 import AdminDashboard from "../components/userComponents/AdminDashboard";
 
 export default function Dashboard({ darkMode, toggleDarkMode }) {
@@ -40,10 +40,7 @@ export default function Dashboard({ darkMode, toggleDarkMode }) {
         {user?.role === "System_Admin" || user?.role === "System_User" ? (
           <AdminDashboard darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         ) : user?.role === "Company_Admin" || user?.role === "Company_User" ? (
-          <UserAdminDashboard
-            darkMode={darkMode}
-            toggleDarkMode={toggleDarkMode}
-          />
+          <UserDashboard darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         ) : (
           <p>Role not recognized or user data incomplete</p>
         )}
