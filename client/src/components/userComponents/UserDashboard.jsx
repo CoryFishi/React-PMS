@@ -12,6 +12,7 @@ import FacilityTable from "../facilityComponents/FacilityTable";
 import FacilityDashboard from "../facilityComponents/FacilityDashboard";
 import ConfigurationDashboard from "./ConfigurationDashboard";
 import ReportsPage from "../reportComponents/ReportsPage";
+import SettingsPage from "../SettingsPage";
 
 export default function UserDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
@@ -126,7 +127,10 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
                     <button
                       onClick={() => navigate("/dashboard")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        !section && !facilityId
+                        !section &&
+                        !facilityId &&
+                        !location.pathname.startsWith("/dashboard/reports") &&
+                        !location.pathname.startsWith("/dashboard/settings")
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
                           : ""
                       }`}
@@ -157,7 +161,9 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
                     <button
                       onClick={() => navigate("/dashboard/settings")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "settings" && !facilityId
+                        section === "settings" ||
+                        (location.pathname.startsWith("/dashboard/settings") &&
+                          !facilityId)
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
                           : ""
                       }`}
@@ -303,10 +309,18 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
           </div>
         )}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          {!section && !facilityId && <ConfigurationDashboard />}
+          {!section &&
+            !facilityId &&
+            !location.pathname.startsWith("/dashboard/reports") &&
+            !location.pathname.startsWith("/dashboard/settings") && (
+              <ConfigurationDashboard />
+            )}
           {section === "users" && <UserTable />}
           {location.pathname.startsWith("/dashboard/reports") && (
             <ReportsPage />
+          )}
+          {location.pathname.startsWith("/dashboard/settings") && (
+            <SettingsPage />
           )}
           {section === "facilities" && (
             <FacilityTable

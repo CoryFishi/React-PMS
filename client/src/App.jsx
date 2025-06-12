@@ -56,6 +56,12 @@ function App() {
             }
           />
           <Route
+            path="/dashboard/settings/:settingId"
+            element={
+              <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
+            }
+          />
+          <Route
             path="/dashboard/admin/:section"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
