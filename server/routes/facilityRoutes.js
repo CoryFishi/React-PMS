@@ -3,76 +3,115 @@ const router = express.Router();
 const facilityController = require("../controllers/facilityController");
 const tenantController = require("../controllers/tenantController");
 const authenticateAPIKey = require("../middleware/apiKeyAuth");
+const { authenticate } = require("../middleware/authentication");
 
 // Base route: `/facilities`
 router.get(
   "/company",
   authenticateAPIKey,
+  authenticate,
   facilityController.getFacilitiesAndCompany
 );
 router.get(
   "/dashboard/:facilityId",
   authenticateAPIKey,
+  authenticate,
   facilityController.getFacilityDashboardData
 );
-router.get("/", authenticateAPIKey, facilityController.getFacilities);
-router.get("/amenities", authenticateAPIKey, facilityController.getAmenities);
+router.get(
+  "/",
+  authenticateAPIKey,
+  authenticate,
+  facilityController.getFacilities
+);
+router.get(
+  "/amenities",
+  authenticateAPIKey,
+  authenticate,
+  facilityController.getAmenities
+);
 router.get(
   "/security",
   authenticateAPIKey,
+  authenticate,
   facilityController.getSecurityLevels
 );
-router.post("/create", authenticateAPIKey, facilityController.createFacility);
-router.delete("/delete", authenticateAPIKey, facilityController.deleteFacility);
+router.post(
+  "/create",
+  authenticateAPIKey,
+  authenticate,
+  facilityController.createFacility
+);
+router.delete(
+  "/delete",
+  authenticateAPIKey,
+  authenticate,
+  facilityController.deleteFacility
+);
 router.put(
   "/update/status",
   authenticateAPIKey,
+  authenticate,
   facilityController.deployFacility
 );
-router.put("/update", authenticateAPIKey, facilityController.editFacility);
+router.put(
+  "/update",
+  authenticateAPIKey,
+  authenticate,
+  facilityController.editFacility
+);
 router.post(
   "/:facilityId/settings/unittypes",
   authenticateAPIKey,
+  authenticate,
   facilityController.addUnitType
 );
 router.delete(
   "/:facilityId/settings/unittypes",
   authenticateAPIKey,
+  authenticate,
   facilityController.deleteUnitType
 );
 router.get(
   "/:facilityId/tenants/:tenantId",
   authenticateAPIKey,
+  authenticate,
   tenantController.getTenantById
 );
 router.put(
   "/:facilityId/tenants/:tenantId",
   authenticateAPIKey,
+  authenticate,
   tenantController.editTenant
 );
 router.get(
   "/:facilityId/tenants",
   authenticateAPIKey,
+  authenticate,
   tenantController.getTenants
 );
 router.put(
   "/:facilityId/settings/unittypes",
   authenticateAPIKey,
+  authenticate,
   facilityController.editUnitType
 );
 router.post(
   "/:facilityId/settings/amenities",
   authenticateAPIKey,
+  authenticate,
   facilityController.addAmenity
 );
 router.delete(
   "/:facilityId/settings/amenities",
   authenticateAPIKey,
+  authenticate,
   facilityController.deleteAmenity
 );
 router.put(
   "/:facilityId/settings/amenities",
   authenticateAPIKey,
+  authenticate,
   facilityController.editAmenity
 );
 
@@ -80,51 +119,61 @@ router.put(
 router.post(
   "/:facilityId/units",
   authenticateAPIKey,
+  authenticate,
   facilityController.addUnit
 );
 router.delete(
   "/:facilityId/units/:unitId",
   authenticateAPIKey,
+  authenticate,
   facilityController.deleteUnit
 );
 router.get(
   "/units/:facilityId/vacant",
   authenticateAPIKey,
+  authenticate,
   facilityController.getVacantUnits
 );
 router.get(
   "/:facilityId/units",
   authenticateAPIKey,
+  authenticate,
   facilityController.getUnits
 );
 router.put(
   "/:facilityId/units/:unitId/moveout",
   authenticateAPIKey,
+  authenticate,
   facilityController.removeTenant
 );
 router.put(
   "/:facilityId/units/:unitId",
   authenticateAPIKey,
+  authenticate,
   facilityController.editUnit
 );
 router.post(
   "/:facilityId/units/:unitId/notes",
   authenticateAPIKey,
+  authenticate,
   facilityController.createNote
 );
 router.patch(
   "/:facilityId/units/:unitId/notes/:index",
   authenticateAPIKey,
+  authenticate,
   facilityController.editNote
 );
 router.get(
   "/:facilityId/units/:unitId",
   authenticateAPIKey,
+  authenticate,
   facilityController.getUnitById
 );
 router.get(
   "/:facilityId",
   authenticateAPIKey,
+  authenticate,
   facilityController.getFacilityById
 );
 

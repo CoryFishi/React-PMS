@@ -65,17 +65,16 @@ export default function Navbar({
               className="block p-3 font-semibold rounded-full text-xlmr-4 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               onClick={() => setIsCollapsed(!isCollapsed)}
             >
-              {isCollapsed ? <RiMenuFold2Fill /> : <RiMenuUnfold2Fill />}
+              {isCollapsed ? <RiMenuUnfold2Fill /> : <RiMenuFold2Fill />}
             </button>
           )}
           <span
             className={`${
-              location.pathname === "/dashboard" ? "ml-1" : "ml-5"
-            } font-semibold text-xl flex items-center`}
-            onClick={() => console.log(user)}
+              location.pathname.startsWith("/dashboard") ? "ml-1" : "ml-5"
+            } font-semibold text-xl flex items-center gap-2`}
           >
-            <AiFillCode />
-            SafeManager
+            <img src="/src/assets/images/logo.png" alt="Logo" className="h-7" />
+            Storix
           </span>
         </div>
         <div className="flex space-x-4 items-center pr-5">

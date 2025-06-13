@@ -1,14 +1,10 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { FaPerson } from "react-icons/fa6";
-import { BsBuildingFillLock, BsFillBuildingsFill } from "react-icons/bs";
-import { MdSettingsApplications } from "react-icons/md";
-import UserDetailReport from "./reportComponents/UserDetailReport";
-import CompanyDetailReport from "./reportComponents/CompanyDetailReport";
-import FacilityDetailReport from "./reportComponents/FacilityDetailReport";
-import ApplicationEventsReport from "./reportComponents/ApplicationEventsReport";
+import { BsBuildingFillLock } from "react-icons/bs";
+import StripeSettings from "./StripeSettings";
+import { BiMoney } from "react-icons/bi";
 
 export default function SettingsPage() {
-  const { settingsId } = useParams();
+  const { settingId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,10 +16,7 @@ export default function SettingsPage() {
     : "/dashboard/settings";
 
   const reports = {
-    allUsers: <UserDetailReport />,
-    allCompanies: <CompanyDetailReport />,
-    allFacilities: <FacilityDetailReport />,
-    allEvents: <ApplicationEventsReport />,
+    stripe: <StripeSettings />,
   };
 
   const handleNavigation = (id) => {
@@ -36,11 +29,11 @@ export default function SettingsPage() {
         <h2 className="text-xl font-bold">Settings</h2>
       </div>
       <div className="p-5">
-        {!settingsId ? (
+        {!settingId ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
             {/* Payments */}
             <div className="w-full flex flex-col items-center text-2xl">
-              <FaPerson className="mb-2 text-blue-600" />
+              <BiMoney className="mb-2 text-blue-600" />
               <h1>PAYMENTS</h1>
               <button
                 className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
@@ -73,9 +66,9 @@ export default function SettingsPage() {
               className="mb-4 px-4 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700"
               onClick={() => navigate(basePath)}
             >
-              Back to Reports
+              Back to Settings
             </button>
-            {reports[settingsId] || <p>Report not found.</p>}
+            {reports[settingId] || <p>Setting not found.</p>}
           </div>
         )}
       </div>

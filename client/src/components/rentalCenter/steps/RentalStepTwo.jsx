@@ -12,24 +12,22 @@ export default function RentalStepTwo({ onNext, onBack }) {
   useEffect(() => {
     if (!facilityId) return;
     axios
-      .get(`/facilities/${facilityId}/units`, {
+      .get(`/rental/${companyId}/${facilityId}/units`, {
         headers: { "x-api-key": API_KEY },
       })
-      .then(({ data }) => setUnits(data.units))
+      .then(({ data }) => setUnits(data))
       .catch((err) => console.error("Failed to load units", err));
   }, [facilityId]);
 
   if (!units) return <p>Loading units...</p>;
 
-  const availableUnits = units.filter((u) => u.status === "Vacant");
-
   return (
     <div className="px-3 py-2 gap-2 flex flex-col">
-      {availableUnits.length === 0 ? (
+      {units.length === 0 ? (
         <p>No available units at this facility.</p>
       ) : (
         <div className="flex flex-col gap-1 mt-2">
-          {availableUnits.map((unit) => (
+          {units.map((unit) => (
             <div
               key={unit._id}
               className="p-4 border rounded shadow-sm flex justify-between items-center "

@@ -15,11 +15,9 @@ const Hero = () => {
       <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col items-center">
         <div className="text-center text-white dark:text-white">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            Welcome to SafeManager
+            Welcome to Storix
           </h1>
-          <p className="mt-4 text-xl md:text-2xl">
-            Your Property Management Solution!
-          </p>
+          <p className="mt-4">Storage Management Made By Storage People</p>
 
           <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
             <a

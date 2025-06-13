@@ -25,7 +25,7 @@ export default function CreateUnitModal({ onClose, onSubmit }) {
       unit: "ft",
       climateControlled: false,
     },
-    pricePerMonth: "",
+    paymentInfo: { pricePerMonth: "" },
     tags: [],
     amenities: [],
   });
@@ -283,11 +283,14 @@ export default function CreateUnitModal({ onClose, onSubmit }) {
                 <input
                   type="number"
                   className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
-                  value={unit.pricePerMonth ?? ""}
+                  value={unit.paymentInfo?.pricePerMonth ?? ""}
                   onChange={(e) =>
                     setUnit((prev) => ({
                       ...prev,
-                      pricePerMonth: Number(e.target.value),
+                      paymentInfo: {
+                        ...prev.paymentInfo,
+                        pricePerMonth: Number(e.target.value),
+                      },
                     }))
                   }
                 />

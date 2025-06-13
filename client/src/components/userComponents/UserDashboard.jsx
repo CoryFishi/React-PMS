@@ -12,7 +12,7 @@ import FacilityTable from "../facilityComponents/FacilityTable";
 import FacilityDashboard from "../facilityComponents/FacilityDashboard";
 import ConfigurationDashboard from "./ConfigurationDashboard";
 import ReportsPage from "../reportComponents/ReportsPage";
-import SettingsPage from "../SettingsPage";
+import SettingsPage from "../settingsComponents/SettingsPage";
 
 export default function UserDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
@@ -84,7 +84,6 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
                 className={`border-t border-b pl-2 pr-2 border-zinc-800 pb-8 ${
                   section === "users" ||
                   location.pathname.startsWith("/dashboard/reports") ||
-                  section === "reports" ||
                   section === "settings" ||
                   section === "facilities" ||
                   !section
@@ -103,7 +102,6 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
                       className={`${
                         section === "users" ||
                         location.pathname.startsWith("/dashboard/reports") ||
-                        section === "reports" ||
                         section === "settings" ||
                         section === "facilities" ||
                         !section
@@ -113,7 +111,7 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
                           : ""
                       }`}
                     />
-                    <span className="pl-2 font-medium">Configuration</span>
+                    <span className="pl-2 font-medium">Portfolio Overview</span>
                   </div>
                   {openSections.currentFacility ? (
                     <MdExpandLess />
@@ -161,9 +159,7 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
                     <button
                       onClick={() => navigate("/dashboard/settings")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "settings" ||
-                        (location.pathname.startsWith("/dashboard/settings") &&
-                          !facilityId)
+                        location.pathname.startsWith("/dashboard/settings")
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
                           : ""
                       }`}
@@ -173,9 +169,8 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
                     <button
                       onClick={() => navigate("/dashboard/reports")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "reports" ||
-                        (location.pathname.startsWith("/dashboard/reports") &&
-                          !facilityId)
+                        location.pathname.startsWith("/dashboard/reports") &&
+                        !facilityId
                           ? "bg-zinc-700 border-b-blue-500 border-b-2"
                           : ""
                       }`}

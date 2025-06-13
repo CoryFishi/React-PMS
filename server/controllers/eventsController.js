@@ -1,5 +1,6 @@
 // Schemas
 const Event = require("../models/event");
+const User = require("../models/user");
 
 //
 const getApplicationEventsByFacility = async (req, res) => {
@@ -35,7 +36,38 @@ const getApplicationEventsByFacility = async (req, res) => {
 
 const getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find().sort({ createdAt: -1 }).exec();
+    // ✅ Require authentication
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // ✅ Get the user to determine role and company
+    const user = await User.findById(userId).populate("company");
+    console.log("User found:", user.company._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isAdmin = user.role === "System_Admin" || user.role === "System_User";
+
+    let events;
+
+    if (isAdmin) {
+      // 🔓 Admins see all events
+      events = await Event.find().sort({ createdAt: -1 }).exec();
+    } else {
+      // 🔐 Company users see only their company's events
+      if (!user.company) {
+        return res
+          .status(400)
+          .json({ message: "No associated company found." });
+      }
+
+      events = await Event.find({ company: user.company._id })
+        .sort({ createdAt: -1 })
+        .exec();
+    }
 
     return res.status(200).json({ events });
   } catch (error) {

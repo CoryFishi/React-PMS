@@ -42,6 +42,35 @@ const CompanySchema = new Schema({
       ref: "StorageFacility",
     },
   ],
+  logo: {
+    type: String,
+    trim: true,
+    match: [/^(http|https):\/\/[^ "]+$/, "Please enter a valid URL"],
+  },
+  insurancePlans: [
+    {
+      name: {
+        type: String,
+        required: [true, "Plan name is required"],
+        trim: true,
+      },
+      coverageAmount: {
+        type: Number,
+        required: [true, "Coverage amount is required"],
+        min: [0, "Coverage amount must be at least 0"],
+      },
+      monthlyPrice: {
+        type: Number,
+        required: [true, "Monthly price is required"],
+        min: [0, "Monthly price must be at least 0"],
+      },
+      active: {
+        type: Boolean,
+        default: true,
+      },
+    },
+  ],
+
   status: {
     type: String,
     enum: ["Disabled", "Enabled"],

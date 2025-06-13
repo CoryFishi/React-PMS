@@ -83,7 +83,7 @@ export default function UserTable() {
 
     axios
       .get("/users", {
-        params: { userId: user._id },
+        withCredentials: true,
         headers: {
           "x-api-key": API_KEY,
         },
@@ -196,15 +196,12 @@ export default function UserTable() {
       return;
     }
     try {
-      const res = await axios.post(
-        "/users/sendconfirmation",
-        { userId },
-        {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        }
-      );
+      const res = await axios.post("/users/sendconfirmation", {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+        withCredentials: true,
+      });
       toast.success(res.data.message);
       setOpenDropdown(null);
     } catch (error) {

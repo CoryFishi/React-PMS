@@ -21,6 +21,7 @@ import {
   BiArrowFromTop,
 } from "react-icons/bi";
 import { PiLockersFill } from "react-icons/pi";
+import { IoSettings } from "react-icons/io5";
 
 export default function UnitPage({ facility }) {
   const [units, setUnits] = useState([]);
@@ -461,13 +462,24 @@ export default function UnitPage({ facility }) {
       {activeTab === "Individual" ? (
         <div>
           <div className="mt-4 mb-1 flex flex-col items-center justify-end text-center mx-5">
-            <InputBox
-              value={searchQuery}
-              onchange={(e) =>
-                setSearchQuery(e.target.value) & setCurrentPage(1)
-              }
-              placeholder={"Search units..."}
-            />
+            <div className="w-full flex gap-2">
+              <InputBox
+                value={searchQuery}
+                onchange={(e) =>
+                  setSearchQuery(e.target.value) & setCurrentPage(1)
+                }
+                placeholder={"Search units..."}
+              />
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center"
+                onClick={() =>
+                  navigate(`/dashboard/${facilityId}/settings/units`)
+                }
+              >
+                <IoSettings />
+              </button>
+            </div>
+
             <div className="flex justify-between w-full ml-2">
               <div className="flex gap-3 text-sm justify-center items-center dark:text-white">
                 <p>{vacantCount} Vacant</p>

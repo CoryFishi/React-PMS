@@ -587,7 +587,7 @@ const getUsersByCompany = async (req, res) => {
 // Get all Users
 const getUsers = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const userId = req.user.id || req.user._id;
 
     if (!userId) {
       return res.status(400).json({ message: "Missing userId" });
@@ -634,9 +634,9 @@ const getUserById = async (req, res) => {
   }
 };
 
-const getAdminDashboardData = async (req, res) => {
+const getDashboardData = async (req, res) => {
   try {
-    const { userId } = req.query;
+    const userId = req.user.id || req.user._id;
     if (!userId) {
       return res.status(400).json({ message: "Missing userId" });
     }
@@ -846,6 +846,121 @@ const clearSelectedFacility = async (req, res) => {
   }
 };
 
+const rentalCenterCompany = async (req, res) => {
+  const { companyId } = req.params;
+
+  try {
+    const company = await Company.findById(companyId).select(
+      "companyName logo address"
+    );
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    res.status(200).json({
+      companyName: company.companyName,
+      logo: company.logo,
+      address: company.address,
+    });
+  } catch (error) {
+    console.error("Error fetching company data:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const rentalCenterFacilities = async (req, res) => {
+  const { companyId } = req.params;
+
+  try {
+    const facilities = await StorageFacility.find({
+      company: companyId,
+      status: "Enabled",
+    }).select("facilityName address");
+
+    const results = await Promise.all(
+      facilities.map(async (facility) => {
+        const vacantUnits = await StorageUnit.find({
+          facility: facility._id,
+          status: "Vacant",
+        }).select(
+          "specifications paymentInfo.pricePerMonth unitNumber unitType availability tags amenities condition"
+        );
+
+        return {
+          _id: facility._id,
+          facilityName: facility.facilityName,
+          address: facility.address,
+          units: vacantUnits,
+        };
+      })
+    );
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error("Error fetching rental center facilities:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const rentalCenterUnits = async (req, res) => {
+  const { facilityId } = req.params;
+
+  try {
+    const units = await StorageUnit.find({
+      facility: facilityId,
+      status: "Vacant",
+    }).select(
+      "specifications paymentInfo.pricePerMonth unitNumber unitType availability tags amenities condition"
+    );
+
+    res.status(200).json(units);
+  } catch (error) {
+    console.error("Error fetching units for facility:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const rentalCenterConfig = async (req, res) => {
+  const { facilityId, companyId, unitId } = req.params;
+
+  try {
+    const facility = await StorageFacility.findById(facilityId).select(
+      "facilityName address status"
+    );
+
+    if (!facility) {
+      return res.status(404).json({ error: "Facility not found" });
+    }
+
+    const unit = await StorageUnit.findOne({
+      _id: unitId,
+      facility: facilityId,
+      status: "Vacant",
+    }).select(
+      "specifications paymentInfo.pricePerMonth unitNumber unitType availability tags amenities condition"
+    );
+
+    if (!unit) {
+      return res.status(404).json({ error: "Unit not found or not vacant" });
+    }
+
+    const company = await Company.findById(companyId).select("insurancePlans");
+
+    const activeInsurancePlans =
+      company?.insurancePlans?.filter((plan) => plan.active) || [];
+
+    res.status(200).json({
+      facility,
+      unit,
+      insurancePlans: activeInsurancePlans,
+    });
+  } catch (error) {
+    console.error("Error fetching rental center config:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 // Exports
 module.exports = {
   createUser,
@@ -859,9 +974,13 @@ module.exports = {
   sendUserConfirmationEmail,
   getUserById,
   setUserPassword,
+  rentalCenterConfig,
   getUsersByCompany,
   logoutUser,
-  getAdminDashboardData,
+  getDashboardData,
   selectFacility,
   clearSelectedFacility,
+  rentalCenterCompany,
+  rentalCenterFacilities,
+  rentalCenterUnits,
 };

@@ -50,6 +50,89 @@ const createCompany = async (req, res) => {
   }
 };
 
+const checkStripeOnboardingStatus = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { role, company } = user;
+    const companyId = req.params.companyId;
+
+    const isSystem = role === "System_Admin" || role === "System_User";
+    const isCompanyAdmin = role === "Company_Admin";
+
+    if (!isSystem && !(isCompanyAdmin && company?.toString() === companyId)) {
+      return res.status(403).json({ message: "Forbidden: Access denied" });
+    }
+
+    const companyData = await Company.findById(companyId);
+    if (!companyData || !companyData.stripe?.accountId) {
+      return res.status(404).json({ message: "Stripe account not found" });
+    }
+
+    const account = await stripe.accounts.retrieve(
+      companyData.stripe.accountId
+    );
+
+    const isComplete = account.details_submitted && account.charges_enabled;
+
+    if (isComplete && !companyData.stripe.onboardingComplete) {
+      companyData.stripe.onboardingComplete = true;
+      await companyData.save();
+    }
+
+    res.status(200).json({ isComplete });
+  } catch (err) {
+    console.error("Stripe onboarding check error:", err);
+    res.status(500).json({ message: "Error checking onboarding status" });
+  }
+};
+
+const getStripeDashboardLink = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { role, company } = user;
+    const companyId = req.params.companyId;
+
+    const isSystem = role === "System_Admin" || role === "System_User";
+    const isCompanyAdmin = role === "Company_Admin";
+
+    if (!isSystem && !(isCompanyAdmin && company?.toString() === companyId)) {
+      return res.status(403).json({ message: "Forbidden: Access denied" });
+    }
+
+    const companyData = await Company.findById(companyId);
+    const accountId = companyData?.stripe?.accountId;
+
+    if (!accountId) {
+      return res.status(404).json({ message: "Stripe account not found" });
+    }
+
+    const loginLink = await stripe.accounts.createLoginLink(accountId);
+
+    res.status(200).json({ url: loginLink.url });
+  } catch (err) {
+    console.error("Error generating Stripe login link:", err);
+    res.status(500).json({ message: "Failed to generate login link" });
+  }
+};
+
 const createStripeAccountLink = async (req, res) => {
   try {
     const company = await Company.findById(req.params.companyId);
@@ -114,17 +197,66 @@ const createCheckoutSession = async (req, res) => {
   res.json({ url: session.url });
 };
 
-// Get all companies
-const getCompanies = async (req, res) => {
+// Get Company by ID
+const getCompanyStripeSettings = async (req, res) => {
   try {
-    const companies = await Company.find({}).sort({ companyName: 1 });
-    res.status(200).json(companies);
+    const { companyId } = req.params;
+    const userId = req.user?.id || req.user?._id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { role, company } = user;
+
+    const isSystem = role === "System_Admin" || role === "System_User";
+    const isCompanyAdmin = role === "Company_Admin";
+
+    if (!isSystem && !(isCompanyAdmin && company?.toString() === companyId)) {
+      return res.status(403).json({ message: "Forbidden: Access denied" });
+    }
+
+    const companyData = await Company.findById(companyId);
+    if (!companyData) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    res.status(200).json(companyData.stripe);
   } catch (error) {
     console.error(
       "Error processing the last get company call! See error below...\n" +
         error.message
     );
     res.status(400).json({ message: error.message });
+  }
+};
+
+// Get all companies
+const getCompanies = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    let companies;
+    if (user.role === "System_Admin" || user.role === "System_User") {
+      companies = await Company.find({}).sort({ companyName: 1 });
+    } else {
+      companies = await Company.find({ _id: user.company });
+    }
+
+    return res.status(200).json(companies);
+  } catch (error) {
+    console.error("Error processing the getCompanies call:\n" + error.message);
+    return res.status(400).json({ message: error.message });
   }
 };
 
@@ -230,4 +362,7 @@ module.exports = {
   getCompanyById,
   createStripeAccountLink,
   createCheckoutSession,
+  getCompanyStripeSettings,
+  checkStripeOnboardingStatus,
+  getStripeDashboardLink,
 };

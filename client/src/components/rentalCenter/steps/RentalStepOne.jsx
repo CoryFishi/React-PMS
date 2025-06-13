@@ -9,7 +9,7 @@ export default function RentalStepOne({ onNext }) {
   const navigate = useNavigate();
   useEffect(() => {
     axios
-      .get(`/companies/${companyId}/facilities`, {
+      .get(`/rental/${companyId}/facilities`, {
         headers: {
           "x-api-key": API_KEY,
         },

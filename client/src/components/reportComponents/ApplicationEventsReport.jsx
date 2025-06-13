@@ -58,6 +58,7 @@ export default function ApplicationEventsReport() {
         headers: {
           "x-api-key": API_KEY,
         },
+        withCredentials: true,
       })
       .then(({ data }) => {
         setEvents(data.events);

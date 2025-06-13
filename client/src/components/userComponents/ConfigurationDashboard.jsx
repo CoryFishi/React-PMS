@@ -41,7 +41,6 @@ const today = new Date().toLocaleDateString("en-US", {
 
 export default function ConfigurationDashboard() {
   const { user } = useContext(UserContext);
-
   const [dashboardData, setDashboardData] = useState({
     users: { total: 0, enabled: 0, disabled: 0 },
     facilities: {
@@ -117,7 +116,7 @@ export default function ConfigurationDashboard() {
         data: [
           dashboardData.facilities.total,
           dashboardData.facilities.enabled,
-          dashboardData.facilities.pending,
+          dashboardData.facilities.pendingDeployment,
           dashboardData.facilities.maintenance,
           dashboardData.facilities.disabled,
         ],
@@ -166,13 +165,14 @@ export default function ConfigurationDashboard() {
 
     axios
       .get("/dashboard/overview", {
-        params: { userId: user._id },
         headers: {
           "x-api-key": API_KEY,
         },
+        withCredentials: true,
       })
       .then(({ data }) => {
         setDashboardData(data);
+        console.log(data);
       })
       .catch((error) => {
         console.error("Error fetching dashboard data:", error);

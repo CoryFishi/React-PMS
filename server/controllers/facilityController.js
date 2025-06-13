@@ -193,7 +193,16 @@ const addUnit = async (req, res) => {
     if (!unit.unitNumber) {
       return res.status(400).json({ error: "Unit Number is required" });
     }
-    if (unit.pricePerMonth == null) {
+    if (unit.paymentInfo.pricePerMonth == null) {
+      return res.status(400).json({ error: "Monthly Rate is required" });
+    }
+    if (unit.specifications.width == null) {
+      return res.status(400).json({ error: "Monthly Rate is required" });
+    }
+    if (unit.specifications.depth == null) {
+      return res.status(400).json({ error: "Monthly Rate is required" });
+    }
+    if (unit.specifications.height == null) {
       return res.status(400).json({ error: "Monthly Rate is required" });
     }
 
@@ -552,30 +561,23 @@ const getFacilities = async (req, res) => {
 
 const getFacilitiesAndCompany = async (req, res) => {
   try {
-    const { userId } = req.query;
-    let facilities;
+    const userId = req.user.id || req.user._id;
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
     const isAdmin =
       user.role === "System_Admin" || user.role === "Company_Admin";
 
-    // If admin, return all or that company's facilities
-    if (isAdmin) {
-      const query =
-        user.role === "Company_Admin" ? { company: user.company } : {};
+    const query = isAdmin
+      ? user.role === "Company_Admin"
+        ? { company: user.company }
+        : {}
+      : { company: user.company };
 
-      facilities = await StorageFacility.find(query)
-        .populate("company", "companyName")
-        .populate("manager", "name")
-        .sort({ facilityName: 1 });
-
-      return res.status(200).json({ facilities });
-    }
-
-    // Otherwise, return facilities for the user's company only
-    facilities = await StorageFacility.find({ company: user.company })
+    const facilities = await StorageFacility.find(query)
       .populate("company", "companyName")
       .populate("manager", "name")
       .sort({ facilityName: 1 });

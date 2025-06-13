@@ -83,13 +83,12 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
 
   // Get facilities on component mount
   useEffect(() => {
-    if (!user?._id) return;
     axios
       .get("/facilities/company", {
-        params: { userId: user._id },
         headers: {
           "x-api-key": API_KEY,
         },
+        withCredentials: true,
       })
       .then(({ data }) => {
         setFacilities(data.facilities);
@@ -101,7 +100,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
         setSortedColumn("Name");
         setUnits(totalUnits);
       });
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -315,6 +314,14 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
                 }}
               >
                 Select
+              </a>
+              <a
+                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
+                onClick={() => {
+                  navigate(`/rental/${f.company._id}/${f._id}`);
+                }}
+              >
+                Rental Center
               </a>
               <a
                 className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"

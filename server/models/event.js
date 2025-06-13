@@ -51,6 +51,10 @@ const eventSchema = new mongoose.Schema({
       message: "Event Name not availalbe",
     },
   },
+  company: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Company",
+  },
   facility: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "StorageFacility",

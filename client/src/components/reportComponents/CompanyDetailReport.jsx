@@ -55,6 +55,7 @@ export default function CompanyDetailReport() {
         headers: {
           "x-api-key": API_KEY,
         },
+        withCredentials: true,
       })
       .then(({ data }) => {
         setCompanies(data);
