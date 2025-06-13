@@ -24,7 +24,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
+    <div className="flex flex-col h-full w-full relative dark:bg-zinc-900 dark:text-white">
       <div className="w-full p-5 bg-zinc-200 flex dark:bg-zinc-950 dark:text-white">
         <h2 className="text-xl font-bold">Settings</h2>
       </div>

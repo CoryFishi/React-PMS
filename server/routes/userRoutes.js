@@ -86,12 +86,7 @@ router.post(
   authenticate,
   userController.logoutUser
 ); // May want to make this a post /auth/logout
-router.post(
-  "/login",
-  authenticateAPIKey,
-  authenticate,
-  userController.loginUser
-); // May want to make this a post /auth/login
+router.post("/login", authenticateAPIKey, userController.loginUser); // May want to make this a post /auth/login
 router.get(
   "/users/:userId",
   authenticateAPIKey,

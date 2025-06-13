@@ -37,7 +37,7 @@ export default function ReportsPage() {
           Reports <span>{reportId ? `/ ${reportId}` : ""}</span>
         </h1>
       </div>
-      <div className="p-5">
+      <div className="p-5 ">
         {!reportId ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
             {/* USERS */}

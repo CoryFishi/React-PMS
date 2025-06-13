@@ -114,7 +114,6 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     >
                       Overview
                     </button>
-
                     <button
                       onClick={() => navigate("/dashboard/admin/users")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
@@ -125,7 +124,6 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     >
                       Users
                     </button>
-
                     <button
                       onClick={() => navigate("/dashboard/admin/companies")}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
@@ -284,7 +282,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           </div>
         )}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          {isAdmin && !section && <ConfigurationDashboard />}
+          {isAdmin &&
+            location.pathname.startsWith("/dashboard/admin/overview") && (
+              <ConfigurationDashboard />
+            )}
           {isAdmin && section === "users" && <UserTable />}
           {isAdmin && section === "companies" && <CompanyTable />}
           {isAdmin &&

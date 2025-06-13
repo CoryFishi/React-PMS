@@ -36,15 +36,12 @@ const getApplicationEventsByFacility = async (req, res) => {
 
 const getAllEvents = async (req, res) => {
   try {
-    // ✅ Require authentication
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // ✅ Get the user to determine role and company
     const user = await User.findById(userId).populate("company");
-    console.log("User found:", user.company._id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -54,10 +51,8 @@ const getAllEvents = async (req, res) => {
     let events;
 
     if (isAdmin) {
-      // 🔓 Admins see all events
       events = await Event.find().sort({ createdAt: -1 }).exec();
     } else {
-      // 🔐 Company users see only their company's events
       if (!user.company) {
         return res
           .status(400)
