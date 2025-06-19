@@ -168,11 +168,12 @@ const tenantSchema = new Schema(
         },
       },
     ],
-    company: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Company",
-      required: [true, "Company reference is required"],
-    },
+    affiliatedFacilities: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Facility",
+      },
+    ],
     status: {
       type: String,
       default: "Active",

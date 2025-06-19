@@ -15,81 +15,72 @@ const createTenant = async (req, res) => {
       lastName,
       contactInfo,
       address,
-      units,
-      status,
+      unitId,
+      insurancePlanId,
+      status = "Active",
       company,
       accessCode,
       createdBy,
       facilityId,
+      paidInCash = false,
     } = req.body;
-    const { paidInCash } = req.body.unitData;
 
-    const ids = units.map((unit) => unit.id);
-    for (const id of ids) {
-      const unitExists = await StorageUnit.findById(id);
-      if (!unitExists) {
-        return res.status(404).json({
-          error: `Unit(s) ${id} was not found`,
-        });
-      }
+    const unit = await StorageUnit.findById(unitId);
+    if (!unit) {
+      return res.status(404).json({
+        error: `Unit ${unitId} was not found`,
+      });
     }
 
-    // Create tenant in database
+    if (!unit.availability) {
+      return res.status(409).json({
+        error: `Unit ${unit.unitNumber} is not available for rent`,
+      });
+    }
+
+    // Create the tenant
     const tenant = await Tenant.create({
       firstName,
       lastName,
       contactInfo,
       address,
-      units: ids,
+      units: [unitId],
+      insurancePlan: insurancePlanId || null,
       status,
       company,
       accessCode,
       createdBy,
+      facilityId,
+      moveInDate: currentDate,
     });
-    if (!paidInCash) {
-      for (const unit of units) {
-        await StorageUnit.updateOne(
-          { _id: unit.id },
-          {
-            $set: {
-              tenant: tenant._id,
-              status: "Rented",
-              "paymentInfo.balance": unit.price,
-              "paymentInfo.moveInDate": currentDate,
-              "paymentInfo.paymentDate": currentDate,
-              "paymentInfo.moveOutDate": null,
-              availability: false,
-            },
-          }
-        );
-      }
-    } else {
-      for (const unit of units) {
-        await StorageUnit.updateOne(
-          { _id: unit.id },
-          {
-            $set: {
-              tenant: tenant._id,
-              status: "Rented",
-              "paymentInfo.balance": 0,
-              "paymentInfo.moveInDate": currentDate,
-              "paymentInfo.paymentDate": currentDate,
-              "paymentInfo.moveOutDate": null,
-              availability: false,
-            },
-          }
-        );
-      }
-    }
 
+    // Update unit info
+    await StorageUnit.updateOne(
+      { _id: unitId },
+      {
+        $set: {
+          tenant: tenant._id,
+          status: "Rented",
+          availability: false,
+          "paymentInfo.balance": paidInCash
+            ? 0
+            : unit?.paymentInfo?.pricePerMonth ?? 0,
+          "paymentInfo.moveInDate": currentDate,
+          "paymentInfo.paymentDate": currentDate,
+          "paymentInfo.moveOutDate": null,
+        },
+      }
+    );
+
+    // Log the event
     await Event.create({
       eventType: "Application",
       eventName: "Tenant Created",
-      message: `Tenant ${firstName} ${lastName} created and assigned to ${units.length}`,
+      message: `Tenant ${firstName} ${lastName} created and assigned to unit ${unit.unitNumber}`,
       facility: facilityId,
     });
 
-    return res.status(201).json(tenant);
+    return res.status(201).json({ message: `User Created!`, user: tenant });
   } catch (error) {
     if (error.name === "ValidationError") {
       const firstErrorKey = Object.keys(error.errors)[0];

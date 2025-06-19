@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import UnitDetailReport from "../reportsComponents/UnitDetailReport";
 import TenantDetailReport from "../reportsComponents/TenantDetailReport";
 import DelinquencyReport from "../reportsComponents/DelinquencyReport";
@@ -12,15 +12,22 @@ import {
   MdIntegrationInstructions,
 } from "react-icons/md";
 import GateIntegrationReport from "../reportsComponents/GateIntegrationReport";
+import { useParams, useNavigate } from "react-router-dom";
 
-export default function ReportsPage({ facilityId }) {
+export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState(null);
+  const { facilityId, id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setSelectedReport(id || null);
+  }, [id]);
 
   const reports = {
-    allUnits: <UnitDetailReport facilityId={facilityId} />,
+    "unit-detail": <UnitDetailReport facilityId={facilityId} />,
     allTenants: <TenantDetailReport facilityId={facilityId} />,
     delinquentTenants: <DelinquencyReport facilityId={facilityId} />,
-    unitVacancy: <VacancyReport facilityId={facilityId} />,
+    "unit-vacancy": <VacancyReport facilityId={facilityId} />,
     applicationEvents: <ApplicationEventsReport facilityId={facilityId} />,
     payments: <PaymentsReport facilityId={facilityId} />,
     gateIntegration: <GateIntegrationReport facilityId={facilityId} />,
@@ -36,13 +43,17 @@ export default function ReportsPage({ facilityId }) {
             <h1>STORAGE UNITS</h1>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedReport("allUnits")}
+              onClick={() =>
+                navigate(`/dashboard/${facilityId}/reports/unit-detail`)
+              }
             >
               Unit Detail
             </button>
             <button
               className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedReport("unitVacancy")}
+              onClick={() =>
+                navigate(`/dashboard/${facilityId}/reports/unit-vacancy`)
+              }
             >
               Vacant Units
             </button>
@@ -106,7 +117,7 @@ export default function ReportsPage({ facilityId }) {
         <div>
           <button
             className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600"
-            onClick={() => setSelectedReport(null)}
+            onClick={() => navigate(`/dashboard/${facilityId}/reports`)}
           >
             Back to Reports
           </button>

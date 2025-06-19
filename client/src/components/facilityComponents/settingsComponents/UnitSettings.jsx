@@ -7,7 +7,7 @@ import CreateUnitModal from "../unitComponents/CreateUnitModal";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../../sharedComponents/DataTable";
 import PaginationFooter from "../../sharedComponents/PaginationFooter";
-import { PiGarageFill } from "react-icons/pi";
+import { PiGarageFill, PiLockersFill, PiOfficeChairFill } from "react-icons/pi";
 import { FaDoorClosed, FaDoorOpen } from "react-icons/fa6";
 import { FaParking } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -77,7 +77,7 @@ export default function UnitSettings() {
       })
       .catch((err) => toast.error(err.response?.data?.error || "Error"));
 
-    const updatedUnits = [...units, ...e.data];
+    const updatedUnits = [...units, e.unit];
     setUnits(updatedUnits);
   };
 
@@ -144,8 +144,6 @@ export default function UnitSettings() {
     const filteredUnits = units.filter(
       (unit) =>
         unit.unitNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        unit.condition.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        unit.securityLevel.toLowerCase().includes(searchQuery.toLowerCase()) ||
         unit.status.toLowerCase().includes(searchQuery.toLowerCase()) ||
         unit.tenant?.firstName
           .toLowerCase()
@@ -169,6 +167,8 @@ export default function UnitSettings() {
           className="flex w-full items-center text-center justify-center text-xl"
           title={`${u.unitType ?? "Storage Unit"}`}
         >
+          {u.unitType === "Locker" && <PiLockersFill />}
+          {u.unitType === "Office" && <PiOfficeChairFill />}
           {u.unitType === "Storage Unit" && <PiGarageFill />}
           {u.unitType === "Parking" && <FaParking />}
         </div>
@@ -348,11 +348,11 @@ export default function UnitSettings() {
           }
         />
       )}
-      <div className="border-b flex items-center justify-between mx-5 dark:border-border">
+      <div className="border-b flex items-center justify-between mx-5 dark:border-zinc-800">
         <h1 className="text-xl font-bold dark:text-white">Units</h1>
       </div>
 
-      <div className="flex flex-col h-full w-full relative dark:bg-darkPrimary">
+      <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
         <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
           <InputBox
             value={searchQuery}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -19,6 +19,7 @@ export default function GeneralSettings({ facilityId }) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [company, setCompany] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     axios
@@ -62,6 +63,7 @@ export default function GeneralSettings({ facilityId }) {
 
   const handleSubmit = async () => {
     try {
+      setIsSaving(true);
       const response = await axios.put(
         `/facilities/update`,
         {
@@ -83,8 +85,8 @@ export default function GeneralSettings({ facilityId }) {
           },
         }
       );
-
-      toast.success("General Settings Updated!");
+      toast.success(`${response.data?.facilityName} successfully saved!`);
+      setIsSaving(false);
     } catch (error) {
       console.error("Failed to update facility:", error);
       toast.error(error.response.data.error);
@@ -92,32 +94,38 @@ export default function GeneralSettings({ facilityId }) {
   };
 
   return (
-    <div className="p-4 dark:bg-darkPrimary dark:border-border border bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-bold">Facility Information</h2>
-      <p>Manage facility information.</p>
-      <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-x-4 mt-5">
-          <div>
-            <label className="block text-sm font-medium">Facility Name</label>
+    <div className="p-4">
+      <div className="border-b flex items-center justify-between dark:border-zinc-700">
+        <h1 className="text-xl font-bold dark:text-white">
+          Facility Information
+        </h1>
+      </div>
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="p-3 flex flex-col gap-2"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+          <div className="flex flex-col gap-1">
+            <label className="font-medium">Facility Name</label>
             <input
               type="text"
               value={facilityName}
               onChange={(e) => setFacilityName(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="appearance-none w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
-          <div>
-            <label htmlFor="manager" className="block text-sm font-medium">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="manager" className="font-medium">
               Manager
             </label>
             <select
               name="manager"
               id="manager"
-              value={manager || ""}
+              value={manager ?? ""}
               onChange={(e) => setManager(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
-              <option value="">Select a manager</option>
+              <option value="">None</option>
               {managers.map((manager) => (
                 <option key={manager._id} value={manager._id}>
                   {manager.name}
@@ -126,12 +134,12 @@ export default function GeneralSettings({ facilityId }) {
             </select>
           </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium">Address</label>
+        <div>
+          <label className="font-medium">Address</label>
           <div className="grid grid-cols-1 gap-x-4 gap-y-2 md:grid-cols-2">
-            <div>
+            <div className="flex flex-col gap-1">
               <label
-                className="block text-xs font-medium text-gray-500"
+                className="block text-xs font-medium text-zinc-500 dark:text-zinc-200"
                 htmlFor="street1"
               >
                 Street 1
@@ -142,12 +150,12 @@ export default function GeneralSettings({ facilityId }) {
                 id="street1"
                 value={address.street1}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
-            <div>
+            <div className="flex flex-col gap-1">
               <label
-                className="block text-xs font-medium text-gray-500"
+                className="block text-xs font-medium text-zinc-500 dark:text-zinc-200"
                 htmlFor="street2"
               >
                 Street 2
@@ -156,73 +164,73 @@ export default function GeneralSettings({ facilityId }) {
                 type="text"
                 name="street2"
                 id="street2"
-                value={address.street2 || ""}
+                value={address.street2 ?? ""}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500">
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-200">
                 City
               </label>
               <input
                 type="text"
                 name="city"
-                value={address.city}
+                value={address.city ?? ""}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500">
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-200">
                 State
               </label>
               <input
                 type="text"
                 name="state"
-                value={address.state}
+                value={address.state ?? ""}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500">
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-200">
                 Zip Code
               </label>
               <input
                 type="text"
                 name="zipCode"
-                value={address.zipCode}
+                value={address.zipCode ?? ""}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500">
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-200">
                 Country
               </label>
               <input
                 type="text"
                 name="country"
-                value={address.country}
+                value={address.country ?? ""}
                 onChange={handleAddressChange}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
           </div>
         </div>
 
-        <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-x-4 mt-5">
-          <div>
-            <label htmlFor="status" className="block text-sm font-medium">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="status" className="font-medium">
               Status
             </label>
             <select
               name="status"
               id="status"
-              value={status || ""}
+              value={status ?? ""}
               onChange={(e) => setStatus(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="">Select a status</option>
               {status === "Pending Deployment" && (
@@ -235,40 +243,46 @@ export default function GeneralSettings({ facilityId }) {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium">
-            Contact Information
-          </label>
+          <label className="font-medium">Contact Information</label>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-x-4">
-            <div>
-              <label className="block text-xs font-medium text-gray-500">
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-200">
                 Email
               </label>
               <input
                 type="email"
-                value={email}
+                value={email ?? ""}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500">
+            <div className="flex flex-col gap-1">
+              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-200">
                 Phone
               </label>
               <input
                 type="tel"
-                value={phone}
+                value={phone ?? ""}
                 onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="w-full px-3 py-2 border dark:bg-zinc-800 dark:border-zinc-700 border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               />
             </div>
           </div>
-          <div className="text-right w-full">
+          <div className="text-right w-full justify-end flex">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center justify-center gap-2"
               onClick={handleSubmit}
+              disabled={isSaving}
             >
-              Save Settings
+              {isSaving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-300"></div>
+                  Saving...
+                </>
+              ) : (
+                "Save Settings"
+              )}
             </button>
           </div>
         </div>

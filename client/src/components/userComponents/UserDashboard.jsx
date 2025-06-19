@@ -303,7 +303,7 @@ export default function UserDashboard({ darkMode, toggleDarkMode }) {
             </div>
           </div>
         )}
-        <div className="flex-1 min-h-0 overflow-y-auto bg-zinc-200 dark:bg-zinc-900">
+        <div className="flex-1 min-h-0 overflow-y-auto dark:bg-zinc-900">
           {!section &&
             !facilityId &&
             !location.pathname.startsWith("/dashboard/reports") &&

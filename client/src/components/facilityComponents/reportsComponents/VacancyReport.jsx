@@ -7,21 +7,61 @@ import {
   BiChevronsRight,
 } from "react-icons/bi";
 const API_KEY = import.meta.env.VITE_API_KEY;
+import { useParams } from "react-router-dom";
+import DataTable from "../../sharedComponents/DataTable";
+import PaginationFooter from "../../sharedComponents/PaginationFooter";
+import InputBox from "../../sharedComponents/InputBox";
 
-export default function VacancyReport({ facilityId }) {
+export default function VacancyReport({}) {
   const [units, setUnits] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUnits, setFilteredUnits] = useState([]);
+  const { facilityId } = useParams();
+
+  //  Sorting states
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortedColumn, setSortedColumn] = useState("Name");
 
   useEffect(() => {
     refreshUnitTable(facilityId);
   }, [facilityId]);
 
+  const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
+    let newDirection;
+
+    if (sortedColumn !== columnKey) {
+      newDirection = "asc";
+    } else if (sortDirection === "asc") {
+      newDirection = "desc";
+    } else if (sortDirection === "desc") {
+      newDirection = null;
+    }
+
+    setSortedColumn(newDirection ? columnKey : null);
+    setSortDirection(newDirection);
+
+    if (!newDirection) {
+      setFilteredUnits([...users]);
+      return;
+    }
+
+    const sorted = [...filteredUnits].sort((a, b) => {
+      const aVal = accessor(a) ?? "";
+      const bVal = accessor(b) ?? "";
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setFilteredUnits(sorted);
+  };
+
   const refreshUnitTable = async (facilityId) => {
     axios
-      .get(`/facilities/units/${facilityId}`, {
+      .get(`/facilities/${facilityId}/units/`, {
         headers: {
           "x-api-key": API_KEY,
         },
@@ -85,6 +125,59 @@ export default function VacancyReport({ facilityId }) {
     setFilteredUnits(filteredUnits);
   }, [units, searchQuery]);
 
+  const columns = [
+    {
+      key: "unitNumber",
+      label: "Unit Number",
+      accessor: (u) => u.unitNumber || "-",
+    },
+    {
+      key: "climateControlled",
+      label: "Climate Controlled",
+      accessor: (u) => (u.climateControlled ? "True" : "False" || "-"),
+    },
+    {
+      key: "condition",
+      label: "Condition",
+      accessor: (u) => u.condition || "-",
+    },
+    {
+      key: "width",
+      label: "Width",
+      accessor: (u) => u.specifications?.width || "-",
+    },
+    {
+      key: "height",
+      label: "Height",
+      accessor: (u) => u.specifications?.height || "-",
+    },
+    {
+      key: "depth",
+      label: "Depth",
+      accessor: (u) => u.specifications?.depth || "-",
+    },
+    {
+      key: "monthlyPrice",
+      label: "Monthly Price",
+      accessor: (u) => u.paymentInfo.pricePerMonth || "-",
+      render: (u, index) => (
+        <div key={index}>
+          <p>${u.paymentInfo.pricePerMonth}</p>
+        </div>
+      ),
+    },
+    {
+      key: "availability",
+      label: "Availability",
+      accessor: (u) => (u.availability ? "True" : "False" || "-"),
+    },
+    {
+      key: "tenant",
+      label: "Tenant",
+      accessor: (u) => u.tenant?.firstName + u.tenant?.lastName || "-",
+    },
+  ];
+
   return (
     <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-border dark:bg-darkPrimary">
       <div className="flex justify-between items-center">
@@ -100,161 +193,32 @@ export default function VacancyReport({ facilityId }) {
         </button>
       </div>
       <div className="my-2">
-        <input
-          type="text"
-          placeholder="Search units..."
+        <InputBox
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+          onchange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
+          placeholder={"Search Units..."}
         />
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Unit Number
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Climate Controlled
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Condition
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Security Level
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Width
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Height
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Depth
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Monthly Price
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Availability
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Tenant
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUnits
-              .slice(
-                (currentPage - 1) * itemsPerPage,
-                currentPage * itemsPerPage
-              )
-              .map((unit, index) => (
-                <tr
-                  key={unit._id}
-                  className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
-                >
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.unitNumber}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.climateControlled == true && `✔`}
-                    {unit.climateControlled == false && `✕`}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.condition}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.securityLevel}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.size?.width} {unit.size?.unit}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.size?.height} {unit.size?.unit}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.size?.depth} {unit.size?.unit}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {"$" + unit.paymentInfo?.pricePerMonth || "-"}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.availability == true && `✔`}
-                    {unit.availability == false && `✕`}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unit.tenant?.firstName
-                      ? unit.tenant.firstName + " " + unit.tenant?.lastName
-                      : "-"}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          data={filteredUnits}
+          currentPage={currentPage}
+          rowsPerPage={itemsPerPage}
+          sortDirection={sortDirection}
+          sortedColumn={sortedColumn}
+          onSort={handleColumnSort}
+        />
       </div>
-      <div className="flex justify-between items-center dark:text-white">
-        <div className="flex gap-3">
-          <div>
-            <select
-              className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
-              id="itemsPerPage"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1); // Reset to first page on rows per page change
-              }}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-          </div>
-          <p className="text-sm">
-            {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-            {currentPage * itemsPerPage > filteredUnits.length
-              ? filteredUnits.length
-              : currentPage * itemsPerPage}{" "}
-            of {filteredUnits.length}
-          </p>
-        </div>
-        <div className="px-2 py-5 mx-1">
-          <div className="gap-2 flex">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronsLeft />
-            </button>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronLeft />
-            </button>
-            <p>
-              {currentPage} of {totalPages}
-            </p>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronRight />
-            </button>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(totalPages)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronsRight />
-            </button>
-          </div>
-        </div>
+      {/* Pagination Footer */}
+      <div className="px-2 py-5 mx-1">
+        <PaginationFooter
+          rowsPerPage={itemsPerPage}
+          setRowsPerPage={setItemsPerPage}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          items={filteredUnits}
+        />
       </div>
     </div>
   );

@@ -199,10 +199,10 @@ export default function UnitPage({ facility }) {
           className="flex w-full items-center text-center justify-center text-xl"
           title={`${u.unitType ?? "Storage Unit"}`}
         >
-          {u.unitType === "Storage Unit" && <PiGarageFill />}
-          {u.unitType === "Parking" && <FaParking />}
           {u.unitType === "Locker" && <PiLockersFill />}
           {u.unitType === "Office" && <PiOfficeChairFill />}
+          {u.unitType === "Storage Unit" && <PiGarageFill />}
+          {u.unitType === "Parking" && <FaParking />}
         </div>
       ),
     },

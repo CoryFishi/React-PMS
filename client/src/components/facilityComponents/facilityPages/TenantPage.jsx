@@ -6,10 +6,10 @@ import DataTable from "../../sharedComponents/DataTable";
 import PaginationFooter from "../../sharedComponents/PaginationFooter";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import InputBox from "../../sharedComponents/InputBox";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaDoorClosed } from "react-icons/fa6";
 import { PiPersonBold } from "react-icons/pi";
-export default function TenantPage({ facilityId }) {
+export default function TenantPage({ facility }) {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -22,6 +22,7 @@ export default function TenantPage({ facilityId }) {
   const [sortedColumn, setSortedColumn] = useState(null);
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const { facilityId } = useParams();
 
   const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
     let newDirection;
@@ -212,12 +213,14 @@ export default function TenantPage({ facilityId }) {
             Current Tenants
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none cursor-not-allowed  ${
               activeTab === "Previous"
                 ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
                 : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Previous")}
+            title="Under Development"
+            disabled
           >
             Previous Tenants
           </button>
@@ -235,7 +238,10 @@ export default function TenantPage({ facilityId }) {
             />
             <button
               className="bg-blue-500 text-white p-1 py-3 rounded hover:bg-blue-600 ml-3 w-44 font-bold"
-              onClick={() => setCreateOpen(true)}
+              onClick={() =>
+                navigate(`/rental/${facility.company}/${facilityId}`)
+              }
+              title={`/rental/${facility.company}/${facilityId}`}
             >
               New Rental
             </button>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import GeneralSettings from "../settingsComponents/GeneralSettings";
 import TenantManagementSettings from "../settingsComponents/TenantManagementSettings";
 import NotificationSettings from "../settingsComponents/GeneralSettings";
@@ -11,11 +12,13 @@ import UnitSettings from "../settingsComponents/UnitSettings";
 import { IoIosSettings, IoIosNotifications } from "react-icons/io";
 import { MdConnectWithoutContact } from "react-icons/md";
 
-export default function SettingsPage({ facilityId }) {
+export default function SettingsPage() {
+  const { facilityId, id } = useParams();
+  const navigate = useNavigate();
   const [selectedSetting, setSelectedSetting] = useState(null);
 
   const settings = {
-    facilitySettings: <GeneralSettings facilityId={facilityId} />,
+    "facility-info": <GeneralSettings facilityId={facilityId} />,
     tenantManagement: <TenantManagementSettings facilityId={facilityId} />,
     amenitiesSettings: <AmenitiesSettings facilityId={facilityId} />,
     notifications: <NotificationSettings facilityId={facilityId} />,
@@ -24,6 +27,10 @@ export default function SettingsPage({ facilityId }) {
     unitTypes: <UnitTypeSettings facilityId={facilityId} />,
     units: <UnitSettings facilityId={facilityId} />,
   };
+
+  useEffect(() => {
+    setSelectedSetting(id || null);
+  }, [id]);
 
   return (
     <div className="p-5 dark:text-white">
@@ -34,20 +41,18 @@ export default function SettingsPage({ facilityId }) {
             <IoIosSettings className="text-blue-500 text-4xl" />
             <h1>Settings</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("facilitySettings")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              onClick={() =>
+                navigate(`/dashboard/${facilityId}/settings/facility-info`)
+              }
             >
               Facility Information
             </button>
-            <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("amenitiesSettings")}
-            >
+            <button className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200">
               Amenities
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Documents
@@ -58,8 +63,7 @@ export default function SettingsPage({ facilityId }) {
             <IoIosNotifications className="text-blue-500 text-4xl" />
             <h1>Notifications</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Notifications
@@ -70,15 +74,13 @@ export default function SettingsPage({ facilityId }) {
             <FaPerson className="text-blue-500 text-4xl" />
             <h1>Tenants</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Settings
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Insurance
@@ -89,29 +91,26 @@ export default function SettingsPage({ facilityId }) {
             <FaLock className="text-blue-500 text-3xl" />
             <h1>Units</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("units")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              onClick={() =>
+                navigate(`/dashboard/${facilityId}/settings/units`)
+              }
             >
               Units
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Facility Map
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Rental Promotions
             </button>
-            <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("unitTypes")}
-            >
+            <button className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200">
               Unit Types
             </button>
           </div>
@@ -120,29 +119,25 @@ export default function SettingsPage({ facilityId }) {
             <FaCashRegister className="text-3xl text-blue-500" />
             <h1>Billing</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Settings
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Tax Rates
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Fees and Services
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("allTenants")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Delinquency Stages
@@ -153,8 +148,7 @@ export default function SettingsPage({ facilityId }) {
             <MdConnectWithoutContact className="text-3xl text-blue-500" />
             <h1>Integrations</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-darkSecondary dark:hover:bg-darkPrimary dark:border-border rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-gray-200"
-              onClick={() => setSelectedSetting("gateIntegration")}
+              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
               disabled
             >
               Gate Integration
@@ -165,11 +159,11 @@ export default function SettingsPage({ facilityId }) {
         <div>
           <button
             className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 h-full"
-            onClick={() => setSelectedSetting(null)}
+            onClick={() => navigate(`/dashboard/${facilityId}/settings`)}
           >
             Back to Settings
           </button>
-          {settings[selectedSetting]}
+          {settings[id]}
         </div>
       )}
     </div>

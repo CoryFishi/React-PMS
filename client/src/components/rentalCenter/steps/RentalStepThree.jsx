@@ -12,28 +12,26 @@ export default function RentalStepThree({ onNext, onBack }) {
   const { companyId, facilityId, unitId } = useParams();
   const navigate = useNavigate();
   const [selectedInsurance, setSelectedInsurance] = useState(null);
+  const [user, setUser] = useState(null);
 
-  const handleCheckout = async () => {
-    if (selectedInsurance === null)
-      return toast.error("Please select an insurance plan");
+  const register = async () => {
     try {
-      const { data } = await axios.post(
-        `/companies/${companyId}/checkout-session`,
+      const { data } = await axios.put(
+        `/facilities/${facilityId}/tenants`,
         {
-          priceInCents: Math.round(total * 100),
-          companyStripeAccountId: facility.company?.stripe?.accountId,
-          url: `${window.location}`,
+          unitId: unit._id,
+          insurancePlanId: selectedInsurance?._id || null,
+          user: user,
         },
         {
-          headers: {
-            "x-api-key": API_KEY,
-          },
+          headers: { "x-api-key": API_KEY },
         }
       );
-
-      window.location.href = data.url;
-    } catch (err) {
-      console.error("Failed to start checkout:", err);
+      setUser(data.user);
+      toast.success("Successfully registered!");
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.response?.data?.message || "Registration failed");
     }
   };
 
@@ -150,17 +148,19 @@ export default function RentalStepThree({ onNext, onBack }) {
           <button
             onClick={() => {
               onBack();
-              navigate(`/rental/${companyId}/${facilityId}`);
             }}
             className="bg-gray-300 px-4 py-2 rounded"
           >
             Back
           </button>
           <button
-            onClick={handleCheckout}
+            onClick={async () => {
+              await register();
+              onNext();
+            }}
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            Pay & Continue
+            Register & Continue
           </button>
         </div>
       </div>

@@ -78,6 +78,13 @@ router.get(
   authenticate,
   tenantController.getTenantById
 );
+router.post(
+  "/:facilityId/tenants",
+  authenticateAPIKey,
+  authenticate,
+  tenantController.createTenant
+);
+
 router.put(
   "/:facilityId/tenants/:tenantId",
   authenticateAPIKey,
