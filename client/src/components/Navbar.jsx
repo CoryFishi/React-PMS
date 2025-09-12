@@ -1,22 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
 import { useContext, useState, useEffect, useRef } from "react";
 import { UserContext } from "../../context/userContext";
-import { AiFillCode } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { RiMoonClearFill, RiSunFill } from "react-icons/ri";
 import axios from "axios";
 import { MdExpandLess, MdExpandMore } from "react-icons/md";
-import { RiMenuFold2Fill, RiMenuUnfold2Fill } from "react-icons/ri";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-export default function Navbar({
-  isCollapsed,
-  setIsCollapsed,
-  toggleDarkMode,
-  darkMode,
-}) {
+export default function Navbar({ toggleDarkMode, darkMode }) {
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn, user, setUser } = useContext(UserContext);
+  const { isLoggedIn, setIsLoggedIn, user, setUser, currentfacility } =
+    useContext(UserContext);
   const location = useLocation();
   const userRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -57,26 +51,17 @@ export default function Navbar({
   }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-zinc-50 p-2 w-full border-zinc-200 border-b dark:bg-zinc-950 dark:text-white dark:border-zinc-800">
+    <nav className="bg-zinc-50 p-2 w-full border-zinc-200 border-b dark:bg-zinc-950 dark:text-white dark:border-zinc-800 px-8">
       <div className="flex items-center justify-between">
-        <div className="flex items-center flex-shrink-0 mr-6 select-none">
-          {location.pathname.startsWith("/dashboard") && (
-            <button
-              className="block p-3 font-semibold rounded-full text-xlmr-4 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-            >
-              {isCollapsed ? <RiMenuUnfold2Fill /> : <RiMenuFold2Fill />}
-            </button>
-          )}
-          <span
-            className={`${
-              location.pathname.startsWith("/dashboard") ? "ml-1" : "ml-5"
-            } font-semibold text-xl flex items-center gap-2`}
-          >
-            <img src="/src/assets/images/logo.png" alt="Logo" className="h-7" />
-            Storix
-          </span>
-        </div>
+        <input
+          name="company"
+          id="company"
+          className="bg-white border border-zinc-300 rounded-md p-2"
+          placeholder={`Search ${
+            currentfacility ? currentfacility.name : ""
+          }...`}
+        />
+
         <div className="flex space-x-4 items-center pr-5">
           <div className="flex items-center">
             <label

@@ -13,6 +13,14 @@ import { useNavigate } from "react-router-dom";
 import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import ReportsPage from "../reportComponents/ReportsPage";
+import {
+  BiSolidLeftArrowSquare,
+  BiSolidRightArrowSquare,
+} from "react-icons/bi";
+import { FaUser } from "react-icons/fa";
+import { BsBuildingsFill } from "react-icons/bs";
+import { IoIosDocument } from "react-icons/io";
+import { BsFillBuildingFill } from "react-icons/bs";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
@@ -58,229 +66,246 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
     getFacility();
   }, [facilityId]);
+  const OPEN_WIDTH = "w-64";
+
+  const [navOptions, setNavOptions] = useState([
+    { name: "Dashboard", path: "overview", icon: RiAdminFill, options: [] },
+    { name: "Users", path: "users", icon: FaUser, options: [] },
+    {
+      name: "Companies",
+      path: "companies",
+      icon: BsBuildingsFill,
+      options: [],
+    },
+    {
+      name: "Facilities",
+      path: "facilities",
+      icon: BsFillBuildingFill,
+      options: [],
+    },
+    {
+      name: "Reports",
+      path: "reports",
+      icon: IoIosDocument,
+      options: [{ name: "User Detail", path: "user-detail" }],
+    },
+  ]);
 
   return (
-    <div className="flex flex-col w-screen h-screen dark:bg-zinc-900">
-      <Navbar
-        isCollapsed={isCollapsed}
-        setIsCollapsed={setIsCollapsed}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-      />
-      <div className="flex flex-row flex-1 min-h-0">
-        {isCollapsed === false && (
-          <div className="w-1/6 text-xl border-r select-none bg-zinc-950 dark:border-zinc-800 text-white">
-            {/* Header Side Bar */}
-            <div>
-              <h3 className="text-center m-[18px] text-2xl font-bold">
-                {user.role == "System_Admin" ? "Admin" : "Dashboard"}
-              </h3>
-            </div>
-            <div className="flex-grow">
-              {/* Current Facility Side Bar */}
+    <div className="flex w-full h-dvh dark:bg-zinc-900 border-l-sky-800 border-l-2">
+      <aside
+        className={[
+          "relative h-full border-r-1 border-zinc-500 bg-slate-900 dark:border-zinc-900 text-white select-none",
+          "transition-[width] duration-500 ease-in-out",
+          isCollapsed ? "w-0" : OPEN_WIDTH,
+        ].join(" ")}
+      >
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className={[
+            "z-50 p-2 rounded text-xl shadow",
+            "bg-sky-600 text-white",
+            "hover:bg-sky-800 focus:outline-none",
+            "transition-all duration-500 ease-in-out",
+            "fixed top-6",
+            isCollapsed
+              ? "left-0 translate-x-[-16px]"
+              : "left-64 -translate-x-1/2",
+          ].join(" ")}
+        >
+          {isCollapsed ? (
+            <BiSolidRightArrowSquare />
+          ) : (
+            <BiSolidLeftArrowSquare />
+          )}
+        </button>
+
+        <div
+          className={[
+            "h-full transition-all duration-500 ease-in-out",
+            isCollapsed
+              ? "opacity-0 -translate-x-4 pointer-events-none"
+              : "opacity-100 translate-x-0",
+          ].join(" ")}
+        >
+          {/* Header Side Bar */}
+          <h3 className="text-center text-2xl font-bold w-full items-center justify-center flex">
+            <span
+              className={`p-5 font-semibold text-3xl flex items-center gap-2`}
+            >
+              <img
+                src="/src/assets/images/logo.png"
+                alt="Logo"
+                className="h-7"
+              />
+              Storix
+            </span>
+          </h3>
+          <div className="p-2 flex flex-col gap-2">
+            {navOptions.map((option) => (
+              <button
+                key={option.path}
+                onClick={() => {
+                  if (option.options.length < 0) {
+                    navigate(`/dashboard/admin/${option.path}`);
+                  } else {
+                    setNavOptions((prev) => {
+                      return {
+                        ...prev,
+                        [option.path]: !prev[option.path],
+                      };
+                    });
+                  }
+                }}
+                className={`px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-zinc-700 ${
+                  section === option.path ? "bg-sky-600 hover:bg-sky-700" : ""
+                }`}
+              >
+                <span className="flex items-center whitespace-nowrap">
+                  {option.icon && (
+                    <option.icon className="inline-block mr-2 shrink-0" />
+                  )}
+                  <span className="truncate">{option.name}</span>
+                  {option.options && option.options.length > 0 && (
+                    <span className="ml-auto">
+                      <MdExpandMore />
+                    </span>
+                  )}
+                </span>
+              </button>
+            ))}
+          </div>
+          {/* <div className="flex-grow">
+            {facilityId !== "" && (
               <div
                 className={`border-t border-b pl-2 pr-2 border-zinc-800 pb-8 ${
-                  isAdmin
-                    ? "bg-zinc-800 border-l-blue-500 border-l-4 dark:bg-zinc-900"
+                  !isAdmin &
+                  (section === "units" ||
+                    section === "tenants" ||
+                    section === "reports" ||
+                    section === "settings" ||
+                    section === "facility" ||
+                    section === "overview")
+                    ? "bg-zinc-800  dark:bg-zinc-900 border-l-sky-500 border-l-4"
                     : ""
                 }`}
               >
                 <div
                   className="flex justify-between items-center cursor-pointer mt-8"
-                  onClick={() => toggleSection("currentFacility")}
+                  onClick={() => toggleSection("facilities")}
                 >
                   <div className="flex items-center space-x-2">
-                    <RiAdminFill
-                      className={`${isAdmin ? "text-blue-500" : ""}`}
+                    <FaBuildingLock
+                      className={`${
+                        !isAdmin &
+                        (section === "units" ||
+                          section === "tenants" ||
+                          section === "reports" ||
+                          section === "settings" ||
+                          section === "facility" ||
+                          section === "overview")
+                          ? "text-sky-500"
+                          : ""
+                      }`}
                     />
-                    <span className="pl-2 font-medium">Configuration</span>
+                    <span className="font-medium">{facilityName}</span>
                   </div>
-                  {openSections.currentFacility ? (
+                  {openSections.facilities ? (
                     <MdExpandLess />
                   ) : (
                     <MdExpandMore />
                   )}
                 </div>
 
-                {!openSections.currentFacility && (
+                {!openSections.facilities && (
                   <div className="mx-4 mt-4 space-y-2">
                     <button
-                      onClick={() => navigate("/dashboard/admin/overview")}
+                      onClick={() =>
+                        navigate(`/dashboard/${facilityId}/overview`)
+                      }
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        isAdmin && section === "overview"
-                          ? "bg-zinc-700 border-b-blue-500 border-b-2"
+                        !isAdmin && section === "overview"
+                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
                           : ""
                       }`}
                     >
                       Overview
                     </button>
+
                     <button
-                      onClick={() => navigate("/dashboard/admin/users")}
+                      onClick={() => navigate(`/dashboard/${facilityId}/units`)}
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "users"
-                          ? "bg-zinc-700 border-b-blue-500 border-b-2"
+                        section === "units"
+                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
                           : ""
                       }`}
                     >
-                      Users
-                    </button>
-                    <button
-                      onClick={() => navigate("/dashboard/admin/companies")}
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "companies"
-                          ? "bg-zinc-700 border-b-blue-500 border-b-2"
-                          : ""
-                      }`}
-                    >
-                      Companies
+                      Units
                     </button>
 
                     <button
-                      onClick={() => navigate("/dashboard/admin/facilities")}
+                      onClick={() =>
+                        navigate(`/dashboard/${facilityId}/tenants`)
+                      }
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "facilities"
-                          ? "bg-zinc-700 border-b-blue-500 border-b-2"
+                        section === "tenants"
+                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
                           : ""
                       }`}
                     >
-                      Facilities
+                      Tenants
                     </button>
 
                     <button
-                      onClick={() => navigate("/dashboard/admin/reports")}
+                      onClick={() =>
+                        navigate(`/dashboard/${facilityId}/reports`)
+                      }
                       className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        isAdmin && section === "reports"
-                          ? "bg-zinc-700 border-b-blue-500 border-b-2"
+                        !isAdmin && section === "reports"
+                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
                           : ""
                       }`}
                     >
                       Reports
                     </button>
+
+                    <button
+                      onClick={() =>
+                        navigate(`/dashboard/${facilityId}/settings`)
+                      }
+                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
+                        section === "settings"
+                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
+                          : ""
+                      }`}
+                    >
+                      Settings
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        setFacilityId("") &
+                        setCompany("") &
+                        navigate(`/dashboard`)
+                      }
+                      className={`px-2 block hover:bg-zinc-700 w-full text-left`}
+                    >
+                      Clear Current Facility
+                    </button>
                   </div>
                 )}
               </div>
-              {/* Facilities Side Bar */}
-              {facilityId !== "" && (
-                <div
-                  className={`border-t border-b pl-2 pr-2 border-zinc-800 pb-8 ${
-                    !isAdmin &
-                    (section === "units" ||
-                      section === "tenants" ||
-                      section === "reports" ||
-                      section === "settings" ||
-                      section === "facility" ||
-                      section === "overview")
-                      ? "bg-zinc-800  dark:bg-zinc-900 border-l-blue-500 border-l-4"
-                      : ""
-                  }`}
-                >
-                  <div
-                    className="flex justify-between items-center cursor-pointer mt-8"
-                    onClick={() => toggleSection("facilities")}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <FaBuildingLock
-                        className={`${
-                          !isAdmin &
-                          (section === "units" ||
-                            section === "tenants" ||
-                            section === "reports" ||
-                            section === "settings" ||
-                            section === "facility" ||
-                            section === "overview")
-                            ? "text-blue-500"
-                            : ""
-                        }`}
-                      />
-                      <span className="font-medium">{facilityName}</span>
-                    </div>
-                    {openSections.facilities ? (
-                      <MdExpandLess />
-                    ) : (
-                      <MdExpandMore />
-                    )}
-                  </div>
-
-                  {!openSections.facilities && (
-                    <div className="mx-4 mt-4 space-y-2">
-                      <button
-                        onClick={() =>
-                          navigate(`/dashboard/${facilityId}/overview`)
-                        }
-                        className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          !isAdmin && section === "overview"
-                            ? "bg-zinc-700 border-b-blue-500 border-b-2"
-                            : ""
-                        }`}
-                      >
-                        Overview
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          navigate(`/dashboard/${facilityId}/units`)
-                        }
-                        className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          section === "units"
-                            ? "bg-zinc-700 border-b-blue-500 border-b-2"
-                            : ""
-                        }`}
-                      >
-                        Units
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          navigate(`/dashboard/${facilityId}/tenants`)
-                        }
-                        className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          section === "tenants"
-                            ? "bg-zinc-700 border-b-blue-500 border-b-2"
-                            : ""
-                        }`}
-                      >
-                        Tenants
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          navigate(`/dashboard/${facilityId}/reports`)
-                        }
-                        className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          !isAdmin && section === "reports"
-                            ? "bg-zinc-700 border-b-blue-500 border-b-2"
-                            : ""
-                        }`}
-                      >
-                        Reports
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          navigate(`/dashboard/${facilityId}/settings`)
-                        }
-                        className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                          section === "settings"
-                            ? "bg-zinc-700 border-b-blue-500 border-b-2"
-                            : ""
-                        }`}
-                      >
-                        Settings
-                      </button>
-
-                      <button
-                        onClick={() => setFacilityId("") & setCompany("")}
-                        className={`px-2 block hover:bg-zinc-700 w-full text-left`}
-                      >
-                        Clear Current Facility
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+            )}
+          </div> */}
+        </div>
+      </aside>
+      <div className="flex flex-col flex-1 min-h-0">
+        <Navbar
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
+          darkMode={darkMode}
+          toggleDarkMode={toggleDarkMode}
+        />
         <div className="flex-1 min-h-0 overflow-y-auto">
           {isAdmin &&
             location.pathname.startsWith("/dashboard/admin/overview") && (

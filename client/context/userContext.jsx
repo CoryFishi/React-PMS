@@ -31,9 +31,18 @@ export function UserContextProvider({ children }) {
     }
   }, []);
 
+  const currentfacility = user?.selectedFacility || null;
+
   return (
     <UserContext.Provider
-      value={{ user, setUser, isLoggedIn, setIsLoggedIn, isLoading }}
+      value={{
+        user,
+        setUser,
+        isLoggedIn,
+        setIsLoggedIn,
+        isLoading,
+        currentfacility,
+      }}
     >
       {children}
     </UserContext.Provider>

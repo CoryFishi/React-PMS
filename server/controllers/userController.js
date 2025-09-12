@@ -276,10 +276,7 @@ const getLoginData = async (req, res) => {
     }
 
     // Use `findById` to fetch the user by the ID from the decoded JWT payload
-    const user = await User.findById(decoded._id)
-      .select("-password")
-      .populate("company")
-      .populate("selectedFacility");
+    const user = await User.findById(decoded._id).select("-password");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
