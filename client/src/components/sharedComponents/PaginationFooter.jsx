@@ -18,7 +18,7 @@ export default function PaginationFooter({
       <div className="flex gap-3">
         <div>
           <select
-            className="border rounded ml-2 dark:bg-zinc-800 dark:border-zinc-900 cursor-pointer"
+            className="border rounded ml-2 dark:bg-slate-800 dark:border-slate-700 cursor-pointer"
             id="rowsPerPage"
             value={rowsPerPage}
             onChange={(e) => {
@@ -46,14 +46,14 @@ export default function PaginationFooter({
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(1)}
-          className="hover:cursor-pointer disabled:cursor-not-allowed p-1 disabled:text-zinc-500"
+          className="hover:cursor-pointer disabled:cursor-not-allowed p-1 disabled:text-slate-500"
         >
           <BiChevronsLeft />
         </button>
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((prev) => prev - 1)}
-          className="hover:cursor-pointer disabled:cursor-not-allowed p-1 disabled:text-zinc-500"
+          className="hover:cursor-pointer disabled:cursor-not-allowed p-1 disabled:text-slate-500"
         >
           <BiChevronLeft />
         </button>

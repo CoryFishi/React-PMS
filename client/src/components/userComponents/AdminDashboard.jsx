@@ -3,7 +3,7 @@ import FacilityTable from "../facilityComponents/FacilityTable";
 import UserTable from "../userComponents/UserTable";
 import { useState, useEffect, useContext } from "react";
 import { FaBuildingLock } from "react-icons/fa6";
-import { RiAdminFill } from "react-icons/ri";
+import { RiAdminFill, RiArrowGoBackFill } from "react-icons/ri";
 import { MdExpandMore, MdExpandLess } from "react-icons/md";
 import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
@@ -21,6 +21,8 @@ import { FaUser } from "react-icons/fa";
 import { BsBuildingsFill } from "react-icons/bs";
 import { IoIosDocument } from "react-icons/io";
 import { BsFillBuildingFill } from "react-icons/bs";
+import FacilityTemplates from "../facilityComponents/FacilityTemplates";
+import NotFound from "../NotFound";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
@@ -36,16 +38,9 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
     localStorage.getItem("selectedCompany") || ""
   );
   const navigate = useNavigate();
-  const { section } = useParams();
+  const { section, id } = useParams();
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/dashboard/admin");
-
-  const toggleSection = (section) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
 
   useEffect(() => {
     const getFacility = async () => {
@@ -81,21 +76,53 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
       name: "Facilities",
       path: "facilities",
       icon: BsFillBuildingFill,
+      options: [
+        { name: "All Facilities", path: "" },
+        { name: "Templates", path: "templates" },
+      ],
+    },
+    {
+      name: "Reports",
+      path: "reports",
+      icon: IoIosDocument,
+      options: [
+        { name: "User Detail", path: "user-detail" },
+        { name: "Companies Detail", path: "company-detail" },
+        { name: "Facilities Detail", path: "facilities-detail" },
+        { name: "Events Detail", path: "events-detail" },
+      ],
+    },
+  ]);
+
+  const [facilityNavOptions, setFacilityNavOptions] = useState([
+    { name: "Dashboard", path: "overview", icon: RiAdminFill, options: [] },
+    { name: "Tenants", path: "tenants", icon: FaUser, options: [] },
+    {
+      name: "Units",
+      path: "units",
+      icon: BsBuildingsFill,
       options: [],
     },
     {
       name: "Reports",
       path: "reports",
       icon: IoIosDocument,
-      options: [{ name: "User Detail", path: "user-detail" }],
+      options: [
+        { name: "User Detail", path: "user-detail" },
+        { name: "Companies Detail", path: "company-detail" },
+        { name: "Facilities Detail", path: "facilities-detail" },
+        { name: "Events Detail", path: "events-detail" },
+      ],
     },
   ]);
 
+  const [open, setOpen] = useState({});
+
   return (
-    <div className="flex w-full h-dvh dark:bg-zinc-900 border-l-sky-800 border-l-2">
+    <div className="flex w-full h-dvh dark:bg-slate-800 border-l-sky-800 border-l-2">
       <aside
         className={[
-          "relative h-full border-r-1 border-zinc-500 bg-slate-900 dark:border-zinc-900 text-white select-none",
+          "shrink-0 relative h-full border-r border-slate-500 bg-slate-900 dark:border-slate-800 text-white select-none overflow-hidden",
           "transition-[width] duration-500 ease-in-out",
           isCollapsed ? "w-0" : OPEN_WIDTH,
         ].join(" ")}
@@ -142,171 +169,155 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             </span>
           </h3>
           <div className="p-2 flex flex-col gap-2">
-            {navOptions.map((option) => (
+            {!location.pathname.includes("/dashboard/admin") && (
               <button
-                key={option.path}
-                onClick={() => {
-                  if (option.options.length < 0) {
-                    navigate(`/dashboard/admin/${option.path}`);
-                  } else {
-                    setNavOptions((prev) => {
-                      return {
-                        ...prev,
-                        [option.path]: !prev[option.path],
-                      };
-                    });
-                  }
-                }}
-                className={`px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-zinc-700 ${
-                  section === option.path ? "bg-sky-600 hover:bg-sky-700" : ""
-                }`}
+                onClick={() => navigate("/dashboard")}
+                className={`px-2 py-1 w-full text-left font-mdedium rounded hover:bg-slate-800 flex items-center gap-2`}
               >
-                <span className="flex items-center whitespace-nowrap">
-                  {option.icon && (
-                    <option.icon className="inline-block mr-2 shrink-0" />
-                  )}
-                  <span className="truncate">{option.name}</span>
-                  {option.options && option.options.length > 0 && (
-                    <span className="ml-auto">
-                      <MdExpandMore />
-                    </span>
-                  )}
-                </span>
+                <RiArrowGoBackFill />
+                Go Back
               </button>
-            ))}
-          </div>
-          {/* <div className="flex-grow">
-            {facilityId !== "" && (
-              <div
-                className={`border-t border-b pl-2 pr-2 border-zinc-800 pb-8 ${
-                  !isAdmin &
-                  (section === "units" ||
-                    section === "tenants" ||
-                    section === "reports" ||
-                    section === "settings" ||
-                    section === "facility" ||
-                    section === "overview")
-                    ? "bg-zinc-800  dark:bg-zinc-900 border-l-sky-500 border-l-4"
-                    : ""
-                }`}
-              >
-                <div
-                  className="flex justify-between items-center cursor-pointer mt-8"
-                  onClick={() => toggleSection("facilities")}
-                >
-                  <div className="flex items-center space-x-2">
-                    <FaBuildingLock
-                      className={`${
-                        !isAdmin &
-                        (section === "units" ||
-                          section === "tenants" ||
-                          section === "reports" ||
-                          section === "settings" ||
-                          section === "facility" ||
-                          section === "overview")
-                          ? "text-sky-500"
-                          : ""
-                      }`}
-                    />
-                    <span className="font-medium">{facilityName}</span>
-                  </div>
-                  {openSections.facilities ? (
-                    <MdExpandLess />
-                  ) : (
-                    <MdExpandMore />
-                  )}
-                </div>
-
-                {!openSections.facilities && (
-                  <div className="mx-4 mt-4 space-y-2">
-                    <button
-                      onClick={() =>
-                        navigate(`/dashboard/${facilityId}/overview`)
-                      }
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        !isAdmin && section === "overview"
-                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
-                          : ""
-                      }`}
-                    >
-                      Overview
-                    </button>
-
-                    <button
-                      onClick={() => navigate(`/dashboard/${facilityId}/units`)}
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "units"
-                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
-                          : ""
-                      }`}
-                    >
-                      Units
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/dashboard/${facilityId}/tenants`)
-                      }
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "tenants"
-                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
-                          : ""
-                      }`}
-                    >
-                      Tenants
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/dashboard/${facilityId}/reports`)
-                      }
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        !isAdmin && section === "reports"
-                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
-                          : ""
-                      }`}
-                    >
-                      Reports
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/dashboard/${facilityId}/settings`)
-                      }
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left ${
-                        section === "settings"
-                          ? "bg-zinc-700 border-b-sky-500 border-b-2"
-                          : ""
-                      }`}
-                    >
-                      Settings
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        setFacilityId("") &
-                        setCompany("") &
-                        navigate(`/dashboard`)
-                      }
-                      className={`px-2 block hover:bg-zinc-700 w-full text-left`}
-                    >
-                      Clear Current Facility
-                    </button>
-                  </div>
-                )}
-              </div>
             )}
-          </div> */}
+            {location.pathname.includes("/dashboard/admin")
+              ? navOptions.map((option, index) => (
+                  <div key={option.path} className="flex flex-col">
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!option.options?.length) {
+                          navigate(`/dashboard/admin/${option.path}`);
+                        } else {
+                          setOpen((prev) => ({
+                            ...prev,
+                            [option.path]: !prev[option.path],
+                          }));
+                        }
+                      }}
+                      className={`px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-slate-800 ${
+                        section === option.path
+                          ? "bg-sky-600 hover:bg-sky-700"
+                          : ""
+                      }`}
+                    >
+                      <span className="flex items-center whitespace-nowrap">
+                        {option.icon && (
+                          <option.icon className="inline-block mr-2 shrink-0" />
+                        )}
+                        <span className="truncate">{option.name}</span>
+                        {!!option.options?.length && (
+                          <span className="ml-auto">
+                            <MdExpandMore />
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                    {open[option.path] && option.options?.length ? (
+                      <div key={`${index}-submenu`} className="ml-6">
+                        {option.options.map((sub) => (
+                          <button
+                            key={sub.path}
+                            className={`block w-full text-left px-2 py-1 items-center whitespace-nowrap ${
+                              location.pathname.endsWith(
+                                `${option.path}/${sub.path}`
+                              ) ||
+                              location.pathname.endsWith(
+                                `${option.path}${sub.path}`
+                              )
+                                ? "border-l-2 border-sky-700 bg-slate-800 hover:bg-sky-700"
+                                : "hover:bg-slate-700"
+                            }`}
+                            onClick={() => {
+                              if (sub.path === "") {
+                                navigate(`/dashboard/admin/${option.path}`);
+                              } else {
+                                navigate(
+                                  `/dashboard/admin/${option.path}/${sub.path}`
+                                );
+                              }
+                            }}
+                          >
+                            {sub.name}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ))
+              : facilityNavOptions.map((option, index) => (
+                  <div key={option.path} className="flex flex-col">
+                    <button
+                      key={index}
+                      onClick={() => {
+                        if (!option.options?.length) {
+                          navigate(`/dashboard/${facilityId}/${option.path}`);
+                        } else {
+                          setOpen((prev) => ({
+                            ...prev,
+                            [option.path]: !prev[option.path],
+                          }));
+                        }
+                      }}
+                      className={`px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-slate-800 ${
+                        section === option.path
+                          ? "bg-sky-600 hover:bg-sky-700"
+                          : ""
+                      }`}
+                    >
+                      <span className="flex items-center whitespace-nowrap">
+                        {option.icon && (
+                          <option.icon className="inline-block mr-2 shrink-0" />
+                        )}
+                        <span className="truncate">{option.name}</span>
+                        {!!option.options?.length && (
+                          <span className="ml-auto">
+                            <MdExpandMore />
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                    {open[option.path] && option.options?.length ? (
+                      <div key={`${index}-submenu`} className="ml-6">
+                        {option.options.map((sub) => (
+                          <button
+                            key={sub.path}
+                            className={`block w-full text-left px-2 py-1 items-center whitespace-nowrap ${
+                              location.pathname.endsWith(
+                                `${option.path}/${sub.path}`
+                              ) ||
+                              location.pathname.endsWith(
+                                `${option.path}${sub.path}`
+                              )
+                                ? "border-l-2 border-sky-700 bg-slate-800 hover:bg-sky-700"
+                                : "hover:bg-slate-700"
+                            }`}
+                            onClick={() => {
+                              if (sub.path === "") {
+                                navigate(`/dashboard/${option.path}`);
+                              } else {
+                                navigate(
+                                  `/dashboard/${option.path}/${sub.path}`
+                                );
+                              }
+                            }}
+                          >
+                            {sub.name}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+          </div>
         </div>
       </aside>
-      <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex flex-col flex-1 min-h-0 min-w-0">
         <Navbar
           isCollapsed={isCollapsed}
           setIsCollapsed={setIsCollapsed}
           darkMode={darkMode}
           toggleDarkMode={toggleDarkMode}
         />
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
           {isAdmin &&
             location.pathname.startsWith("/dashboard/admin/overview") && (
               <ConfigurationDashboard />
@@ -315,9 +326,11 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           {isAdmin && section === "companies" && <CompanyTable />}
           {isAdmin &&
             location.pathname.startsWith("/dashboard/admin/reports") && (
-              <ReportsPage />
+              <div className="h-full min-h-0 min-w-0 overflow-y-auto overscroll-contain">
+                <ReportsPage />
+              </div>
             )}
-          {isAdmin && section === "facilities" && (
+          {isAdmin && section === "facilities" && !id && (
             <FacilityTable
               facility={facilityId}
               company={company}
@@ -325,6 +338,12 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
               setFacilityName={setFacilityName}
               setFacility={setFacilityId}
             />
+          )}
+          {isAdmin && section === "facilities" && id === "templates" && (
+            <FacilityTemplates />
+          )}
+          {isAdmin && section === "facilities" && id && id !== "templates" && (
+            <NotFound />
           )}
           {!isAdmin && facilityId ? (
             facilityData && facilityData._id ? (

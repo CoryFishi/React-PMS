@@ -1,4 +1,3 @@
-// historyContext.jsx
 import { createContext, useContext, useRef, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -10,8 +9,8 @@ export const HistoryProvider = ({ children }) => {
   const [prevPath, setPrevPath] = useState(null);
 
   useEffect(() => {
-    setPrevPath(prevPathRef.current); // Set exposed value (what user *came from*)
-    prevPathRef.current = location.pathname; // Set internal ref to current
+    setPrevPath(prevPathRef.current);
+    prevPathRef.current = location.pathname;
   }, [location]);
 
   return (

@@ -1,6 +1,6 @@
 import { FaExclamationTriangle } from "react-icons/fa";
 
-const NotFound = () => {
+export default function NotFound() {
   return (
     <section className="text-center flex flex-col justify-center items-center h-96">
       <FaExclamationTriangle className="fas fa-exclamation-triangle text-yellow-400 fa-4x mb-4" />
@@ -14,6 +14,4 @@ const NotFound = () => {
       </button>
     </section>
   );
-};
-
-export default NotFound;
+}

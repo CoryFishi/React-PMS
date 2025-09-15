@@ -7,6 +7,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 import SelectOption from "../sharedComponents/SelectOption";
 
 export default function EditFacility({ facilityId, onClose, onSubmit }) {
+  const [facility, setFacility] = useState({});
   const [name, setName] = useState("");
   const [address, setAddress] = useState({
     street1: "",
@@ -34,6 +35,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
         },
       })
       .then(({ data }) => {
+        setFacility(data);
         setName(data.facilityName);
         setStatus(data.status);
         setAddress(data.address);
@@ -114,7 +116,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
 
   return (
     <ModalContainer
-      title={`Editing ${facilityId}`}
+      title={`Editing ${facility.facilityName} (${facilityId})`}
       mainContent={
         <div className="grid grid-cols-2 gap-3 pt-3 sm:grid-cols-1">
           <InputBox
@@ -235,7 +237,7 @@ export default function EditFacility({ facilityId, onClose, onSubmit }) {
           <button
             type="button"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
+            className="px-4 py-2 bg-sky-600 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-sky-700 focus:outline-none focus:border-sky-700 focus:ring focus:ring-sky-200 transition ease-in duration-200"
           >
             Submit
           </button>

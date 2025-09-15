@@ -9,9 +9,9 @@ export default function ModalContainer({
     // Modal Background
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center dark:text-white">
       {/* Modal Container */}
-      <div className="bg-white dark:bg-zinc-900 dark:text-whiterounded shadow-lg rounded">
+      <div className="bg-white dark:bg-slate-800 dark:text-white rounded shadow-lg">
         {/* Header Container */}
-        <div className="pl-5 border-b-2 border-b-blue-500 flex justify-between items-center h-12">
+        <div className="pl-5 border-b-2 border-b-sky-500 flex justify-between items-center h-12">
           <div className="flex items-center">
             {icon || ""}
             <h2 className="ml-2 text-lg font-bold">{title || "Modal Title"}</h2>

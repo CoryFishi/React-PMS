@@ -8,13 +8,13 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../sharedComponents/DataTable";
 import PaginationFooter from "../sharedComponents/PaginationFooter";
 import { useNavigate } from "react-router-dom";
-import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import ModalContainer from "../sharedComponents/ModalContainer";
 import InputBox from "../sharedComponents/InputBox";
+import { MdDeleteForever, MdSendAndArchive } from "react-icons/md";
+import { BiEdit, BiLinkExternal } from "react-icons/bi";
 
 export default function FacilityTable({ setFacility, setFacilityName }) {
   const [facilities, setFacilities] = useState([]);
-  const [units, setUnits] = useState(0);
 
   // Modal states
   const [isEditOpen, setEditOpen] = useState(false);
@@ -92,33 +92,11 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
       })
       .then(({ data }) => {
         setFacilities(data.facilities);
-
-        const totalUnits = Object.values(data.facilities).reduce(
-          (total, json) => total + (json.units.length || 0),
-          0
-        );
         setSortedColumn("Name");
-        setUnits(totalUnits);
       });
   }, []);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target)
-      ) {
-        setOpenDropdown(null);
-      }
-    }
-    // Add event listener when a dropdown is open
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openDropdown]);
-
-  // Delete selected user
+  // Delete selected facility
   const deleteFacility = async (id) => {
     try {
       const response = await axios.delete(
@@ -161,6 +139,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
     setOpenDropdown(null);
   };
 
+  // Deploy facility
   const deploy = async (facilityId) => {
     try {
       setOpenDropdown(null);
@@ -194,45 +173,76 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
     }
   };
 
-  //
-  //  Pagination
-  //
-
   useEffect(() => {
-    const filteredFacilities = facilities.filter((facility) => {
-      const query = searchQuery.toLowerCase();
+    const normalize = (v) => {
+      if (v == null) return "";
+      if (v instanceof Date) return v.toISOString().toLowerCase();
+      return String(v).toLowerCase();
+    };
+
+    const q = normalize(searchQuery);
+
+    const filtered = (facilities || []).filter((f) => {
+      const inc = (v) => normalize(v).includes(q);
+
       return (
-        facility.facilityName.toLowerCase().includes(query) ||
-        facility._id.toLowerCase().includes(query) ||
-        facility.company?.companyName?.toLowerCase().includes(query) ||
-        facility.createdAt.toLowerCase().includes(query) ||
-        facility.securityLevel.toLowerCase().includes(query) ||
-        facility.status.toLowerCase().includes(query) ||
-        Object.values(facility.amenities || {}).some((amenity) =>
-          amenity.toLowerCase().includes(query)
-        ) ||
-        facility.updatedAt.toLowerCase().includes(query) ||
-        facility.manager?.name?.toLowerCase().includes(query) ||
-        facility.address?.street1?.toLowerCase().includes(query) ||
-        facility.address?.street2?.toLowerCase().includes(query) ||
-        facility.address?.city?.toLowerCase().includes(query) ||
-        facility.address?.state?.toLowerCase().includes(query) ||
-        facility.address?.country?.toLowerCase().includes(query) ||
-        facility.address?.zipCode?.toLowerCase().includes(query)
+        inc(f?.facilityName) ||
+        inc(f?._id) || // handles ObjectId
+        inc(f?.company?.companyName) ||
+        inc(f?.createdAt) ||
+        inc(f?.securityLevel) ||
+        inc(f?.status) ||
+        Object.values(f?.amenities || {}).some(inc) ||
+        inc(f?.updatedAt) ||
+        inc(f?.manager?.name) ||
+        inc(f?.address?.street1) ||
+        inc(f?.address?.street2) ||
+        inc(f?.address?.city) ||
+        inc(f?.address?.state) ||
+        inc(f?.address?.country) ||
+        inc(f?.address?.zipCode)
       );
     });
-    setFilteredFacilities(filteredFacilities);
+
+    setFilteredFacilities(filtered);
   }, [facilities, searchQuery]);
 
   const columns = [
     {
       key: "facilityName",
-      label: "Name",
-      accessor: (f) => f.facilityName || "-",
+      label: "Facility Name",
+      render: (f, index) => (
+        <div
+          className="flex justify-center cursor-pointer hover:underline text-sky-500 hover:text-sky-700 font-medium"
+          key={index}
+          onClick={async () => {
+            try {
+              await axios.put(
+                "/users/select-facility",
+                { facilityId: f._id, userId: user._id },
+                {
+                  headers: {
+                    "x-api-key": API_KEY,
+                  },
+                }
+              );
+              setFacility(f._id);
+              setFacilityName(f.facilityName);
+              navigate(`/dashboard/${f._id}/overview`);
+            } catch (err) {
+              toast.error("Failed to select facility.");
+              console.error(err);
+            }
+          }}
+        >
+          {f.facilityName || "-"}
+        </div>
+      ),
     },
+
     {
       key: "companyName",
-      label: "Company",
+      label: "Company Name",
       accessor: (f) => f.company?.companyName || "-",
     },
     {
@@ -257,109 +267,74 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
     {
       key: "status",
       label: "Status",
-      accessor: (f) => f.status || "-",
+      render: (f, index) => (
+        <div className="flex justify-center" key={index}>
+          <div
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              f.status === "Enabled"
+                ? "bg-green-500 text-green-800"
+                : f.status === "Pending Deployment"
+                ? "bg-yellow-500 text-yellow-800"
+                : "bg-red-500 text-red-800"
+            }`}
+          >
+            {f.status || "-"}
+          </div>
+        </div>
+      ),
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "",
       sortable: false,
       render: (f, index) => (
         <div
-          className="relative inline-block text-left"
+          className="relative text-center flex items-center gap-1"
           key={index}
-          ref={openDropdown === f._id ? containerRef : null}
         >
-          <div>
-            <button
-              type="button"
-              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-600 font-medium text-white hover:bg-blue-700 items-center"
-              onClick={() =>
-                setOpenDropdown((prev) => (prev === f._id ? null : f._id))
-              }
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            onClick={() => {
+              navigate(`/rental/${f.company._id}/${f._id}`);
+            }}
+          >
+            <BiLinkExternal />
+          </a>
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            onClick={() => {
+              setSelectedFacility(f._id);
+              setEditOpen(true);
+              setOpenDropdown(null);
+            }}
+          >
+            <BiEdit />
+          </a>
+          {f.status === "Pending Deployment" && (
+            <a
+              className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+              onClick={() => deploy(f._id)}
             >
-              {openDropdown === f._id ? (
-                <IoMdArrowDropdown />
-              ) : (
-                <IoMdArrowDropup />
-              )}
-              Actions
-            </button>
-          </div>
-          {/* Facility Action Dropdown */}
-          {openDropdown === f._id && (
-            <div
-              className="origin-top-right absolute right-0 mt-1 w-56 flex flex-col rounded shadow-lg bg-zinc-100 dark:bg-zinc-800 border dark:border-zinc-600 ring-1 ring-black/5 z-10 hover:cursor-pointer"
-              ref={containerRef}
-            >
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
-                onClick={async () => {
-                  try {
-                    await axios.put(
-                      "/users/select-facility",
-                      { facilityId: f._id, userId: user._id },
-                      {
-                        headers: {
-                          "x-api-key": API_KEY,
-                        },
-                      }
-                    );
-                    setFacility(f._id);
-                    setFacilityName(f.facilityName);
-                    navigate(`/dashboard/${f._id}/overview`);
-                  } catch (err) {
-                    toast.error("Failed to select facility.");
-                    console.error(err);
-                  }
-                }}
-              >
-                Select
-              </a>
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
-                onClick={() => {
-                  navigate(`/rental/${f.company._id}/${f._id}`);
-                }}
-              >
-                Rental Center
-              </a>
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
-                onClick={() => {
-                  setSelectedFacility(f._id);
-                  setEditOpen(true);
-                  setOpenDropdown(null);
-                }}
-              >
-                Edit Facility
-              </a>
-              {f.status === "Pending Deployment" && (
-                <a
-                  className="w-full px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
-                  onClick={() => deploy(f._id)}
-                >
-                  Deploy Facility
-                </a>
-              )}
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 rounded-b dark:hover:bg-zinc-900 dark:border-zinc-800"
-                onClick={() => {
-                  setSelectedFacility(f._id);
-                  setIsDeleteModalOpen(true);
-                  setOpenDropdown(false);
-                }}
-              >
-                Delete Facility
-              </a>
-            </div>
+              <MdSendAndArchive />
+            </a>
           )}
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-red-500 cursor-pointer text-lg"
+            onClick={() => {
+              setSelectedFacility(f._id);
+              setIsDeleteModalOpen(true);
+              setOpenDropdown(false);
+            }}
+          >
+            <MdDeleteForever />
+          </a>
         </div>
       ),
     },
   ];
 
   return (
-    <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
+    <div className="flex flex-col h-full w-full relative">
       {/* Create Facility Modal */}
       {isCreateOpen && (
         <CreateFacility
@@ -404,34 +379,6 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
           }
         />
       )}
-      {/* Facility Statisics Header */}
-      <div className="w-full p-5 bg-zinc-200 flex justify-around items-center dark:bg-zinc-950 dark:text-white">
-        <h2 className="text-xl font-bold">Facility Statistics</h2>
-        <p className="text-sm">
-          Pending Deployment:{" "}
-          {
-            facilities.filter(
-              (facility) => facility.status === "Pending Deployment"
-            ).length
-          }
-        </p>
-        <p className="text-sm">
-          Enabled:{" "}
-          {
-            facilities.filter((facility) => facility.status === "Enabled")
-              .length
-          }
-        </p>
-        <p className="text-sm">
-          Maintenance:{" "}
-          {
-            facilities.filter((facility) => facility.status === "Maintenance")
-              .length
-          }
-        </p>
-        <p className="text-sm">Total Units: {units}</p>
-        <p className="text-sm">Total Facilities: {facilities.length}</p>
-      </div>
       {/* Search Bar and Create Facility Button */}
       <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
         <InputBox
@@ -440,7 +387,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
           placeholder={"Search facilities..."}
         />
         <button
-          className="bg-blue-600 text-white h-full p-1 py-2 rounded-lg hover:bg-blue-700 w-44 font-bold"
+          className="bg-sky-600 text-white h-full p-1 rounded-lg hover:bg-sky-700 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
         >
           Create Facility

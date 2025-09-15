@@ -225,7 +225,7 @@ export default function UserDetailReport() {
 
   return (
     // Container
-    <div className="p-4 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900">
+    <div>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -249,16 +249,20 @@ export default function UserDetailReport() {
         />
       </div>
       {/* Table */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        <DataTable
-          columns={columns}
-          data={filteredUsers}
-          currentPage={currentPage}
-          rowsPerPage={itemsPerPage}
-          sortDirection={sortDirection}
-          sortedColumn={sortedColumn}
-          onSort={handleColumnSort}
-        />
+      <div className="max-w-full overflow-x-auto">
+        <div className="inline-block min-w-full align-middle">
+          <div className="min-w-[1200px]">
+            <DataTable
+              columns={columns}
+              data={filteredUsers}
+              currentPage={currentPage}
+              rowsPerPage={itemsPerPage}
+              sortDirection={sortDirection}
+              sortedColumn={sortedColumn}
+              onSort={handleColumnSort}
+            />
+          </div>{" "}
+        </div>
       </div>
       {/* Pagination Footer */}
       <div className="px-2 py-5 mx-1">

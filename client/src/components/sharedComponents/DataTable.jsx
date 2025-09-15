@@ -48,15 +48,15 @@ export default function DataTable({
 
   return (
     <>
-      <table className="w-full table-auto border-collapse border-zinc-300 dark:border-zinc-800 dark:text-white">
-        <thead className="sticky top-[-1px] z-10 bg-zinc-200 dark:bg-zinc-800">
+      <table className="w-full text-sm dark:text-white">
+        <thead className="sticky top-[-1px] z-10 bg-zinc-400 text-white dark:bg-slate-900">
           <tr>
             {columns.map(({ key, label, accessor, sortable = true }) => (
               <th
                 key={key}
-                className={`px-4 py-2 select-none justify-center text-center items-center ${
+                className={`px-4 py-2 select-none justify-center text-center items-center duration-300 transition-all ${
                   sortable
-                    ? "hover:cursor-pointer hover:bg-zinc-300 dark:hover:bg-zinc-950"
+                    ? "hover:cursor-pointer hover:bg-zinc-600 dark:hover:bg-sky-950"
                     : ""
                 } ${
                   sortedColumn === key && sortable
@@ -88,14 +88,14 @@ export default function DataTable({
               onMouseLeave={
                 setHoveredRow ? () => setHoveredRow(null) : undefined
               }
-              className={`hover:bg-zinc-100 dark:hover:bg-zinc-800 ${
+              className={`hover:bg-zinc-100 dark:hover:bg-slate-700 ${
                 hoveredRow !== null ? "cursor-pointer" : ""
               }`}
             >
               {columns.map(({ key, accessor, render }) => (
                 <td
                   key={key}
-                  className="border-y border-zinc-300 dark:border-zinc-700 px-4 py-2 text-sm text-center whitespace-nowrap"
+                  className="border-y border-zinc-300 dark:border-slate-700 px-4 py-2 text-sm text-center whitespace-nowrap"
                   onContextMenu={(e) => {
                     e.preventDefault();
                     const value =

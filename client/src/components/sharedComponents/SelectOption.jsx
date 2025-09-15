@@ -20,7 +20,7 @@ export default function SelectOption({
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className={`min-h-13 cursor-pointer peer w-full p-3 bg-transparent border border-zinc-400 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-blue-600 dark:bg-zinc-900 dark:border-zinc-600`}
+        className={`min-h-13 cursor-pointer peer w-full p-3 bg-transparent border border-slate-400 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-sky-600 dark:bg-slate-900 dark:border-slate-600`}
       >
         <option value="" disabled hidden></option>
         {options.map((opt) => (
@@ -28,17 +28,22 @@ export default function SelectOption({
             {opt.name}
           </option>
         ))}
+        {options.length === 0 && (
+          <option value="" disabled>
+            No options available
+          </option>
+        )}
       </select>
 
       {/* Floating Label */}
       <label
-        className={`absolute left-3 px-1 transition-all duration-200 bg-white dark:bg-zinc-900 pointer-events-none
-          ${
-            shouldFloat
-              ? "-top-2 text-xs text-blue-600"
-              : "top-3 text-base text-zinc-500"
-          }
-        `}
+        className={`absolute left-3 px-2 transition-all duration-200 rounded-md
+        ${
+          shouldFloat
+            ? "text-xs -top-2  bg-white dark:bg-slate-800"
+            : "text-base top-3 text-zinc-500 "
+        }
+        pointer-events-none`}
       >
         {placeholder} {required && <span className="text-red-500">*</span>}
       </label>

@@ -35,7 +35,7 @@ export default function Dashboard({ darkMode, toggleDarkMode }) {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen w-screen overflow-hidden">
       <div className="flex flex-grow flex-col items-center w-full">
         {user?.role === "System_Admin" || user?.role === "System_User" ? (
           <AdminDashboard darkMode={darkMode} toggleDarkMode={toggleDarkMode} />

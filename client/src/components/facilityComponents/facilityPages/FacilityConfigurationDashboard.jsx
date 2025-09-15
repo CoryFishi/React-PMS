@@ -33,11 +33,6 @@ const chartOptions = {
     duration: 0,
   },
 };
-const today = new Date().toLocaleDateString("en-US", {
-  weekday: "short",
-  month: "short",
-  day: "numeric",
-});
 
 export default function FacilityConfigurationDashboard() {
   const { facilityId } = useParams();

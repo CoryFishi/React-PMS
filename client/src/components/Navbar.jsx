@@ -51,17 +51,21 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
   }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-zinc-50 p-2 w-full border-zinc-200 border-b dark:bg-zinc-950 dark:text-white dark:border-zinc-800 px-8">
+    <nav className="bg-zinc-50 p-2 w-full border-zinc-200 border-b dark:bg-slate-900 dark:text-white dark:border-slate-800 px-8">
       <div className="flex items-center justify-between">
-        <input
-          name="company"
-          id="company"
-          className="bg-white border border-zinc-300 rounded-md p-2"
-          placeholder={`Search ${
-            currentfacility ? currentfacility.name : ""
-          }...`}
-        />
-
+        {location.pathname.includes("dashboard") &&
+        !location.pathname.includes("admin") ? (
+          <input
+            name="company"
+            id="company"
+            className={`bg-white border border-zinc-300 rounded-md p-2`}
+            placeholder={`Search ${
+              currentfacility ? currentfacility.name : ""
+            }...`}
+          />
+        ) : (
+          <div></div>
+        )}
         <div className="flex space-x-4 items-center pr-5">
           <div className="flex items-center">
             <label
@@ -81,7 +85,7 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
           <Link
             to="/"
             className={`hover:bg-zinc-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-zinc-800 ${
-              location.pathname === "/" ? "border-b-2 border-blue-400" : ""
+              location.pathname === "/" ? "border-b-2 border-sky-600" : ""
             }`}
           >
             Home
@@ -91,7 +95,7 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
               to="/dashboard"
               className={`hover:bg-zinc-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-zinc-800 ${
                 location.pathname.includes("/dashboard")
-                  ? "border-b-2 border-blue-400"
+                  ? "border-b-2 border-sky-600"
                   : ""
               }`}
             >
@@ -102,21 +106,21 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
             <div className="relative" ref={userRef}>
               <h2
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`select-none cursor-pointer bg-zinc-100 p-2 px-4 flex items-center justify-center text-center hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800`}
+                className={`select-none cursor-pointer bg-zinc-100 p-2 px-4 flex items-center justify-center text-center hover:bg-zinc-200 dark:bg-slate-800 dark:hover:bg-slate-700`}
               >
                 {isDropdownOpen ? <MdExpandMore /> : <MdExpandLess />}{" "}
                 {user?.email}
               </h2>
               {isDropdownOpen && (
-                <div className="select-none absolute mt-1 right-0 w-full bg-white border border-zinc-200 dark:bg-zinc-800 dark:border-zinc-800 shadow-lg z-20 flex flex-col">
+                <div className="select-none absolute mt-1 right-0 w-full bg-white border border-zinc-200 dark:bg-slate-800 dark:border-slate-700 dark:shadow-md shadow-slate-800 z-20 flex flex-col">
                   <Link
                     to={`/users/${user?._id}`}
-                    className="hover:bg-zinc-100 dark:hover:bg-zinc-900 px-3 py-2 text-md font-medium text-center dark:border-t-border"
+                    className="hover:bg-zinc-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium text-center dark:border-t-border"
                   >
                     Profile
                   </Link>
                   <button
-                    className="hover:bg-zinc-100 dark:hover:bg-zinc-900 px-3 py-2 text-md font-medium border-opacity-50 border-t border-t-zinc-100 dark:border-t-border"
+                    className="hover:bg-zinc-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium border-opacity-50 border-t border-t-zinc-100 dark:border-t-border"
                     onClick={() => handleLogout()}
                   >
                     Logout
@@ -129,7 +133,7 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
               to="/login"
               className={`hover:bg-zinc-100 dark:hover:bg-zinc-200 px-3 py-2 text-md font-medium ${
                 location.pathname === "/login"
-                  ? "border-b-2 border-blue-400"
+                  ? "border-b-2 border-sky-600"
                   : ""
               }`}
             >

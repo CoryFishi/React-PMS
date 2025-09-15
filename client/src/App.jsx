@@ -41,10 +41,10 @@ function App() {
   return (
     <UserContextProvider>
       <HistoryProvider>
-        <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
+        <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
         <Routes>
           <Route
-            path="/dashboard/admin/reports/:reportId"
+            path="/dashboard/admin/:section/:id"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }

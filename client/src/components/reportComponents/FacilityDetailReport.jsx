@@ -198,7 +198,7 @@ export default function FacilityDetailReport() {
 
   return (
     // Container
-    <div className="p-4 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900">
+    <div>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

@@ -179,7 +179,7 @@ export default function CompanyDetailReport() {
 
   return (
     // Container
-    <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-zinc-700 dark:bg-zinc-900">
+    <div>
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
