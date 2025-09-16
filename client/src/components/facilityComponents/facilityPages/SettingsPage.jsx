@@ -38,21 +38,21 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5">
           {/* Settings Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <IoIosSettings className="text-blue-500 text-4xl" />
+            <IoIosSettings className="text-sky-500 text-4xl" />
             <h1>Settings</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               onClick={() =>
                 navigate(`/dashboard/${facilityId}/settings/facility-info`)
               }
             >
               Facility Information
             </button>
-            <button className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200">
+            <button className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200">
               Amenities
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Documents
@@ -60,10 +60,10 @@ export default function SettingsPage() {
           </div>
           {/* Notifications Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <IoIosNotifications className="text-blue-500 text-4xl" />
+            <IoIosNotifications className="text-sky-500 text-4xl" />
             <h1>Notifications</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Notifications
@@ -71,16 +71,16 @@ export default function SettingsPage() {
           </div>
           {/* Tenants Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaPerson className="text-blue-500 text-4xl" />
+            <FaPerson className="text-sky-500 text-4xl" />
             <h1>Tenants</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Settings
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Insurance
@@ -88,10 +88,10 @@ export default function SettingsPage() {
           </div>
           {/* Units Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaLock className="text-blue-500 text-3xl" />
+            <FaLock className="text-sky-500 text-3xl" />
             <h1>Units</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               onClick={() =>
                 navigate(`/dashboard/${facilityId}/settings/units`)
               }
@@ -99,45 +99,45 @@ export default function SettingsPage() {
               Units
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Facility Map
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Rental Promotions
             </button>
-            <button className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200">
+            <button className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200">
               Unit Types
             </button>
           </div>
           {/* Billing Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <FaCashRegister className="text-3xl text-blue-500" />
+            <FaCashRegister className="text-3xl text-sky-500" />
             <h1>Billing</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Settings
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Tax Rates
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Fees and Services
             </button>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Delinquency Stages
@@ -145,10 +145,10 @@ export default function SettingsPage() {
           </div>
           {/* Integrations Section */}
           <div className="w-full flex flex-col items-center text-2xl">
-            <MdConnectWithoutContact className="text-3xl text-blue-500" />
+            <MdConnectWithoutContact className="text-3xl text-sky-500" />
             <h1>Integrations</h1>
             <button
-              className="w-full my-1 p-4 border bg-white dark:bg-zinc-800 dark:hover:bg-zinc-900 dark:border-zinc-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-zinc-200"
+              className="w-full my-1 p-4 border bg-white dark:bg-slate-800 dark:hover:bg-slate-900 dark:border-slate-700 rounded-lg shadow-md text-lg font-bold flex justify-center items-center hover:bg-slate-200"
               disabled
             >
               Gate Integration
@@ -158,7 +158,7 @@ export default function SettingsPage() {
       ) : (
         <div>
           <button
-            className="mb-4 px-4 py-2 bg-blue-500 text-white font-bold rounded hover:bg-blue-600 h-full"
+            className="mb-4 px-4 py-2 bg-sky-500 text-white font-bold rounded hover:bg-sky-600 h-full"
             onClick={() => navigate(`/dashboard/${facilityId}/settings`)}
           >
             Back to Settings

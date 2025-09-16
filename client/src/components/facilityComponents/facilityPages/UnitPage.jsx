@@ -224,15 +224,17 @@ export default function UnitPage({ facility }) {
         <div
           key={index}
           className={`w-full justify-center items-center flex gap-1 dark:text-black cursor-pointer group`}
-          onClick={() => navigate(`/dashboard/${facilityId}/units/${u._id}`)}
-          title={`/dashboard/${facilityId}/units/${u._id}`}
+          onClick={() =>
+            navigate(`/dashboard/facility/${facilityId}/units/${u._id}`)
+          }
+          title={`/dashboard/facility/${facilityId}/units/${u._id}`}
         >
           {u.status === "Vacant" ? (
             <div className="p-0.5 bg-green-300 rounded-lg group-hover:bg-green-600">
               <FaDoorOpen />
             </div>
           ) : u.status === "Rented" ? (
-            <div className="p-0.5 bg-blue-300 rounded-lg group-hover:bg-blue-600">
+            <div className="p-0.5 bg-sky-300 rounded-lg group-hover:bg-sky-600">
               <FaDoorClosed />
             </div>
           ) : (
@@ -246,7 +248,7 @@ export default function UnitPage({ facility }) {
                 ? "text-green-400 group-hover:text-green-600"
                 : u.status === "Delinquent"
                 ? "text-red-400 group-hover:text-red-600"
-                : "text-blue-400 group-hover:text-blue-600"
+                : "text-sky-400 group-hover:text-sky-600"
             }`}
           >
             {u.unitNumber}
@@ -290,20 +292,22 @@ export default function UnitPage({ facility }) {
               <span
                 className={`${
                   u.status === "Rented"
-                    ? "text-blue-400 hover:text-blue-600 cursor-pointer"
+                    ? "text-sky-400 hover:text-sky-600 cursor-pointer"
                     : u.status === "Delinquent" &&
                       "text-red-400 hover:text-red-600 cursor-pointer"
                 }`}
                 onClick={() =>
-                  navigate(`/dashboard/${facilityId}/tenants/${u.tenant?._id}`)
+                  navigate(
+                    `/dashboard/facility/${facilityId}/tenants/${u.tenant?._id}`
+                  )
                 }
-                title={`/dashboard/${facilityId}/tenants/${u.tenant?._id}`}
+                title={`/dashboard/facility/${facilityId}/tenants/${u.tenant?._id}`}
               >
                 {u.tenant.firstName + " " + u.tenant?.lastName}
               </span>
             )}
           </p>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-slate-400">
             since{" "}
             {u.lastMoveOutDate
               ? new Date(u.lastMoveOutDate).toLocaleDateString()
@@ -322,7 +326,7 @@ export default function UnitPage({ facility }) {
         <div key={index} className="items-center flex justify-center gap-1">
           {u.availability === true && (
             <a
-              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              className="text-sm hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
               onClick={() =>
                 navigate(`/rental/${facility.company}/${facilityId}/${u._id}`)
               }
@@ -333,7 +337,7 @@ export default function UnitPage({ facility }) {
           )}
           {u.status !== "Vacant" && (
             <a
-              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              className="text-sm hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
               onClick={() => promptMoveOut(u)}
             >
               <BiArrowFromBottom /> Move Out
@@ -341,7 +345,7 @@ export default function UnitPage({ facility }) {
           )}
           {u.status !== "Vacant" && (
             <a
-              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              className="text-sm hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
               onClick={() => promptMoveOut(u)}
             >
               <BiArrowFromLeft /> Transfer
@@ -371,7 +375,7 @@ export default function UnitPage({ facility }) {
           responseContent={
             <div className="flex justify-end gap-2">
               <button
-                className="inline-flex justify-center items-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700"
+                className="inline-flex justify-center items-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-600 text-sm font-medium text-white hover:bg-sky-700"
                 onClick={() =>
                   setTenancy(false) &
                   setIsRentModalMainOpen(true) &
@@ -381,7 +385,7 @@ export default function UnitPage({ facility }) {
                 New Tenant
               </button>
               <button
-                className="inline-flex justify-center items-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-600 text-sm font-medium text-white hover:bg-blue-700"
+                className="inline-flex justify-center items-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-600 text-sm font-medium text-white hover:bg-sky-700"
                 onClick={() =>
                   setTenancy(true) &
                   setIsRentModalMainOpen(true) &
@@ -423,7 +427,7 @@ export default function UnitPage({ facility }) {
                 Move Out
               </button>
               <button
-                className="bg-zinc-300 hover:bg-zinc-500 font-bold py-2 px-4 rounded"
+                className="bg-slate-300 hover:bg-slate-500 font-bold py-2 px-4 rounded"
                 onClick={() =>
                   setIsMoveOutModalOpen(false) & setOpenDropdown(null)
                 }
@@ -434,24 +438,24 @@ export default function UnitPage({ facility }) {
           }
         />
       )}
-      <div className="border-b flex items-center justify-between mx-5 dark:border-zinc-700 mt-3">
+      <div className="border-b flex items-center justify-between mx-5 dark:border-slate-700 mt-3">
         <h1 className="text-xl font-bold dark:text-white">Units</h1>
         <div className="flex mr-5 space-x-1">
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "Individual"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Individual")}
           >
             Individual
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "Facility Map"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Facility Map")}
           >
@@ -471,9 +475,9 @@ export default function UnitPage({ facility }) {
                 placeholder={"Search units..."}
               />
               <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center"
+                className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg flex items-center"
                 onClick={() =>
-                  navigate(`/dashboard/${facilityId}/settings/units`)
+                  navigate(`/dashboard/facility/${facilityId}/settings/units`)
                 }
               >
                 <IoSettings />

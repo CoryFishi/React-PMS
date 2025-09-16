@@ -22,31 +22,27 @@ import { BsBuildingsFill } from "react-icons/bs";
 import { IoIosDocument } from "react-icons/io";
 import { BsFillBuildingFill } from "react-icons/bs";
 import FacilityTemplates from "../facilityComponents/FacilityTemplates";
-import NotFound from "../NotFound";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
   const [facilityData, setFacilityData] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { user } = useContext(UserContext);
-  const [facilityId, setFacilityId] = useState(user.selectedFacility || "");
-  const [openSections, setOpenSections] = useState({
-    facilities: false,
-    currentFacility: false,
-  });
+  const [knownFacilityId, setKnownFacilityId] = useState(
+    user.selectedFacility || ""
+  );
   const [company, setCompany] = useState(
     localStorage.getItem("selectedCompany") || ""
   );
   const navigate = useNavigate();
-  const { section, id } = useParams();
+  const { section, id, facilityId } = useParams();
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/dashboard/admin");
 
   useEffect(() => {
     const getFacility = async () => {
-      if (!facilityId) return;
+      if (!knownFacilityId) return;
       try {
-        const { data } = await axios.get(`/facilities/${facilityId}`, {
+        const { data } = await axios.get(`/facilities/${knownFacilityId}`, {
           headers: { "x-api-key": import.meta.env.VITE_API_KEY },
         });
 
@@ -60,59 +56,68 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
     };
 
     getFacility();
-  }, [facilityId]);
+  }, [knownFacilityId]);
   const OPEN_WIDTH = "w-64";
 
   const [navOptions, setNavOptions] = useState([
-    { name: "Dashboard", path: "overview", icon: RiAdminFill, options: [] },
-    { name: "Users", path: "users", icon: FaUser, options: [] },
+    { name: "Dashboard", path: "", icon: RiAdminFill, options: [] },
+    { name: "Users", path: "/users", icon: FaUser, options: [] },
     {
       name: "Companies",
-      path: "companies",
+      path: "/companies",
       icon: BsBuildingsFill,
       options: [],
     },
     {
       name: "Facilities",
-      path: "facilities",
+      path: "/facilities",
       icon: BsFillBuildingFill,
       options: [
         { name: "All Facilities", path: "" },
-        { name: "Templates", path: "templates" },
+        { name: "Templates", path: "/templates" },
       ],
     },
     {
       name: "Reports",
-      path: "reports",
+      path: "/reports",
       icon: IoIosDocument,
       options: [
-        { name: "User Detail", path: "user-detail" },
-        { name: "Companies Detail", path: "company-detail" },
-        { name: "Facilities Detail", path: "facilities-detail" },
-        { name: "Events Detail", path: "events-detail" },
+        { name: "User Detail", path: "/user-detail" },
+        { name: "Companies Detail", path: "/company-detail" },
+        { name: "Facilities Detail", path: "/facilities-detail" },
+        { name: "Events Detail", path: "/events-detail" },
       ],
     },
   ]);
 
   const [facilityNavOptions, setFacilityNavOptions] = useState([
-    { name: "Dashboard", path: "overview", icon: RiAdminFill, options: [] },
-    { name: "Tenants", path: "tenants", icon: FaUser, options: [] },
+    { name: "Dashboard", path: "", icon: RiAdminFill, options: [] },
+    { name: "Tenants", path: "/tenants", icon: FaUser, options: [] },
     {
       name: "Units",
-      path: "units",
+      path: "/units",
       icon: BsBuildingsFill,
       options: [],
     },
     {
       name: "Reports",
-      path: "reports",
+      path: "/reports",
       icon: IoIosDocument,
       options: [
-        { name: "User Detail", path: "user-detail" },
-        { name: "Companies Detail", path: "company-detail" },
-        { name: "Facilities Detail", path: "facilities-detail" },
-        { name: "Events Detail", path: "events-detail" },
+        { name: "Unit Detail", path: "/unit-detail" },
+        { name: "Unit Vacancy", path: "/unit-vacancy" },
+        { name: "Tenant Detail", path: "/tenant-detail" },
+        { name: "Delinquency Detail", path: "/delinquency-detail" },
+        { name: "Payments Detail", path: "/payments-detail" },
+        { name: "Integrations Detail", path: "/integrations-detail" },
+        { name: "Application Events", path: "/application-events" },
       ],
+    },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: FaBuildingLock,
+      options: [],
     },
   ]);
 
@@ -156,7 +161,10 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           ].join(" ")}
         >
           {/* Header Side Bar */}
-          <h3 className="text-center text-2xl font-bold w-full items-center justify-center flex">
+          <h3
+            className="text-center text-2xl font-bold w-full items-center justify-center flex cursor-pointer"
+            onClick={() => navigate("/")}
+          >
             <span
               className={`p-5 font-semibold text-3xl flex items-center gap-2`}
             >
@@ -169,7 +177,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             </span>
           </h3>
           <div className="p-2 flex flex-col gap-2">
-            {!location.pathname.includes("/dashboard/admin") && (
+            {location.pathname.includes("/dashboard/facility") && (
               <button
                 onClick={() => navigate("/dashboard")}
                 className={`px-2 py-1 w-full text-left font-mdedium rounded hover:bg-slate-800 flex items-center gap-2`}
@@ -178,14 +186,14 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                 Go Back
               </button>
             )}
-            {location.pathname.includes("/dashboard/admin")
+            {!location.pathname.includes("/dashboard/facility")
               ? navOptions.map((option, index) => (
                   <div key={option.path} className="flex flex-col">
                     <button
                       key={index}
                       onClick={() => {
                         if (!option.options?.length) {
-                          navigate(`/dashboard/admin/${option.path}`);
+                          navigate(`/dashboard${option.path}`);
                         } else {
                           setOpen((prev) => ({
                             ...prev,
@@ -228,11 +236,9 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                             }`}
                             onClick={() => {
                               if (sub.path === "") {
-                                navigate(`/dashboard/admin/${option.path}`);
+                                navigate(`/dashboard${option.path}`);
                               } else {
-                                navigate(
-                                  `/dashboard/admin/${option.path}/${sub.path}`
-                                );
+                                navigate(`/dashboard${option.path}${sub.path}`);
                               }
                             }}
                           >
@@ -249,7 +255,9 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       key={index}
                       onClick={() => {
                         if (!option.options?.length) {
-                          navigate(`/dashboard/${facilityId}/${option.path}`);
+                          navigate(
+                            `/dashboard/facility/${knownFacilityId}${option.path}`
+                          );
                         } else {
                           setOpen((prev) => ({
                             ...prev,
@@ -282,7 +290,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                             key={sub.path}
                             className={`block w-full text-left px-2 py-1 items-center whitespace-nowrap ${
                               location.pathname.endsWith(
-                                `${option.path}/${sub.path}`
+                                `${option.path}${sub.path}`
                               ) ||
                               location.pathname.endsWith(
                                 `${option.path}${sub.path}`
@@ -292,10 +300,12 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                             }`}
                             onClick={() => {
                               if (sub.path === "") {
-                                navigate(`/dashboard/${option.path}`);
+                                navigate(
+                                  `/dashboard/facility/${knownFacilityId}${option.path}`
+                                );
                               } else {
                                 navigate(
-                                  `/dashboard/${option.path}/${sub.path}`
+                                  `/dashboard/facility/${knownFacilityId}${option.path}${sub.path}`
                                 );
                               }
                             }}
@@ -307,6 +317,20 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     ) : null}
                   </div>
                 ))}
+            {!location.pathname.includes(`/dashboard/facility`) && (
+              <div className="mt-4 border-t border-slate-700 pt-4">
+                <button
+                  onClick={() =>
+                    navigate(`/dashboard/facility/${knownFacilityId}/overview`)
+                  }
+                  className="px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-slate-800 flex items-center gap-2"
+                >
+                  <span className="truncate max-w-full block">
+                    Go to {facilityName}
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </aside>
@@ -318,40 +342,38 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
           toggleDarkMode={toggleDarkMode}
         />
         <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
-          {isAdmin &&
-            location.pathname.startsWith("/dashboard/admin/overview") && (
-              <ConfigurationDashboard />
+          {location.pathname.endsWith(`/dashboard`) && (
+            <ConfigurationDashboard />
+          )}
+          {section === "users" &&
+            !location.pathname.includes(`/dashboard/facility`) && <UserTable />}
+          {section === "companies" &&
+            !location.pathname.includes(`/dashboard/facility`) && (
+              <CompanyTable />
             )}
-          {isAdmin && section === "users" && <UserTable />}
-          {isAdmin && section === "companies" && <CompanyTable />}
-          {isAdmin &&
-            location.pathname.startsWith("/dashboard/admin/reports") && (
+          {section === "reports" &&
+            !location.pathname.includes(`/dashboard/facility`) && (
               <div className="h-full min-h-0 min-w-0 overflow-y-auto overscroll-contain">
                 <ReportsPage />
               </div>
             )}
-          {isAdmin && section === "facilities" && !id && (
-            <FacilityTable
-              facility={facilityId}
-              company={company}
-              setCompany={setCompany}
-              setFacilityName={setFacilityName}
-              setFacility={setFacilityId}
-            />
-          )}
-          {isAdmin && section === "facilities" && id === "templates" && (
-            <FacilityTemplates />
-          )}
-          {isAdmin && section === "facilities" && id && id !== "templates" && (
-            <NotFound />
-          )}
-          {!isAdmin && facilityId ? (
-            facilityData && facilityData._id ? (
-              <FacilityDashboard facility={facilityData} />
-            ) : (
-              <p className="p-4">Loading facility dashboard...</p>
-            )
-          ) : null}
+          {section === "facilities" &&
+            !id &&
+            !location.pathname.includes(`/dashboard/facility`) && (
+              <FacilityTable
+                facility={knownFacilityId}
+                company={company}
+                setCompany={setCompany}
+                setFacilityName={setFacilityName}
+                setFacility={setKnownFacilityId}
+              />
+            )}
+          {section === "facilities" &&
+            id === "templates" &&
+            !location.pathname.includes(`/dashboard/facility`) && (
+              <FacilityTemplates />
+            )}
+          {facilityId && <FacilityDashboard facility={facilityData} />}
         </div>
       </div>
     </div>

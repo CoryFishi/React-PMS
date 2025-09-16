@@ -33,11 +33,6 @@ const chartOptions = {
     duration: 300,
   },
 };
-const today = new Date().toLocaleDateString("en-US", {
-  weekday: "short",
-  month: "short",
-  day: "numeric",
-});
 
 export default function ConfigurationDashboard() {
   const { user } = useContext(UserContext);
@@ -181,42 +176,38 @@ export default function ConfigurationDashboard() {
 
   return (
     <div className="flex flex-col h-full w-full relative dark:text-white">
-      <div className="w-full p-5 bg-zinc-200 dark:text-white dark:bg-zinc-950 flex items-center border-b border-b-zinc-300 dark:border-zinc-800">
-        <h1 className="text-xl font-bold uppercase">OverView</h1>
-        <h2 className="text-lg">&nbsp;/ {today}</h2>
-      </div>
       <div className="m-2 flex-col flex gap-2">
         {/* Dashboard Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Users Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
+          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
             <h2 className="text-xl font-semibold mb-4">User Statistics</h2>
             <Bar data={userChartData} options={chartOptions} />
           </div>
           {/* Company Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
+          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
             <h2 className="text-xl font-semibold mb-4">Company Statistics</h2>
             <Bar data={companyChartData} options={chartOptions} />
           </div>
           {/* Facilities Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
+          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
             <h2 className="text-xl font-semibold mb-4">Facility Statistics</h2>
             <Bar data={facilityChartData} options={chartOptions} />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {/* Unit Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
+          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
             <h2 className="text-xl font-semibold mb-4">Unit Statistics</h2>
             <Bar data={unitChartData} options={chartOptions} />
           </div>
           {/* Tenant Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
+          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
             <h2 className="text-xl font-semibold mb-4">Tenant Statistics</h2>
             <Bar data={tenantChartData} options={chartOptions} />
           </div>
           {/* Line Chart: Application Trends */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-zinc-800 dark:bg-zinc-800">
+          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
             <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
             <Line data={applicationChartData} options={chartOptions} />
           </div>

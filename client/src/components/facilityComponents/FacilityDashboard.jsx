@@ -10,11 +10,16 @@ import TenantDetail from "./tenantComponents/TenantDetail";
 export default function FacilityDashboard({ facility }) {
   const { facilityId, section, id } = useParams();
 
+  if (!section) {
+    return (
+      <div className="h-full">
+        <FacilityConfigurationDashboard facilityId={facilityId} />
+      </div>
+    );
+  }
   return (
     <div className="h-full">
-      {section === "overview" && (
-        <FacilityConfigurationDashboard facilityId={facilityId} />
-      )}
+      {!section && <FacilityConfigurationDashboard facilityId={facilityId} />}
       {section === "units" && !id && (
         <UnitPage facilityId={facilityId} facility={facility} />
       )}

@@ -29,7 +29,7 @@ export default function UnitDetail() {
     if (prevPath && prevPath !== window.location.pathname) {
       navigate(-1);
     } else {
-      navigate(`/dashboard/${facilityId}/units`);
+      navigate(`/dashboard/facility/${facilityId}/units`);
     }
   };
 
@@ -88,7 +88,7 @@ export default function UnitDetail() {
     <div className="p-5 dark:text-white flex flex-col">
       <div className="flex justify-between mb-4 ">
         <button
-          className="px-4 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700"
+          className="px-4 py-2 bg-sky-600 text-white font-bold rounded hover:bg-sky-700"
           onClick={handleBack}
         >
           Go Back
@@ -97,7 +97,7 @@ export default function UnitDetail() {
           {isEditing && activeTab === "General" ? (
             <div className="flex gap-2">
               <button
-                className="px-4 py-2 bg-zinc-500 text-white rounded hover:bg-zinc-600"
+                className="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
@@ -130,7 +130,7 @@ export default function UnitDetail() {
               unit.status === "Vacant"
                 ? "bg-green-500"
                 : unit.status === "Rented"
-                ? "bg-blue-500"
+                ? "bg-sky-500"
                 : "bg-red-500"
             }`}
           >
@@ -143,30 +143,30 @@ export default function UnitDetail() {
         </div>
         <div className="flex gap-2 mr-5">
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "General"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("General")}
           >
             General
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "History"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("History")}
           >
             History
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "Notes"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Notes")}
           >
@@ -175,7 +175,7 @@ export default function UnitDetail() {
         </div>
       </div>
       {activeTab === "General" ? (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3">
           <div>
             <h3
               className="text-lg font-semibold mb-2"
@@ -184,13 +184,13 @@ export default function UnitDetail() {
               General Information
             </h3>
             <div className="flex flex-col">
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Unit Number</h3>
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.unitNumber ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -204,12 +204,12 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Unit Type</h3>
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <select
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.unitType ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -229,13 +229,13 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Location</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.location ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -249,13 +249,13 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Directions</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.directions ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -269,19 +269,19 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Status</h3>
                 <div className="w-1/2">
                   <p>{unit.status ?? "-"}</p>
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Access Code</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.accessCode ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -295,12 +295,12 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Available</h3>
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <select
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none "
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none "
                       value={editableUnit.availability ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -311,13 +311,13 @@ export default function UnitDetail() {
                     >
                       <option
                         value="true"
-                        className="bg-zinc-200 dark:bg-zinc-900"
+                        className="bg-slate-200 dark:bg-slate-900"
                       >
                         Yes
                       </option>
                       <option
                         value="false"
-                        className="bg-zinc-200 dark:bg-zinc-900"
+                        className="bg-slate-200 dark:bg-slate-900"
                       >
                         No
                       </option>
@@ -327,7 +327,7 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">
                   {editableUnit.status !== "Vacant"
                     ? "Move In Date"
@@ -345,7 +345,7 @@ export default function UnitDetail() {
                   </p>
                 </div>
               </div>
-              <div className="p-1 border-x border-b dark:border-zinc-700 flex">
+              <div className="p-1 border-x border-b dark:border-slate-700 flex">
                 <h3 className="font-medium w-1/2">Tags</h3>
                 {isEditing ? (
                   <div className="flex flex-col">
@@ -353,7 +353,7 @@ export default function UnitDetail() {
                       {editableUnit.tags?.map((tag, i) => (
                         <span
                           key={i}
-                          className="bg-blue-400 text-white text-sm px-2 py-0.5 rounded flex items-center gap-1"
+                          className="bg-sky-400 text-white text-sm px-2 py-0.5 rounded flex items-center gap-1"
                         >
                           {tag}
                           <button
@@ -375,7 +375,7 @@ export default function UnitDetail() {
                       <input
                         type="text"
                         placeholder="New tag"
-                        className="border p-1 rounded dark:bg-zinc-900 dark:border-zinc-600"
+                        className="border p-1 rounded dark:bg-slate-900 dark:border-slate-600"
                         value={newTag}
                         onChange={(e) => setNewTag(e.target.value)}
                       />
@@ -408,13 +408,13 @@ export default function UnitDetail() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Specifications</h3>
             <div className="flex flex-col">
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Width</h3>
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.specifications?.width ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -434,13 +434,13 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Depth</h3>
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.specifications?.depth ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -460,13 +460,13 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Height</h3>
                 <div className="w-1/2">
                   {isEditing && unit.status === "Vacant" ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.specifications?.height ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -486,7 +486,7 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">
                   Square{" "}
                   {editableUnit?.specifications?.unit === "ft"
@@ -500,13 +500,13 @@ export default function UnitDetail() {
                   </p>
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Door Size</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.specifications?.doorSize ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -523,13 +523,13 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Door Type</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.specifications?.doorType ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -546,13 +546,13 @@ export default function UnitDetail() {
                   )}
                 </div>
               </div>
-              <div className="flex p-1 first:border-t border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 first:border-t border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Access Type</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.specifications?.accessType ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -574,7 +574,7 @@ export default function UnitDetail() {
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Pricing</h3>
-            <div className="flex p-1 border dark:border-zinc-700">
+            <div className="flex p-1 border dark:border-slate-700">
               <h3 className="w-1/2 font-medium">Monthly Rate</h3>
               <div className="w-1/2">
                 {isEditing && editableUnit.status === "Vacant" ? (
@@ -582,7 +582,7 @@ export default function UnitDetail() {
                     $
                     <input
                       type="number"
-                      className="w-full bg-transparent border-b border-zinc-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-slate-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.paymentInfo?.pricePerMonth ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -600,7 +600,7 @@ export default function UnitDetail() {
                 )}
               </div>
             </div>
-            <div className="flex p-1 border-x border-b dark:border-zinc-700">
+            <div className="flex p-1 border-x border-b dark:border-slate-700">
               <h3 className="w-1/2 font-medium">Balance</h3>
               <div className="w-1/2">
                 <p>${unit.paymentInfo?.balance ?? "N/A"}</p>
@@ -609,14 +609,14 @@ export default function UnitDetail() {
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-2">Unit Amenities</h3>
-            <div className="flex flex-col p-1 border dark:border-zinc-700 gap-2">
+            <div className="flex flex-col p-1 border dark:border-slate-700 gap-2">
               {isEditing ? (
                 <>
                   <div className="flex gap-2 flex-wrap">
                     {editableUnit.amenities?.map((item, i) => (
                       <span
                         key={i}
-                        className="text-white bg-blue-400 text-sm px-2 py-0.5 rounded flex items-center gap-1"
+                        className="text-white bg-sky-400 text-sm px-2 py-0.5 rounded flex items-center gap-1"
                       >
                         {item}
                         <button
@@ -640,7 +640,7 @@ export default function UnitDetail() {
                     <input
                       type="text"
                       placeholder="New amenity"
-                      className="border p-1 rounded dark:bg-zinc-900 dark:border-zinc-600"
+                      className="border p-1 rounded dark:bg-slate-900 dark:border-slate-600"
                       value={newAmenity}
                       onChange={(e) => setNewAmenity(e.target.value)}
                     />
@@ -676,16 +676,16 @@ export default function UnitDetail() {
           </div>
         </div>
       ) : activeTab === "History" ? (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3 text-red-500">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3 text-red-500">
           Under Development
         </div>
       ) : (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3">
           {/* Existing Notes */}
           {unit.notes.map((note, idx) => (
             <div
               key={idx}
-              className="p-4 border rounded shadow-sm space-y-2 bg-white dark:bg-zinc-900"
+              className="p-4 border rounded shadow-sm space-y-2 bg-white dark:bg-slate-900"
             >
               <p className="w-full border p-2 rounded">{note.message}</p>
               <label className="flex items-center text-sm">
@@ -703,7 +703,7 @@ export default function UnitDetail() {
                 )}
               </label>
 
-              <div className="text-xs text-zinc-500">
+              <div className="text-xs text-slate-500">
                 Created by: {note.createdBy} |{" "}
                 {new Date(note.createdAt).toLocaleString()}
               </div>
@@ -711,7 +711,7 @@ export default function UnitDetail() {
           ))}
 
           {/* New Note Form */}
-          <div className="p-4 border rounded shadow space-y-2 bg-white dark:bg-zinc-800">
+          <div className="p-4 border rounded shadow space-y-2 bg-white dark:bg-slate-800">
             <textarea
               value={newNote.message}
               onChange={(e) =>
@@ -749,7 +749,7 @@ export default function UnitDetail() {
               )}
               <button
                 onClick={addNote}
-                className="bg-blue-600 text-white px-4 py-2 rounded mt-2"
+                className="bg-sky-600 text-white px-4 py-2 rounded mt-2"
               >
                 Add Note
               </button>

@@ -9,7 +9,7 @@ import InputBox from "../sharedComponents/InputBox";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../sharedComponents/DataTable";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function CompanyTable() {
   const [companies, setCompanies] = useState([]);
@@ -253,7 +253,7 @@ export default function CompanyTable() {
           <div>
             <button
               type="button"
-              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-600 font-medium text-white hover:bg-blue-700 items-center"
+              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-600 font-medium text-white hover:bg-sky-700 items-center"
               onClick={() =>
                 setOpenDropdown((prev) =>
                   prev === company._id ? null : company._id
@@ -318,7 +318,7 @@ export default function CompanyTable() {
   ];
 
   return (
-    <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
+    <div className="flex flex-col h-full w-full relative">
       {/* Edit Company Modal */}
       {isEditOpen && (
         <EditCompany
@@ -363,20 +363,6 @@ export default function CompanyTable() {
           }
         />
       )}
-      <div className="w-full p-5 bg-zinc-200 flex justify-around items-center dark:bg-zinc-950 dark:text-white">
-        <h2 className="text-xl font-bold">Company Statistics</h2>
-        <p className="text-sm">
-          Enabled:{" "}
-          {companies.filter((company) => company.status === "Enabled").length}
-        </p>
-
-        <p className="text-sm">
-          Disabled:{" "}
-          {companies.filter((company) => company.status === "Disabled").length}
-        </p>
-
-        <p className="text-sm">Total: {companies.length}</p>
-      </div>
       <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
         <InputBox
           value={searchQuery}
@@ -384,7 +370,7 @@ export default function CompanyTable() {
           placeholder="Search companies..."
         />
         <button
-          className="bg-blue-600 text-white h-full p-1 py-2 rounded-lg hover:bg-blue-700 w-44 font-bold"
+          className="bg-sky-600 text-white h-full p-1 py-2 rounded-lg hover:bg-sky-700 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
         >
           Create Company

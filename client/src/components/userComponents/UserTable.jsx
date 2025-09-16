@@ -287,7 +287,7 @@ export default function UserTable() {
           <div>
             <button
               type="button"
-              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-600 font-medium text-white hover:bg-blue-700 items-center"
+              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-600 font-medium text-white hover:bg-sky-700 items-center"
               onClick={() =>
                 setOpenDropdown((prev) => (prev === user._id ? null : user._id))
               }
@@ -336,7 +336,7 @@ export default function UserTable() {
   ];
 
   return (
-    <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
+    <div className="flex flex-col h-full w-full relative">
       {/* Edit user modal */}
       {isEditOpen && (
         <EditUser
@@ -382,15 +382,6 @@ export default function UserTable() {
           />
         </div>
       )}
-      {/* User statistics header */}
-      <div className="w-full p-5 bg-zinc-200 flex justify-around items-center dark:bg-zinc-950 dark:text-white">
-        <h2 className="text-xl font-bold">User Statistics</h2>
-        <p className="text-sm">Sys-Admins: {systemAdminCount}</p>
-        <p className="text-sm">Sys-Users: {systemUserCount}</p>
-        <p className="text-sm">Comp-Admin: {companyAdminCount}</p>
-        <p className="text-sm">Comp-User: {companyUserCount}</p>
-        <p className="text-sm">Total Users: {users.length}</p>
-      </div>
       {/* Search bar and create user button */}
       <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
         <InputBox
@@ -399,7 +390,7 @@ export default function UserTable() {
           placeholder={"Search users..."}
         />
         <button
-          className="bg-blue-600 text-white h-full p-1 py-2 rounded-lg hover:bg-blue-700 w-44 font-bold"
+          className="bg-sky-600 text-white h-full p-1 py-2 rounded-lg hover:bg-sky-700 w-44 font-bold"
           onClick={() => setCreateOpen(true)}
         >
           Create User

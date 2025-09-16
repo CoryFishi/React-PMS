@@ -44,31 +44,31 @@ function App() {
         <Toaster position="bottom-right" toastOptions={{ duration: 3000 }} />
         <Routes>
           <Route
-            path="/dashboard/admin/:section/:id"
+            path="/dashboard/facility/:facilityId/:section?/:id?"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }
           />
           <Route
-            path="/dashboard/admin/:section"
+            path="/dashboard/facility/:facilityId?/:section?"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }
           />
           <Route
-            path="/dashboard/:facilityId/:section/:id"
+            path="/dashboard/:section/:id"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }
           />
           <Route
-            path="/dashboard/:facilityId/:section"
+            path="/dashboard/:section"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }
           />
           <Route
-            path="/dashboard"
+            path="/dashboard/*"
             element={
               <Dashboard toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }

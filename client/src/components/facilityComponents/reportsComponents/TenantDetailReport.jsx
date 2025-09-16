@@ -1,11 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import {
-  BiChevronLeft,
-  BiChevronRight,
-  BiChevronsLeft,
-  BiChevronsRight,
-} from "react-icons/bi";
+import InputBox from "../../sharedComponents/InputBox";
+import PaginationFooter from "../../sharedComponents/PaginationFooter";
+import DataTable from "../../sharedComponents/DataTable";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function TenantDetailReport({ facilityId }) {
@@ -14,6 +11,41 @@ export default function TenantDetailReport({ facilityId }) {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredTenants, setFilteredTenants] = useState([]);
+
+  //  Sorting states
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortedColumn, setSortedColumn] = useState("Name");
+
+  const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
+    let newDirection;
+
+    if (sortedColumn !== columnKey) {
+      newDirection = "asc";
+    } else if (sortDirection === "asc") {
+      newDirection = "desc";
+    } else if (sortDirection === "desc") {
+      newDirection = null;
+    }
+
+    setSortedColumn(newDirection ? columnKey : null);
+    setSortDirection(newDirection);
+
+    if (!newDirection) {
+      setFilteredTenants([...tenants]);
+      return;
+    }
+
+    const sorted = [...filteredTenants].sort((a, b) => {
+      const aVal = accessor(a) ?? "";
+      const bVal = accessor(b) ?? "";
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setFilteredTenants(sorted);
+  };
 
   useEffect(() => {
     refreshTenantTable(facilityId);
@@ -85,9 +117,6 @@ export default function TenantDetailReport({ facilityId }) {
     document.body.removeChild(link);
   };
 
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredTenants.length / itemsPerPage);
-
   useEffect(() => {
     const filteredTenants = tenants.filter((tenant) =>
       tenant.firstName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -95,174 +124,102 @@ export default function TenantDetailReport({ facilityId }) {
     setFilteredTenants(filteredTenants);
   }, [tenants, searchQuery]);
 
+  const columns = [
+    {
+      key: "firstName",
+      label: "First Name",
+      accessor: (t) => t.firstName || "-",
+    },
+    {
+      key: "lastName",
+      label: "Last Name",
+      accessor: (t) => t.lastName || "-",
+    },
+    {
+      key: "accessCode",
+      label: "Access Code",
+      accessor: (t) => t.accessCode || "-",
+    },
+    {
+      key: "unitsRented",
+      label: "Units Rented",
+      accessor: (t) => t.units.length || "-",
+    },
+    {
+      key: "outstandingBalance",
+      label: "Outstanding Balance",
+      accessor: (t) =>
+        t.units.reduce((total, unit) => {
+          return total + (unit.paymentInfo?.balance || 0);
+        }, 0) || "-",
+    },
+    {
+      key: "status",
+      label: "Status",
+      accessor: (t) => t.status || "-",
+    },
+    {
+      key: "phoneNumber",
+      label: "Phone Number",
+      accessor: (t) => t.contactInfo?.phone || "-",
+    },
+    {
+      key: "emailAddress",
+      label: "Email Address",
+      accessor: (t) => t.contactInfo?.email || "-",
+    },
+    {
+      key: "address",
+      label: "Address",
+      accessor: (t) => {
+        const { street1, street2, city, state, zipCode } = t.address;
+        return `${street1} ${street2} ${city} ${state} ${zipCode}` || "-";
+      },
+    },
+  ];
+
   return (
-    <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-border dark:bg-darkPrimary">
+    <div className="p-4">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold">Tenant Detail Report</h2>
           <p>See your tenant details here!</p>
         </div>
         <button
-          className="w-24 py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
+          className="w-24 py-2 px-4 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600"
           onClick={exportToCSV}
         >
           Export
         </button>
       </div>
       <div className="my-2">
-        <input
-          type="text"
-          placeholder="Search tenants..."
+        <InputBox
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+          onchange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
+          placeholder={"Search Tenants..."}
         />
       </div>
+      {/* Table */}
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                First Name
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Last Name
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Access Code
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Units Rented
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Outstanding Balance
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Phone Number
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Email Address
-              </th>
-              <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">
-                Address
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTenants
-              .slice(
-                (currentPage - 1) * itemsPerPage,
-                currentPage * itemsPerPage
-              )
-              .map((tenant, index) => (
-                <tr
-                  key={tenant._id}
-                  className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
-                >
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.firstName}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.lastName}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.accessCode}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.units?.length}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    $
-                    {tenant.units.reduce((total, unit) => {
-                      return total + (unit.paymentInfo?.balance || 0);
-                    }, 0)}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.status}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.contactInfo?.phone}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.contactInfo?.email}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {tenant.address.street1}
-                    {tenant.address.street2
-                      ? `, ${tenant.address.street2}`
-                      : ""}
-                    , {tenant.address.city}, {tenant.address.state}{" "}
-                    {tenant.address.zipCode}
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          data={filteredTenants}
+          currentPage={currentPage}
+          rowsPerPage={itemsPerPage}
+          sortDirection={sortDirection}
+          sortedColumn={sortedColumn}
+          onSort={handleColumnSort}
+        />
       </div>
-      <div className="flex justify-between items-center dark:text-white">
-        <div className="flex gap-3">
-          <div>
-            <select
-              className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
-              id="itemsPerPage"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(Number(e.target.value));
-                setCurrentPage(1); // Reset to first page on rows per page change
-              }}
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-          </div>
-          <p className="text-sm">
-            {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-            {currentPage * itemsPerPage > filteredTenants.length
-              ? filteredTenants.length
-              : currentPage * itemsPerPage}{" "}
-            of {filteredTenants.length}
-          </p>
-        </div>
-        <div className="px-2 py-5 mx-1">
-          <div className="gap-2 flex">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronsLeft />
-            </button>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronLeft />
-            </button>
-            <p>
-              {currentPage} of {totalPages}
-            </p>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronRight />
-            </button>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(totalPages)}
-              className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-            >
-              <BiChevronsRight />
-            </button>
-          </div>
-        </div>
+      {/* Pagination Footer */}
+      <div className="px-2 py-5 mx-1">
+        <PaginationFooter
+          rowsPerPage={itemsPerPage}
+          setRowsPerPage={setItemsPerPage}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          items={filteredTenants}
+        />
       </div>
     </div>
   );

@@ -228,7 +228,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
               );
               setFacility(f._id);
               setFacilityName(f.facilityName);
-              navigate(`/dashboard/${f._id}/overview`);
+              navigate(`/dashboard/facility/${f._id}/overview`);
             } catch (err) {
               toast.error("Failed to select facility.");
               console.error(err);
@@ -297,6 +297,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
             onClick={() => {
               navigate(`/rental/${f.company._id}/${f._id}`);
             }}
+            title="Go to Rental Page"
           >
             <BiLinkExternal />
           </a>
@@ -307,6 +308,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
               setEditOpen(true);
               setOpenDropdown(null);
             }}
+            title="Edit Facility"
           >
             <BiEdit />
           </a>
@@ -314,6 +316,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
             <a
               className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
               onClick={() => deploy(f._id)}
+              title="Deploy Facility"
             >
               <MdSendAndArchive />
             </a>
@@ -325,6 +328,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
               setIsDeleteModalOpen(true);
               setOpenDropdown(false);
             }}
+            title="Delete Facility"
           >
             <MdDeleteForever />
           </a>

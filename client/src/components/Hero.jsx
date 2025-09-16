@@ -28,7 +28,7 @@ const Hero = () => {
             </a>
             <a
               href="#"
-              className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors"
+              className="bg-white hover:bg-slate-100 text-slate-800 font-semibold py-3 px-6 rounded-lg transition-colors"
             >
               Learn More
             </a>

@@ -166,7 +166,7 @@ export default function UnitDetailReport({}) {
   ];
 
   return (
-    <div className="p-4 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900">
+    <div className="p-4">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold">Unit Detail Report</h2>
@@ -174,7 +174,7 @@ export default function UnitDetailReport({}) {
         </div>
 
         <button
-          className="w-24 py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
+          className="w-24 py-2 px-4 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600"
           onClick={exportToCSV}
         >
           Export

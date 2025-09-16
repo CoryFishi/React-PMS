@@ -119,16 +119,18 @@ export default function TenantPage({ facility }) {
           className={`${
             t.units.some((u) => u.status === "Delinquent")
               ? "text-red-600"
-              : "text-blue-600"
-          } items-center w-full justify-center flex gap-2 cursor-pointer`}
-          onClick={() => navigate(`/dashboard/${facilityId}/tenants/${t._id}`)}
+              : "text-sky-600"
+          } items-center w-full justify-center flex gap-2 cursor-pointer font-medium hover:underline`}
+          onClick={() =>
+            navigate(`/dashboard/facility/${facilityId}/tenants/${t._id}`)
+          }
         >
           <PiPersonBold
             className={`${
               t.units.some((u) => u.status === "Delinquent")
-                ? "bg-red-600"
-                : "bg-blue-600"
-            } text-xl p-0.5 rounded-full text-white dark:text-black`}
+                ? "bg-red-600 text-red-900"
+                : "bg-sky-600 text-sky-900"
+            } text-xl p-0.5 rounded-full`}
           />
           {t.firstName + " " + t.lastName}
         </div>
@@ -155,9 +157,9 @@ export default function TenantPage({ facility }) {
             return (
               <a
                 key={index}
-                className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+                className="text-sm hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-600 border rounded-lg px-1 flex items-center cursor-pointer select-none"
                 onClick={() =>
-                  navigate(`/dashboard/${facilityId}/units/${u._id}`)
+                  navigate(`/dashboard/facility/${facilityId}/units/${u._id}`)
                 }
               >
                 {u.status === "Rented" ? (
@@ -199,24 +201,24 @@ export default function TenantPage({ facility }) {
           facilityId={facilityId}
         />
       )}
-      <div className="border-b flex items-center justify-between mx-5 dark:border-zinc-700 mt-3">
+      <div className="border-b flex items-center justify-between mx-5 dark:border-slate-700 mt-3">
         <h1 className="text-xl font-bold dark:text-white">Tenants</h1>
         <div className="flex mr-5 space-x-1">
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "Current"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Current")}
           >
             Current Tenants
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none cursor-not-allowed  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none cursor-not-allowed  ${
               activeTab === "Previous"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Previous")}
             title="Under Development"
@@ -237,7 +239,7 @@ export default function TenantPage({ facility }) {
               placeholder={"Search tenants..."}
             />
             <button
-              className="bg-blue-500 text-white p-1 py-3 rounded hover:bg-blue-600 ml-3 w-44 font-bold"
+              className="bg-sky-500 text-white p-1 py-3 rounded hover:bg-sky-600 ml-3 w-44 font-bold"
               onClick={() =>
                 navigate(`/rental/${facility.company}/${facilityId}`)
               }

@@ -1,11 +1,5 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
-import {
-  BiChevronLeft,
-  BiChevronRight,
-  BiChevronsLeft,
-  BiChevronsRight,
-} from "react-icons/bi";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import { useParams } from "react-router-dom";
 import DataTable from "../../sharedComponents/DataTable";
@@ -179,14 +173,14 @@ export default function VacancyReport({}) {
   ];
 
   return (
-    <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-border dark:bg-darkPrimary">
+    <div className="p-4">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold">Vacancy Report</h2>
           <p>See your detailed report below...</p>
         </div>
         <button
-          className="w-24 py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600"
+          className="w-24 py-2 px-4 bg-sky-500 text-white font-semibold rounded-lg hover:bg-sky-600"
           onClick={exportToCSV}
         >
           Export
