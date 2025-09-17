@@ -96,7 +96,7 @@ export default function TenantDetail() {
     return <p className="p-5 dark:text-white">Loading tenant details...</p>;
 
   return (
-    <div className="p-5 dark:text-white flex flex-col">
+    <div className="p-5 dark:text-white flex flex-col overflow-auto max-h-full">
       <div className="flex justify-between mb-4 ">
         <button
           className="px-4 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700"
@@ -108,7 +108,7 @@ export default function TenantDetail() {
           {isEditing && activeTab === "General" ? (
             <div className="flex gap-2">
               <button
-                className="px-4 py-2 bg-zinc-500 text-white rounded hover:bg-zinc-600"
+                className="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
@@ -154,50 +154,50 @@ export default function TenantDetail() {
         </div>
         <div className="flex gap-2 mr-5">
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "General"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("General")}
           >
             General
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "History"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("History")}
           >
             History
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "Documents"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Documents")}
           >
             Documents
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "Ledger"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Ledger")}
           >
             Ledger
           </button>
           <button
-            className={`text-sm px-5 py-3 focus:outline-none dark:border-zinc-700 relative top-[1px] shadow-none  ${
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
               activeTab === "Notes"
-                ? "border border-zinc-300 rounded-t-md bg-white dark:bg-zinc-900 dark:text-white border-b-0 cursor-default"
-                : "text-blue-600 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-t"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-blue-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
             }`}
             onClick={() => setActiveTab("Notes")}
           >
@@ -206,7 +206,7 @@ export default function TenantDetail() {
         </div>
       </div>
       {activeTab === "General" ? (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3">
           <div>
             <h3
               className="text-lg font-semibold mb-2"
@@ -216,13 +216,13 @@ export default function TenantDetail() {
             </h3>
             <div className="flex flex-col">
               {/* First Name */}
-              <div className="flex p-1 border dark:border-zinc-700">
+              <div className="flex p-1 border dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">First Name</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.firstName ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -237,13 +237,13 @@ export default function TenantDetail() {
                 </div>
               </div>
               {/* Middle Name */}
-              <div className="flex p-1 border-x dark:border-zinc-700">
+              <div className="flex p-1 border-x dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Middle Name</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.middleName ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -258,13 +258,13 @@ export default function TenantDetail() {
                 </div>
               </div>
               {/* Last Name */}
-              <div className="flex p-1 border dark:border-zinc-700">
+              <div className="flex p-1 border dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Last Name</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.lastName ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -280,13 +280,13 @@ export default function TenantDetail() {
               </div>
 
               {/* Date Of Birth */}
-              <div className="flex p-1 border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Date Of Birth</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="date"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={
                         editableUnit.dateOfBirth
                           ? new Date(editableUnit.dateOfBirth)
@@ -307,13 +307,13 @@ export default function TenantDetail() {
                 </div>
               </div>
               {/* Email */}
-              <div className="flex p-1 border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Email</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.contactInfo?.email ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -332,13 +332,13 @@ export default function TenantDetail() {
               </div>
 
               {/* Phone */}
-              <div className="flex p-1 border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Phone</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.contactInfo?.phone ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -356,7 +356,7 @@ export default function TenantDetail() {
                 </div>
               </div>
               {/* Address */}
-              <div className="flex p-1 border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Address</h3>
                 <div className="w-1/2 flex flex-col gap-1">
                   {isEditing ? (
@@ -364,7 +364,7 @@ export default function TenantDetail() {
                       <input
                         type="text"
                         placeholder="Street 1"
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                        className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                         value={editableUnit.address?.street1 ?? ""}
                         onChange={(e) =>
                           setEditableUnit((prev) => ({
@@ -379,7 +379,7 @@ export default function TenantDetail() {
                       <input
                         type="text"
                         placeholder="Street 2"
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                        className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                         value={editableUnit.address?.street2 ?? ""}
                         onChange={(e) =>
                           setEditableUnit((prev) => ({
@@ -394,7 +394,7 @@ export default function TenantDetail() {
                       <input
                         type="text"
                         placeholder="City"
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                        className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                         value={editableUnit.address?.city ?? ""}
                         onChange={(e) =>
                           setEditableUnit((prev) => ({
@@ -409,7 +409,7 @@ export default function TenantDetail() {
                       <input
                         type="text"
                         placeholder="State"
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                        className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                         value={editableUnit.address?.state ?? ""}
                         onChange={(e) =>
                           setEditableUnit((prev) => ({
@@ -424,7 +424,7 @@ export default function TenantDetail() {
                       <input
                         type="text"
                         placeholder="Country"
-                        className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                        className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                         value={editableUnit.address?.country ?? ""}
                         onChange={(e) =>
                           setEditableUnit((prev) => ({
@@ -454,13 +454,13 @@ export default function TenantDetail() {
               </div>
 
               {/* Driver's License */}
-              <div className="flex p-1 border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Driver's License</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.vehicle?.DLNumber ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -482,13 +482,13 @@ export default function TenantDetail() {
               </div>
 
               {/* Move In / Move Out */}
-              <div className="flex p-1 border-x border-b dark:border-zinc-700">
+              <div className="flex p-1 border-x border-b dark:border-slate-700">
                 <h3 className="w-1/2 font-medium">Vehicle Description</h3>
                 <div className="w-1/2">
                   {isEditing ? (
                     <input
                       type="text"
-                      className="w-full bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:outline-none"
+                      className="w-full bg-transparent border-b border-gray-300 dark:border-slate-600 focus:outline-none"
                       value={editableUnit.vehicle?.vehicleDesc ?? ""}
                       onChange={(e) =>
                         setEditableUnit((prev) => ({
@@ -509,7 +509,7 @@ export default function TenantDetail() {
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-2">Account Balance</h3>
-            <div className="flex border dark:border-zinc-700 justify-evenly">
+            <div className="flex border dark:border-slate-700 justify-evenly">
               <div className="flex flex-col justify-center flex-1">
                 <h3 className="w-full text-center text-xs">PREPAID CREDIT</h3>
                 <div className="w-full text-center h-10 justify-center flex items-center">
@@ -536,7 +536,7 @@ export default function TenantDetail() {
               </div>
             </div>
             <h3 className="text-lg font-semibold mb-2">Additional Info</h3>
-            <div className="flex flex-col border dark:border-zinc-700 justify-evenly max-h-48 items-center">
+            <div className="flex flex-col border dark:border-slate-700 justify-evenly max-h-48 items-center">
               <p className="text-red-500">This is under Development</p>
               <img src={webcamImage} className="max-h-fit max-w-32" />
             </div>
@@ -551,7 +551,7 @@ export default function TenantDetail() {
                 {tenant.units.map((u, index) => (
                   <div key={index}>
                     <div
-                      className="flex p-1 first:border-t border-x border-b dark:border-zinc-700 items-center gap-1 cursor-pointer"
+                      className="flex p-1 first:border-t border-x border-b dark:border-slate-700 items-center gap-1 cursor-pointer"
                       onClick={() => toggleDropdown(index)}
                     >
                       {openIndex === index ? (
@@ -593,15 +593,15 @@ export default function TenantDetail() {
                     </div>
 
                     {openIndex === index && (
-                      <div className="border-x border-b dark:border-zinc-700 text-sm">
+                      <div className="border-x border-b dark:border-slate-700 text-sm">
                         <div
-                          className={`flex justify-between px-5 py-2 border-b border-zinc-300 dark:border-zinc-700`}
+                          className={`flex justify-between px-5 py-2 border-b border-slate-300 dark:border-slate-700`}
                         >
                           <span className="font-bold w-1/2">Access Code</span>
                           <span className="w-1/2">{u.accessCode ?? ""}</span>
                         </div>
                         <div
-                          className={`flex justify-between px-5 py-2 border-b border-zinc-300 dark:border-zinc-700`}
+                          className={`flex justify-between px-5 py-2 border-b border-slate-300 dark:border-slate-700`}
                         >
                           <span className="font-bold w-1/2">
                             Monthly Payment
@@ -611,7 +611,7 @@ export default function TenantDetail() {
                           </span>
                         </div>
                         <div
-                          className={`flex justify-between px-5 py-2 border-b border-zinc-300 dark:border-zinc-700`}
+                          className={`flex justify-between px-5 py-2 border-b border-slate-300 dark:border-slate-700`}
                         >
                           <span className="font-bold w-1/2">Balance</span>
                           <span className="w-1/2">
@@ -619,7 +619,7 @@ export default function TenantDetail() {
                           </span>
                         </div>
                         <div
-                          className={`flex justify-between px-5 py-2 border-b border-zinc-300 dark:border-zinc-700`}
+                          className={`flex justify-between px-5 py-2 border-b border-slate-300 dark:border-slate-700`}
                         >
                           <span className="font-bold w-1/2">Move-In Date</span>
                           <span className="w-1/2">
@@ -634,7 +634,7 @@ export default function TenantDetail() {
                           </span>
                         </div>
                         <div
-                          className={`flex justify-between px-5 py-2 border-b border-zinc-300 dark:border-zinc-700`}
+                          className={`flex justify-between px-5 py-2 border-b border-slate-300 dark:border-slate-700`}
                         >
                           <span className="font-bold w-1/2">Lease Number</span>
                           <span className="w-1/2">{u.lease ?? ""}</span>
@@ -648,26 +648,28 @@ export default function TenantDetail() {
           </div>
         </div>
       ) : activeTab === "History" ? (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3 text-red-500">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3 text-red-500">
           Under Development
         </div>
       ) : activeTab === "Ledger" ? (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3 text-red-500">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3 text-red-500">
           Under Development
         </div>
       ) : activeTab === "Documents" ? (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3 text-red-500">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3 text-red-500">
           Under Development
         </div>
       ) : (
-        <div className="border-t w-full p-3 dark:border-zinc-700 grid grid-cols-2 gap-3">
+        <div className="border-t w-full p-3 dark:border-slate-700 grid grid-cols-2 gap-3">
           {/* Existing Notes */}
           {tenant.notes.map((note, idx) => (
             <div
               key={idx}
-              className="p-4 border rounded shadow-sm space-y-2 bg-white dark:bg-zinc-900"
+              className="p-4 border rounded shadow-sm space-y-2 bg-white dark:bg-slate-800 dark:border-slate-700"
             >
-              <p className="w-full border p-2 rounded">{note.message}</p>
+              <p className="w-full border p-2 rounded dark:border-slate-700">
+                {note.message}
+              </p>
               <label className="flex items-center text-sm">
                 <input
                   type="checkbox"
@@ -691,13 +693,13 @@ export default function TenantDetail() {
           ))}
 
           {/* New Note Form */}
-          <div className="p-4 border rounded shadow space-y-2 bg-white dark:bg-zinc-800">
+          <div className="p-4 border rounded shadow space-y-2 bg-white dark:bg-slate-800 dark:border-slate-700">
             <textarea
               value={newNote.message}
               onChange={(e) =>
                 setNewNote({ ...newNote, message: e.target.value })
               }
-              className="w-full border p-2 rounded"
+              className="w-full border p-2 rounded dark:text-black"
               placeholder="Add a new note..."
             />
             <div className="flex justify-between">
@@ -724,7 +726,7 @@ export default function TenantDetail() {
                   onChange={(e) =>
                     setNewNote({ ...newNote, responseDate: e.target.value })
                   }
-                  className="border p-1 rounded text-sm"
+                  className="border p-1 rounded text-sm dark:text-black"
                 />
               )}
               <button

@@ -148,9 +148,7 @@ const getTenants = async (req, res) => {
 const getTenantById = async (req, res) => {
   const tenantId = req.params.tenantId;
   try {
-    const tenant = await Tenant.findById(tenantId)
-      .populate("units")
-      .populate("company");
+    const tenant = await Tenant.findById(tenantId).populate("units");
 
     return res.status(200).json(tenant);
   } catch (error) {

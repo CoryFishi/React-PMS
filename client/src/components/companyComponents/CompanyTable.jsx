@@ -10,6 +10,8 @@ import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../sharedComponents/DataTable";
 import { useNavigate } from "react-router-dom";
+import { MdDeleteForever, MdSendAndArchive } from "react-icons/md";
+import { BiEdit, BiLinkExternal } from "react-icons/bi";
 
 export default function CompanyTable() {
   const [companies, setCompanies] = useState([]);
@@ -234,84 +236,87 @@ export default function CompanyTable() {
       label: "Stripe",
       accessor: (c) =>
         (c.stripe?.onboardingComplete ? "Complete" : "Incomplete") || "-",
+      render: (c, index) => (
+        <div className="flex justify-center" key={index}>
+          <div
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              c.stripe?.onboardingComplete
+                ? "bg-green-500 text-green-800"
+                : "bg-yellow-500 text-yellow-800"
+            }`}
+          >
+            {c.stripe?.onboardingComplete ? "Complete" : "Incomplete" || "-"}
+          </div>
+        </div>
+      ),
     },
     {
       key: "status",
       label: "Status",
-      accessor: (c) => c.status || "-",
+      render: (c, index) => (
+        <div className="flex justify-center" key={index}>
+          <div
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              c.status === "Enabled"
+                ? "bg-green-500 text-green-800"
+                : "bg-red-500 text-red-800"
+            }`}
+          >
+            {c.status || "-"}
+          </div>
+        </div>
+      ),
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "",
       sortable: false,
-      render: (company, index) => (
+      render: (c, index) => (
         <div
-          className="relative inline-block text-left"
+          className="relative text-center flex items-center justify-center gap-1"
           key={index}
-          ref={openDropdown === company._id ? containerRef : null}
         >
-          <div>
-            <button
-              type="button"
-              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-600 font-medium text-white hover:bg-sky-700 items-center"
-              onClick={() =>
-                setOpenDropdown((prev) =>
-                  prev === company._id ? null : company._id
-                )
-              }
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            onClick={() =>
+              setSelectedCompany(c._id) &
+              setEditOpen(true) &
+              setOpenDropdown(null)
+            }
+            title="Edit Company"
+          >
+            <BiEdit />
+          </a>
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            onClick={() => navigate(`/rental/${c._id}`)}
+            title="Rent a Unit"
+          >
+            <BiLinkExternal />
+          </a>
+          {!c.stripe?.onboardingComplete && (
+            <a
+              className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+              onClick={() => {
+                handleGenerateStripeLink(c._id);
+                setOpenDropdown(false);
+              }}
+              title="Generate Stripe"
             >
-              {openDropdown === company._id ? (
-                <IoMdArrowDropdown />
-              ) : (
-                <IoMdArrowDropup />
-              )}
-              Actions
-            </button>
-          </div>
-          {openDropdown === company._id && (
-            <div
-              className="origin-top-right absolute right-0 mt-1 w-56 flex flex-col rounded shadow-lg bg-zinc-100 dark:bg-zinc-800 border dark:border-zinc-600 ring-1 ring-black/5 z-10 hover:cursor-pointer"
-              ref={containerRef}
-            >
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
-                onClick={() =>
-                  setSelectedCompany(company._id) &
-                  setEditOpen(true) &
-                  setOpenDropdown(null)
-                }
-              >
-                Edit
-              </a>
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
-                onClick={() => navigate(`/rental/${company._id}`)}
-              >
-                Rent a Unit
-              </a>
-              {!company.stripe?.onboardingComplete && (
-                <a
-                  className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
-                  onClick={() => {
-                    handleGenerateStripeLink(company._id);
-                    setOpenDropdown(false);
-                  }}
-                >
-                  Generate Stripe Link
-                </a>
-              )}
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 rounded-b dark:hover:bg-zinc-900 dark:border-zinc-800"
-                onClick={() =>
-                  setSelectedCompany(company._id) &
-                  setIsDeleteModalOpen(true) &
-                  setOpenDropdown(false)
-                }
-              >
-                Delete
-              </a>
-            </div>
+              <MdSendAndArchive />
+            </a>
           )}
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-red-500 cursor-pointer text-lg"
+            onClick={() =>
+              setSelectedCompany(c._id) &
+              setIsDeleteModalOpen(true) &
+              setOpenDropdown(false)
+            }
+            title="Delete Company"
+          >
+            <MdDeleteForever />
+          </a>
         </div>
       ),
     },

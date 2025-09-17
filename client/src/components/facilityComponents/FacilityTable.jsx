@@ -289,7 +289,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
       sortable: false,
       render: (f, index) => (
         <div
-          className="relative text-center flex items-center gap-1"
+          className="relative text-center flex items-center justify-center gap-1"
           key={index}
         >
           <a

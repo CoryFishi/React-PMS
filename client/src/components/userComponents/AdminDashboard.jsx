@@ -202,7 +202,8 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                         }
                       }}
                       className={`px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-slate-800 ${
-                        section === option.path
+                        option.path.endsWith(section) ||
+                        (!section && option.path === "")
                           ? "bg-sky-600 hover:bg-sky-700"
                           : ""
                       }`}
@@ -266,7 +267,8 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                         }
                       }}
                       className={`px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-slate-800 ${
-                        section === option.path
+                        option.path.endsWith(section) ||
+                        (!section && option.path === "")
                           ? "bg-sky-600 hover:bg-sky-700"
                           : ""
                       }`}
@@ -321,7 +323,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
               <div className="mt-4 border-t border-slate-700 pt-4">
                 <button
                   onClick={() =>
-                    navigate(`/dashboard/facility/${knownFacilityId}/overview`)
+                    navigate(`/dashboard/facility/${knownFacilityId}`)
                   }
                   className="px-2 py-1 w-full text-left text-xl font-thin rounded hover:bg-slate-800 flex items-center gap-2"
                 >

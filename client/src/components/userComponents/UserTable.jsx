@@ -9,6 +9,9 @@ import DataTable from "../sharedComponents/DataTable";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import InputBox from "../sharedComponents/InputBox";
 import ModalContainer from "../sharedComponents/ModalContainer";
+import { BiEdit, BiUser } from "react-icons/bi";
+import { MdDeleteForever, MdSendAndArchive } from "react-icons/md";
+import { RiAdminFill } from "react-icons/ri";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UserTable() {
@@ -262,6 +265,17 @@ export default function UserTable() {
     {
       key: "role",
       label: "Role",
+      render: (u, index) => (
+        <div className="flex justify-center" key={index}>
+          {u.role === "System_Admin" || u.role === "System_User" ? (
+            <RiAdminFill />
+          ) : (
+            <BiUser />
+          )}
+          &nbsp;
+          {u.role || "-"}
+        </div>
+      ),
       accessor: (u) => u.role || "-",
     },
     {
@@ -272,64 +286,54 @@ export default function UserTable() {
     {
       key: "status",
       label: "Status",
-      accessor: (u) => u.status || "-",
+      render: (u, index) => (
+        <div className="flex justify-center" key={index}>
+          <div
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              u.status === "Enabled"
+                ? "bg-green-500 text-green-800"
+                : "bg-red-500 text-red-800"
+            }`}
+          >
+            {u.status || "-"}
+          </div>
+        </div>
+      ),
     },
     {
       key: "actions",
-      label: "Actions",
+      label: "",
       sortable: false,
       render: (user, index) => (
         <div
-          className="relative inline-block text-left"
+          className="relative text-center flex items-center justify-center gap-1"
           key={index}
-          ref={openDropdown === user._id ? containerRef : null}
         >
-          <div>
-            <button
-              type="button"
-              className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-600 font-medium text-white hover:bg-sky-700 items-center"
-              onClick={() =>
-                setOpenDropdown((prev) => (prev === user._id ? null : user._id))
-              }
-            >
-              {openDropdown === user._id ? (
-                <IoMdArrowDropdown />
-              ) : (
-                <IoMdArrowDropup />
-              )}
-              Actions
-            </button>
-          </div>
-          {/* User Actions drop down */}
-          {openDropdown === user._id && (
-            <div
-              className="origin-top-right absolute right-0 mt-1 w-56 flex flex-col rounded shadow-lg bg-zinc-100 dark:bg-zinc-800 border dark:border-zinc-600 ring-1 ring-black/5 z-10 hover:cursor-pointer"
-              ref={containerRef}
-            >
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800 rounded-t"
-                onClick={() => openEdit(user._id)}
-              >
-                Edit User
-              </a>
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-800"
-                onClick={() => sendEmail(user._id)}
-              >
-                Send Email Confirmation
-              </a>
-              <a
-                className="px-4 py-3 hover:bg-zinc-200 rounded-b dark:hover:bg-zinc-900 dark:border-zinc-800"
-                onClick={() =>
-                  setSelectedUser(user._id) &
-                  setIsDeleteModalOpen(true) &
-                  setOpenDropdown(false)
-                }
-              >
-                Delete User
-              </a>
-            </div>
-          )}
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            onClick={() => openEdit(user._id)}
+            title="Edit User"
+          >
+            <BiEdit />
+          </a>
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            onClick={() => sendEmail(user._id)}
+            title="Send Confirmation Email"
+          >
+            <MdSendAndArchive />
+          </a>
+          <a
+            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-red-500 cursor-pointer text-lg"
+            onClick={() =>
+              setSelectedUser(user._id) &
+              setIsDeleteModalOpen(true) &
+              setOpenDropdown(false)
+            }
+            title="Delete User"
+          >
+            <MdDeleteForever />
+          </a>
         </div>
       ),
     },
