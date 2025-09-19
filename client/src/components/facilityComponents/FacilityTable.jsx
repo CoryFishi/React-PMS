@@ -19,7 +19,6 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
   // Modal states
   const [isEditOpen, setEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const containerRef = useRef(null);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [selectedFacility, setSelectedFacility] = useState(null);
   const [isCreateOpen, setCreateOpen] = useState(false);
@@ -228,7 +227,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
               );
               setFacility(f._id);
               setFacilityName(f.facilityName);
-              navigate(`/dashboard/facility/${f._id}/overview`);
+              navigate(`/dashboard/facility/${f._id}`);
             } catch (err) {
               toast.error("Failed to select facility.");
               console.error(err);
@@ -293,16 +292,17 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
           key={index}
         >
           <a
-            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() => {
               navigate(`/rental/${f.company._id}/${f._id}`);
             }}
             title="Go to Rental Page"
           >
             <BiLinkExternal />
+            <span>Rental</span>
           </a>
           <a
-            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() => {
               setSelectedFacility(f._id);
               setEditOpen(true);
@@ -311,18 +311,20 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
             title="Edit Facility"
           >
             <BiEdit />
+            <span>Edit</span>
           </a>
           {f.status === "Pending Deployment" && (
             <a
-              className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+              className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
               onClick={() => deploy(f._id)}
               title="Deploy Facility"
             >
               <MdSendAndArchive />
+              <span>Deploy</span>
             </a>
           )}
           <a
-            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-red-500 cursor-pointer text-lg"
+            className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() => {
               setSelectedFacility(f._id);
               setIsDeleteModalOpen(true);
@@ -331,6 +333,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
             title="Delete Facility"
           >
             <MdDeleteForever />
+            <span>Delete</span>
           </a>
         </div>
       ),
@@ -366,13 +369,13 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
           responseContent={
             <div className="flex justify-end gap-2">
               <button
-                className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 transition ease-in duration-200"
+                className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:border-slate-700 focus:ring focus:ring-slate-200 transition ease-in duration-200"
                 onClick={() => deleteFacility(selectedFacility)}
               >
                 Delete
               </button>
               <button
-                className="px-4 py-2 bg-zinc-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-zinc-700 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 transition ease-in duration-200"
+                className="px-4 py-2 bg-slate-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-slate-700 focus:outline-none focus:border-slate-700 focus:ring focus:ring-slate-200 transition ease-in duration-200"
                 onClick={() =>
                   setIsDeleteModalOpen(false) & setOpenDropdown(null)
                 }

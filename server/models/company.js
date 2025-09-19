@@ -36,12 +36,6 @@ const CompanySchema = new Schema({
       ],
     },
   },
-  facilities: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "StorageFacility",
-    },
-  ],
   logo: {
     type: String,
     trim: true,

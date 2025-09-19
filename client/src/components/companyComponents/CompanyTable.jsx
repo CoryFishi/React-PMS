@@ -6,12 +6,11 @@ import EditCompany from "../companyComponents/EditCompany";
 import CreateCompany from "./CreateCompany";
 import ModalContainer from "../sharedComponents/ModalContainer";
 import InputBox from "../sharedComponents/InputBox";
-import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../sharedComponents/DataTable";
 import { useNavigate } from "react-router-dom";
 import { MdDeleteForever, MdSendAndArchive } from "react-icons/md";
-import { BiEdit, BiLinkExternal } from "react-icons/bi";
+import { BiEdit } from "react-icons/bi";
 
 export default function CompanyTable() {
   const [companies, setCompanies] = useState([]);
@@ -272,12 +271,9 @@ export default function CompanyTable() {
       label: "",
       sortable: false,
       render: (c, index) => (
-        <div
-          className="relative text-center flex items-center justify-center gap-1"
-          key={index}
-        >
+        <div className="items-center flex justify-center gap-1" key={index}>
           <a
-            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+            className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() =>
               setSelectedCompany(c._id) &
               setEditOpen(true) &
@@ -285,29 +281,23 @@ export default function CompanyTable() {
             }
             title="Edit Company"
           >
-            <BiEdit />
-          </a>
-          <a
-            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
-            onClick={() => navigate(`/rental/${c._id}`)}
-            title="Rent a Unit"
-          >
-            <BiLinkExternal />
+            <BiEdit className="text-lg" /> <span>Edit</span>
           </a>
           {!c.stripe?.onboardingComplete && (
             <a
-              className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-sky-500 cursor-pointer text-lg"
+              className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
               onClick={() => {
                 handleGenerateStripeLink(c._id);
                 setOpenDropdown(false);
               }}
               title="Generate Stripe"
             >
-              <MdSendAndArchive />
+              <MdSendAndArchive className="text-lg" />
+              <span>Generate Stripe</span>
             </a>
           )}
           <a
-            className="bg-zinc-300 dark:bg-slate-700 rounded-full p-1 hover:text-red-500 cursor-pointer text-lg"
+            className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() =>
               setSelectedCompany(c._id) &
               setIsDeleteModalOpen(true) &
@@ -315,7 +305,8 @@ export default function CompanyTable() {
             }
             title="Delete Company"
           >
-            <MdDeleteForever />
+            <MdDeleteForever className="text-lg" />
+            <span>Delete</span>
           </a>
         </div>
       ),
@@ -351,13 +342,13 @@ export default function CompanyTable() {
           responseContent={
             <div className="flex justify-end gap-2">
               <button
-                className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 transition ease-in duration-200"
+                className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-red-700 focus:outline-none focus:border-slate-700 focus:ring focus:ring-slate-200 transition ease-in duration-200"
                 onClick={() => deleteCompany(selectedCompany)}
               >
                 Delete
               </button>
               <button
-                className="px-4 py-2 bg-zinc-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-zinc-700 focus:outline-none focus:border-zinc-700 focus:ring focus:ring-zinc-200 transition ease-in duration-200"
+                className="px-4 py-2 bg-slate-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-slate-700 focus:outline-none focus:border-slate-700 focus:ring focus:ring-slate-200 transition ease-in duration-200"
                 onClick={() =>
                   setIsDeleteModalOpen(false) & setOpenDropdown(null)
                 }

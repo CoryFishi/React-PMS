@@ -135,7 +135,7 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
           ) : (
             <Link
               to="/login"
-              className={`hover:bg-slate-100 dark:hover:bg-slate-200 px-3 py-2 text-md font-medium ${
+              className={`hover:bg-slate-100 dark:hover:bg-slate-800 px-3 py-2 text-md font-medium ${
                 location.pathname === "/login"
                   ? "border-b-2 border-sky-600"
                   : ""

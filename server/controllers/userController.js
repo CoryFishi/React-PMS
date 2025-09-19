@@ -654,14 +654,10 @@ const getDashboardData = async (req, res) => {
     );
 
     // Helper to scope queries
-    const companyFilter =
-      user.role === "System_Admin" ? {} : { company: user.company };
+    const companyFilter = user.role === "System_Admin" ? [] : user.company;
 
     // Users
-    const totalUsers =
-      user.role === "System_Admin"
-        ? await User.countDocuments()
-        : await User.countDocuments({ company: user.company });
+    const totalUsers = await User.countDocuments({ ...companyFilter });
     const enabledUsers = await User.countDocuments({
       ...companyFilter,
       status: "Enabled",
@@ -672,21 +668,20 @@ const getDashboardData = async (req, res) => {
     });
 
     // Companies
-    const totalCompanies =
-      user.role === "System_Admin"
-        ? await Company.countDocuments()
-        : await Company.countDocuments({ _id: user.company });
+    const totalCompanies = await Company.countDocuments({ ...companyFilter });
     const enabledCompanies = await Company.countDocuments({
-      ...companyFilter,
       status: "Enabled",
+      ...companyFilter,
     });
     const disabledCompanies = await Company.countDocuments({
-      ...companyFilter,
       status: "Disabled",
+      ...companyFilter,
     });
 
     // Facilities
-    const totalFacilities = await StorageFacility.countDocuments(companyFilter);
+    const totalFacilities = await StorageFacility.countDocuments({
+      ...companyFilter,
+    });
     const enabledFacilities = await StorageFacility.countDocuments({
       ...companyFilter,
       status: "Enabled",
@@ -705,7 +700,7 @@ const getDashboardData = async (req, res) => {
     });
 
     // Units
-    const totalUnits = await StorageUnit.countDocuments(companyFilter);
+    const totalUnits = await StorageUnit.countDocuments({ ...companyFilter });
     const rentedUnits = await StorageUnit.countDocuments({
       ...companyFilter,
       status: "Rented",
@@ -720,7 +715,7 @@ const getDashboardData = async (req, res) => {
     });
 
     // Tenants
-    const totalTenants = await Tenant.countDocuments(companyFilter);
+    const totalTenants = await Tenant.countDocuments({ ...companyFilter });
     const activeTenants = await Tenant.countDocuments({
       ...companyFilter,
       status: "Active",

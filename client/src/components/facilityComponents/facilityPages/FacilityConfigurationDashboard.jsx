@@ -126,8 +126,6 @@ export default function FacilityConfigurationDashboard() {
         "x-api-key": API_KEY,
       },
     });
-
-    // Need to make 1 API call to make a smoother experience! - future time
     axios
       .get(`/facilities/${facilityId}/units`, {
         headers: {

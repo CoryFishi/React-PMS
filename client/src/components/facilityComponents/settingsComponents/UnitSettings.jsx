@@ -199,7 +199,7 @@ export default function UnitSettings() {
               <FaDoorOpen />
             </div>
           ) : u.status === "Rented" ? (
-            <div className="p-0.5 bg-blue-300 rounded-lg group-hover:bg-blue-600">
+            <div className="p-0.5 bg-sky-300 rounded-lg group-hover:bg-sky-600">
               <FaDoorClosed />
             </div>
           ) : (
@@ -213,7 +213,7 @@ export default function UnitSettings() {
                 ? "text-green-400 group-hover:text-green-600"
                 : u.status === "Delinquent"
                 ? "text-red-400 group-hover:text-red-600"
-                : "text-blue-400 group-hover:text-blue-600"
+                : "text-sky-400 group-hover:text-sky-600"
             }`}
           >
             {u.unitNumber}
@@ -257,13 +257,13 @@ export default function UnitSettings() {
               <span
                 className={`${
                   u.status === "Rented"
-                    ? "text-blue-400 hover:text-blue-600 cursor-pointer"
+                    ? "text-sky-400 hover:text-sky-600 cursor-pointer"
                     : u.status === "Delinquent" &&
                       "text-red-400 hover:text-red-600 cursor-pointer"
                 }`}
                 onClick={() =>
-                  alert(
-                    `This would bring you to /dashboard/${facilityId}/tenants/${u.tenant?._id}`
+                  navigate(
+                    `/dashboard/facility/${facilityId}/tenants/${u.tenant?._id}`
                   )
                 }
               >
@@ -290,18 +290,19 @@ export default function UnitSettings() {
         <div key={index} className="items-center flex justify-center gap-1">
           {u.availability === true && (
             <a
-              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 gap-0.5 flex items-center cursor-pointer select-none"
               onClick={() => setIsDeleteModalOpen(true) & setSelectedUnit(u)}
             >
-              <MdDeleteForever /> Delete Unit
+              <MdDeleteForever />
+              <span>Delete Unit</span>
             </a>
           )}
-
           <a
-            className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+            className="text-sm gap-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() => setIsEditOpen(true) & setSelectedUnit(u)}
           >
-            <MdEditDocument /> Edit Unit
+            <MdEditDocument />
+            <span>Edit Unit</span>
           </a>
         </div>
       ),
@@ -360,7 +361,7 @@ export default function UnitSettings() {
             placeholder={"Search units..."}
           />
           <button
-            className="bg-blue-600 text-white p-1 py-3 rounded hover:bg-blue-700 w-44 font-bold"
+            className="bg-sky-600 text-white p-1 py-3 rounded hover:bg-sky-700 w-44 font-bold"
             onClick={() => setCreateOpen(true)}
           >
             Create Unit

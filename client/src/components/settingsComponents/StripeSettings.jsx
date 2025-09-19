@@ -112,7 +112,7 @@ export default function StripeSettings({}) {
   };
 
   return (
-    <div className="p-4 rounded-lg shadow-md border border-gray-200 dark:border-border dark:bg-darkPrimary flex gap-2 flex-col">
+    <div className="flex gap-2 flex-col">
       <div className="w-full justify-between flex">
         <button
           onClick={() => refreshStripeSettings()}

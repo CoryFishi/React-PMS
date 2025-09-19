@@ -92,7 +92,7 @@ export default function UnitTypeSettings({ facilityId }) {
   }, [unitTypes, searchQuery]);
 
   return (
-    <div className="p-4 dark:bg-darkPrimary dark:border-border border bg-white rounded-lg shadow-md">
+    <div className="p-4">
       {isCreateOpen && (
         <CreateUnitType
           setIsCreateOpen={setIsCreateOpen}
@@ -119,12 +119,12 @@ export default function UnitTypeSettings({ facilityId }) {
       {isDeleteModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center 
-                      bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
+                      bg-slate-600 bg-opacity-50 dark:bg-slate-950 dark:bg-opacity-50 
                       overflow-y-auto"
         >
           <div
             className="relative w-fit shadow-lg rounded-md 
-                        bg-gray-100 dark:bg-darkPrimary dark:text-white 
+                        bg-slate-100 dark:bg-darkPrimary dark:text-white 
                          overflow-y-auto p-5"
           >
             <h3 className="text-lg font-bold">Confirm Delete</h3>
@@ -137,7 +137,7 @@ export default function UnitTypeSettings({ facilityId }) {
                 Delete
               </button>
               <button
-                className="bg-gray-300 hover:bg-gray-500 text-black font-bold py-2 px-4 rounded"
+                className="bg-slate-300 hover:bg-slate-500 text-black font-bold py-2 px-4 rounded"
                 onClick={() =>
                   setIsDeleteModalOpen(false) & setOpenDropdown(null)
                 }
@@ -159,7 +159,7 @@ export default function UnitTypeSettings({ facilityId }) {
           className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
         />
         <button
-          className="bg-blue-500 text-white p-1 py-2 rounded hover:bg-blue-600 ml-3 w-44 font-bold"
+          className="bg-sky-500 text-white p-1 py-2 rounded hover:bg-sky-600 ml-3 w-44 font-bold"
           onClick={() => setIsCreateOpen(true)}
         >
           Create Unit Type
@@ -167,7 +167,7 @@ export default function UnitTypeSettings({ facilityId }) {
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto px-2">
         <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-gray-200 dark:bg-darkNavSecondary">
+          <thead className="border-b dark:border-border sticky top-0 z-10 bg-slate-200 dark:bg-darkNavSecondary">
             <tr>
               <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
                 Unit Type
@@ -198,7 +198,7 @@ export default function UnitTypeSettings({ facilityId }) {
               .map((unitType, index) => (
                 <tr
                   key={index}
-                  className="border-b hover:bg-gray-100 dark:hover:bg-darkNavSecondary dark:border-border"
+                  className="border-b hover:bg-slate-100 dark:hover:bg-darkNavSecondary dark:border-border"
                 >
                   <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
                     {unitType.name}
@@ -226,7 +226,7 @@ export default function UnitTypeSettings({ facilityId }) {
                       <div>
                         <button
                           type="button"
-                          className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-blue-500 text-sm font-medium text-white hover:bg-blue-700"
+                          className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-500 text-sm font-medium text-white hover:bg-sky-700"
                           onClick={() =>
                             setOpenDropdown((prev) =>
                               prev === unitType._id ? null : unitType._id
@@ -253,7 +253,7 @@ export default function UnitTypeSettings({ facilityId }) {
                       {/* User Actions drop down */}
                       {openDropdown === unitType._id && (
                         <div
-                          className="origin-top-right absolute left-1/2 -translate-x-1/2 mt-1 w-56 rounded-md shadow-lg bg-gray-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
+                          className="origin-top-right absolute left-1/2 -translate-x-1/2 mt-1 w-56 rounded-md shadow-lg bg-slate-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
                           role="menu"
                           aria-orientation="vertical"
                           aria-labelledby="menu-button"
@@ -262,7 +262,7 @@ export default function UnitTypeSettings({ facilityId }) {
                         >
                           <div role="none">
                             <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
+                              className=" block px-4 py-3 text-sm hover:bg-slate-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() => {
@@ -274,7 +274,7 @@ export default function UnitTypeSettings({ facilityId }) {
                               Edit
                             </a>
                             <a
-                              className=" block px-4 py-3 text-sm hover:bg-gray-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
+                              className=" block px-4 py-3 text-sm hover:bg-slate-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
                               role="menuitem"
                               tabIndex="-1"
                               onClick={() => {

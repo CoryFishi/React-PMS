@@ -2,16 +2,14 @@ import CompanyTable from "../companyComponents/CompanyTable";
 import FacilityTable from "../facilityComponents/FacilityTable";
 import UserTable from "../userComponents/UserTable";
 import { useState, useEffect, useContext } from "react";
-import { FaBuildingLock } from "react-icons/fa6";
 import { RiAdminFill, RiArrowGoBackFill } from "react-icons/ri";
-import { MdExpandMore, MdExpandLess } from "react-icons/md";
+import { MdExpandMore, MdSettings } from "react-icons/md";
 import Navbar from "../Navbar";
 import { UserContext } from "../../../context/userContext";
 import FacilityDashboard from "../facilityComponents/FacilityDashboard";
 import ConfigurationDashboard from "./ConfigurationDashboard";
 import { useNavigate } from "react-router-dom";
 import { useParams, useLocation } from "react-router-dom";
-import axios from "axios";
 import ReportsPage from "../reportComponents/ReportsPage";
 import {
   BiSolidLeftArrowSquare,
@@ -22,6 +20,8 @@ import { BsBuildingsFill } from "react-icons/bs";
 import { IoIosDocument } from "react-icons/io";
 import { BsFillBuildingFill } from "react-icons/bs";
 import FacilityTemplates from "../facilityComponents/FacilityTemplates";
+import SettingsPage from "../settingsComponents/SettingsPage";
+import axios from "axios";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
@@ -39,6 +39,11 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const location = useLocation();
 
   useEffect(() => {
+    if (location.pathname.includes("/dashboard/facility/")) return;
+    document.title = "Storix Dashboard";
+  }, [location]);
+
+  useEffect(() => {
     const getFacility = async () => {
       if (!knownFacilityId) return;
       try {
@@ -49,7 +54,6 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
         if (data?.facilityName) {
           setFacilityName(data.facilityName);
         }
-        setFacilityData(data);
       } catch (err) {
         console.error("Error fetching facility name:", err);
       }
@@ -57,6 +61,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
 
     getFacility();
   }, [knownFacilityId]);
+
   const OPEN_WIDTH = "w-64";
 
   const [navOptions, setNavOptions] = useState([
@@ -88,6 +93,15 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
         { name: "Events Detail", path: "/events-detail" },
       ],
     },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: MdSettings,
+      options: [
+        { name: "Portfolio Updates", path: "/portfolio-updates" },
+        { name: "Stripe", path: "/stripe" },
+      ],
+    },
   ]);
 
   const [facilityNavOptions, setFacilityNavOptions] = useState([
@@ -116,8 +130,16 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
     {
       name: "Settings",
       path: "/settings",
-      icon: FaBuildingLock,
-      options: [],
+      icon: MdSettings,
+      options: [
+        { name: "Facility Information", path: "/facility-info" },
+        { name: "Tenant Management", path: "/tenantManagement" },
+        { name: "Notifications", path: "/notifications" },
+        { name: "Billing", path: "/billing" },
+        { name: "Integrations", path: "/integrations" },
+        { name: "Unit Types", path: "/unitTypes" },
+        { name: "Units", path: "/units" },
+      ],
     },
   ]);
 
@@ -257,7 +279,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                       onClick={() => {
                         if (!option.options?.length) {
                           navigate(
-                            `/dashboard/facility/${knownFacilityId}${option.path}`
+                            `/dashboard/facility/${facilityId}${option.path}`
                           );
                         } else {
                           setOpen((prev) => ({
@@ -303,11 +325,11 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                             onClick={() => {
                               if (sub.path === "") {
                                 navigate(
-                                  `/dashboard/facility/${knownFacilityId}${option.path}`
+                                  `/dashboard/facility/${facilityId}${option.path}`
                                 );
                               } else {
                                 navigate(
-                                  `/dashboard/facility/${knownFacilityId}${option.path}${sub.path}`
+                                  `/dashboard/facility/${facilityId}${option.path}${sub.path}`
                                 );
                               }
                             }}
@@ -357,6 +379,12 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             !location.pathname.includes(`/dashboard/facility`) && (
               <div className="h-full min-h-0 min-w-0 overflow-y-auto overscroll-contain">
                 <ReportsPage />
+              </div>
+            )}
+          {section === "settings" &&
+            !location.pathname.includes(`/dashboard/facility`) && (
+              <div className="h-full min-h-0 min-w-0 overflow-y-auto overscroll-contain">
+                <SettingsPage />
               </div>
             )}
           {section === "facilities" &&
