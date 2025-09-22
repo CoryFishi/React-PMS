@@ -3,18 +3,40 @@ import { useContext } from "react";
 import { useState, useEffect } from "react";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import { UserContext } from "../../../context/userContext";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { IoRefreshCircle } from "react-icons/io5";
+import SelectOption from "../sharedComponents/SelectOption";
 
 export default function StripeSettings({}) {
   const [stripeSettings, setStripeSettings] = useState([]);
   const { user } = useContext(UserContext);
-  const companyId = user?.company;
+  const [companyId, setCompanyId] = useState(user?.company);
+  const [companies, setCompanies] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     refreshStripeSettings(companyId);
+    // Fetch companies if user is admin or system user
+    if (user.role === "System_Admin" || user.role === "System_User") {
+      axios
+        .get(`/companies`, {
+          headers: { "x-api-key": API_KEY },
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log("Fetched companies:", response.data);
+          setCompanies(
+            response.data.map((company) => ({
+              id: company._id || company.id,
+              name: company.companyName,
+            }))
+          );
+        })
+        .catch((error) => {
+          console.error("Error fetching companies:", error);
+        });
+    }
   }, [companyId]);
 
   const openStripeDashboardLink = async () => {
@@ -111,8 +133,28 @@ export default function StripeSettings({}) {
     }
   };
 
+  if (
+    !companyId &&
+    (user.role === "System_Admin" || user.role === "System_User")
+  ) {
+    return (
+      <div className="flex w-full h-full items-center justify-center">
+        <div className="justify-between flex flex-col gap-5 min-w-48">
+          <SelectOption
+            type="company"
+            onChange={(e) => setCompanyId(e.target.value)}
+            placeholder="Select a Company"
+            value={companyId}
+            required={true}
+            options={companies}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex gap-2 flex-col">
+    <div className="flex gap-2 flex-col p-5 w-full h-full">
       <div className="w-full justify-between flex">
         <button
           onClick={() => refreshStripeSettings()}

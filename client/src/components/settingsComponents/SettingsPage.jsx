@@ -12,7 +12,7 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col h-full w-full relative dark:bg-slate-800 dark:text-white">
-      <div className="p-5">{settings[id] || <p>Setting not found.</p>}</div>
+      {settings[id] || <p>Setting not found.</p>}
     </div>
   );
 }

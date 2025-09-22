@@ -313,14 +313,17 @@ export default function UserTable() {
           >
             <BiEdit className="text-lg" /> <span>Edit</span>
           </a>
-          <a
-            className="text-sm gap-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
-            onClick={() => sendEmail(user._id)}
-            title="Send Confirmation Email"
-          >
-            <MdSendAndArchive className="text-lg" />
-            <span>Send Confirmation</span>
-          </a>
+          {!user.confirmed && (
+            <a
+              className="text-sm gap-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+              onClick={() => sendEmail(user._id)}
+              title="Send Confirmation Email"
+            >
+              <MdSendAndArchive className="text-lg" />
+              <span>Send Confirmation</span>
+            </a>
+          )}
+
           <a
             className="text-sm gap-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() =>
