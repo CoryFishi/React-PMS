@@ -132,12 +132,12 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
       path: "/settings",
       icon: MdSettings,
       options: [
-        { name: "Facility Information", path: "/facility-info" },
-        { name: "Tenant Management", path: "/tenantManagement" },
+        { name: "Facility Information", path: "/facility-information" },
+        { name: "Tenant Management", path: "/tenant-management" },
         { name: "Notifications", path: "/notifications" },
         { name: "Billing", path: "/billing" },
         { name: "Integrations", path: "/integrations" },
-        { name: "Unit Types", path: "/unitTypes" },
+        { name: "Unit Types", path: "/unit-types" },
         { name: "Units", path: "/units" },
       ],
     },
@@ -187,15 +187,9 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             className="text-center text-2xl font-bold w-full items-center justify-center flex cursor-pointer"
             onClick={() => navigate("/")}
           >
-            <span
-              className={`p-5 font-semibold text-3xl flex items-center gap-2`}
-            >
-              <img
-                src="/src/assets/images/logo.png"
-                alt="Logo"
-                className="h-7"
-              />
-              Storix
+            <img src="/src/assets/images/logo.png" alt="Logo" className="h-7" />
+            <span className={`p-5 font-semibold text-3xl flex items-center`}>
+              Stor<span className="text-sky-500">IX</span>
             </span>
           </h3>
           <div className="p-2 flex flex-col gap-2">

@@ -77,8 +77,8 @@ export default function EditProfile({ user, onClose, onSubmit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-800 dark:bg-gray-950 dark:bg-opacity-50 bg-opacity-50 overflow-y-auto h-full w-full z-50 dark:text-white">
-      <div className="relative top-20 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-lg bg-gray-100 dark:bg-darkPrimary dark:text-white dark:border-border">
+    <div className="fixed inset-0 bg-zinc-900/80 overflow-y-auto h-full w-full z-50 dark:text-white">
+      <div className="relative top-20 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-lg bg-slate-100 dark:bg-slate-900 dark:text-white dark:border-slate-700/50">
         <h2 className="text-xl font-bold mb-4">Editing Profile</h2>
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -88,7 +88,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
               </label>
               <h3
                 id="email"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
               >
                 {user.email}
               </h3>
@@ -119,7 +119,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
               </label>
               <h3
                 id="role"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
               >
                 {user.role}
               </h3>
@@ -130,7 +130,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
               </label>
               <h3
                 id="company"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
               >
                 {user.company || "N/A"}
               </h3>
@@ -144,7 +144,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
               </label>
               <h3
                 id="facilities"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
               >
                 {user.facilities.length > 0
                   ? user.facilities.join(", ")
@@ -163,7 +163,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="displayName"
                 id="displayName"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.displayName}
                 onChange={(e) => setNewDisplayName(e.target.value)}
               />
@@ -176,7 +176,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="name"
                 id="name"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.name}
                 onChange={(e) => setNewName(e.target.value)}
               />
@@ -189,7 +189,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="street1"
                 id="street1"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.address.street1}
                 onChange={handleAddressChange}
               />
@@ -202,7 +202,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="street2"
                 id="street2"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.address.street2}
                 onChange={handleAddressChange}
               />
@@ -215,7 +215,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="city"
                 id="city"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.address.city}
                 onChange={handleAddressChange}
               />
@@ -228,7 +228,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="state"
                 id="state"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.address.state}
                 onChange={handleAddressChange}
               />
@@ -241,7 +241,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="zipCode"
                 id="zipCode"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.address.zipCode}
                 onChange={handleAddressChange}
               />
@@ -254,7 +254,7 @@ export default function EditProfile({ user, onClose, onSubmit }) {
                 type="text"
                 name="country"
                 id="country"
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 placeholder={user.address.country}
                 onChange={handleAddressChange}
               />
@@ -264,14 +264,14 @@ export default function EditProfile({ user, onClose, onSubmit }) {
             <button
               type="button"
               onClick={handleSubmit}
-              className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
+              className="px-4 py-2 bg-sky-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-sky-700 focus:outline-none focus:border-sky-700 focus:ring focus:ring-sky-200 transition ease-in duration-200"
             >
               Submit
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="ml-4 px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-gray-700 focus:outline-none focus:border-gray-700 focus:ring focus:ring-gray-200 transition ease-in duration-200"
+              className="ml-4 px-4 py-2 bg-slate-500 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-slate-700 focus:outline-none focus:border-slate-700 focus:ring focus:ring-slate-200 transition ease-in duration-200"
             >
               Close
             </button>

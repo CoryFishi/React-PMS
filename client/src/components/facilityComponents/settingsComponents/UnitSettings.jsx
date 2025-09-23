@@ -29,6 +29,7 @@ export default function UnitSettings() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUnits, setFilteredUnits] = useState([]);
   const [selectedUnit, setSelectedUnit] = useState(null);
+  const [activeTab, setActiveTab] = useState("Units");
 
   const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
     let newDirection;
@@ -192,7 +193,9 @@ export default function UnitSettings() {
         <div
           key={index}
           className={`w-full justify-center items-center flex gap-1 dark:text-black cursor-pointer group`}
-          onClick={() => navigate(`/dashboard/${facilityId}/units/${u._id}`)}
+          onClick={() =>
+            navigate(`/dashboard/facility/${facilityId}/units/${u._id}`)
+          }
         >
           {u.status === "Vacant" ? (
             <div className="p-0.5 bg-green-300 rounded-lg group-hover:bg-green-600">
@@ -349,46 +352,75 @@ export default function UnitSettings() {
           }
         />
       )}
-      <div className="border-b flex items-center justify-between mx-5 dark:border-zinc-800">
-        <h1 className="text-xl font-bold dark:text-white">Units</h1>
-      </div>
-
-      <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
-        <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
-          <InputBox
-            value={searchQuery}
-            onchange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-            placeholder={"Search units..."}
-          />
+      <div className="border-b flex items-center justify-between mx-5 dark:border-slate-700 mt-3">
+        <h1 className="text-xl font-bold dark:text-white">Units Settings</h1>
+        <div className="flex mr-5 space-x-1">
           <button
-            className="bg-sky-600 text-white p-1 py-3 rounded hover:bg-sky-700 w-44 font-bold"
-            onClick={() => setCreateOpen(true)}
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
+              activeTab === "Units"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
+            }`}
+            onClick={() => setActiveTab("Units")}
           >
-            Create Unit
+            Units
+          </button>
+          <button
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
+              activeTab === "Unit Mapping"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
+            }`}
+            onClick={() => setActiveTab("Unit Mapping")}
+          >
+            Unit Mapping
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto min-h-96 px-5">
-          <DataTable
-            columns={columns}
-            data={filteredUnits}
-            currentPage={currentPage}
-            rowsPerPage={itemsPerPage}
-            sortDirection={sortDirection}
-            sortedColumn={sortedColumn}
-            onSort={handleColumnSort}
-          />
-          {/* Pagination Footer */}
-          <div className="px-2 py-5 mx-1">
-            <PaginationFooter
-              rowsPerPage={itemsPerPage}
-              setRowsPerPage={setItemsPerPage}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              items={filteredUnits}
+      </div>
+      {activeTab === "Units" ? (
+        <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
+          <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
+            <InputBox
+              value={searchQuery}
+              onchange={(e) =>
+                setSearchQuery(e.target.value) & setCurrentPage(1)
+              }
+              placeholder={"Search units..."}
             />
+            <button
+              className="bg-sky-600 text-white p-1 py-3 rounded hover:bg-sky-700 w-44 font-bold"
+              onClick={() => setCreateOpen(true)}
+            >
+              Create Unit
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto min-h-96 px-5">
+            <DataTable
+              columns={columns}
+              data={filteredUnits}
+              currentPage={currentPage}
+              rowsPerPage={itemsPerPage}
+              sortDirection={sortDirection}
+              sortedColumn={sortedColumn}
+              onSort={handleColumnSort}
+            />
+            {/* Pagination Footer */}
+            <div className="px-2 py-5 mx-1">
+              <PaginationFooter
+                rowsPerPage={itemsPerPage}
+                setRowsPerPage={setItemsPerPage}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                items={filteredUnits}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="items-center justify-center flex-col flex m-10">
+          <p className="text-red-500">UNDER DEVELOPMENT</p>
+        </div>
+      )}
     </div>
   );
 }

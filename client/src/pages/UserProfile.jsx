@@ -20,7 +20,7 @@ export default function UserProfile({ toggleDarkMode, darkMode }) {
   };
 
   return (
-    <div className="flex flex-col h-screen dark:bg-zinc-900 text-black dark:text-white">
+    <div className="flex flex-col h-screen dark:bg-slate-900 text-black dark:text-white">
       {isEditOpen && (
         <EditProfile
           user={user}
@@ -32,25 +32,25 @@ export default function UserProfile({ toggleDarkMode, darkMode }) {
       <div className="flex flex-grow flex-col items-center w-full">
         <div className="space-y-4 m-auto">
           <h1 className="text-3xl text-center font-bold mb-6">Your Profile</h1>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold">Display Name:</strong>
             <span className=" ml-2">
               {userData?.displayName || user?.displayName || "N/A"}
             </span>
           </p>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold ">Name:</strong>
             <span className=" ml-2">
               {userData?.name || user?.name || "N/A"}
             </span>
           </p>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold ">Email:</strong>
             <span className=" ml-2">
               {userData?.email || user?.email || "N/A"}
             </span>
           </p>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold ">Email Confirmed:</strong>
             <span className=" ml-2">
               <input
@@ -65,19 +65,19 @@ export default function UserProfile({ toggleDarkMode, darkMode }) {
               </span>
             </span>
           </p>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold ">Role:</strong>
             <span className=" ml-2">
               {userData?.role || user?.role || "N/A"}
             </span>
           </p>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold ">Company:</strong>
             <span className=" ml-2">
               {userData?.company || user?.company || "N/A"}
             </span>
           </p>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold ">Facilities:</strong>
             <span className=" ml-2">
               {userData?.facilities?.length || user?.facilities?.length > 0
@@ -85,7 +85,7 @@ export default function UserProfile({ toggleDarkMode, darkMode }) {
                 : "N/A"}
             </span>
           </p>
-          <p className="flex justify-between items-center border-b-2 border-zinc-200 dark:border-zinc-700 py-2">
+          <p className="flex justify-between items-center border-b-2 border-slate-200 dark:border-slate-700 py-2">
             <strong className="font-semibold ">Address:</strong>
             <span className=" ml-2">{`${
               userData?.address?.street1 || user?.address?.street1 || "N/A"

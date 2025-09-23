@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { UserContext } from "../../../../context/userContext";
 import { usePreviousPath } from "../../../../context/historyContext";
+import { BiLeftArrow } from "react-icons/bi";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -88,22 +89,22 @@ export default function UnitDetail() {
     <div className="p-5 dark:text-white flex flex-col">
       <div className="flex justify-between mb-4 ">
         <button
-          className="px-4 py-2 bg-sky-600 text-white font-bold rounded hover:bg-sky-700"
+          className="px-4 py-2 bg-sky-600 text-white font-bold rounded hover:bg-sky-700 flex gap-2 items-center duration-300 transition-all hover:scale-105"
           onClick={handleBack}
         >
-          Go Back
+          <BiLeftArrow /> All Units
         </button>
         <div className="flex justify-end">
           {isEditing && activeTab === "General" ? (
             <div className="flex gap-2">
               <button
-                className="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600"
+                className="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600 items-center duration-300 transition-all hover:scale-105"
                 onClick={() => setIsEditing(false)}
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 items-center duration-300 transition-all hover:scale-105"
                 onClick={handleSave}
               >
                 Save
@@ -112,7 +113,7 @@ export default function UnitDetail() {
           ) : (
             activeTab === "General" && (
               <button
-                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 items-center duration-300 transition-all hover:scale-105"
                 onClick={() => setIsEditing(true)}
               >
                 Edit

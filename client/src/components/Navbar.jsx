@@ -53,59 +53,53 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
   return (
     <nav className="bg-slate-50 p-2 w-full border-slate-200 border-b dark:bg-slate-900 dark:text-white dark:border-slate-800 px-8">
       <div className="flex items-center justify-between">
-        {location.pathname.includes("dashboard") ? (
-          <input
-            name="company"
-            id="company"
-            className={`bg-white border border-slate-300 rounded-md p-2`}
-            placeholder={
-              !location.pathname.includes("facility")
-                ? `Search...`
-                : `Search facility...`
-            }
-          />
-        ) : (
-          <div></div>
-        )}
-        <div className="flex space-x-4 items-center pr-5">
-          <div className="flex items-center">
-            <label
-              htmlFor="dark-mode-toggle"
-              className="hover:bg-slate-100 dark:hover:bg-slate-800 p-3 rounded-full text-sm font-medium hover:cursor-pointer"
-            >
-              {darkMode ? <RiMoonClearFill /> : <RiSunFill />}
-            </label>
+        <div>
+          {location.pathname.includes("dashboard") ? (
             <input
-              id="dark-mode-toggle"
-              type="checkbox"
-              checked={darkMode}
-              onChange={toggleDarkMode}
-              className="toggle-checkbox hidden"
+              name="company"
+              id="company"
+              className={`bg-white border border-slate-300 rounded-md p-2`}
+              placeholder={
+                !location.pathname.includes("facility")
+                  ? `Search...`
+                  : `Search facility...`
+              }
             />
-          </div>
-          {!user && (
-            <Link
-              to="/"
-              className={`hover:bg-slate-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-slate-800 ${
-                location.pathname === "/" ? "border-b-2 border-sky-600" : ""
-              }`}
+          ) : (
+            <div
+              className="flex items-center gap-2 font-medium text-3xl cursor-pointer"
+              onClick={() => navigate("/")}
             >
-              Home
-            </Link>
+              <img
+                src="/src/assets/images/logo.png"
+                alt="Logo"
+                className="h-10 w-auto"
+              />
+              <h1>
+                Stor<span className="text-sky-500">IX</span>
+              </h1>
+            </div>
+          )}
+        </div>
+        <div className="flex space-x-4 items-center pr-5">
+          {!user && (
+            <div className="flex items-center">
+              <label
+                htmlFor="dark-mode-toggle"
+                className="hover:bg-slate-100 dark:hover:bg-slate-800 p-3 rounded-full text-sm font-medium hover:cursor-pointer"
+              >
+                {darkMode ? <RiMoonClearFill /> : <RiSunFill />}
+              </label>
+              <input
+                id="dark-mode-toggle"
+                type="checkbox"
+                checked={darkMode}
+                onChange={toggleDarkMode}
+                className="toggle-checkbox hidden"
+              />
+            </div>
           )}
 
-          {isLoggedIn && !location.pathname.includes("/dashboard") && (
-            <Link
-              to="/dashboard"
-              className={`hover:bg-slate-100 px-3 py-2 text-md font-medium select-none dark:hover:bg-slate-800 ${
-                location.pathname.includes("/dashboard")
-                  ? "border-b-2 border-sky-600"
-                  : ""
-              }`}
-            >
-              Dashboard
-            </Link>
-          )}
           {isLoggedIn ? (
             <div className="relative" ref={userRef}>
               <h2
@@ -117,14 +111,35 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
               </h2>
               {isDropdownOpen && (
                 <div className="select-none absolute mt-1 right-0 w-full bg-white border border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:shadow-md shadow-slate-800 z-20 flex flex-col">
+                  <button
+                    type="button"
+                    onClick={toggleDarkMode}
+                    className="hover:bg-slate-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium text-center dark:border-t-zinc-700 flex items-center justify-center gap-2"
+                  >
+                    {darkMode ? (
+                      <>
+                        <RiMoonClearFill /> Dark Mode
+                      </>
+                    ) : (
+                      <>
+                        <RiSunFill /> Light Mode
+                      </>
+                    )}
+                  </button>
+                  <Link
+                    to="/dashboard"
+                    className="hover:bg-slate-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium text-center"
+                  >
+                    Dashboard
+                  </Link>
                   <Link
                     to={`/users/${user?._id}`}
-                    className="hover:bg-slate-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium text-center dark:border-t-border"
+                    className="hover:bg-slate-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium text-center"
                   >
                     Profile
                   </Link>
                   <button
-                    className="hover:bg-slate-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium border-opacity-50 border-t border-t-slate-100 dark:border-t-border"
+                    className="hover:bg-slate-100 dark:hover:bg-slate-900 px-3 py-2 text-md font-medium"
                     onClick={() => handleLogout()}
                   >
                     Logout
