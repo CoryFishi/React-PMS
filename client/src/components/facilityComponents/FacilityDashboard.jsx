@@ -24,7 +24,6 @@ export default function FacilityDashboard() {
         }
         setFacilityData(data);
         document.title = `${data.facilityName || "Facility Dashboard"}`;
-        console.log("Fetched facility data:", data);
       } catch (err) {
         console.error("Error fetching facility name:", err);
       }

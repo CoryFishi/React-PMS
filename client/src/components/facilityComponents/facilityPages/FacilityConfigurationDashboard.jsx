@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { Bar, Line } from "react-chartjs-2";
+import { useContext } from "react";
+import { UserContext } from "../../../../context/UserContext";
+import { PieChart } from "@mui/x-charts/PieChart";
+import { LineChart } from "@mui/x-charts/LineChart";
+import { useDrawingArea } from "@mui/x-charts/hooks";
+import { styled } from "@mui/material/styles";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,11 +15,14 @@ import {
   LineElement,
   Tooltip,
   Legend,
+  ArcElement,
 } from "chart.js";
 import axios from "axios";
-import moment from "moment";
 const API_KEY = import.meta.env.VITE_API_KEY;
-import { useParams } from "react-router-dom";
+import DataTable from "../../../components/sharedComponents/DataTable";
+import { toast } from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import PaginationFooter from "../../../components/sharedComponents/PaginationFooter";
 
 ChartJS.register(
   CategoryScale,
@@ -24,21 +32,114 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ArcElement
 );
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: true,
-  animation: {
-    duration: 0,
-  },
-};
 
-export default function FacilityConfigurationDashboard() {
+export default function ConfigurationDashboard() {
+  const { user } = useContext(UserContext);
+  const [facilities, setFacilities] = useState([]);
+  const [eventCurrentPage, setEventCurrentPage] = useState(1);
+  const [eventItemsPerPage, setEventItemsPerPage] = useState(10);
+  const [facilityCurrentPage, setFacilityCurrentPage] = useState(1);
+  const [facilityItemsPerPage, setFacilityItemsPerPage] = useState(10);
+  const [events, setEvents] = useState([]);
+  const navigate = useNavigate();
   const { facilityId } = useParams();
 
-  const [stats, setStats] = useState({
-    units: { total: 0, vacant: 0, delinquent: 0, rented: 0 },
+  const [chartWidth, setChartWidth] = useState(
+    document.getElementById("chartContainer")?.clientWidth / 2
+  );
+  const [chartHeight, setChartHeight] = useState(
+    document.getElementById("chartContainer")?.clientHeight
+  );
+
+  const margin = { right: 24 };
+  const uData = [4000, 3000, 2000, 5780, 890, 2390, 7490];
+  const xLabels = [
+    "Page A",
+    "Page B",
+    "Page C",
+    "Page D",
+    "Page E",
+    "Page F",
+    "Page G",
+  ];
+
+  const handleFacilityColumnSort = (
+    columnKey,
+    accessor = (a) => a[columnKey]
+  ) => {
+    let newDirection;
+
+    if (facilitySortedColumn !== columnKey) {
+      newDirection = "asc";
+    } else if (facilitySortDirection === "asc") {
+      newDirection = "desc";
+    } else if (facilitySortDirection === "desc") {
+      newDirection = null;
+    }
+
+    setFacilitySortedColumn(newDirection ? columnKey : null);
+    setFacilitySortDirection(newDirection);
+
+    if (!newDirection) {
+      setFacilities([...facilities]);
+      return;
+    }
+
+    const sorted = [...facilities].sort((a, b) => {
+      const aVal = accessor(a) ?? "";
+      const bVal = accessor(b) ?? "";
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setFacilities(sorted);
+  };
+
+  const handleEventColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
+    let newDirection;
+
+    if (eventSortedColumn !== columnKey) {
+      newDirection = "asc";
+    } else if (eventSortDirection === "asc") {
+      newDirection = "desc";
+    } else if (eventSortDirection === "desc") {
+      newDirection = null;
+    }
+
+    setEventSortedColumn(newDirection ? columnKey : null);
+    setEventSortDirection(newDirection);
+
+    if (!newDirection) {
+      setEvents([...events]);
+      return;
+    }
+
+    const sorted = [...events].sort((a, b) => {
+      const aVal = accessor(a) ?? "";
+      const bVal = accessor(b) ?? "";
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setEvents(sorted);
+  };
+
+  //  Sorting states
+  const [facilitySortDirection, setFacilitySortDirection] = useState("asc");
+  const [facilitySortedColumn, setFacilitySortedColumn] = useState(null);
+  const [eventSortDirection, setEventSortDirection] = useState("asc");
+  const [eventSortedColumn, setEventSortedColumn] = useState(null);
+  const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+
+  const [dashboardData, setDashboardData] = useState({
+    users: { total: 0, enabled: 0, disabled: 0 },
     facilities: {
       total: 0,
       enabled: 0,
@@ -47,247 +148,360 @@ export default function FacilityConfigurationDashboard() {
       disabled: 0,
     },
     companies: { total: 0, enabled: 0, disabled: 0 },
+    events: [],
+    units: { total: 0, rented: 0, delinquent: 0, vacant: 0 },
+    tenants: { total: 0, enabled: 0, disabled: 0 },
   });
-  const [chartData, setChartData] = useState({
-    labels: [],
-    datasets: [
-      {
-        label: "Total Events",
-        data: [],
-        borderColor: "#145ac9",
-        borderWidth: 2,
-      },
-    ],
-  });
-
-  const companyChartData = {
-    labels: ["Total", "Enabled", "Disabled"],
-    datasets: [
-      {
-        label: "Companies",
-        data: [
-          stats.companies.total,
-          stats.companies.enabled,
-          stats.companies.disabled,
-        ],
-        backgroundColor: ["#145ac9", "#006900", "#990003"],
-      },
-    ],
-  };
-
-  const userChartData = {
-    labels: ["Total", "Vacant", "Rented", "Delinquent"],
-    datasets: [
-      {
-        label: "Units",
-        data: [
-          stats.units.total,
-          stats.units.vacant,
-          stats.units.rented,
-          stats.units.delinquent,
-        ],
-        backgroundColor: ["#145ac9", "#FFD700", "#006900", "#FF0000"],
-      },
-    ],
-  };
-
-  const facilityChartData = {
-    labels: [
-      "Total",
-      "Enabled",
-      "Pending Deployment",
-      "Maintenance",
-      "Disabled",
-    ],
-    datasets: [
-      {
-        label: "Facilities",
-        data: [
-          stats.facilities.total,
-          stats.facilities.enabled,
-          stats.facilities.pending,
-          stats.facilities.maintenance,
-          stats.facilities.disabled,
-        ],
-        backgroundColor: [
-          "#145ac9",
-          "#006900",
-          "#bd6e00",
-          "#bdb600",
-          "#990003",
-        ],
-      },
-    ],
-  };
+  const tenantChartData = [
+    {
+      label: "Enabled",
+      value: dashboardData.tenants.active,
+      color: "limegreen",
+    },
+    { label: "Disabled", value: dashboardData.tenants.disabled, color: "red" },
+  ];
+  const unitChartData = [
+    {
+      label: "Rented",
+      value: dashboardData.units.rented,
+      color: "limegreen",
+    },
+    {
+      label: "Delinquent",
+      value: dashboardData.units.delinquent,
+      color: "red",
+    },
+    {
+      label: "Vacant",
+      value: dashboardData.units.vacant,
+      color: "orange",
+    },
+  ];
 
   useEffect(() => {
-    axios.get(`/facilities/dashboard/${facilityId}`, {
-      headers: {
-        "x-api-key": API_KEY,
-      },
-    });
+    if (!user?._id) return;
+
     axios
-      .get(`/facilities/${facilityId}/units`, {
+      .get(`/facilities/dashboard/${facilityId}`, {
         headers: {
           "x-api-key": API_KEY,
         },
+        withCredentials: true,
       })
       .then(({ data }) => {
-        if (Array.isArray(data.units)) {
-          const totalUnits = data.units.length;
-          const vacantUnits = data.units.filter(
-            (user) => user.status === "Vacant"
-          ).length;
-          const delinquentUnits = data.units.filter(
-            (user) => user.status === "Delinquent"
-          ).length;
-          const rentedUnits = data.units.filter(
-            (user) => user.status === "Rented"
-          ).length;
-
-          setStats((prevStats) => ({
-            ...prevStats,
-            units: {
-              total: totalUnits,
-              vacant: vacantUnits,
-              rented: rentedUnits,
-              delinquent: delinquentUnits,
-            },
-          }));
-        }
+        setDashboardData(data);
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching dashboard data:", error);
       });
 
     axios
-      .get(`/tenants`, {
+      .get("/facilities", {
         headers: {
           "x-api-key": API_KEY,
         },
-        params: {
-          facilityId: facilityId,
-        },
+        withCredentials: true,
       })
       .then(({ data }) => {
-        if (data?.facilities && Array.isArray(data.facilities)) {
-          const totalFacilities = data.facilities.length;
-          const activeFacilities = data.facilities.filter(
-            (facility) => facility.status === "Enabled"
-          ).length;
-          const disabledFacilities = data.facilities.filter(
-            (facility) => facility.status === "Disabled"
-          ).length;
-          const maintenanceFacilities = data.facilities.filter(
-            (facility) => facility.status === "Maintenance"
-          ).length;
-          const pendingDeploymentFacilities = data.facilities.filter(
-            (facility) => facility.status === "Pending Deployment"
-          ).length;
-
-          setStats((prevStats) => ({
-            ...prevStats,
-            facilities: {
-              total: totalFacilities,
-              enabled: activeFacilities,
-              pending: pendingDeploymentFacilities,
-              maintenance: maintenanceFacilities,
-              disabled: disabledFacilities,
-            },
-          }));
-        }
+        setFacilities(data.facilities);
       })
       .catch((error) => {
-        console.error("Error fetching facilities:", error);
+        console.error("Error fetching facilities data:", error);
       });
+
     axios
-      .get(`/events/facilities/${facilityId}/application`, {
+      .get("/events", {
         headers: {
           "x-api-key": API_KEY,
         },
+        withCredentials: true,
       })
       .then(({ data }) => {
-        if (Array.isArray(data.events)) {
-          const currentMonth = moment().format("MMM");
-          const lastMonth = moment().subtract(1, "months").format("MMM");
-          const twoMonthsAgo = moment().subtract(2, "months").format("MMM");
+        setEvents(data.events);
+      });
+  }, [user]);
 
-          const relevantMonths = [twoMonthsAgo, lastMonth, currentMonth];
+  const StyledText = styled("text")(({ theme }) => ({
+    fill: "currentColor",
+    textAnchor: "middle",
+    dominantBaseline: "central",
+    fontSize: 20,
+    fontWeight: "bold",
+  }));
 
-          const eventCounts = {
-            [twoMonthsAgo]: 0,
-            [lastMonth]: 0,
-            [currentMonth]: 0,
-          };
+  function PieCenterLabel({ children }) {
+    const { width, height, left, top } = useDrawingArea();
+    return (
+      <StyledText
+        x={left + width / 2}
+        y={top + height / 2}
+        className="text-black dark:text-white drop-shadow dark:drop-shadow-lg"
+        style={{ filter: "drop-shadow(0 0.5px 0.5px rgba(0,0,0,.8))" }}
+      >
+        {children}
+      </StyledText>
+    );
+  }
 
-          data.events.forEach((event) => {
-            const eventMonth = moment(event.createdAt).format("MMM");
-
-            if (relevantMonths.includes(eventMonth)) {
-              eventCounts[eventMonth]++;
+  const facilityColumns = [
+    {
+      key: "facilityName",
+      label: "Facility Name",
+      render: (f, index) => (
+        <div
+          className="flex justify-center cursor-pointer hover:underline text-sky-500 hover:text-sky-700 font-medium"
+          key={index}
+          onClick={async () => {
+            try {
+              await axios.put(
+                "/users/select-facility",
+                { facilityId: f._id, userId: user._id },
+                {
+                  headers: {
+                    "x-api-key": API_KEY,
+                  },
+                }
+              );
+              navigate(`/dashboard/facility/${f._id}`);
+            } catch (err) {
+              toast.error("Failed to select facility.");
+              console.error(err);
             }
-          });
-
-          setChartData({
-            labels: relevantMonths,
-            datasets: [
-              {
-                label: "Total Events",
-                data: relevantMonths.map((month) => eventCounts[month] || 0),
-                borderColor: "#145ac9",
-                borderWidth: 2,
-              },
-            ],
-          });
-        }
-      })
-      .catch((error) => console.error("Error fetching events:", error));
-  }, [facilityId]);
-
-  return (
-    <div className="flex flex-col h-full w-full relative dark:text-white">
-      <div className="m-2 flex-col flex gap-2">
-        {/* Dashboard Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {/* Users Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
-            <h2 className="text-xl font-semibold mb-4">Unit Statistics</h2>
-            <Bar data={userChartData} options={chartOptions} />
-          </div>
-          {/* Company Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
-            <h2 className="text-xl font-semibold mb-4">Tenant Statistics</h2>
-            <Bar data={companyChartData} options={chartOptions} />
-          </div>
-          {/* Facilities Statistics */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
-            <h2 className="text-xl font-semibold mb-4">Facility Statistics</h2>
-            <Bar data={facilityChartData} options={chartOptions} />
+          }}
+        >
+          {f.facilityName || "-"}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (f, index) => (
+        <div className="flex justify-center" key={index}>
+          <div
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              f.status === "Enabled"
+                ? "bg-green-500 text-green-800"
+                : f.status === "Pending Deployment"
+                ? "bg-yellow-500 text-yellow-800"
+                : "bg-red-500 text-red-800"
+            }`}
+          >
+            {f.status || "-"}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {/* Line Chart: Application Trends */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
-            <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
-            <Line data={chartData} options={chartOptions} />
+      ),
+    },
+  ];
+
+  const eventColumns = [
+    {
+      key: "eventType",
+      label: "Event Type",
+      accessor: (e) => e.eventType || "-",
+    },
+    {
+      key: "eventName",
+      label: "Event Name",
+      accessor: (e) => e.eventName || "-",
+    },
+    {
+      key: "facility",
+      label: "Facility",
+      accessor: (c) => c.facility || "-",
+    },
+    {
+      key: "eventMessage",
+      label: "Event Message",
+      accessor: (c) => c.message || "-",
+    },
+    {
+      key: "createdAt",
+      label: "Created At",
+      accessor: (c) => c.createdAt || "-",
+    },
+  ];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setChartWidth(document.getElementById("chartContainer").clientWidth / 2);
+      setChartHeight(document.getElementById("chartContainer").clientHeight);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+  }, []);
+
+  return (
+    <div className="flex flex-col max-h-full overflow-auto w-full relative dark:text-white h-svh">
+      <div className="flex w-full h-1/2">
+        <div className="flex flex-col w-3/5">
+          <div className="flex flex-wrap w-full h-1/3">
+            <div className="flex w-1/4 flex-col justify-center p-4 text-center">
+              <h2 className="font-medium text-lg">Facility Overview</h2>
+              <p className="text-sm font-extralight">
+                {new Date().toLocaleDateString()}
+              </p>
+            </div>
+            <div className="flex w-3/4 max-h-36">
+              {dashboardData.units.total > 0 && (
+                <div className="flex justify-center items-center h-full w-1/5 max-h-full">
+                  <PieChart
+                    hideLegend
+                    series={[
+                      {
+                        paddingAngle: 0,
+                        innerRadius: "60%",
+                        outerRadius: "90%",
+                        data: unitChartData,
+                      },
+                    ]}
+                    height={undefined}
+                    width={undefined}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    <PieCenterLabel>
+                      {dashboardData.units.total}&nbsp;Units
+                    </PieCenterLabel>
+                  </PieChart>
+                </div>
+              )}
+              {dashboardData.tenants.total > 0 && (
+                <div className="flex justify-center items-center h-full w-1/5 max-h-full">
+                  <PieChart
+                    hideLegend
+                    series={[
+                      {
+                        paddingAngle: 0,
+                        innerRadius: "60%",
+                        outerRadius: "90%",
+                        data: tenantChartData,
+                      },
+                    ]}
+                    height={undefined}
+                    width={undefined}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    <PieCenterLabel>
+                      {dashboardData.tenants.total}&nbsp;Tenants
+                    </PieCenterLabel>
+                  </PieChart>
+                </div>
+              )}
+            </div>
           </div>
-          {/* Line Chart: Activity Trends */}
-          <div className="p-6 rounded-lg shadow-md border dark:border-slate-700 dark:bg-slate-800">
-            <h2 className="text-xl font-semibold mb-4">Cash Flow</h2>
-            <Line
-              data={{
-                labels: ["Jan", "Feb", "Mar"],
-                datasets: [
-                  {
-                    label: "Payment totals",
-                    data: [0, 0, 0],
-                    borderColor: "#145ac9",
-                    borderWidth: 2,
+          <div
+            className="h-2/3 flex items-center justify-center"
+            id="chartContainer"
+            onClick={() =>
+              console.log(
+                dashboardData.companies,
+                companyChartData,
+                companyDataSafe,
+                user
+              )
+            }
+          >
+            <div className="flex min-h-0 justify-center items-center w-1/2">
+              <LineChart
+                className="text-zinc-100 dark:text-white"
+                hideLegend
+                width={chartWidth}
+                height={chartHeight}
+                series={[{ data: uData, label: "uv" }]}
+                xAxis={[{ scaleType: "point", data: xLabels }]}
+                sx={{
+                  color: {
+                    fill: "currentColor",
                   },
-                ],
-              }}
+                  "& .MuiChartsAxis-tickLabel, & .MuiChartsAxis-label": {
+                    fill: "currentColor",
+                  },
+                  "& .MuiChartsAxis-line, & .MuiChartsAxis-tick": {
+                    stroke: "currentColor",
+                  },
+                  "& .MuiChartsGrid-line": {
+                    stroke: "currentColor",
+                    opacity: 0.2,
+                  },
+                }}
+                margin={margin}
+              />
+            </div>
+            <div className="flex justify-center items-center w-1/2 min-h-full max-h-full">
+              <LineChart
+                className="text-zinc-100 dark:text-white"
+                hideLegend
+                width={chartWidth}
+                height={chartHeight}
+                series={[{ data: uData, label: "uv" }]}
+                xAxis={[{ scaleType: "point", data: xLabels }]}
+                sx={{
+                  color: {
+                    fill: "currentColor",
+                  },
+                  "& .MuiChartsAxis-tickLabel, & .MuiChartsAxis-label": {
+                    fill: "currentColor",
+                  },
+                  "& .MuiChartsAxis-line, & .MuiChartsAxis-tick": {
+                    stroke: "currentColor",
+                  },
+                  "& .MuiChartsGrid-line": {
+                    stroke: "currentColor",
+                    opacity: 0.2,
+                  },
+                }}
+                margin={margin}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col w-2/5 min-h-96 max-h-[35vh] p-5">
+          <div className="flex-1 overflow-auto">
+            <DataTable
+              columns={facilityColumns}
+              data={facilities}
+              currentPage={facilityCurrentPage}
+              rowsPerPage={facilityItemsPerPage}
+              sortDirection={facilitySortDirection}
+              sortedColumn={facilitySortedColumn}
+              onSort={handleFacilityColumnSort}
             />
           </div>
+          <div className="px-2 py-5 mx-1 shrink-0">
+            {facilities.length > 0 && (
+              <PaginationFooter
+                rowsPerPage={facilityItemsPerPage}
+                setRowsPerPage={setFacilityItemsPerPage}
+                currentPage={facilityCurrentPage}
+                setCurrentPage={setFacilityCurrentPage}
+                items={facilities}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col w-full h-1/2 min-h-96">
+        <div className="flex-1 overflow-auto">
+          <DataTable
+            columns={eventColumns}
+            data={events}
+            currentPage={eventCurrentPage}
+            rowsPerPage={eventItemsPerPage}
+            sortDirection={eventSortDirection}
+            sortedColumn={eventSortedColumn}
+            onSort={handleEventColumnSort}
+          />
+        </div>
+        <div className="px-2 py-5 mx-1 shrink-0">
+          {events.length > 0 && (
+            <PaginationFooter
+              rowsPerPage={eventItemsPerPage}
+              setRowsPerPage={setEventItemsPerPage}
+              currentPage={eventCurrentPage}
+              setCurrentPage={setEventCurrentPage}
+              items={events}
+            />
+          )}
         </div>
       </div>
     </div>
