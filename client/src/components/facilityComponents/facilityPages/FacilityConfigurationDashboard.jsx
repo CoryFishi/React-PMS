@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useContext } from "react";
-import { UserContext } from "../../../../context/UserContext";
+import { UserContext } from "../../../../context/userContext";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useDrawingArea } from "@mui/x-charts/hooks";
