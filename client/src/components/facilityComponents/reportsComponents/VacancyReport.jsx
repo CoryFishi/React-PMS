@@ -109,9 +109,6 @@ export default function VacancyReport({}) {
     document.body.removeChild(link);
   };
 
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredUnits.length / itemsPerPage);
-
   useEffect(() => {
     const filteredUnits = units.filter((unit) =>
       unit.unitNumber.toLowerCase().includes(searchQuery.toLowerCase())
@@ -203,6 +200,11 @@ export default function VacancyReport({}) {
           sortedColumn={sortedColumn}
           onSort={handleColumnSort}
         />
+        {filteredUnits.length === 0 && (
+          <div className="py-5 w-full flex justify-center">
+            <p className="text-sm text-slate-500">No Units Found</p>
+          </div>
+        )}
       </div>
       {/* Pagination Footer */}
       <div className="px-2 py-5 mx-1">

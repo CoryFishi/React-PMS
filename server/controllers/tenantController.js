@@ -1,12 +1,10 @@
 // Schemas
-const StorageFacility = require("../models/facility");
-const StorageUnit = require("../models/unit");
-const User = require("../models/user");
-const Tenant = require("../models/tenant");
-const Event = require("../models/event");
+import Tenant from "../models/tenant.js";
+import StorageUnit from "../models/unit.js";
+import Event from "../models/event.js";
 
 // Create Tenant
-const createTenant = async (req, res) => {
+export const createTenant = async (req, res) => {
   try {
     const currentDate = new Date();
 
@@ -103,37 +101,36 @@ const createTenant = async (req, res) => {
 };
 
 // Get Tenants by Facility
-const getTenants = async (req, res) => {
-  const facilityId = req.params.facilityId;
-  const companyId = req.params.companyId;
+export const getTenants = async (req, res) => {
+  const facilityId = req.query.facilityId || req.params.facilityId;
+  const companyId = req.query.companyId || req.params.companyId;
   try {
     var tenants = [];
     if (facilityId) {
-      units = await StorageUnit.find({ facility: facilityId }).select(
+      const units = await StorageUnit.find({ facility: facilityId }).select(
         "_id tenant"
       );
       // Extract unique tenant IDs from the units
       const tenantIds = [...new Set(units.map((unit) => unit.tenant))];
 
       // Retrieve tenant information from the Tenant collection using the unique tenant IDs
-      tenants = await Tenant.find({ _id: { $in: tenantIds } })
+      const tenants = await Tenant.find({ _id: { $in: tenantIds } })
         .sort({
           firstNameName: 1,
           lastName: 1,
         })
         .populate("units");
     } else if (companyId) {
-      tenants = await Tenant.find({ company: companyId }).sort({
+      const tenants = await Tenant.find({ company: companyId }).sort({
         firstNameName: 1,
         lastName: 1,
       });
     } else {
-      tenants = await Tenant.find({}).sort({
+      const tenants = await Tenant.find({}).sort({
         firstNameName: 1,
         lastName: 1,
       });
     }
-
     // Return the list of tenants
     return res.status(200).json(tenants);
   } catch (error) {
@@ -145,7 +142,7 @@ const getTenants = async (req, res) => {
 };
 
 // Get Tenants by Id
-const getTenantById = async (req, res) => {
+export const getTenantById = async (req, res) => {
   const tenantId = req.params.tenantId;
   try {
     const tenant = await Tenant.findById(tenantId).populate("units");
@@ -160,7 +157,7 @@ const getTenantById = async (req, res) => {
 };
 
 // Edit Tenant
-const editTenant = async (req, res) => {
+export const editTenant = async (req, res) => {
   const tenantId = req.params.tenantId;
   const updateData = req.body;
 
@@ -199,7 +196,7 @@ const editTenant = async (req, res) => {
 };
 
 // Remove Tenant
-const deleteTenant = async (req, res) => {
+export const deleteTenant = async (req, res) => {
   const tenantId = req.query.tenantId;
   const facilityId = req.query.facilityId;
   if (!tenantId) {
@@ -237,7 +234,7 @@ const deleteTenant = async (req, res) => {
   }
 };
 
-const addUnitToTenant = async (req, res) => {
+export const addUnitToTenant = async (req, res) => {
   const tenantId = req.params.tenantId;
   const unitId = req.body.unitId;
   const balance = req.body.balance;
@@ -289,14 +286,4 @@ const addUnitToTenant = async (req, res) => {
       .status(500)
       .send({ message: "Error updating tenant", error: error.message });
   }
-};
-
-// Exports
-module.exports = {
-  createTenant,
-  getTenants,
-  editTenant,
-  deleteTenant,
-  addUnitToTenant,
-  getTenantById,
 };

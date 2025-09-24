@@ -196,7 +196,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             {location.pathname.includes("/dashboard/facility") && (
               <button
                 onClick={() => navigate("/dashboard")}
-                className={`px-2 py-1 w-full text-left font-mdedium rounded hover:bg-slate-800 flex items-center gap-2`}
+                className={`px-2 py-1 w-full text-left font-mdedium rounded hover:bg-slate-800 flex items-center gap-2 whitespace-nowrap`}
               >
                 <RiArrowGoBackFill />
                 Go Back

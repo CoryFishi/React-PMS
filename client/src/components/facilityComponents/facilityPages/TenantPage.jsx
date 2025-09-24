@@ -9,6 +9,7 @@ import InputBox from "../../sharedComponents/InputBox";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaDoorClosed } from "react-icons/fa6";
 import { PiPersonBold } from "react-icons/pi";
+
 export default function TenantPage({ facility }) {
   const [isCreateOpen, setCreateOpen] = useState(false);
   const [tenants, setTenants] = useState([]);
@@ -258,6 +259,11 @@ export default function TenantPage({ facility }) {
               sortedColumn={sortedColumn}
               onSort={handleColumnSort}
             />
+            {filteredTenants.length === 0 && (
+              <div className="py-5 w-full flex justify-center">
+                <p className="text-sm text-slate-500">No Active Tenants</p>
+              </div>
+            )}
             {/* Pagination Footer */}
             <div className="px-2 py-5 mx-1">
               <PaginationFooter

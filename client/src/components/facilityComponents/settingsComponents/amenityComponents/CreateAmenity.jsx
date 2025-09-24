@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 const API_KEY = import.meta.env.VITE_API_KEY;
+import ModalContainer from "../../../sharedComponents/ModalContainer";
 
 export default function CreateAmenity({
   setIsCreateOpen,
@@ -23,6 +24,8 @@ export default function CreateAmenity({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!amenity.name.trim()) return;
+
       const formattedAmenity = {
         name: amenity.name,
         priority: amenity.priority,
@@ -45,18 +48,10 @@ export default function CreateAmenity({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center 
-                bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50 
-                overflow-y-auto"
-    >
-      <div
-        className="relative w-fit shadow-lg rounded-md 
-                  bg-gray-100 dark:bg-darkPrimary dark:text-white 
-                   overflow-y-auto p-5"
-      >
-        <h2 className="text-xl font-bold mb-4">Create Amenity</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <ModalContainer
+      title="Create Amenity"
+      mainContent={
+        <div className="flex flex-col gap-2 pt-2 min-w-64">
           <div>
             <label className="block text-sm font-medium">Amenity Name</label>
             <input
@@ -65,40 +60,41 @@ export default function CreateAmenity({
               value={amenity.name}
               onChange={handleChange}
               required
-              className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="mt-1 block w-full px-3 py-2 border dark:bg-slate-900 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
             />
           </div>
-          <div className="flex items-center justify-evenly">
-            <div>
-              <input
-                type="checkbox"
-                name="priority"
-                checked={amenity.priority}
-                onChange={handleChange}
-                defaultValue={false}
-              />
-              <label className="ml-2">Priority</label>
-            </div>
+          <div>
+            <input
+              type="checkbox"
+              name="priority"
+              checked={amenity.priority}
+              onChange={handleChange}
+              defaultValue={false}
+            />
+            <label className="ml-2">Priority</label>
           </div>
-          <div className="flex float-right gap-x-2 mt-4">
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md 
-                         shadow-sm hover:bg-blue-700 focus:outline-none transition ease-in duration-200"
-            >
-              Submit
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsCreateOpen(false)}
-              className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md 
-                         shadow-sm hover:bg-gray-700 focus:outline-none transition ease-in duration-200"
-            >
-              Close
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      }
+      responseContent={
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            type="submit"
+            className="px-4 py-2 bg-sky-500 text-white text-base font-medium rounded-md 
+                         shadow-sm hover:bg-sky-700 focus:outline-none transition ease-in duration-200 hover:scale-105"
+            onClick={handleSubmit}
+          >
+            Submit
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsCreateOpen(false)}
+            className="px-4 py-2 bg-slate-500 text-white text-base font-medium rounded-md 
+                         shadow-sm hover:bg-slate-700 focus:outline-none transition ease-in duration-200 hover:scale-105"
+          >
+            Close
+          </button>
+        </div>
+      }
+    />
   );
 }

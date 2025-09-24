@@ -1,9 +1,7 @@
-// Schemas
-const Event = require("../models/event");
-const User = require("../models/user");
+import Event from "../models/event.js";
+import User from "../models/user.js";
 
-//
-const getApplicationEventsByFacility = async (req, res) => {
+export const getApplicationEventsByFacility = async (req, res) => {
   try {
     const facilityId = req.params.facilityId;
     const facilityEvents = await Event.find({
@@ -34,7 +32,7 @@ const getApplicationEventsByFacility = async (req, res) => {
   }
 };
 
-const getAllEvents = async (req, res) => {
+export const getAllEvents = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
@@ -84,10 +82,4 @@ const getAllEvents = async (req, res) => {
       console.error("Rejecting due to unknown error: " + error.name);
     }
   }
-};
-
-// Exports
-module.exports = {
-  getApplicationEventsByFacility,
-  getAllEvents,
 };

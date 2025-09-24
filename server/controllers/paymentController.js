@@ -1,15 +1,10 @@
-const express = require("express");
-require("dotenv").config();
-const mongoose = require("mongoose");
-const Stripe = require("stripe");
+// Schemas
+import Stripe from "stripe";
 const stripe = Stripe(process.env.STRIPE_SECRET);
-const Payment = require("../models/payment");
-const Company = require("../models/company");
-const Tenant = require("../models/company");
-const StorageUnit = require("../models/unit");
+import Payment from "../models/payment.js";
 
 // Endpoint to handle payments
-const createPayment = async (req, res) => {
+export const createPayment = async (req, res) => {
   const { tenantId, unitId, amount } = req.body;
   try {
     const paymentIntent = await stripe.paymentIntents.create({
@@ -30,8 +25,4 @@ const createPayment = async (req, res) => {
   } catch (error) {
     res.status(400).send(error.message);
   }
-};
-
-module.exports = {
-  createPayment,
 };

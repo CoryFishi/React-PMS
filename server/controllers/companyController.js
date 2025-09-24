@@ -1,11 +1,11 @@
-// Schemas
-const Company = require("../models/company");
-const StorageFacility = require("../models/facility");
-const User = require("../models/user");
-const Stripe = require("stripe");
+import Event from "../models/event.js";
+import User from "../models/user.js";
+import StorageFacility from "../models/facility.js";
+import Company from "../models/company.js";
+import Stripe from "stripe";
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-const createCompany = async (req, res) => {
+export const createCompany = async (req, res) => {
   try {
     // 1. Create the Stripe Connected Account
     const stripeAccount = await stripe.accounts.create({
@@ -50,7 +50,7 @@ const createCompany = async (req, res) => {
   }
 };
 
-const checkStripeOnboardingStatus = async (req, res) => {
+export const checkStripeOnboardingStatus = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
@@ -95,7 +95,7 @@ const checkStripeOnboardingStatus = async (req, res) => {
   }
 };
 
-const getStripeDashboardLink = async (req, res) => {
+export const getStripeDashboardLink = async (req, res) => {
   try {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
@@ -133,7 +133,7 @@ const getStripeDashboardLink = async (req, res) => {
   }
 };
 
-const createStripeAccountLink = async (req, res) => {
+export const createStripeAccountLink = async (req, res) => {
   try {
     const company = await Company.findById(req.params.companyId);
     if (!company || !company.stripe?.accountId) {
@@ -167,7 +167,7 @@ const createStripeAccountLink = async (req, res) => {
   }
 };
 
-const createCheckoutSession = async (req, res) => {
+export const createCheckoutSession = async (req, res) => {
   const { priceInCents, companyStripeAccountId, url } = req.body;
 
   const session = await stripe.checkout.sessions.create(
@@ -198,7 +198,7 @@ const createCheckoutSession = async (req, res) => {
 };
 
 // Get Company by ID
-const getCompanyStripeSettings = async (req, res) => {
+export const getCompanyStripeSettings = async (req, res) => {
   try {
     const { companyId } = req.params;
     const userId = req.user?.id || req.user?._id;
@@ -237,7 +237,7 @@ const getCompanyStripeSettings = async (req, res) => {
 };
 
 // Get all companies
-const getCompanies = async (req, res) => {
+export const getCompanies = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
     const user = await User.findById(userId);
@@ -261,7 +261,7 @@ const getCompanies = async (req, res) => {
 };
 
 // Get Company by ID
-const getCompanyById = async (req, res) => {
+export const getCompanyById = async (req, res) => {
   try {
     const { companyId } = req.params;
     const company = await Company.findById(companyId);
@@ -276,7 +276,7 @@ const getCompanyById = async (req, res) => {
 };
 
 // Get all facilities apart of a company
-const getFacilitiesByCompany = async (req, res) => {
+export const getFacilitiesByCompany = async (req, res) => {
   try {
     const { companyId } = req.params;
     const facilities = await StorageFacility.find({
@@ -289,7 +289,7 @@ const getFacilitiesByCompany = async (req, res) => {
 };
 
 // Update a company by ID
-const editCompany = async (req, res) => {
+export const editCompany = async (req, res) => {
   try {
     const updatedCompany = await Company.findByIdAndUpdate(
       req.query.companyId,
@@ -322,7 +322,7 @@ const editCompany = async (req, res) => {
 };
 
 // Delete a company by ID
-const deleteCompany = async (req, res) => {
+export const deleteCompany = async (req, res) => {
   try {
     const companyId = req.query.id;
     const company = await Company.findById(companyId);
@@ -351,18 +351,4 @@ const deleteCompany = async (req, res) => {
     );
     res.status(400).json({ message: error.message });
   }
-};
-
-module.exports = {
-  createCompany,
-  editCompany,
-  getCompanies,
-  deleteCompany,
-  getFacilitiesByCompany,
-  getCompanyById,
-  createStripeAccountLink,
-  createCheckoutSession,
-  getCompanyStripeSettings,
-  checkStripeOnboardingStatus,
-  getStripeDashboardLink,
 };

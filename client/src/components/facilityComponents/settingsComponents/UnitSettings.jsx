@@ -404,6 +404,9 @@ export default function UnitSettings() {
               sortedColumn={sortedColumn}
               onSort={handleColumnSort}
             />
+            {filteredUnits.length === 0 && (
+              <div className="text-center py-4">No units found.</div>
+            )}
             {/* Pagination Footer */}
             <div className="px-2 py-5 mx-1">
               <PaginationFooter

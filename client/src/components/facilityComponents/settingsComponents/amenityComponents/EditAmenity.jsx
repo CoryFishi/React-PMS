@@ -1,95 +1,59 @@
-import { useState } from "react";
-import axios from "axios";
-import toast from "react-hot-toast";
-const API_KEY = import.meta.env.VITE_API_KEY;
+import ModalContainer from "../../../sharedComponents/ModalContainer";
 
 export default function EditAmenity({
-  amenity,
-  facilityId,
-  onUpdate,
+  selectedAmenity,
+  handleChange,
   setIsEditModalOpen,
+  isEditModalOpen,
+  handleAmenitySubmit,
 }) {
-  const [newAmenity, setNewAmenity] = useState({
-    name: amenity.name || "",
-    priority: amenity.priority || false,
-  });
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setNewAmenity((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const updatedAmenity = {
-        name: newAmenity.name,
-        priority: newAmenity.priority,
-      };
-      const response = await axios.put(
-        `/facilities/${facilityId}/settings/amenities?amenityId=${amenity._id}`,
-        updatedAmenity,
-        {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        }
-      );
-
-      onUpdate(response.data.updatedAmenity);
-    } catch (error) {
-      console.error("Error updating amenity:", error);
-      toast.error("Failed to update amenity.");
-    }
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50">
-      <div className="relative w-fit shadow-lg rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white overflow-y-auto p-5">
-        <h2 className="text-xl font-bold mb-4">Edit Amenity</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <ModalContainer
+      isOpen={isEditModalOpen}
+      onClose={() => setIsEditModalOpen(false)}
+      title="Edit Amenity"
+      mainContent={
+        <div className="flex flex-col gap-2 pt-2 min-w-64">
           <div>
             <label className="block text-sm font-medium">Amenity Name</label>
             <input
               type="text"
               name="name"
-              value={newAmenity.name}
+              value={selectedAmenity.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-darkSecondary dark:border-border"
+              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-zinc-900 dark:border-zinc-700"
             />
           </div>
-          <div className="flex justify-between items-center space-x-4">
-            <label>
-              <input
-                type="checkbox"
-                name="priority"
-                checked={newAmenity.priority}
-                onChange={handleChange}
-              />
-              <span className="ml-2">Priority</span>
-            </label>
-          </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              onClick={() => setIsEditModalOpen(false)}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <label className="flex gap-2">
+            <input
+              type="checkbox"
+              name="priority"
+              checked={selectedAmenity.priority}
+              onChange={handleChange}
+            />
+            Priority
+          </label>
+        </div>
+      }
+      responseContent={
+        <div className="flex justify-end gap-2 mt-4">
+          <button
+            type="button"
+            onClick={() => setIsEditModalOpen(false)}
+            className="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-700 hover:scale-105 transition-all cursor-pointer duration-300"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-700 hover:scale-105 transition-all cursor-pointer duration-300"
+            onClick={handleAmenitySubmit}
+          >
+            Save Changes
+          </button>
+        </div>
+      }
+    />
   );
 }

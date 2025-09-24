@@ -4,6 +4,7 @@ import {
   BiChevronsLeft,
   BiChevronsRight,
 } from "react-icons/bi";
+
 export default function PaginationFooter({
   rowsPerPage,
   setRowsPerPage,

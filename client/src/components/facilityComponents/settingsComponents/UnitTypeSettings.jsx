@@ -1,31 +1,61 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import {
-  BiChevronLeft,
-  BiChevronRight,
-  BiChevronsLeft,
-  BiChevronsRight,
-} from "react-icons/bi";
 import CreateUnitType from "./unitTypeComponents/CreateUnitType";
 import EditUnitType from "./unitTypeComponents/EditUnitType";
+import DataTable from "../../sharedComponents/DataTable";
+import PaginationFooter from "../../sharedComponents/PaginationFooter";
+import InputBox from "../../sharedComponents/InputBox";
+import ModalContainer from "../../sharedComponents/ModalContainer";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function UnitTypeSettings({ facilityId }) {
   const [unitTypes, setUnitTypes] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [isCreateOpen, setIsCreateOpen] = useState(null);
-  const containerRef = useRef(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredUnitTypes, setFilteredUnitTypes] = useState([]);
-  const [paginationLevels, setPaginationLevels] = useState([
-    5, 10, 25, 50, 100, 250,
-  ]);
   const [selectedUnitType, setSelectedUnitType] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("Types");
+  const containerRef = useRef(null);
+
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortedColumn, setSortedColumn] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
+    let newDirection;
+
+    if (sortedColumn !== columnKey) {
+      newDirection = "asc";
+    } else if (sortDirection === "asc") {
+      newDirection = "desc";
+    } else if (sortDirection === "desc") {
+      newDirection = null;
+    }
+
+    setSortedColumn(newDirection ? columnKey : null);
+    setSortDirection(newDirection);
+
+    if (!newDirection) {
+      setFilteredUnitTypes([...unitTypes]);
+      return;
+    }
+
+    const sorted = [...filteredUnitTypes].sort((a, b) => {
+      const aVal = accessor(a) ?? "";
+      const bVal = accessor(b) ?? "";
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setFilteredUnitTypes(sorted);
+  };
 
   const deleteUnitType = async (id) => {
     try {
@@ -69,9 +99,6 @@ export default function UnitTypeSettings({ facilityId }) {
     toast.success("Unit Type Created!");
   };
 
-  // Calculate total number of pages
-  const totalPages = Math.ceil(filteredUnitTypes.length / itemsPerPage);
-
   useEffect(() => {
     axios
       .get(`/facilities/${facilityId}`, {
@@ -91,8 +118,70 @@ export default function UnitTypeSettings({ facilityId }) {
     setFilteredUnitTypes(filteredUnitTypes);
   }, [unitTypes, searchQuery]);
 
+  const columns = [
+    {
+      key: "name",
+      label: "Name",
+      accessor: (u) => u.name || "-",
+    },
+    {
+      key: "size",
+      label: "Size",
+      accessor: (u) =>
+        u.size?.width + "x" + u.size?.depth + " " + u.size?.unit || "-",
+    },
+    {
+      key: "unit",
+      label: "Unit",
+      accessor: (u) => (u.climateControlled ? "True" : "False" || "-"),
+    },
+    {
+      key: "condition",
+      label: "Condition",
+      accessor: (u) => u.condition ?? "-",
+    },
+    {
+      key: "tags",
+      label: "Tags",
+      accessor: (u) => (u.tags.length > 0 ? u.tags.join(", ") : "-"),
+    },
+    {
+      key: "actions",
+      label: "",
+      sortable: false,
+      render: (u, index) => (
+        <div key={index} className="items-center flex justify-center gap-1">
+          <a
+            className="text-sm hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-600 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+            role="menuitem"
+            tabIndex="-1"
+            onClick={() => {
+              setSelectedUnitType(u);
+              setIsEditModalOpen(true);
+              setOpenDropdown(false);
+            }}
+          >
+            Edit
+          </a>
+          <a
+            className="text-sm hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-600 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+            role="menuitem"
+            tabIndex="-1"
+            onClick={() => {
+              setSelectedUnitType(u._id);
+              setIsDeleteModalOpen(true);
+              setOpenDropdown(false);
+            }}
+          >
+            Delete
+          </a>
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="p-4">
+    <div>
       {isCreateOpen && (
         <CreateUnitType
           setIsCreateOpen={setIsCreateOpen}
@@ -117,19 +206,15 @@ export default function UnitTypeSettings({ facilityId }) {
       )}
 
       {isDeleteModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center 
-                      bg-slate-600 bg-opacity-50 dark:bg-slate-950 dark:bg-opacity-50 
-                      overflow-y-auto"
-        >
-          <div
-            className="relative w-fit shadow-lg rounded-md 
-                        bg-slate-100 dark:bg-darkPrimary dark:text-white 
-                         overflow-y-auto p-5"
-          >
-            <h3 className="text-lg font-bold">Confirm Delete</h3>
-            <p>Are you sure you want to delete this unit type?</p>
-            <div className="flex justify-end mt-4">
+        <ModalContainer
+          title={"Confirm Delete"}
+          mainContent={
+            <p className="pt-2 text-center min-w-56">
+              Are you sure you want to delete this unit type?
+            </p>
+          }
+          responseContent={
+            <div className="flex justify-end">
               <button
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
                 onClick={() => deleteUnitType(selectedUnitType)}
@@ -145,217 +230,60 @@ export default function UnitTypeSettings({ facilityId }) {
                 Cancel
               </button>
             </div>
-          </div>
-        </div>
+          }
+        />
       )}
-      <h2 className="text-xl font-bold mb-2">Unit Type Settings</h2>
-      <p>Configure unit types.</p>
+      <div className="border-b flex items-center justify-between mx-5 dark:border-slate-700 mt-3">
+        <h1 className="text-xl font-bold dark:text-white">
+          Unit Type Settings
+        </h1>
+        <div className="flex mr-5 space-x-1">
+          <button
+            className={`text-sm px-5 py-3 focus:outline-none dark:border-slate-700 relative top-[1px] shadow-none  ${
+              activeTab === "Types"
+                ? "border border-slate-300 rounded-t-md bg-white dark:bg-slate-800 dark:text-white border-b-0 cursor-default"
+                : "text-sky-600 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-t"
+            }`}
+            onClick={() => setActiveTab("Types")}
+          >
+            Unit Types
+          </button>
+        </div>
+      </div>
       <div className="my-4 flex items-center justify-end text-center mx-2">
-        <input
-          type="text"
+        <InputBox
           placeholder="Search unit types..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
-          className="border dark:text-white p-2 w-full dark:bg-darkNavSecondary rounded dark:border-border"
+          onchange={(e) => setSearchQuery(e.target.value) & setCurrentPage(1)}
         />
         <button
-          className="bg-sky-500 text-white p-1 py-2 rounded hover:bg-sky-600 ml-3 w-44 font-bold"
+          className="bg-sky-500 text-white p-1 py-2 rounded hover:bg-sky-600 ml-3 w-44 font-bold hover:scale-105 transition-all duration-300"
           onClick={() => setIsCreateOpen(true)}
         >
           Create Unit Type
         </button>
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto px-2">
-        <table className="w-full dark:text-white dark:bg-darkPrimary dark:border-border border-b-2">
-          <thead className="border-b dark:border-border sticky top-0 z-10 bg-slate-200 dark:bg-darkNavSecondary">
-            <tr>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Unit Type
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Size
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Climate Controlled
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Condition
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Tags
-              </th>
-              <th className="px-6 py-3 text-xs font-medium  uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUnitTypes
-              .slice(
-                (currentPage - 1) * itemsPerPage,
-                currentPage * itemsPerPage
-              )
-              .map((unitType, index) => (
-                <tr
-                  key={index}
-                  className="border-b hover:bg-slate-100 dark:hover:bg-darkNavSecondary dark:border-border"
-                >
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unitType.name}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unitType.size.width +
-                      "x" +
-                      unitType.size.height +
-                      "x" +
-                      unitType.size.depth +
-                      " " +
-                      unitType.size.unit}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unitType.climateControlled ? "true" : "false"}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    {unitType.condition}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center text-wrap">
-                    {unitType.tags.join(", ")}
-                  </td>
-                  <td className="px-6 py-3 whitespace-nowrap text-sm text-center">
-                    <div className="relative inline-block text-left">
-                      <div>
-                        <button
-                          type="button"
-                          className="inline-flex justify-center w-full rounded-md shadow-sm px-4 py-2 bg-sky-500 text-sm font-medium text-white hover:bg-sky-700"
-                          onClick={() =>
-                            setOpenDropdown((prev) =>
-                              prev === unitType._id ? null : unitType._id
-                            )
-                          }
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                            ></path>
-                          </svg>
-                          Actions
-                        </button>
-                      </div>
-                      {/* User Actions drop down */}
-                      {openDropdown === unitType._id && (
-                        <div
-                          className="origin-top-right absolute left-1/2 -translate-x-1/2 mt-1 w-56 rounded-md shadow-lg bg-slate-100 dark:bg-darkSecondary ring-1 ring-black ring-opacity-5 z-10 hover:cursor-pointer"
-                          role="menu"
-                          aria-orientation="vertical"
-                          aria-labelledby="menu-button"
-                          tabIndex="-1"
-                          ref={containerRef}
-                        >
-                          <div role="none">
-                            <a
-                              className=" block px-4 py-3 text-sm hover:bg-slate-200 dark:hover:bg-darkPrimary dark:border-border rounded-t-md"
-                              role="menuitem"
-                              tabIndex="-1"
-                              onClick={() => {
-                                setSelectedUnitType(unitType);
-                                setIsEditModalOpen(true);
-                                setOpenDropdown(false);
-                              }}
-                            >
-                              Edit
-                            </a>
-                            <a
-                              className=" block px-4 py-3 text-sm hover:bg-slate-200 rounded-b-md dark:hover:bg-darkPrimary dark:border-border"
-                              role="menuitem"
-                              tabIndex="-1"
-                              onClick={() => {
-                                setSelectedUnitType(unitType._id);
-                                setIsDeleteModalOpen(true);
-                                setOpenDropdown(false);
-                              }}
-                            >
-                              Delete
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-        <div className="flex justify-between items-center dark:text-white">
-          <div className="flex gap-3">
-            <div>
-              <select
-                className="border rounded ml-2 dark:bg-darkSecondary dark:border-border"
-                id="itemsPerPage"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-              >
-                {paginationLevels.map((level, index) => (
-                  <option key={index} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <p className="text-sm">
-              {currentPage === 1 ? 1 : (currentPage - 1) * itemsPerPage + 1} -{" "}
-              {currentPage * itemsPerPage > filteredUnitTypes.length
-                ? filteredUnitTypes.length
-                : currentPage * itemsPerPage}{" "}
-              of {filteredUnitTypes.length}
-            </p>
-          </div>
-          <div className="px-2 py-5 mx-1">
-            <div className="gap-2 flex">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronsLeft />
-              </button>
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronLeft />
-              </button>
-              <p>
-                {currentPage} of {totalPages}
-              </p>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronRight />
-              </button>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(totalPages)}
-                className="disabled:cursor-not-allowed p-1 disabled:text-slate-500"
-              >
-                <BiChevronsRight />
-              </button>
-            </div>
-          </div>
+        <DataTable
+          columns={columns}
+          data={filteredUnitTypes}
+          currentPage={currentPage}
+          rowsPerPage={itemsPerPage}
+          sortDirection={sortDirection}
+          sortedColumn={sortedColumn}
+          onSort={handleColumnSort}
+        />
+        {filteredUnitTypes.length === 0 && (
+          <div className="text-center py-4">No unit types found.</div>
+        )}
+        <div className="px-2 py-5 mx-1">
+          <PaginationFooter
+            rowsPerPage={itemsPerPage}
+            setRowsPerPage={setItemsPerPage}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            items={filteredUnitTypes}
+          />
         </div>
       </div>
     </div>

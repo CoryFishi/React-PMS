@@ -12,6 +12,7 @@ import axios from "axios";
 export default function FacilityDashboard() {
   const { facilityId, section, id } = useParams();
   const [facilityData, setFacilityData] = useState({});
+
   useEffect(() => {
     const getFacility = async () => {
       if (!facilityId) return;
@@ -39,6 +40,7 @@ export default function FacilityDashboard() {
       </div>
     );
   }
+
   return (
     <div className="h-full">
       {!section && <FacilityConfigurationDashboard facilityId={facilityId} />}

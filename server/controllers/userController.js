@@ -1,27 +1,19 @@
-// Imports
-const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
-
-// Password hasher
-const {
+import jwt from "jsonwebtoken";
+import {
   hashPassword,
   comparePassword,
   passwordValidator,
-} = require("../helpers/password");
-
-// Schemas
-const User = require("../models/user");
-const StorageFacility = require("../models/facility");
-const Company = require("../models/company");
-const Event = require("../models/event");
-const StorageUnit = require("../models/unit");
-const Tenant = require("../models/tenant");
-
-// .env imports
-require("dotenv").config();
+} from "../helpers/password.js";
+import nodemailer from "nodemailer";
+import User from "../models/user.js";
+import StorageFacility from "../models/facility.js";
+import Company from "../models/company.js";
+import StorageUnit from "../models/unit.js";
+import Event from "../models/event.js";
+import Tenant from "../models/tenant.js";
 
 // Create User
-const createUser = async (req, res) => {
+export const createUser = async (req, res) => {
   try {
     const {
       displayName,
@@ -194,7 +186,7 @@ const createUser = async (req, res) => {
 };
 
 // Login User
-const loginUser = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -262,7 +254,7 @@ const loginUser = async (req, res) => {
 };
 
 // Get JWT Data
-const getLoginData = async (req, res) => {
+export const getLoginData = async (req, res) => {
   try {
     const { token } = req.cookies;
     if (!token) {
@@ -291,7 +283,7 @@ const getLoginData = async (req, res) => {
 };
 
 // Process JWT Data
-const processJWTData = async (req, res) => {
+export const processJWTData = async (req, res) => {
   const id = req.query.id;
   try {
     if (!id) {
@@ -304,7 +296,7 @@ const processJWTData = async (req, res) => {
   }
 };
 
-const logoutUser = async (req, res) => {
+export const logoutUser = async (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "None",
@@ -314,7 +306,7 @@ const logoutUser = async (req, res) => {
 };
 
 // Delete User
-const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
   const userId = req.query.userId;
   if (!userId) {
     return res.json({
@@ -340,7 +332,7 @@ const deleteUser = async (req, res) => {
 };
 
 // Edit User
-const editUser = async (req, res) => {
+export const editUser = async (req, res) => {
   const id = req.body.userId;
   const name = req.body.name;
   const displayName = req.body.displayName;
@@ -394,7 +386,7 @@ const editUser = async (req, res) => {
 };
 
 // Send User confirmation email
-const sendUserConfirmationEmail = async (req, res) => {
+export const sendUserConfirmationEmail = async (req, res) => {
   const userId = req.body.userId;
 
   var user = [];
@@ -523,7 +515,7 @@ const sendUserConfirmationEmail = async (req, res) => {
 };
 
 // User confirmation email
-const userConfirmationEmail = async (req, res) => {
+export const userConfirmationEmail = async (req, res) => {
   const userId = req.params.userId;
   const redirectUrl = `http://localhost:5173/register/${userId}`;
   try {
@@ -538,7 +530,7 @@ const userConfirmationEmail = async (req, res) => {
 };
 
 // Set User Password after email confirmation
-const setUserPassword = async (req, res) => {
+export const setUserPassword = async (req, res) => {
   try {
     const id = req.params.userId;
     const password = req.body.password;
@@ -574,7 +566,7 @@ const setUserPassword = async (req, res) => {
 };
 
 // Get Users by Company
-const getUsersByCompany = async (req, res) => {
+export const getUsersByCompany = async (req, res) => {
   try {
     const { companyId } = req.params;
     const user = await User.find({ company: companyId });
@@ -585,7 +577,7 @@ const getUsersByCompany = async (req, res) => {
 };
 
 // Get all Users
-const getUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
 
@@ -624,7 +616,7 @@ const getUsers = async (req, res) => {
 };
 
 // Get user by Id
-const getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);
@@ -634,7 +626,7 @@ const getUserById = async (req, res) => {
   }
 };
 
-const getDashboardData = async (req, res) => {
+export const getDashboardData = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
     if (!userId) {
@@ -800,7 +792,7 @@ const getDashboardData = async (req, res) => {
   }
 };
 
-const selectFacility = async (req, res) => {
+export const selectFacility = async (req, res) => {
   const { userId, facilityId } = req.body;
   try {
     const user = await User.findByIdAndUpdate(
@@ -820,7 +812,7 @@ const selectFacility = async (req, res) => {
   }
 };
 
-const clearSelectedFacility = async (req, res) => {
+export const clearSelectedFacility = async (req, res) => {
   const { userId } = req.body;
 
   try {
@@ -841,7 +833,7 @@ const clearSelectedFacility = async (req, res) => {
   }
 };
 
-const rentalCenterCompany = async (req, res) => {
+export const rentalCenterCompany = async (req, res) => {
   const { companyId } = req.params;
 
   try {
@@ -864,7 +856,7 @@ const rentalCenterCompany = async (req, res) => {
   }
 };
 
-const rentalCenterFacilities = async (req, res) => {
+export const rentalCenterFacilities = async (req, res) => {
   const { companyId } = req.params;
 
   try {
@@ -898,7 +890,7 @@ const rentalCenterFacilities = async (req, res) => {
   }
 };
 
-const rentalCenterUnits = async (req, res) => {
+export const rentalCenterUnits = async (req, res) => {
   const { facilityId } = req.params;
 
   try {
@@ -916,7 +908,7 @@ const rentalCenterUnits = async (req, res) => {
   }
 };
 
-const rentalCenterConfig = async (req, res) => {
+export const rentalCenterConfig = async (req, res) => {
   const { facilityId, companyId, unitId } = req.params;
 
   try {
@@ -954,28 +946,4 @@ const rentalCenterConfig = async (req, res) => {
     console.error("Error fetching rental center config:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-};
-
-// Exports
-module.exports = {
-  createUser,
-  getUsers,
-  deleteUser,
-  editUser,
-  userConfirmationEmail,
-  getLoginData,
-  loginUser,
-  processJWTData,
-  sendUserConfirmationEmail,
-  getUserById,
-  setUserPassword,
-  rentalCenterConfig,
-  getUsersByCompany,
-  logoutUser,
-  getDashboardData,
-  selectFacility,
-  clearSelectedFacility,
-  rentalCenterCompany,
-  rentalCenterFacilities,
-  rentalCenterUnits,
 };

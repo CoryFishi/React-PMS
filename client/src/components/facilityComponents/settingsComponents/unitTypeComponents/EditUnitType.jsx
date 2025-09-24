@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import ModalContainer from "../../../sharedComponents/ModalContainer";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function EditUnitType({
@@ -86,10 +87,10 @@ export default function EditUnitType({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-600 bg-opacity-50 dark:bg-gray-950 dark:bg-opacity-50">
-      <div className="relative w-fit shadow-lg rounded-md bg-gray-100 dark:bg-darkPrimary dark:text-white overflow-y-auto p-5">
-        <h2 className="text-xl font-bold mb-4">Edit Unit Type</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <ModalContainer
+      title={"Edit Unit Type"}
+      mainContent={
+        <div className="flex flex-col gap-2 pt-2">
           <div>
             <label className="block text-sm font-medium">Unit Type Name</label>
             <input
@@ -98,7 +99,7 @@ export default function EditUnitType({
               value={newUnitType.name}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-darkSecondary dark:border-border"
+              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-slate-900 dark:border-slate-700"
             />
           </div>
 
@@ -111,7 +112,7 @@ export default function EditUnitType({
                 value={newUnitType.width}
                 onChange={handleChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-900 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
               />
             </div>
             <div>
@@ -122,7 +123,7 @@ export default function EditUnitType({
                 value={newUnitType.height}
                 onChange={handleChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-900 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
               />
             </div>
             <div>
@@ -133,7 +134,7 @@ export default function EditUnitType({
                 value={newUnitType.depth}
                 onChange={handleChange}
                 required
-                className="mt-1 block w-full px-3 py-2 border dark:bg-darkSecondary dark:border-border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border dark:bg-slate-900 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
               />
             </div>
           </div>
@@ -146,7 +147,7 @@ export default function EditUnitType({
               name="unit"
               value={newUnitType.unit}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-darkSecondary dark:border-border"
+              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-slate-900 dark:border-slate-700"
             >
               <option value="ft">Feet (ft)</option>
               <option value="m">Meters (m)</option>
@@ -163,7 +164,7 @@ export default function EditUnitType({
               value={newUnitType.pricePerMonth}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-darkSecondary dark:border-border"
+              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-slate-900 dark:border-slate-700"
             />
           </div>
 
@@ -195,7 +196,7 @@ export default function EditUnitType({
               name="condition"
               value={newUnitType.condition}
               onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-darkSecondary dark:border-border"
+              className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-slate-900 dark:border-slate-700"
             >
               <option value="New">New</option>
               <option value="Good">Good</option>
@@ -211,15 +212,15 @@ export default function EditUnitType({
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-darkSecondary dark:border-border"
+                className="w-full px-3 py-2 border rounded-md shadow-sm dark:bg-slate-900 dark:border-slate-700"
                 placeholder="Add a tag"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="bg-blue-500 text-white px-4 rounded hover:bg-blue-700"
+                className="bg-sky-500 text-white px-4 rounded hover:bg-sky-700 min-w-fit hover:scale-105 transition-all duration-300"
               >
-                Add
+                Add Tag
               </button>
             </div>
 
@@ -227,7 +228,7 @@ export default function EditUnitType({
               {newUnitType.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="bg-gray-200 dark:bg-darkSecondary px-2 py-1 rounded-md flex items-center"
+                  className="bg-slate-200 dark:bg-slate-900 px-2 py-1 rounded-md flex items-center"
                 >
                   {tag}
                   <button
@@ -241,24 +242,25 @@ export default function EditUnitType({
               ))}
             </div>
           </div>
-
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              onClick={() => setIsEditModalOpen(false)}
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      }
+      responseContent={
+        <div className="flex justify-end gap-2">
+          <button
+            type="submit"
+            className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-700 hover:scale-105 transition ease-in duration-300"
+          >
+            Save Changes
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsEditModalOpen(false)}
+            className="px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-700 hover:scale-105 transition ease-in duration-300"
+          >
+            Cancel
+          </button>
+        </div>
+      }
+    />
   );
 }

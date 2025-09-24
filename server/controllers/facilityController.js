@@ -1,14 +1,14 @@
 // Schemas
-const Company = require("../models/company");
-const StorageFacility = require("../models/facility");
-const StorageUnit = require("../models/unit");
-const User = require("../models/user");
-const Tenant = require("../models/tenant");
-const Event = require("../models/event");
-const mongoose = require("mongoose");
+import Company from "../models/company.js";
+import StorageFacility from "../models/facility.js";
+import mongoose from "mongoose";
+import StorageUnit from "../models/unit.js";
+import User from "../models/user.js";
+import Tenant from "../models/tenant.js";
+import Event from "../models/event.js";
 
 // Create a new facility
-const createFacility = async (req, res) => {
+export const createFacility = async (req, res) => {
   try {
     // Find manager by id
     if (
@@ -72,7 +72,7 @@ const createFacility = async (req, res) => {
 };
 
 // Delete Facility
-const deleteFacility = async (req, res) => {
+export const deleteFacility = async (req, res) => {
   try {
     const facilityId = req.query.facilityId;
     if (!facilityId) {
@@ -129,7 +129,7 @@ const deleteFacility = async (req, res) => {
 };
 
 // Edit Facility
-const editFacility = async (req, res) => {
+export const editFacility = async (req, res) => {
   const facilityId = req.query.facilityId;
   // Find manager by id
   if (req.body.manager) {
@@ -171,7 +171,7 @@ const editFacility = async (req, res) => {
 };
 
 // Add Unit(s)
-const addUnit = async (req, res) => {
+export const addUnit = async (req, res) => {
   try {
     const { facilityId } = req.params;
     const { createdBy, unit } = req.body;
@@ -246,7 +246,7 @@ const addUnit = async (req, res) => {
 };
 
 // Remove Unit
-const deleteUnit = async (req, res) => {
+export const deleteUnit = async (req, res) => {
   const unitId = req.params.unitId;
   if (!unitId) {
     console.error("Rejecting delete unit due to no unit id");
@@ -289,7 +289,7 @@ const deleteUnit = async (req, res) => {
 };
 
 // Edit Unit
-const editUnit = async (req, res) => {
+export const editUnit = async (req, res) => {
   const { facilityId, unitId } = req.params;
   const updateData = req.body;
 
@@ -357,7 +357,7 @@ const editUnit = async (req, res) => {
 };
 
 // Get Unit by ID
-const getUnitById = async (req, res) => {
+export const getUnitById = async (req, res) => {
   try {
     const { unitId } = req.params;
     const unit = await StorageUnit.findById(unitId).populate("tenant");
@@ -370,7 +370,7 @@ const getUnitById = async (req, res) => {
   }
 };
 
-const createNote = async (req, res) => {
+export const createNote = async (req, res) => {
   const { facilityId, unitId } = req.params;
   const { message, createdBy, requiredResponse, responseDate } = req.body;
 
@@ -400,7 +400,7 @@ const createNote = async (req, res) => {
   }
 };
 
-const editNote = async (req, res) => {
+export const editNote = async (req, res) => {
   const { unitId, noteIndex } = req.params;
   const update = req.body;
 
@@ -417,7 +417,7 @@ const editNote = async (req, res) => {
 };
 
 // Remove tenant from unit
-const removeTenant = async (req, res) => {
+export const removeTenant = async (req, res) => {
   try {
     const { unitId, facilityId } = req.params;
 
@@ -493,7 +493,7 @@ const removeTenant = async (req, res) => {
 };
 
 // Get all Units or by facility
-const getUnits = async (req, res) => {
+export const getUnits = async (req, res) => {
   const facilityId = req.params.facilityId;
   try {
     var facilityWithUnits = [];
@@ -529,7 +529,7 @@ const getUnits = async (req, res) => {
 };
 
 // Get all vacant units by facility
-const getVacantUnits = async (req, res) => {
+export const getVacantUnits = async (req, res) => {
   const facilityId = req.params.facilityId;
   try {
     const facilityWithUnits = await StorageFacility.findById(facilityId)
@@ -554,12 +554,12 @@ const getVacantUnits = async (req, res) => {
 };
 
 // Get all Facilities
-const getFacilities = async (req, res) => {
+export const getFacilities = async (req, res) => {
   const facilities = await StorageFacility.find({}).sort({ facilityName: 1 });
   res.status(200).json({ facilities });
 };
 
-const getFacilitiesAndCompany = async (req, res) => {
+export const getFacilitiesAndCompany = async (req, res) => {
   try {
     const userId = req.user.id || req.user._id;
 
@@ -592,7 +592,7 @@ const getFacilitiesAndCompany = async (req, res) => {
 };
 
 // Get Facility by ID
-const getFacilityById = async (req, res) => {
+export const getFacilityById = async (req, res) => {
   try {
     const { facilityId } = req.params;
     const facility = await StorageFacility.findById(facilityId);
@@ -606,7 +606,7 @@ const getFacilityById = async (req, res) => {
 };
 
 // Get the diferent types of amenities
-const getAmenities = async (req, res) => {
+export const getAmenities = async (req, res) => {
   //needs to be converted to be stored in database
   const amenitiesList = [
     { _id: "1", amenityName: "24/7 Access" },
@@ -620,7 +620,7 @@ const getAmenities = async (req, res) => {
 };
 
 // Get the diferent types of amenities
-const getSecurityLevels = async (req, res) => {
+export const getSecurityLevels = async (req, res) => {
   //needs to be converted to be stored in database
   const securityLevels = [
     { _id: "1", securityLevelName: "Basic" },
@@ -630,7 +630,7 @@ const getSecurityLevels = async (req, res) => {
   res.status(200).json(securityLevels);
 };
 
-const deployFacility = async (req, res) => {
+export const deployFacility = async (req, res) => {
   const facilityId = req.query.facilityId;
   try {
     const facility = await StorageFacility.findByIdAndUpdate(
@@ -659,7 +659,7 @@ const deployFacility = async (req, res) => {
   }
 };
 
-const addUnitType = async (req, res) => {
+export const addUnitType = async (req, res) => {
   try {
     const { facilityId } = req.params;
     const newUnitType = req.body;
@@ -682,7 +682,7 @@ const addUnitType = async (req, res) => {
   }
 };
 
-const deleteUnitType = async (req, res) => {
+export const deleteUnitType = async (req, res) => {
   const { facilityId } = req.params;
   const { unitTypeId } = req.query;
 
@@ -711,7 +711,7 @@ const deleteUnitType = async (req, res) => {
   }
 };
 
-const editUnitType = async (req, res) => {
+export const editUnitType = async (req, res) => {
   const { facilityId } = req.params;
   const { unitTypeId } = req.query;
   const updatedData = req.body;
@@ -737,7 +737,7 @@ const editUnitType = async (req, res) => {
   }
 };
 
-const addAmenity = async (req, res) => {
+export const addAmenity = async (req, res) => {
   try {
     const { facilityId } = req.params;
     const newAmenity = req.body;
@@ -760,7 +760,7 @@ const addAmenity = async (req, res) => {
   }
 };
 
-const deleteAmenity = async (req, res) => {
+export const deleteAmenity = async (req, res) => {
   const { facilityId } = req.params;
   const { amenityId } = req.query;
 
@@ -789,7 +789,7 @@ const deleteAmenity = async (req, res) => {
   }
 };
 
-const editAmenity = async (req, res) => {
+export const editAmenity = async (req, res) => {
   const { facilityId } = req.params;
   const { amenityId } = req.query;
   const updatedData = req.body;
@@ -815,45 +815,26 @@ const editAmenity = async (req, res) => {
 };
 
 // Helpers
-async function checkUnitInFacility(facilityId, unitNumber) {
+export const checkUnitInFacility = async (facilityId, unitNumber) => {
   const facility = await StorageFacility.findById(facilityId).populate({
     path: "units",
     match: { unitNumber: unitNumber },
   });
   return facility && facility.units && facility.units.length > 0;
-}
+};
 
-const getFacilityDashboardData = async (req, res) => {
+export const getFacilityDashboardData = async (req, res) => {
   try {
     const { facilityId } = req.params;
-    const currentDate = new Date();
-    const startDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() - 2,
-      1
-    );
 
     if (!facilityId) {
       return res.status(400).json({ message: "Facility ID is required" });
     }
 
     // Unit counts specific to the facility
-    const totalUnits = await StorageUnit.countDocuments({ facilityId });
-    const rentedUnits = await StorageUnit.countDocuments({
-      facility: facilityId,
-      status: "Rented",
-    });
-    const delinquentUnits = await StorageUnit.countDocuments({
-      facility: facilityId,
-      status: "Delinquent",
-    });
-    const vacantUnits = await StorageUnit.countDocuments({
-      facility: facilityId,
-      status: "Vacant",
-    });
+    const units = await StorageUnit.find({ facility: facilityId });
 
     // Tenant counts specific to the facility
-    const totalTenants = await Tenant.countDocuments({ facilityId });
     const activeTenants = await Tenant.countDocuments({
       facility: facilityId,
       status: "Active",
@@ -863,91 +844,22 @@ const getFacilityDashboardData = async (req, res) => {
       status: "Disabled",
     });
 
-    // Events count per month (for current and past 2 months) specific to the facility
-    const eventCounts = await Event.aggregate([
-      {
-        $match: {
-          facilityId: facilityId, // Filter events for the specific facility
-          createdAt: { $gte: startDate, $lte: currentDate },
-        },
-      },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" },
-          },
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { "_id.year": 1, "_id.month": 1 },
-      },
-    ]);
-
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
+    const events = await Event.find({
+      facility: facilityId,
+    })
+      .limit(250)
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
-      units: {
-        total: totalUnits,
-        rented: rentedUnits,
-        delinquent: delinquentUnits,
-        vacant: vacantUnits,
-      },
+      units,
       tenants: {
-        total: totalTenants,
-        active: activeTenants,
-        disabled: disabledTenants,
+        active: { label: "Active", value: activeTenants, color: "green" },
+        disabled: { label: "Disabled", value: disabledTenants, color: "red" },
       },
-      events: eventCounts.map((event) => ({
-        month: monthNames[event._id.month - 1],
-        count: event.count,
-      })),
+      events,
     });
   } catch (error) {
     console.error("Error fetching facility dashboard data:", error);
     res.status(500).json({ message: "Error fetching dashboard data", error });
   }
-};
-
-// Exports
-module.exports = {
-  deleteAmenity,
-  getFacilityDashboardData,
-  editAmenity,
-  addAmenity,
-  createFacility,
-  getFacilities,
-  deleteFacility,
-  editFacility,
-  addUnit,
-  deleteUnit,
-  getUnits,
-  editUnit,
-  getFacilitiesAndCompany,
-  getAmenities,
-  getSecurityLevels,
-  getFacilityById,
-  deployFacility,
-  getUnitById,
-  removeTenant,
-  getVacantUnits,
-  addUnitType,
-  deleteUnitType,
-  editUnitType,
-  createNote,
-  editNote,
 };

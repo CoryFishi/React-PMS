@@ -20,7 +20,6 @@ import {
 import axios from "axios";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../../../components/sharedComponents/DataTable";
-import { toast } from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import PaginationFooter from "../../../components/sharedComponents/PaginationFooter";
 
@@ -136,47 +135,12 @@ export default function ConfigurationDashboard() {
   const [facilitySortedColumn, setFacilitySortedColumn] = useState(null);
   const [eventSortDirection, setEventSortDirection] = useState("asc");
   const [eventSortedColumn, setEventSortedColumn] = useState(null);
-  const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 
   const [dashboardData, setDashboardData] = useState({
-    users: { total: 0, enabled: 0, disabled: 0 },
-    facilities: {
-      total: 0,
-      enabled: 0,
-      pending: 0,
-      maintenance: 0,
-      disabled: 0,
-    },
-    companies: { total: 0, enabled: 0, disabled: 0 },
+    units: [],
+    tenants: { total: 0, active: 0, disabled: 0 },
     events: [],
-    units: { total: 0, rented: 0, delinquent: 0, vacant: 0 },
-    tenants: { total: 0, enabled: 0, disabled: 0 },
   });
-  const tenantChartData = [
-    {
-      label: "Enabled",
-      value: dashboardData.tenants.active,
-      color: "limegreen",
-    },
-    { label: "Disabled", value: dashboardData.tenants.disabled, color: "red" },
-  ];
-  const unitChartData = [
-    {
-      label: "Rented",
-      value: dashboardData.units.rented,
-      color: "limegreen",
-    },
-    {
-      label: "Delinquent",
-      value: dashboardData.units.delinquent,
-      color: "red",
-    },
-    {
-      label: "Vacant",
-      value: dashboardData.units.vacant,
-      color: "orange",
-    },
-  ];
 
   useEffect(() => {
     if (!user?._id) return;
@@ -193,31 +157,6 @@ export default function ConfigurationDashboard() {
       })
       .catch((error) => {
         console.error("Error fetching dashboard data:", error);
-      });
-
-    axios
-      .get("/facilities", {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-        withCredentials: true,
-      })
-      .then(({ data }) => {
-        setFacilities(data.facilities);
-      })
-      .catch((error) => {
-        console.error("Error fetching facilities data:", error);
-      });
-
-    axios
-      .get("/events", {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-        withCredentials: true,
-      })
-      .then(({ data }) => {
-        setEvents(data.events);
       });
   }, [user]);
 
@@ -243,51 +182,37 @@ export default function ConfigurationDashboard() {
     );
   }
 
-  const facilityColumns = [
+  const unitColumns = [
     {
-      key: "facilityName",
-      label: "Facility Name",
-      render: (f, index) => (
+      key: "unitNumber",
+      label: "Unit Number",
+      render: (u, index) => (
         <div
           className="flex justify-center cursor-pointer hover:underline text-sky-500 hover:text-sky-700 font-medium"
           key={index}
           onClick={async () => {
-            try {
-              await axios.put(
-                "/users/select-facility",
-                { facilityId: f._id, userId: user._id },
-                {
-                  headers: {
-                    "x-api-key": API_KEY,
-                  },
-                }
-              );
-              navigate(`/dashboard/facility/${f._id}`);
-            } catch (err) {
-              toast.error("Failed to select facility.");
-              console.error(err);
-            }
+            navigate(`/dashboard/facility/${facilityId}/units/${u._id}`);
           }}
         >
-          {f.facilityName || "-"}
+          {u.unitNumber || "-"}
         </div>
       ),
     },
     {
       key: "status",
       label: "Status",
-      render: (f, index) => (
+      render: (u, index) => (
         <div className="flex justify-center" key={index}>
           <div
             className={`px-2 py-1 rounded-full text-xs font-medium ${
-              f.status === "Enabled"
+              u.status === "Rented"
                 ? "bg-green-500 text-green-800"
-                : f.status === "Pending Deployment"
+                : u.status === "Vacant"
                 ? "bg-yellow-500 text-yellow-800"
                 : "bg-red-500 text-red-800"
             }`}
           >
-            {f.status || "-"}
+            {u.status || "-"}
           </div>
         </div>
       ),
@@ -304,11 +229,6 @@ export default function ConfigurationDashboard() {
       key: "eventName",
       label: "Event Name",
       accessor: (e) => e.eventName || "-",
-    },
-    {
-      key: "facility",
-      label: "Facility",
-      accessor: (c) => c.facility || "-",
     },
     {
       key: "eventMessage",
@@ -342,51 +262,87 @@ export default function ConfigurationDashboard() {
                 {new Date().toLocaleDateString()}
               </p>
             </div>
-            <div className="flex w-3/4 max-h-36">
-              {dashboardData.units.total > 0 && (
-                <div className="flex justify-center items-center h-full w-1/5 max-h-full">
-                  <PieChart
-                    hideLegend
-                    series={[
-                      {
-                        paddingAngle: 0,
-                        innerRadius: "60%",
-                        outerRadius: "90%",
-                        data: unitChartData,
-                      },
-                    ]}
-                    height={undefined}
-                    width={undefined}
-                    style={{ width: "100%", height: "100%" }}
-                  >
-                    <PieCenterLabel>
-                      {dashboardData.units.total}&nbsp;Units
-                    </PieCenterLabel>
-                  </PieChart>
-                </div>
-              )}
-              {dashboardData.tenants.total > 0 && (
-                <div className="flex justify-center items-center h-full w-1/5 max-h-full">
-                  <PieChart
-                    hideLegend
-                    series={[
-                      {
-                        paddingAngle: 0,
-                        innerRadius: "60%",
-                        outerRadius: "90%",
-                        data: tenantChartData,
-                      },
-                    ]}
-                    height={undefined}
-                    width={undefined}
-                    style={{ width: "100%", height: "100%" }}
-                  >
-                    <PieCenterLabel>
-                      {dashboardData.tenants.total}&nbsp;Tenants
-                    </PieCenterLabel>
-                  </PieChart>
-                </div>
-              )}
+            <div className="flex w-3/4 max-h-36 justify-evenly items-center">
+              <div className="flex justify-center items-center h-full w-1/5 max-h-full">
+                <PieChart
+                  hideLegend
+                  series={[
+                    {
+                      paddingAngle: 0,
+                      innerRadius: "60%",
+                      outerRadius: "90%",
+                      data:
+                        dashboardData.units.length > 0
+                          ? [
+                              {
+                                label: "Vacant",
+                                value: dashboardData.units.filter(
+                                  (u) => u.status === "Vacant"
+                                ).length,
+                                color: "orange",
+                              },
+                              {
+                                label: "Rented",
+                                value: dashboardData.units.filter(
+                                  (u) => u.status === "Rented"
+                                ).length,
+                                color: "green",
+                              },
+                              {
+                                label: "Delinquent",
+                                value: dashboardData.units.filter(
+                                  (u) => u.status === "Delinquent"
+                                ).length,
+                                color: "red",
+                              },
+                            ]
+                          : [
+                              {
+                                label: "No Data",
+                                value: 0.0001,
+                                color: "gray",
+                              },
+                            ],
+                    },
+                  ]}
+                  height={undefined}
+                  width={undefined}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  <PieCenterLabel>
+                    {dashboardData.units.length}&nbsp;Units
+                  </PieCenterLabel>
+                </PieChart>
+              </div>
+
+              <div className="flex justify-center items-center h-full w-1/5 max-h-full">
+                <PieChart
+                  hideLegend
+                  series={[
+                    {
+                      paddingAngle: 0,
+                      innerRadius: "60%",
+                      outerRadius: "90%",
+                      data: [
+                        {
+                          label: "No Data",
+                          value: 0.0001,
+                          color: "gray",
+                        },
+                      ],
+                    },
+                  ]}
+                  height={undefined}
+                  width={undefined}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  <PieCenterLabel>
+                    {dashboardData?.tenants?.active?.value +
+                      dashboardData?.tenants?.disabled?.value}
+                    &nbsp;Tenants
+                  </PieCenterLabel>
+                </PieChart>
+              </div>
             </div>
           </div>
           <div
@@ -458,8 +414,8 @@ export default function ConfigurationDashboard() {
         <div className="flex flex-col w-2/5 min-h-96 max-h-[35vh] p-5">
           <div className="flex-1 overflow-auto">
             <DataTable
-              columns={facilityColumns}
-              data={facilities}
+              columns={unitColumns}
+              data={dashboardData?.units}
               currentPage={facilityCurrentPage}
               rowsPerPage={facilityItemsPerPage}
               sortDirection={facilitySortDirection}
@@ -468,13 +424,13 @@ export default function ConfigurationDashboard() {
             />
           </div>
           <div className="px-2 py-5 mx-1 shrink-0">
-            {facilities.length > 0 && (
+            {dashboardData.units.length > 0 && (
               <PaginationFooter
                 rowsPerPage={facilityItemsPerPage}
                 setRowsPerPage={setFacilityItemsPerPage}
                 currentPage={facilityCurrentPage}
                 setCurrentPage={setFacilityCurrentPage}
-                items={facilities}
+                items={dashboardData.units}
               />
             )}
           </div>
@@ -484,7 +440,7 @@ export default function ConfigurationDashboard() {
         <div className="flex-1 overflow-auto">
           <DataTable
             columns={eventColumns}
-            data={events}
+            data={dashboardData.events}
             currentPage={eventCurrentPage}
             rowsPerPage={eventItemsPerPage}
             sortDirection={eventSortDirection}
@@ -493,13 +449,13 @@ export default function ConfigurationDashboard() {
           />
         </div>
         <div className="px-2 py-5 mx-1 shrink-0">
-          {events.length > 0 && (
+          {dashboardData.events.length > 0 && (
             <PaginationFooter
               rowsPerPage={eventItemsPerPage}
               setRowsPerPage={setEventItemsPerPage}
               currentPage={eventCurrentPage}
               setCurrentPage={setEventCurrentPage}
-              items={events}
+              items={dashboardData.events}
             />
           )}
         </div>

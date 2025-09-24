@@ -522,6 +522,11 @@ export default function UnitPage({ facility }) {
               sortedColumn={sortedColumn}
               onSort={handleColumnSort}
             />
+            {filteredUnits.length === 0 && (
+              <div className="py-5 w-full flex justify-center">
+                <p className="text-sm text-slate-500">No Active Units</p>
+              </div>
+            )}
             {/* Pagination Footer */}
             <div className="px-2 py-5 mx-1">
               <PaginationFooter
