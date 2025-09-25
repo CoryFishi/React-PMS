@@ -16,6 +16,15 @@ const paymentSchema = new Schema({
     type: Number,
     required: true,
   },
+  stripeAccountId: {
+    type: String,
+  },
+  stripeProductId: {
+    type: String,
+  },
+  stripePriceId: {
+    type: String,
+  },
   paymentIntentId: {
     type: String,
     required: true,

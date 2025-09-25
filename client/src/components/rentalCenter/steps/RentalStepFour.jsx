@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const usStates = [
   "AL",
@@ -54,38 +53,45 @@ const usStates = [
   "WY",
 ];
 
-export default function RentalStepFour({ onNext, onBack }) {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    middleInitial: "",
-    lastName: "",
-    businessName: "",
-    phone: "",
-    smsOptIn: false,
-    additionalPhone: "",
-    address1: "",
-    address2: "",
-    city: "",
-    country: "US",
-    state: "",
-    postalCode: "",
-    licenseNumber: "",
-    dateOfBirth: "",
-    licenseExpire: "",
-    licenseState: "",
-    isMilitary: false,
-    email: "",
-    confirmEmail: "",
-    username: "",
-    recoveryQuestion1: "",
-    recoveryAnswer1: "",
-    recoveryQuestion2: "",
-    recoveryAnswer2: "",
-    password: "",
-    confirmPassword: "",
-    gateCode: "",
-  });
+const defaultFormData = {
+  firstName: "",
+  middleInitial: "",
+  lastName: "",
+  businessName: "",
+  phone: "",
+  smsOptIn: false,
+  additionalPhone: "",
+  address1: "",
+  address2: "",
+  city: "",
+  country: "US",
+  state: "",
+  postalCode: "",
+  licenseNumber: "",
+  dateOfBirth: "",
+  licenseExpire: "",
+  licenseState: "",
+  isMilitary: false,
+  email: "",
+  confirmEmail: "",
+  username: "",
+  recoveryQuestion1: "",
+  recoveryAnswer1: "",
+  recoveryQuestion2: "",
+  recoveryAnswer2: "",
+  password: "",
+  confirmPassword: "",
+  gateCode: "",
+};
+
+export default function RentalStepFour({ onNext, onBack, initialData }) {
+  const [formData, setFormData] = useState(defaultFormData);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData((prev) => ({ ...prev, ...initialData }));
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -101,21 +107,22 @@ export default function RentalStepFour({ onNext, onBack }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6 px-3 py-2">
-      {/* LEFT COLUMN */}
-      <div className="flex flex-col gap-1 flex-wrap">
-        <h2 className="text-lg font-semibold mb-3">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 gap-6 px-3 py-2 md:grid-cols-2"
+    >
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold">
           Enter Your Contact Information
         </h2>
-
-        <div className="flex gap-2 w-full flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <input
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
             placeholder="First Name"
             required
-            className="flex-1 border px-2 py-1 rounded"
+            className="flex-1 rounded border px-2 py-1"
           />
           <input
             name="middleInitial"
@@ -123,7 +130,7 @@ export default function RentalStepFour({ onNext, onBack }) {
             onChange={handleChange}
             placeholder="MI"
             maxLength={1}
-            className="w-12 border px-2 py-1 rounded"
+            className="w-12 rounded border px-2 py-1"
           />
           <input
             name="lastName"
@@ -131,7 +138,7 @@ export default function RentalStepFour({ onNext, onBack }) {
             onChange={handleChange}
             placeholder="Last Name"
             required
-            className="flex-1 border px-2 py-1 rounded"
+            className="flex-1 rounded border px-2 py-1"
           />
         </div>
         <input
@@ -139,7 +146,7 @@ export default function RentalStepFour({ onNext, onBack }) {
           value={formData.businessName}
           onChange={handleChange}
           placeholder="Business Name (optional)"
-          className="w-full border px-2 py-1 rounded"
+          className="w-full rounded border px-2 py-1"
         />
         <input
           name="phone"
@@ -147,10 +154,9 @@ export default function RentalStepFour({ onNext, onBack }) {
           onChange={handleChange}
           placeholder="Phone #"
           required
-          className="w-full border px-2 py-1 rounded"
+          className="w-full rounded border px-2 py-1"
         />
-
-        <label className="flex items-center text-sm w-full">
+        <label className="flex items-center text-sm">
           <input
             name="smsOptIn"
             type="checkbox"
@@ -160,7 +166,7 @@ export default function RentalStepFour({ onNext, onBack }) {
           />
           I agree to receive text message communications from this facility
         </label>
-        <p className="text-xs text-gray-500 w-full">
+        <p className="text-xs text-gray-500">
           By subscribing, you agree to receive communications via text message
           at the phone number provided. Reply STOP to cancel. Message rates may
           apply.
@@ -170,53 +176,45 @@ export default function RentalStepFour({ onNext, onBack }) {
           value={formData.additionalPhone}
           onChange={handleChange}
           placeholder="Additional Phone # (optional)"
-          className="w-full border px-2 py-1 rounded"
+          className="w-full rounded border px-2 py-1"
         />
-
         <input
           name="address1"
           value={formData.address1}
           onChange={handleChange}
           placeholder="Address Line 1"
           required
-          className="w-full border px-2 py-1 rounded"
+          className="w-full rounded border px-2 py-1"
         />
         <input
           name="address2"
           value={formData.address2}
           onChange={handleChange}
           placeholder="Address Line 2"
-          className="w-full border px-2 py-1 rounded"
+          className="w-full rounded border px-2 py-1"
         />
-
-        <div className="flex gap-2 w-full flex-wrap">
+        <div className="flex flex-wrap gap-2">
           <input
             name="city"
             value={formData.city}
             onChange={handleChange}
             placeholder="City"
             required
-            className="border px-2 py-1 rounded"
+            className="rounded border px-2 py-1"
           />
-          <select
-            name="country"
-            value={formData.country}
-            onChange={handleChange}
-            className="border px-2 py-1 rounded"
-          >
-            <option value="US">United States</option>
-          </select>
           <select
             name="state"
             value={formData.state}
             onChange={handleChange}
             required
-            className="border px-2 py-1 rounded"
+            className="rounded border px-2 py-1"
           >
-            <option value="">State</option>
-            {usStates.map((st) => (
-              <option key={st} value={st}>
-                {st}
+            <option value="" disabled>
+              State
+            </option>
+            {usStates.map((state) => (
+              <option key={state} value={state}>
+                {state}
               </option>
             ))}
           </select>
@@ -224,55 +222,43 @@ export default function RentalStepFour({ onNext, onBack }) {
             name="postalCode"
             value={formData.postalCode}
             onChange={handleChange}
-            placeholder="Postal"
+            placeholder="Postal Code"
             required
-            className="border px-2 py-1 rounded"
+            className="rounded border px-2 py-1"
           />
         </div>
-
-        <h3 className="font-semibold mt-4 mb-3">
-          Driver's License Information
-        </h3>
         <input
           name="licenseNumber"
           value={formData.licenseNumber}
           onChange={handleChange}
-          placeholder="License #"
-          required
-          className="w-full border px-2 py-1 rounded"
+          placeholder="Driver's License Number"
+          className="w-full rounded border px-2 py-1"
         />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <input
-            name="dateOfBirth"
             type="date"
+            name="dateOfBirth"
             value={formData.dateOfBirth}
             onChange={handleChange}
-            required
-            className="flex-1 border px-2 py-1 rounded"
+            placeholder="Date of Birth"
+            className="rounded border px-2 py-1"
           />
           <input
-            name="licenseExpire"
             type="date"
+            name="licenseExpire"
             value={formData.licenseExpire}
             onChange={handleChange}
-            required
-            className="flex-1 border px-2 py-1 rounded"
+            placeholder="License Expiration"
+            className="rounded border px-2 py-1"
+          />
+          <input
+            name="licenseState"
+            value={formData.licenseState}
+            onChange={handleChange}
+            placeholder="License State"
+            className="rounded border px-2 py-1"
           />
         </div>
-        <select
-          name="licenseState"
-          value={formData.licenseState}
-          onChange={handleChange}
-          required
-          className="w-full border px-2 py-1 rounded"
-        >
-          <option value="">State</option>
-          {usStates.map((st) => (
-            <option key={st} value={st}>
-              {st}
-            </option>
-          ))}
-        </select>
         <label className="flex items-center text-sm">
           <input
             name="isMilitary"
@@ -281,136 +267,109 @@ export default function RentalStepFour({ onNext, onBack }) {
             onChange={handleChange}
             className="mr-2"
           />
-          Check here if you are Military
+          I am an active military service member
         </label>
       </div>
 
-      {/* RIGHT COLUMN */}
-      <div className="flex flex-col gap-1 flex-wrap">
-        <h2 className="text-lg font-semibold mb-3">Create an Account</h2>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-lg font-semibold">Account Information</h2>
         <input
-          name="email"
           type="email"
+          name="email"
           value={formData.email}
           onChange={handleChange}
           placeholder="Email"
           required
-          className="w-full border px-2 py-1 rounded"
+          className="w-full rounded border px-2 py-1"
         />
         <input
-          name="confirmEmail"
           type="email"
+          name="confirmEmail"
           value={formData.confirmEmail}
           onChange={handleChange}
           placeholder="Confirm Email"
           required
-          className="w-full border px-2 py-1 rounded"
+          className="w-full rounded border px-2 py-1"
         />
         <input
           name="username"
           value={formData.username}
           onChange={handleChange}
           placeholder="Username"
-          required
-          className="w-full border px-2 py-1 rounded mb-4"
-        />
-
-        <h3 className="font-semibold mb-3">
-          Enter Password Recovery Questions/Answers
-        </h3>
-        <input
-          name="recoveryQuestion1"
-          value={formData.recoveryQuestion1}
-          onChange={handleChange}
-          placeholder="Question 1"
-          required
-          className="w-full border px-2 py-1 rounded mb-1"
+          className="w-full rounded border px-2 py-1"
         />
         <input
-          name="recoveryAnswer1"
-          value={formData.recoveryAnswer1}
-          onChange={handleChange}
-          placeholder="Answer"
-          required
-          className="w-full border px-2 py-1 rounded mb-3"
-        />
-        <input
-          name="recoveryQuestion2"
-          value={formData.recoveryQuestion2}
-          onChange={handleChange}
-          placeholder="Question 2"
-          required
-          className="w-full border px-2 py-1 rounded mb-1"
-        />
-        <input
-          name="recoveryAnswer2"
-          value={formData.recoveryAnswer2}
-          onChange={handleChange}
-          placeholder="Answer"
-          required
-          className="w-full border px-2 py-1 rounded mb-4"
-        />
-
-        <h3 className="font-semibold mb-3">
-          Choose a Password{" "}
-          <span className="text-sm">(Minimum 8 characters)</span>
-        </h3>
-        <input
-          name="password"
           type="password"
+          name="password"
           value={formData.password}
           onChange={handleChange}
-          placeholder="Enter a Password"
-          required
-          className="w-full border px-2 py-1 rounded"
+          placeholder="Password"
+          className="w-full rounded border px-2 py-1"
         />
         <input
-          name="confirmPassword"
           type="password"
+          name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
-          placeholder="Re-enter Password"
-          required
-          className="w-full border px-2 py-1 rounded mb-4"
+          placeholder="Confirm Password"
+          className="w-full rounded border px-2 py-1"
         />
-
-        <h3 className="font-semibold mb-3">
-          Choose an Access Code{" "}
-          <span className="text-sm">(length 4–10 digits)</span>
-        </h3>
-        <input
-          name="accessCode"
-          type="text"
-          value={formData.accessCode}
+        <textarea
+          name="gateCode"
+          value={formData.gateCode}
           onChange={handleChange}
-          placeholder="Access Code"
-          required
-          className="w-full border px-2 py-1 rounded"
+          placeholder="Desired Gate Code"
+          className="h-24 w-full rounded border px-2 py-1"
         />
-      </div>
-
-      {/* FOOTER BUTTONS */}
-      <div className="col-span-2 flex justify-between mt-6">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="px-4 py-2 bg-gray-300 text-black rounded"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          onClick={onBack}
-          className="px-4 py-2 bg-gray-400 text-white rounded"
-        >
-          Back
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Next
-        </button>
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <input
+              name="recoveryQuestion1"
+              value={formData.recoveryQuestion1}
+              onChange={handleChange}
+              placeholder="Recovery Question 1"
+              className="w-full rounded border px-2 py-1"
+            />
+            <input
+              name="recoveryAnswer1"
+              value={formData.recoveryAnswer1}
+              onChange={handleChange}
+              placeholder="Answer"
+              className="w-full rounded border px-2 py-1"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <input
+              name="recoveryQuestion2"
+              value={formData.recoveryQuestion2}
+              onChange={handleChange}
+              placeholder="Recovery Question 2"
+              className="w-full rounded border px-2 py-1"
+            />
+            <input
+              name="recoveryAnswer2"
+              value={formData.recoveryAnswer2}
+              onChange={handleChange}
+              placeholder="Answer"
+              className="w-full rounded border px-2 py-1"
+            />
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onBack}
+            className="rounded bg-gray-300 px-4 py-2 text-sm font-semibold"
+          >
+            Back
+          </button>
+          <button
+            type="submit"
+            className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+          >
+            Continue
+          </button>
+        </div>
       </div>
     </form>
   );

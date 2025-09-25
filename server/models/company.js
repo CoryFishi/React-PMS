@@ -76,6 +76,22 @@ const CompanySchema = new Schema({
       type: Boolean,
       default: false,
     },
+    requirements: {
+      currentlyDue: { type: [String], default: () => [] },
+      eventuallyDue: { type: [String], default: () => [] },
+      pastDue: { type: [String], default: () => [] },
+      pendingVerification: { type: [String], default: () => [] },
+      currentDeadline: { type: Date },
+      disabledReason: { type: String },
+    },
+    futureRequirements: {
+      currentlyDue: { type: [String], default: () => [] },
+      eventuallyDue: { type: [String], default: () => [] },
+      pastDue: { type: [String], default: () => [] },
+      pendingVerification: { type: [String], default: () => [] },
+      currentDeadline: { type: Date },
+    },
+    lastRequirementsSync: { type: Date },
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

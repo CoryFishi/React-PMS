@@ -21,7 +21,7 @@ router.get(
   "/:companyId/stripe-onboarding-status",
   authenticateAPIKey,
   authenticate,
-  companyController.checkStripeOnboardingStatus
+  companyController.syncStripeAccountRequirements
 );
 router.get(
   "/:companyId/stripe-dashboard-link",

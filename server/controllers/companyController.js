@@ -1,9 +1,12 @@
-import Event from "../models/event.js";
 import User from "../models/user.js";
+import StorageUnit from "../models/unit.js";
 import StorageFacility from "../models/facility.js";
 import Company from "../models/company.js";
 import Stripe from "stripe";
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+const unixToDate = (timestamp) =>
+  typeof timestamp === "number" ? new Date(timestamp * 1000) : undefined;
 
 export const createCompany = async (req, res) => {
   try {
@@ -47,51 +50,6 @@ export const createCompany = async (req, res) => {
       console.error("Rejecting due to unknown error: " + error.name);
       res.status(500).send({ error: error.name });
     }
-  }
-};
-
-export const checkStripeOnboardingStatus = async (req, res) => {
-  try {
-    const userId = req.user?.id || req.user?._id;
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const { role, company } = user;
-    const companyId = req.params.companyId;
-
-    const isSystem = role === "System_Admin" || role === "System_User";
-    const isCompanyAdmin = role === "Company_Admin";
-
-    if (!isSystem && !(isCompanyAdmin && company?.toString() === companyId)) {
-      return res.status(403).json({ message: "Forbidden: Access denied" });
-    }
-
-    const companyData = await Company.findById(companyId);
-    if (!companyData || !companyData.stripe?.accountId) {
-      return res.status(404).json({ message: "Stripe account not found" });
-    }
-
-    const account = await stripe.accounts.retrieve(
-      companyData.stripe.accountId
-    );
-
-    const isComplete = account.details_submitted && account.charges_enabled;
-
-    if (isComplete && !companyData.stripe.onboardingComplete) {
-      companyData.stripe.onboardingComplete = true;
-      await companyData.save();
-    }
-
-    res.status(200).json({ isComplete });
-  } catch (err) {
-    console.error("Stripe onboarding check error:", err);
-    res.status(500).json({ message: "Error checking onboarding status" });
   }
 };
 
@@ -155,8 +113,8 @@ export const createStripeAccountLink = async (req, res) => {
     // Otherwise, generate onboarding link
     const accountLink = await stripe.accountLinks.create({
       account: company.stripe.accountId,
-      refresh_url: "http://localhost:5173/dashboard/admin/companies",
-      return_url: "http://localhost:5173/dashboard/admin/companies",
+      refresh_url: "http://localhost:5173/dashboard/companies",
+      return_url: "http://localhost:5173/dashboard/companies",
       type: "account_onboarding",
     });
 
@@ -168,33 +126,132 @@ export const createStripeAccountLink = async (req, res) => {
 };
 
 export const createCheckoutSession = async (req, res) => {
-  const { priceInCents, companyStripeAccountId, url } = req.body;
-
-  const session = await stripe.checkout.sessions.create(
-    {
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "Storage Unit Rent",
-            },
-            unit_amount: priceInCents,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      success_url: url,
-      cancel_url: url,
-    },
-    {
-      stripeAccount: companyStripeAccountId,
+  try {
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-  );
 
-  res.json({ url: session.url });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { role, company: userCompanyId } = user;
+    const { companyId } = req.params;
+
+    const isSystem = role === "System_Admin" || role === "System_User";
+    const isCompanyAdmin = role === "Company_Admin";
+
+    if (
+      !isSystem &&
+      !(isCompanyAdmin && userCompanyId?.toString() === companyId)
+    ) {
+      return res.status(403).json({ message: "Forbidden: Access denied" });
+    }
+
+    const company = await Company.findById(companyId);
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    const stripeAccountId = company.stripe?.accountId;
+    if (!stripeAccountId) {
+      return res
+        .status(409)
+        .json({ message: "Company is not connected to Stripe" });
+    }
+
+    const {
+      unitId,
+      successUrl,
+      cancelUrl,
+      metadata: metadataPayload,
+    } = req.body;
+
+    if (!unitId) {
+      return res.status(400).json({ message: "unitId is required" });
+    }
+
+    const unit = await StorageUnit.findById(unitId).populate("facility");
+
+    if (!unit) {
+      return res.status(404).json({ message: "Unit not found" });
+    }
+
+    const facility = unit.facility;
+
+    if (!facility) {
+      return res
+        .status(409)
+        .json({ message: "Unit is missing facility association" });
+    }
+
+    if (facility.company?.toString() !== companyId) {
+      return res
+        .status(403)
+        .json({ message: "Unit does not belong to this company" });
+    }
+
+    const unitStripe = unit.stripe || {};
+    const priceId = unitStripe.priceId;
+
+    if (!priceId) {
+      return res
+        .status(409)
+        .json({ message: "Unit is not configured with a Stripe price" });
+    }
+
+    const checkoutSuccessUrl =
+      typeof successUrl === "string" ? successUrl : req.body.url;
+    const checkoutCancelUrl =
+      typeof cancelUrl === "string" ? cancelUrl : req.body.url;
+
+    if (!checkoutSuccessUrl || !checkoutCancelUrl) {
+      return res
+        .status(400)
+        .json({ message: "Both successUrl and cancelUrl are required" });
+    }
+
+    const metadata = {
+      companyId: companyId.toString(),
+      facilityId: facility._id.toString(),
+      unitId: unit._id.toString(),
+      ...(metadataPayload && typeof metadataPayload === "object"
+        ? Object.fromEntries(
+            Object.entries(metadataPayload).filter(
+              ([, value]) => value !== undefined && value !== null
+            )
+          )
+        : {}),
+    };
+
+    const session = await stripe.checkout.sessions.create(
+      {
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        success_url: checkoutSuccessUrl,
+        cancel_url: checkoutCancelUrl,
+        metadata,
+      },
+      {
+        stripeAccount: unitStripe.accountId || stripeAccountId,
+      }
+    );
+
+    return res.status(200).json({ id: session.id, url: session.url });
+  } catch (error) {
+    console.error("Error creating Stripe Checkout session:", error);
+    return res
+      .status(500)
+      .json({ message: "Failed to create Stripe Checkout session" });
+  }
 };
 
 // Get Company by ID
@@ -350,5 +407,80 @@ export const deleteCompany = async (req, res) => {
         error.message
     );
     res.status(400).json({ message: error.message });
+  }
+};
+
+export const syncStripeAccountRequirements = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { role, company } = user;
+    const companyId = req.params.companyId;
+
+    const isSystem = role === "System_Admin" || role === "System_User";
+    const isCompanyAdmin = role === "Company_Admin";
+
+    if (!isSystem && !(isCompanyAdmin && company?.toString() === companyId)) {
+      return res.status(403).json({ message: "Forbidden: Access denied" });
+    }
+
+    const companyData = await Company.findById(companyId);
+    if (!companyData || !companyData.stripe?.accountId) {
+      return res.status(404).json({ message: "Stripe account not found" });
+    }
+
+    const account = await stripe.accounts.retrieve(
+      companyData.stripe.accountId
+    );
+
+    const requirements = account.requirements ?? {};
+    const futureRequirements = account.future_requirements ?? {};
+
+    companyData.stripe.requirements = {
+      currentlyDue: requirements.currently_due ?? [],
+      eventuallyDue: requirements.eventually_due ?? [],
+      pastDue: requirements.past_due ?? [],
+      pendingVerification: requirements.pending_verification ?? [],
+      currentDeadline: unixToDate(requirements.current_deadline),
+      disabledReason: requirements.disabled_reason ?? null,
+    };
+
+    companyData.stripe.futureRequirements = {
+      currentlyDue: futureRequirements.currently_due ?? [],
+      eventuallyDue: futureRequirements.eventually_due ?? [],
+      pastDue: futureRequirements.past_due ?? [],
+      pendingVerification: futureRequirements.pending_verification ?? [],
+      currentDeadline: unixToDate(futureRequirements.current_deadline),
+    };
+
+    const onboardingComplete =
+      account.details_submitted && account.charges_enabled;
+
+    companyData.stripe.onboardingComplete = onboardingComplete;
+    companyData.stripe.lastRequirementsSync = new Date();
+
+    await companyData.save();
+
+    return res.status(200).json({
+      onboardingComplete,
+      chargesEnabled: account.charges_enabled,
+      detailsSubmitted: account.details_submitted,
+      requirements: companyData.stripe.requirements,
+      futureRequirements: companyData.stripe.futureRequirements,
+      lastRequirementsSync: companyData.stripe.lastRequirementsSync,
+    });
+  } catch (err) {
+    console.error("Stripe requirements sync error:", err);
+    return res
+      .status(500)
+      .json({ message: "Error retrieving Stripe account requirements" });
   }
 };

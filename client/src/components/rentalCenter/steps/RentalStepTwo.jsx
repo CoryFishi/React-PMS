@@ -1,69 +1,87 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import PropTypes from "prop-types";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-export default function RentalStepTwo({ onNext, onBack }) {
+export default function RentalStepTwo({ onNext, onBack, onSelectUnit }) {
   const [units, setUnits] = useState(null);
   const { facilityId, companyId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!facilityId) return;
+    if (!facilityId) {
+      setUnits([]);
+      return;
+    }
+
     axios
       .get(`/rental/${companyId}/${facilityId}/units`, {
         headers: { "x-api-key": API_KEY },
       })
       .then(({ data }) => setUnits(data))
-      .catch((err) => console.error("Failed to load units", err));
-  }, [facilityId]);
+      .catch(() => setUnits([]));
+  }, [facilityId, companyId]);
 
-  if (!units) return <p>Loading units...</p>;
+  if (!facilityId) {
+    return (
+      <p className="px-3 py-2 text-sm text-gray-500">
+        Choose a facility to see its available units.
+      </p>
+    );
+  }
+
+  if (!units) return <p className="px-3 py-2">Loading units...</p>;
 
   return (
-    <div className="px-3 py-2 gap-2 flex flex-col">
+    <div className="px-3 py-2">
       {units.length === 0 ? (
         <p>No available units at this facility.</p>
       ) : (
-        <div className="flex flex-col gap-1 mt-2">
+        <div className="flex flex-col gap-2 mt-2">
           {units.map((unit) => (
             <div
               key={unit._id}
-              className="p-4 border rounded shadow-sm flex justify-between items-center "
+              className="flex flex-col gap-3 rounded border p-4 shadow-sm md:flex-row md:items-center md:justify-between"
             >
               <div>
                 <h3 className="font-bold text-lg">Unit {unit.unitNumber}</h3>
-                <p className="font-thin">
+                <p className="text-sm text-gray-600">
                   {unit.specifications?.width}x{unit.specifications?.depth}{" "}
                   {unit.specifications?.unit ?? "ft"}
                 </p>
-                <p className="font-thin">
+                <p className="text-sm text-gray-600">
                   {unit.climateControlled ? "Climate Controlled" : "Standard"}
                 </p>
               </div>
-              <p className="font-semibold">
-                ${unit.paymentInfo?.pricePerMonth?.toFixed(2)} / month
-              </p>
-              <button
-                onClick={() => {
-                  navigate(`/rental/${companyId}/${facilityId}/${unit._id}`);
-                  onNext();
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                Move In
-              </button>
+              <div className="flex items-center justify-between gap-4 md:justify-end">
+                <p className="font-semibold">
+                  ${unit.paymentInfo?.pricePerMonth?.toFixed(2)} / month
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectUnit?.(unit);
+                    navigate(`/rental/${companyId}/${facilityId}/${unit._id}`);
+                    onNext();
+                  }}
+                  className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                  Move In
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
       <button
+        type="button"
         onClick={() => {
-          navigate(`/rental/${companyId}/`);
+          navigate(`/rental/${companyId}`);
           onBack();
         }}
-        className="px-4 py-2 bg-gray-300 text-black rounded w-fit"
+        className="mt-4 w-fit rounded bg-gray-300 px-4 py-2 text-sm font-semibold text-black"
       >
         Back
       </button>

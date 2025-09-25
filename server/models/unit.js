@@ -105,6 +105,14 @@ const storageUnitSchema = new mongoose.Schema({
   },
   tags: [{ type: String, trim: true }],
   amenities: [{ type: String, trim: true }],
+  stripe: {
+    productId: { type: String },
+    priceId: { type: String },
+    accountId: { type: String },
+    currency: { type: String, default: "usd" },
+    priceAmount: { type: Number },
+    lastSyncedAt: { type: Date },
+  },
   status: {
     type: String,
     default: "Vacant",

@@ -3,7 +3,6 @@ import { useContext } from "react";
 import { useState, useEffect } from "react";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import { UserContext } from "../../../context/userContext";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { IoRefreshCircle } from "react-icons/io5";
 import SelectOption from "../sharedComponents/SelectOption";
@@ -13,10 +12,10 @@ export default function StripeSettings({}) {
   const { user } = useContext(UserContext);
   const [companyId, setCompanyId] = useState(user?.company);
   const [companies, setCompanies] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     refreshStripeSettings(companyId);
+    stripe();
     // Fetch companies if user is admin or system user
     if (user.role === "System_Admin" || user.role === "System_User") {
       axios
@@ -38,6 +37,23 @@ export default function StripeSettings({}) {
         });
     }
   }, [companyId]);
+
+  const stripe = async () => {
+    try {
+      const { data } = await axios.get(
+        `/companies/${companyId}/stripe-requirements`,
+        {
+          headers: { "x-api-key": API_KEY },
+          withCredentials: true,
+        }
+      );
+
+      console.log(data);
+    } catch (err) {
+      console.error("Error getting Stripe onboarding status:", err);
+      toast.error("Failed to check onboarding status.");
+    }
+  };
 
   const openStripeDashboardLink = async () => {
     try {

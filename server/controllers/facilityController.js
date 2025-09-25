@@ -6,6 +6,81 @@ import StorageUnit from "../models/unit.js";
 import User from "../models/user.js";
 import Tenant from "../models/tenant.js";
 import Event from "../models/event.js";
+import { getStripeClient } from "../services/stripeConnect.js";
+
+const requireStripeClient = () => getStripeClient();
+
+const toStripeAmount = (price) => {
+  const normalized = Number(price);
+  if (!Number.isFinite(normalized)) {
+    throw new Error("Invalid price provided for Stripe");
+  }
+  return Math.round(normalized * 100);
+};
+
+const createStripeUnitResources = async ({
+  unit,
+  facility,
+  company,
+  unitId,
+}) => {
+  const stripeClient = requireStripeClient();
+  const stripeAccountId = company.stripe?.accountId;
+
+  if (!stripeAccountId) {
+    throw new Error("Company is not connected to Stripe");
+  }
+
+  const priceInCents = toStripeAmount(unit.paymentInfo?.pricePerMonth);
+
+  let product = null;
+
+  try {
+    product = await stripeClient.products.create(
+      {
+        name: `${facility.facilityName} - Unit ${unit.unitNumber}`,
+        metadata: {
+          facilityId: facility._id.toString(),
+          companyId: company._id.toString(),
+          unitNumber: unit.unitNumber,
+          ...(unitId ? { unitId: unitId.toString() } : {}),
+        },
+      },
+      { stripeAccount: stripeAccountId }
+    );
+
+    const price = await stripeClient.prices.create(
+      {
+        currency: "usd",
+        unit_amount: priceInCents,
+        product: product.id,
+        recurring: { interval: "month" },
+        metadata: {
+          facilityId: facility._id.toString(),
+          companyId: company._id.toString(),
+          unitNumber: unit.unitNumber,
+          ...(unitId ? { unitId: unitId.toString() } : {}),
+        },
+      },
+      { stripeAccount: stripeAccountId }
+    );
+
+    return { product, price, stripeAccountId };
+  } catch (error) {
+    if (product?.id) {
+      try {
+        await stripeClient.products.update(
+          product.id,
+          { active: false },
+          { stripeAccount: stripeAccountId }
+        );
+      } catch (cleanupError) {
+        console.error("Failed to clean up Stripe product:", cleanupError);
+      }
+    }
+    throw error;
+  }
+};
 
 // Create a new facility
 export const createFacility = async (req, res) => {
@@ -184,9 +259,14 @@ export const addUnit = async (req, res) => {
     }
 
     // Make sure the facility exists
-    const facilityExists = await StorageFacility.findById(facilityId);
-    if (!facilityExists) {
+    const facility = await StorageFacility.findById(facilityId);
+    if (!facility) {
       return res.status(406).json({ error: "Facility not found" });
+    }
+
+    const company = await Company.findById(facility.company);
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
     }
 
     // Check required fields
@@ -218,6 +298,34 @@ export const addUnit = async (req, res) => {
     unit.createdBy = createdBy;
     unit.facility = facilityId;
 
+    let stripeResources;
+    try {
+      stripeResources = await createStripeUnitResources({
+        unit,
+        facility,
+        company,
+      });
+
+      unit.stripe = {
+        productId: stripeResources.product.id,
+        priceId: stripeResources.price.id,
+        accountId: stripeResources.stripeAccountId,
+        currency: stripeResources.price.currency,
+        priceAmount: stripeResources.price.unit_amount,
+        lastSyncedAt: new Date(),
+      };
+    } catch (stripeError) {
+      console.error(
+        "Error provisioning Stripe resources for unit:",
+        stripeError
+      );
+      return res.status(502).json({
+        error:
+          stripeError.message ||
+          "Failed to create Stripe pricing for the requested unit",
+      });
+    }
+
     // Create the unit
     const createdUnit = await StorageUnit.create(unit);
 
@@ -235,6 +343,38 @@ export const addUnit = async (req, res) => {
       message: `Unit ${createdUnit.unitNumber} created`,
       facility: facilityId,
     });
+
+    if (stripeResources?.product?.id) {
+      const stripeClient = requireStripeClient();
+      try {
+        await stripeClient.products.update(
+          stripeResources.product.id,
+          {
+            metadata: {
+              ...stripeResources.product.metadata,
+              unitId: createdUnit._id.toString(),
+            },
+          },
+          { stripeAccount: stripeResources.stripeAccountId }
+        );
+
+        await stripeClient.prices.update(
+          stripeResources.price.id,
+          {
+            metadata: {
+              ...stripeResources.price.metadata,
+              unitId: createdUnit._id.toString(),
+            },
+          },
+          { stripeAccount: stripeResources.stripeAccountId }
+        );
+      } catch (metadataError) {
+        console.error(
+          "Failed to update Stripe metadata for unit:",
+          metadataError
+        );
+      }
+    }
 
     return res.status(201).json(createdUnit);
   } catch (err) {
@@ -295,9 +435,14 @@ export const editUnit = async (req, res) => {
 
   try {
     // Check if facility exists
-    const facilityExists = await StorageFacility.findById(facilityId);
-    if (!facilityExists) {
+    const facility = await StorageFacility.findById(facilityId);
+    if (!facility) {
       return res.status(404).json({ error: "Facility not found" });
+    }
+
+    const existingUnit = await StorageUnit.findById(unitId);
+    if (!existingUnit) {
+      return res.status(404).json({ error: "Unit not found" });
     }
 
     // Check for duplicate unit number in the same facility
@@ -310,6 +455,132 @@ export const editUnit = async (req, res) => {
       return res.status(409).json({
         error: `Unit Number ${updateData.unitNumber} is already taken in this facility`,
       });
+    }
+
+    const existingUnitObj = existingUnit.toObject();
+    let stripePayload = null;
+
+    const hasPriceUpdate =
+      updateData?.paymentInfo &&
+      Object.prototype.hasOwnProperty.call(
+        updateData.paymentInfo,
+        "pricePerMonth"
+      );
+
+    if (hasPriceUpdate) {
+      const newPriceValue = updateData.paymentInfo.pricePerMonth;
+
+      if (typeof newPriceValue !== "number" || Number.isNaN(newPriceValue)) {
+        return res
+          .status(400)
+          .json({ error: "A valid numeric pricePerMonth is required" });
+      }
+
+      const newPriceInCents = toStripeAmount(newPriceValue);
+      const currentPriceAmount = existingUnitObj.stripe?.priceAmount;
+
+      if (currentPriceAmount !== newPriceInCents) {
+        const company = await Company.findById(facility.company);
+        if (!company) {
+          return res.status(404).json({ error: "Company not found" });
+        }
+
+        try {
+          const stripeAccountId = company.stripe?.accountId;
+          if (!stripeAccountId) {
+            return res
+              .status(409)
+              .json({ error: "Company is not connected to Stripe" });
+          }
+
+          const stripeClient = requireStripeClient();
+          let productId = existingUnitObj.stripe?.productId;
+          let createdResources = null;
+
+          if (!productId) {
+            createdResources = await createStripeUnitResources({
+              unit: {
+                ...existingUnitObj,
+                paymentInfo: {
+                  ...existingUnitObj.paymentInfo,
+                  pricePerMonth: newPriceValue,
+                },
+              },
+              facility,
+              company,
+              unitId,
+            });
+
+            stripePayload = {
+              productId: createdResources.product.id,
+              priceId: createdResources.price.id,
+              accountId: createdResources.stripeAccountId,
+              currency: createdResources.price.currency,
+              priceAmount: createdResources.price.unit_amount,
+              lastSyncedAt: new Date(),
+            };
+
+            productId = createdResources.product.id;
+
+            try {
+              await stripeClient.products.update(
+                createdResources.product.id,
+                {
+                  metadata: {
+                    ...createdResources.product.metadata,
+                    unitId: unitId.toString(),
+                  },
+                },
+                { stripeAccount: createdResources.stripeAccountId }
+              );
+            } catch (metadataError) {
+              console.error(
+                "Failed to update Stripe product metadata while editing unit:",
+                metadataError
+              );
+            }
+          }
+
+          if (!createdResources) {
+            const price = await stripeClient.prices.create(
+              {
+                currency: existingUnitObj.stripe?.currency || "usd",
+                unit_amount: newPriceInCents,
+                product: productId,
+                recurring: { interval: "month" },
+                metadata: {
+                  facilityId: facility._id.toString(),
+                  companyId: facility.company.toString(),
+                  unitNumber: existingUnit.unitNumber,
+                  unitId: unitId.toString(),
+                },
+              },
+              { stripeAccount: stripeAccountId }
+            );
+
+            stripePayload = {
+              ...(existingUnitObj.stripe || {}),
+              productId,
+              accountId: stripeAccountId,
+              priceId: price.id,
+              currency: price.currency,
+              priceAmount: price.unit_amount,
+              lastSyncedAt: new Date(),
+            };
+          }
+        } catch (stripeError) {
+          console.error("Error updating Stripe pricing for unit:", stripeError);
+          return res.status(502).json({
+            error:
+              stripeError.message ||
+              "Failed to update Stripe pricing for the requested unit",
+          });
+        }
+      }
+    }
+
+    if (stripePayload) {
+      updateData.stripe = stripePayload;
     }
 
     const updatedUnit = await StorageUnit.findByIdAndUpdate(
