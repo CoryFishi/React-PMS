@@ -190,6 +190,10 @@ export default function StripeSettings({}) {
 
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
+          <h2 className="font-bold">Last Synced:</h2>
+          <p>{stripeSettings.lastRequirementsSync}</p>
+        </div>
+        <div className="flex gap-2">
           <h2 className="font-bold">Stripe Account ID:</h2>
           <p>{stripeSettings.accountId}</p>
         </div>

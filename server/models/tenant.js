@@ -137,12 +137,6 @@ const tenantSchema = new Schema(
         trim: true,
       },
     },
-    units: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "StorageUnit",
-      },
-    ],
     notes: [
       {
         message: { type: String, required: true },
@@ -168,12 +162,6 @@ const tenantSchema = new Schema(
         },
       },
     ],
-    affiliatedFacilities: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Facility",
-      },
-    ],
     status: {
       type: String,
       default: "Active",
@@ -184,6 +172,11 @@ const tenantSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Creator reference is required"],
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "Updater reference is required"],
     },
     createdAt: {
       type: Date,

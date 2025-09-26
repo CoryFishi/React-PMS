@@ -14,7 +14,16 @@ export default function RentalStepThree({
 }) {
   const [unit, setUnit] = useState(null);
   const [facility, setFacility] = useState(null);
-  const [insurance, setInsurance] = useState(null);
+  const [insurance, setInsurance] = useState([
+    {
+      _id: "1",
+      name: "Use my homeowners/renters insurance",
+      description:
+        "I understand and agree that while this self-storage facility takes precautions to provide clean, dry, and secure storage rooms, that it does not insure my goods and has no responsibility to provide insurance. Also, this storage facility is not responsible for damage or loss that may occur to my goods while in storage. I understand that this storage facility requires that I maintain insurance to cover my goods for as long as they are in storage.",
+      monthlyPrice: 0,
+      coverageAmount: 0,
+    },
+  ]);
   const { companyId, facilityId, unitId } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -60,7 +69,6 @@ export default function RentalStepThree({
       .then(({ data }) => {
         setFacility(data.facility);
         setUnit(data.unit);
-        setInsurance(data.insurancePlans);
         onDetailsLoaded?.({
           facility: data.facility,
           unit: data.unit,
@@ -147,12 +155,19 @@ export default function RentalStepThree({
                       {plan.name} Plan
                     </span>
                     <span className="block text-xs text-gray-600">
-                      Coverage ${plan.coverageAmount.toLocaleString()}
+                      {plan.description}
                     </span>
+                    {plan.coverageAmount > 0 && (
+                      <span className="block text-xs text-gray-600">
+                        Coverage ${plan.coverageAmount.toLocaleString()}
+                      </span>
+                    )}
                   </span>
-                  <span className="text-sm font-semibold">
-                    ${plan.monthlyPrice.toFixed(2)} / mo
-                  </span>
+                  {plan.monthlyPrice !== 0 && (
+                    <span className="text-sm font-semibold">
+                      ${plan.monthlyPrice.toFixed(2)} / mo
+                    </span>
+                  )}
                 </button>
               );
             })
