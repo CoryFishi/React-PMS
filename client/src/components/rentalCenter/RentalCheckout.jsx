@@ -7,7 +7,6 @@ import RentalStepTwo from "./steps/RentalStepTwo";
 import RentalStepThree from "./steps/RentalStepThree";
 import RentalStepFour from "./steps/RentalStepFour";
 import RentalStepFive from "./steps/RentalStepFive";
-import RentalStepSix from "./steps/RentalStepSix";
 import axios from "axios";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -19,21 +18,24 @@ export default function RentalCheckout() {
   const [company, setCompany] = useState(null);
   const [unitDetails, setUnitDetails] = useState(null);
   const [selectedInsurance, setSelectedInsurance] = useState(null);
-  const [contactInfo, setContactInfo] = useState(null);
+  const [tenantInfo, setTenantInfo] = useState(null);
   const [isLaunchingCheckout, setIsLaunchingCheckout] = useState(false);
+  const [facilities, setFacilities] = useState([]);
+  const [units, setUnits] = useState([]);
+  const [facility, setFacility] = useState(null);
 
   const [stepIndex, setStepIndex] = useState(() => {
     if (!companyId) return 0;
-    if (!facilityId) return 1;
-    if (!unitId) return 2;
-    return 3;
+    if (!facilityId) return 0;
+    if (!unitId) return 1;
+    return 2;
   });
 
   useEffect(() => {
     const loadCompanies = async () => {
       setCompaniesLoading(true);
       try {
-        const { data } = await axios.get("/companies", {
+        const { data } = await axios.get("/rental/companies", {
           headers: { "x-api-key": API_KEY },
         });
         setCompanies(data);
@@ -45,7 +47,9 @@ export default function RentalCheckout() {
       }
     };
 
-    loadCompanies();
+    if (!companyId) {
+      loadCompanies();
+    }
   }, []);
 
   useEffect(() => {
@@ -59,14 +63,13 @@ export default function RentalCheckout() {
       try {
         const { data } = await axios.get(`/rental/${companyId}`, {
           headers: { "x-api-key": API_KEY },
-          withCredentials: true,
         });
         document.title = data?.companyName || "Rental Checkout";
         const favicon = document.querySelector("link[rel='icon']");
         if (favicon && data?.logo) {
           favicon.href = data.logo;
         }
-        setCompany(data);
+        setCompany(data.company[0] || {});
       } catch (err) {
         console.error("Error getting company data:", err);
         toast.error("Failed to load company details");
@@ -74,41 +77,109 @@ export default function RentalCheckout() {
     };
 
     loadCompanyDetails();
-  }, [companyId]);
+
+    const loadFacilities = async () => {
+      if (!companyId || facilityId) {
+        setCompany(null);
+        document.title = "Rental Checkout";
+        return;
+      }
+
+      try {
+        const { data } = await axios.get(`/rental/${companyId}/facilities`, {
+          headers: { "x-api-key": API_KEY },
+        });
+        setFacilities(data.facilities || []);
+      } catch (err) {
+        console.error("Error getting company data:", err);
+        toast.error("Failed to load company details");
+      }
+    };
+
+    loadFacilities();
+  }, [companyId, facilityId]);
+
+  useEffect(() => {
+    const loadFacilityDetails = async () => {
+      if (!facilityId) {
+        setFacility(null);
+        return;
+      }
+
+      try {
+        const { data } = await axios.get(`/rental/${companyId}/${facilityId}`, {
+          headers: { "x-api-key": API_KEY },
+        });
+        setFacility(data.facility || {});
+        setUnits(data?.facility?.units || []);
+      } catch (err) {
+        console.error("Error getting facility data:", err);
+        toast.error("Failed to load facility details");
+      }
+    };
+
+    loadFacilityDetails();
+  }, [facilityId]);
+
+  useEffect(() => {
+    const loadUnitDetails = async () => {
+      if (!unitId) {
+        setUnitDetails(null);
+        return;
+      }
+
+      try {
+        const { data } = await axios.get(
+          `/rental/${companyId}/${facilityId}/${unitId}`,
+          {
+            headers: { "x-api-key": API_KEY },
+          }
+        );
+        setUnitDetails(data.unit || {});
+      } catch (err) {
+        console.error("Error getting unit data:", err);
+        toast.error("Failed to load unit details");
+      }
+    };
+
+    loadUnitDetails();
+  }, [unitId]);
 
   useEffect(() => {
     if (!unitId) {
       setUnitDetails(null);
       setSelectedInsurance(null);
-      setContactInfo(null);
+      setTenantInfo(null);
     }
   }, [unitId]);
 
   const handleCompanySelect = (selectedCompany) => {
     if (!selectedCompany?._id) return;
-    setStepIndex(1);
     setUnitDetails(null);
     setSelectedInsurance(null);
-    setContactInfo(null);
+    setTenantInfo(null);
     navigate(`/rental/${selectedCompany._id}`);
   };
 
   const handleFacilitySelect = (facility) => {
     if (!facility?._id) return;
+    setStepIndex(1);
     setUnitDetails(null);
     setSelectedInsurance(null);
-    setContactInfo(null);
+    setTenantInfo(null);
   };
 
   const handleUnitSelect = (unit) => {
     if (!unit?._id) return;
+    setStepIndex(2);
+    console.log(stepIndex);
     setSelectedInsurance(null);
-    setContactInfo(null);
+    setTenantInfo(null);
   };
 
   const handleContactInfoSubmit = (data) => {
-    setContactInfo(data);
-    setStepIndex(5);
+    setTenantInfo(data);
+    setStepIndex(4);
   };
 
   const handleCheckout = async () => {
@@ -117,7 +188,7 @@ export default function RentalCheckout() {
       toast.error("Select a unit before starting checkout");
       return;
     }
-    if (!contactInfo?.email) {
+    if (!tenantInfo?.email) {
       toast.error("Provide a renter email before paying");
       return;
     }
@@ -131,14 +202,14 @@ export default function RentalCheckout() {
         ...(selectedInsurance?.name
           ? { insurancePlanName: selectedInsurance.name }
           : {}),
-        ...(contactInfo?.phone ? { tenantPhone: contactInfo.phone } : {}),
+        ...(tenantInfo?.phone ? { tenantPhone: tenantInfo.phone } : {}),
       };
       const currentUrl = window.location.href;
       const payload = {
         unitId: unit._id,
-        tenantEmail: contactInfo.email,
+        tenantEmail: tenantInfo.email,
         tenantName:
-          [contactInfo.firstName, contactInfo.lastName]
+          [tenantInfo.firstName, tenantInfo.lastName]
             .filter(Boolean)
             .join(" ") || undefined,
         successUrl: currentUrl,
@@ -171,15 +242,6 @@ export default function RentalCheckout() {
     }
   };
 
-  const maxStep = (() => {
-    let max = 0;
-    if (companyId) max = 1;
-    if (facilityId) max = 2;
-    if (unitId) max = 4;
-    if (contactInfo) max = 5;
-    return max;
-  })();
-
   const steps = [
     {
       title: "Select a Company",
@@ -196,8 +258,9 @@ export default function RentalCheckout() {
       title: "Select a Location",
       content: (
         <RentalStepOne
-          onNext={() => setStepIndex(2)}
+          onNext={() => setStepIndex(1)}
           onSelectFacility={handleFacilitySelect}
+          facilities={facilities}
         />
       ),
     },
@@ -205,9 +268,10 @@ export default function RentalCheckout() {
       title: "Select a Unit",
       content: (
         <RentalStepTwo
-          onNext={() => setStepIndex(3)}
-          onBack={() => setStepIndex(1)}
+          onNext={() => setStepIndex(2)}
+          onBack={() => setStepIndex(0)}
           onSelectUnit={handleUnitSelect}
+          units={units}
         />
       ),
     },
@@ -215,11 +279,13 @@ export default function RentalCheckout() {
       title: "Customize Your Unit",
       content: (
         <RentalStepThree
-          onNext={() => setStepIndex(4)}
-          onBack={() => setStepIndex(2)}
+          onNext={() => setStepIndex(3)}
+          onBack={() => setStepIndex(1)}
           selectedInsurance={selectedInsurance}
           onSelectInsurance={setSelectedInsurance}
           onDetailsLoaded={setUnitDetails}
+          unit={unitDetails}
+          facility={facility}
         />
       ),
     },
@@ -228,8 +294,7 @@ export default function RentalCheckout() {
       content: (
         <RentalStepFour
           onNext={handleContactInfoSubmit}
-          onBack={() => setStepIndex(3)}
-          initialData={contactInfo}
+          onBack={() => setStepIndex(2)}
         />
       ),
     },
@@ -238,11 +303,11 @@ export default function RentalCheckout() {
       content: (
         <RentalStepFive
           company={company}
-          facility={unitDetails?.facility}
-          unit={unitDetails?.unit}
+          facility={facility}
+          unit={unitDetails}
           selectedInsurance={selectedInsurance}
-          contactInfo={contactInfo}
-          onBack={() => setStepIndex(4)}
+          tenantInfo={tenantInfo}
+          onBack={() => setStepIndex(3)}
           onCheckout={handleCheckout}
           isSubmitting={isLaunchingCheckout}
         />
@@ -264,34 +329,39 @@ export default function RentalCheckout() {
           <h1 className="text-2xl font-bold">
             {company?.companyName || "Choose a company to begin"}
           </h1>
-          {company?.address && (
-            <p className="text-sm text-gray-600">
-              {company.address.street1}
-              {company.address.street2 ? `, ${company.address.street2}` : ""}
+          {facility && (
+            <p>
+              {facility?.address?.street1},
+              {facility?.address?.street2 && ` ${facility?.address?.street2},`}{" "}
+              {facility?.address?.city}, {facility?.address?.state},{" "}
+              {facility?.address?.zipCode}
             </p>
           )}
         </div>
       </div>
 
-      {steps.map((step, index) => (
-        <div key={step.title} className="flex flex-col border">
-          <button
-            type="button"
-            className={`flex items-start justify-between gap-2 px-3 py-2 text-left ${
-              stepIndex === index ? "bg-zinc-600 text-white" : "text-zinc-500"
-            } ${index <= maxStep ? "cursor-pointer" : "cursor-not-allowed"}`}
-            onClick={() => {
-              if (index <= maxStep) {
-                setStepIndex(index);
-              }
-            }}
-          >
-            <span className="font-semibold">{index + 1}.</span>
-            <span>{step.title}</span>
-          </button>
-          {stepIndex === index && step.content}
-        </div>
-      ))}
+      {steps
+        .filter((_, index) => !(companyId && index === 0))
+        .map((step, index) => {
+          // Adjust stepIndex and maxStep since the first step is hidden
+          const actualIndex = index;
+          return (
+            <div key={step.title} className="flex flex-col border">
+              <button
+                type="button"
+                className={`flex items-start justify-between gap-2 px-3 py-2 text-left cursor-default ${
+                  stepIndex === actualIndex
+                    ? "bg-zinc-600 text-white"
+                    : "text-zinc-500"
+                }`}
+              >
+                <span className="font-semibold">{actualIndex + 1}.</span>
+                <span>{step.title}</span>
+              </button>
+              {stepIndex === actualIndex && step.content}
+            </div>
+          );
+        })}
     </div>
   );
 }

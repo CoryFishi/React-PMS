@@ -8,7 +8,9 @@ export function UserContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
+    // Replace 'token' with your actual cookie name
     if (!user) {
       axios
         .get("/profile", {
@@ -28,8 +30,10 @@ export function UserContextProvider({ children }) {
           setIsLoggedIn(false);
           setIsLoading(false);
         });
+    } else {
+      setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   const currentfacility = user?.selectedFacility || null;
 

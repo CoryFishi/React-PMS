@@ -9,7 +9,7 @@ export default function RentalStepFive({
   facility,
   unit,
   selectedInsurance,
-  contactInfo,
+  tenantInfo,
   onBack,
   onCheckout,
   isSubmitting,
@@ -23,7 +23,7 @@ export default function RentalStepFive({
   const totalDue = baseRent + insuranceAmount;
 
   const readyForCheckout = Boolean(
-    unit && company && facility && contactInfo?.email
+    unit && company && facility && tenantInfo?.email
   );
 
   return (
@@ -76,12 +76,12 @@ export default function RentalStepFive({
               Renter
             </h3>
             <p className="text-lg font-semibold">
-              {[contactInfo?.firstName, contactInfo?.lastName]
+              {[tenantInfo?.firstName, tenantInfo?.lastName]
                 .filter(Boolean)
                 .join(" ") || "-"}
             </p>
-            <p className="text-sm text-gray-600">{contactInfo?.email || "-"}</p>
-            <p className="text-sm text-gray-600">{contactInfo?.phone || "-"}</p>
+            <p className="text-sm text-gray-600">{tenantInfo?.email || "-"}</p>
+            <p className="text-sm text-gray-600">{tenantInfo?.phone || "-"}</p>
           </div>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function RentalStepFive({
         <h2 className="text-xl font-semibold">Payment summary</h2>
         <div className="mt-4 space-y-2 text-sm">
           <div className="flex justify-between">
-            <span>First month rent</span>
+            <span>Monthly Rent</span>
             <span>${formatMoney(baseRent)}</span>
           </div>
           <div className="flex justify-between">
@@ -106,12 +106,15 @@ export default function RentalStepFive({
           </div>
           <div className="flex justify-between text-xs text-gray-500">
             <span>Taxes & fees</span>
-            <span>Calculated during Stripe checkout</span>
+            <span>Calculated during checkout</span>
           </div>
           <hr />
           <div className="flex items-center justify-between text-base font-semibold">
             <span>Total due today</span>
-            <span>${formatMoney(totalDue)}</span>
+            <span>
+              ${formatMoney(totalDue)}{" "}
+              <span className="font-thin">+ taxes & fees</span>
+            </span>
           </div>
         </div>
         {!readyForCheckout && (

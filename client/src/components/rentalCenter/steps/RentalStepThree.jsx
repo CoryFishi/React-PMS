@@ -1,19 +1,14 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-
-const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function RentalStepThree({
   onNext,
   onBack,
   selectedInsurance,
   onSelectInsurance,
-  onDetailsLoaded,
+  unit,
+  facility,
 }) {
-  const [unit, setUnit] = useState(null);
-  const [facility, setFacility] = useState(null);
   const [insurance, setInsurance] = useState([
     {
       _id: "1",
@@ -24,72 +19,10 @@ export default function RentalStepThree({
       coverageAmount: 0,
     },
   ]);
-  const { companyId, facilityId, unitId } = useParams();
+  const { companyId, facilityId } = useParams();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
 
-  const register = async () => {
-    if (!facilityId || !unit?._id) {
-      toast.error("Select a unit before continuing");
-      return;
-    }
-
-    try {
-      const { data } = await axios.put(
-        `/facilities/${facilityId}/tenants`,
-        {
-          unitId: unit._id,
-          insurancePlanId: selectedInsurance?._id || null,
-          user: user,
-        },
-        {
-          headers: { "x-api-key": API_KEY },
-        }
-      );
-      setUser(data.user);
-      toast.success("Successfully registered!");
-    } catch (error) {
-      console.error(error);
-      toast.error(error?.response?.data?.message || "Registration failed");
-    }
-  };
-
-  useEffect(() => {
-    if (!unitId) {
-      setUnit(null);
-      setFacility(null);
-      setInsurance(null);
-      return;
-    }
-
-    axios
-      .get(`/rental/${companyId}/${facilityId}/${unitId}`, {
-        headers: { "x-api-key": API_KEY },
-      })
-      .then(({ data }) => {
-        setFacility(data.facility);
-        setUnit(data.unit);
-        onDetailsLoaded?.({
-          facility: data.facility,
-          unit: data.unit,
-          insurancePlans: data.insurancePlans,
-        });
-      })
-      .catch(() => {
-        setFacility(null);
-        setUnit(null);
-        setInsurance(null);
-      });
-  }, [unitId, facilityId, companyId, onDetailsLoaded]);
-
-  useEffect(() => {
-    if (!selectedInsurance && insurance?.length) {
-      onSelectInsurance?.(null);
-    }
-  }, [insurance, selectedInsurance, onSelectInsurance]);
-
-  if (!unit || !facility)
-    return <p className="px-3 py-2">Loading unit details...</p>;
+  if (!unit) return <p className="px-3 py-2">Loading unit details...</p>;
 
   const baseRent = unit.paymentInfo?.pricePerMonth ?? 0;
   const insuranceAmount = selectedInsurance?.monthlyPrice ?? 0;
@@ -106,11 +39,13 @@ export default function RentalStepThree({
           {unit.specifications?.height} {unit.specifications?.unit}
         </p>
         <p className="mb-2 text-sm text-gray-600">${baseRent.toFixed(2)}/mo</p>
-        <p className="font-bold">{facility.facilityName}</p>
-        <p className="text-sm text-gray-600">{facility.address.street1}</p>
+        <p className="font-bold">
+          {facility?.facilityName ?? "Unknown Facility"}
+        </p>
+        <p className="text-sm text-gray-600">{facility?.address.street1}</p>
         <p className="mb-2 text-sm text-gray-600">
-          {facility.address.city}, {facility.address.state}{" "}
-          {facility.address.zipCode}
+          {facility?.address.city}, {facility?.address.state}{" "}
+          {facility?.address.zipCode}
         </p>
         <p className="font-bold">
           {selectedInsurance
@@ -198,12 +133,19 @@ export default function RentalStepThree({
           <button
             type="button"
             onClick={async () => {
-              await register();
               onNext();
             }}
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className={`rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 ${
+              !selectedInsurance && "opacity-50 cursor-not-allowed"
+            }`}
+            disabled={!selectedInsurance}
+            title={
+              !selectedInsurance
+                ? "Please select an insurance plan to continue"
+                : "Continue to registration"
+            }
           >
-            Register & Continue
+            Continue
           </button>
         </div>
       </div>

@@ -1,28 +1,8 @@
-import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import PropTypes from "prop-types";
 
-const API_KEY = import.meta.env.VITE_API_KEY;
-
-export default function RentalStepTwo({ onNext, onBack, onSelectUnit }) {
-  const [units, setUnits] = useState(null);
+export default function RentalStepTwo({ onNext, onBack, onSelectUnit, units }) {
   const { facilityId, companyId } = useParams();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!facilityId) {
-      setUnits([]);
-      return;
-    }
-
-    axios
-      .get(`/rental/${companyId}/${facilityId}/units`, {
-        headers: { "x-api-key": API_KEY },
-      })
-      .then(({ data }) => setUnits(data))
-      .catch(() => setUnits([]));
-  }, [facilityId, companyId]);
 
   if (!facilityId) {
     return (
@@ -62,9 +42,9 @@ export default function RentalStepTwo({ onNext, onBack, onSelectUnit }) {
                 <button
                   type="button"
                   onClick={() => {
-                    onSelectUnit?.(unit);
+                    onSelectUnit(unit);
                     navigate(`/rental/${companyId}/${facilityId}/${unit._id}`);
-                    onNext();
+                    onNext?.();
                   }}
                   className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                 >

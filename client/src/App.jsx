@@ -88,16 +88,16 @@ function App() {
               <Register toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
             }
           />
-          <Route path="/rental" element={<RentalCheckout />} />
-          <Route path="/rental/:companyId" element={<RentalCheckout />} />
-          <Route
-            path="/rental/:companyId/:facilityId"
-            element={<RentalCheckout />}
-          />
           <Route
             path="/rental/:companyId/:facilityId/:unitId"
             element={<RentalCheckout />}
           />
+          <Route
+            path="/rental/:companyId/:facilityId"
+            element={<RentalCheckout />}
+          />
+          <Route path="/rental/:companyId" element={<RentalCheckout />} />
+          <Route path="/rental" element={<RentalCheckout />} />
           <Route
             path="/dashboard/:section"
             element={

@@ -1,29 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useEffect, useState } from "react";
 
-const API_KEY = import.meta.env.VITE_API_KEY;
-
-export default function RentalStepOne({ onNext, onSelectFacility }) {
-  const [facilities, setFacilities] = useState(null);
+export default function RentalStepOne({
+  onNext,
+  onSelectFacility,
+  facilities,
+}) {
   const { companyId } = useParams();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!companyId) {
-      setFacilities([]);
-      return;
-    }
-
-    axios
-      .get(`/rental/${companyId}/facilities`, {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      })
-      .then(({ data }) => setFacilities(data))
-      .catch(() => setFacilities([]));
-  }, [companyId]);
 
   if (!companyId) {
     return (

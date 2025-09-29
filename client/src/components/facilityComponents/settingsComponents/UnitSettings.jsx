@@ -274,7 +274,7 @@ export default function UnitSettings() {
               </span>
             )}
           </p>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-slate-400">
             on{" "}
             {u.lastMoveOutDate
               ? new Date(u.lastMoveOutDate).toLocaleDateString()
@@ -293,7 +293,7 @@ export default function UnitSettings() {
         <div key={index} className="items-center flex justify-center gap-1">
           {u.availability === true && (
             <a
-              className="text-sm hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 gap-0.5 flex items-center cursor-pointer select-none"
+              className="text-sm hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 gap-0.5 flex items-center cursor-pointer select-none"
               onClick={() => setIsDeleteModalOpen(true) & setSelectedUnit(u)}
             >
               <MdDeleteForever />
@@ -301,7 +301,7 @@ export default function UnitSettings() {
             </a>
           )}
           <a
-            className="text-sm gap-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-900 dark:border-zinc-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
+            className="text-sm gap-0.5 hover:bg-slate-200 dark:hover:bg-slate-900 dark:border-slate-700 border rounded-lg px-1 flex items-center cursor-pointer select-none"
             onClick={() => setIsEditOpen(true) & setSelectedUnit(u)}
           >
             <MdEditDocument />
@@ -343,7 +343,7 @@ export default function UnitSettings() {
                 Delete
               </button>
               <button
-                className="bg-zinc-300 hover:bg-zinc-500 text-black font-bold py-2 px-4 rounded"
+                className="bg-slate-300 hover:bg-slate-500 text-black font-bold py-2 px-4 rounded"
                 onClick={() => setIsDeleteModalOpen(false)}
               >
                 Cancel
@@ -378,7 +378,7 @@ export default function UnitSettings() {
         </div>
       </div>
       {activeTab === "Units" ? (
-        <div className="flex flex-col h-full w-full relative dark:bg-zinc-900">
+        <div className="flex flex-col h-full w-full relative">
           <div className="my-4 flex items-center justify-end text-center mx-5 gap-2">
             <InputBox
               value={searchQuery}

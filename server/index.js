@@ -32,6 +32,7 @@ app.use("/facilities", require("./routes/facilityRoutes"));
 app.use("/tenants", require("./routes/tenantRoutes"));
 app.use("/events", require("./routes/eventRoutes"));
 app.use("/payments", require("./routes/paymentRoutes"));
+app.use("/rental", require("./routes/rentalRoutes"));
 app.use("/", require("./routes/userRoutes"));
 
 // MongoDB Connection
