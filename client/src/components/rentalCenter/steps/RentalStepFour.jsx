@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BiRightArrow } from "react-icons/bi";
 
 const usStates = [
@@ -116,7 +116,7 @@ const exampleFormData = {
   gateCode: "1234",
 };
 
-export default function RentalStepFour({ onNext, onBack }) {
+export default function RentalStepFour({ onNext, onBack, companyName }) {
   const [formData, setFormData] = useState(defaultFormData);
 
   const handleChange = (e) => {
@@ -138,7 +138,7 @@ export default function RentalStepFour({ onNext, onBack }) {
         className={`w-full flex justify-end px-10 pt-3 items-center font-medium`}
       >
         <div className="group inline-flex items-center gap-1 text-sky-600 duration-300 transition-all hover:gap-3 cursor-pointer">
-          <span>Login</span>
+          <span>Already rent with {companyName}? Login</span>
           <BiRightArrow />
         </div>
       </div>

@@ -9,6 +9,9 @@ export default function RentalStepThree({
   unit,
   facility,
 }) {
+  const [moveInDate, setMoveInDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [insurance, setInsurance] = useState([
     {
       _id: "1",
@@ -27,6 +30,14 @@ export default function RentalStepThree({
   const baseRent = unit.paymentInfo?.pricePerMonth ?? 0;
   const insuranceAmount = selectedInsurance?.monthlyPrice ?? 0;
   const total = baseRent + insuranceAmount;
+
+  const handleMoveInDateChange = (e) => {
+    if (e.target.value < new Date().toISOString().split("T")[0]) {
+      alert("Move-in date cannot be in the past.");
+      return;
+    }
+    setMoveInDate(e.target.value);
+  };
 
   return (
     <div className="grid grid-cols-1 gap-3 px-3 py-2 md:grid-cols-2">
@@ -81,8 +92,8 @@ export default function RentalStepThree({
                   onClick={() => onSelectInsurance?.(plan)}
                   className={`flex w-full items-center justify-between rounded border px-3 py-2 text-left transition ${
                     isSelected
-                      ? "border-blue-600 bg-blue-50"
-                      : "border-gray-300 hover:border-blue-400"
+                      ? "border-sky-600 bg-sky-50"
+                      : "border-gray-300 hover:border-sky-400"
                   }`}
                 >
                   <span>
@@ -110,6 +121,18 @@ export default function RentalStepThree({
             <p>No insurance plans available.</p>
           )}
         </div>
+        <div className="mb-3 border p-3 text-sm flex justify-between">
+          <p className="flex justify-between">
+            <span>Move In Date</span>
+          </p>
+          <input
+            type="date"
+            className="p-2 block border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 w-1/2 cursor-pointer"
+            defaultValue={new Date().toISOString().split("T")[0]}
+            value={moveInDate}
+            onChange={handleMoveInDateChange}
+          />
+        </div>
         <div className="border p-3 text-sm">
           <p className="flex justify-between">
             <span>Subtotal</span>
@@ -135,7 +158,7 @@ export default function RentalStepThree({
             onClick={async () => {
               onNext();
             }}
-            className={`rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 ${
+            className={`rounded bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-700 ${
               !selectedInsurance && "opacity-50 cursor-not-allowed"
             }`}
             disabled={!selectedInsurance}

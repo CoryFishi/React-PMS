@@ -3,17 +3,6 @@ const { Schema } = mongoose;
 
 const tenantSchema = new Schema(
   {
-    username: {
-      type: String,
-      required: [true, "Username is required"],
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters long"],
-      select: false,
-    },
     firstName: {
       type: String,
       required: [true, "First name is required"],
@@ -31,11 +20,6 @@ const tenantSchema = new Schema(
     businessName: {
       type: String,
       trim: true,
-    },
-    dateOfBirth: {
-      type: String,
-      match: [/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"],
-      required: true,
     },
     contactInfo: {
       phone: {
@@ -64,10 +48,42 @@ const tenantSchema = new Schema(
         ],
       },
     },
+    address: {
+      street1: {
+        type: String,
+        required: [true, "Street address is required"],
+        trim: true,
+      },
+      street2: {
+        type: String,
+        trim: true,
+      },
+      city: {
+        type: String,
+        required: [true, "City is required"],
+        trim: true,
+      },
+      state: {
+        type: String,
+        required: [true, "State is required"],
+        trim: true,
+      },
+      zipCode: {
+        type: String,
+        required: [true, "Zip code is required"],
+        match: [/^\d{5}(-\d{4})?$/, "Please fill a valid zip code"],
+        trim: true,
+      },
+      country: {
+        type: String,
+        required: [true, "Country is required"],
+        trim: true,
+      },
+    },
     vehicle: {
       DLNumber: {
         type: String,
-        required: [true, "Last Four of Driver's License Number Required"],
+        required: [true, "Driver's License Number Required"],
         trim: true,
       },
       DLExpire: {
@@ -105,49 +121,51 @@ const tenantSchema = new Schema(
         trim: true,
       },
     },
-    address: {
-      street1: {
-        type: String,
-        required: [true, "Street address is required"],
-        trim: true,
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
+      maxlength: [32, "Password must be at most 32 characters long"],
+      validate: {
+        validator: function (v) {
+          return (
+            /[a-z]/.test(v) &&
+            /[A-Z]/.test(v) &&
+            /[0-9]/.test(v) &&
+            /[^A-Za-z0-9]/.test(v)
+          );
+        },
+        message:
+          "Password must contain at least one lowercase letter, one uppercase letter, one number, and one symbol",
       },
-      street2: {
-        type: String,
-        trim: true,
-      },
-      city: {
-        type: String,
-        required: [true, "City is required"],
-        trim: true,
-      },
-      state: {
-        type: String,
-        required: [true, "State is required"],
-        trim: true,
-      },
-      zipCode: {
-        type: String,
-        required: [true, "Zip code is required"],
-        match: [/^\d{5}(-\d{4})?$/, "Please fill a valid zip code"],
-        trim: true,
-      },
-      country: {
-        type: String,
-        required: [true, "Country is required"],
-        trim: true,
-      },
+      select: false,
+    },
+    dateOfBirth: {
+      type: String,
+      match: [/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"],
+      required: [true, "Date of birth is required"],
+    },
+    company: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
+      required: [true, "Company reference is required"],
     },
     notes: [
       {
-        message: { type: String, required: true },
+        message: { type: String, required: [true, "Message is required"] },
         createdBy: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
-          required: true,
+          required: [true, "Created by user reference is required"],
         },
         createdAt: {
           type: Date,
-          required: true,
+          required: [true, "Created at date is required"],
           default: Date.now,
         },
         requiredResponse: {
@@ -171,12 +189,10 @@ const tenantSchema = new Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "Creator reference is required"],
     },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "Updater reference is required"],
     },
     createdAt: {
       type: Date,

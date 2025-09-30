@@ -177,9 +177,27 @@ export default function RentalCheckout() {
     setTenantInfo(null);
   };
 
-  const handleContactInfoSubmit = (data) => {
+  const handleTenantInfoSubmit = async (data) => {
     setTenantInfo(data);
+    createTenant(data);
     setStepIndex(4);
+  };
+
+  const createTenant = async (data) => {
+    try {
+      const payload = {
+        ...data,
+        company: companyId,
+      };
+      const response = await axios.post(
+        `/rental/${companyId}/${facilityId}/${unitId}/tenant`,
+        payload
+      );
+      setTenantInfo(response.data);
+    } catch (error) {
+      console.error("Error creating tenant:", error);
+      toast.error("Failed to create tenant");
+    }
   };
 
   const handleCheckout = async () => {
@@ -293,8 +311,9 @@ export default function RentalCheckout() {
       title: "Additional Information",
       content: (
         <RentalStepFour
-          onNext={handleContactInfoSubmit}
+          onNext={handleTenantInfoSubmit}
           onBack={() => setStepIndex(2)}
+          companyName={company?.companyName}
         />
       ),
     },
