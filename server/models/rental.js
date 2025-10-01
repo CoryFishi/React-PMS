@@ -1,19 +1,21 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const rentalSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+
+const rentalSchema = new Schema(
   {
     company: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Company",
       required: true,
     },
     facility: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "StorageFacility",
       required: true,
     },
     unit: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "StorageUnit",
       required: true,
     },
@@ -67,4 +69,4 @@ rentalSchema.index({ company: 1, facility: 1, unit: 1, checkoutSessionId: 1 });
 
 const Rental = mongoose.model("Rental", rentalSchema);
 
-module.exports = Rental;
+export default Rental;

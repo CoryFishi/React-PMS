@@ -1,6 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const storageUnitSchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const storageUnitSchema = new Schema({
   unitNumber: {
     type: String,
     required: true,
@@ -136,4 +138,4 @@ const storageUnitSchema = new mongoose.Schema({
 
 const StorageUnit = mongoose.model("StorageUnit", storageUnitSchema);
 
-module.exports = StorageUnit;
+export default StorageUnit;

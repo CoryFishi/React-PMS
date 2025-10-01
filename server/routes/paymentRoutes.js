@@ -1,14 +1,16 @@
-const express = require("express");
+import express from "express";
+import * as paymentController from "../controllers/paymentController.js";
+import authenticateAPIKey from "../middleware/apiKeyAuth.js";
+
 const router = express.Router();
-const paymentController = require("../controllers/paymentController");
-const authenticateAPIKey = require("../middleware/apiKeyAuth");
 
 // Payments Route
 router.post("/create", authenticateAPIKey, paymentController.createPayment);
+
 router.post(
   "/unit-checkout-session",
   authenticateAPIKey,
   paymentController.createUnitCheckoutSession
 );
 
-module.exports = router;
+export default router;

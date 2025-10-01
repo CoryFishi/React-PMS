@@ -1,9 +1,10 @@
-const express = require("express");
+import express from "express";
+import * as facilityController from "../controllers/facilityController.js";
+import * as tenantController from "../controllers/tenantController.js";
+import authenticateAPIKey from "../middleware/apiKeyAuth.js";
+import authenticate from "../middleware/authentication.js";
+
 const router = express.Router();
-const facilityController = require("../controllers/facilityController");
-const tenantController = require("../controllers/tenantController");
-const authenticateAPIKey = require("../middleware/apiKeyAuth");
-const { authenticate } = require("../middleware/authentication");
 
 // Base route: `/facilities`
 router.get(
@@ -184,4 +185,4 @@ router.get(
   facilityController.getFacilityById
 );
 
-module.exports = router;
+export default router;

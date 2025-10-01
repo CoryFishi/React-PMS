@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 // This function checks if the user is authenticated by verifying the JWT token.
 // If the token is valid, it decodes the user information and attaches it to the request object.
@@ -16,4 +16,4 @@ const authenticate = (req, res, next) => {
   }
 };
 
-exports.authenticate = authenticate;
+export default authenticate;

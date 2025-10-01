@@ -1,11 +1,25 @@
-const express = require("express");
+import express from "express";
+import * as rentalController from "../controllers/rentalController.js";
+import authenticateAPIKey from "../middleware/apiKeyAuth.js";
+
 const router = express.Router();
-const rentalController = require("../controllers/rentalController");
-const authenticateAPIKey = require("../middleware/apiKeyAuth");
 
 // Base route: `/rental`
 // Get companies for rental checkout
 router.get("/companies", authenticateAPIKey, rentalController.getCompanies);
+
+// Create a new rental
+router.post(
+  "/:companyId/:facilityId/:unitId/rent",
+  authenticateAPIKey,
+  rentalController.createTenantAndLease
+);
+
+router.post(
+  "/:companyId/:facilityId/:unitId/login&rent",
+  authenticateAPIKey,
+  rentalController.loginTenantAndCreateLease
+);
 
 // Get company by ID and only return enabled facilities
 router.get(
@@ -35,4 +49,4 @@ router.get(
   rentalController.getUnitDataById
 );
 
-module.exports = router;
+export default router;

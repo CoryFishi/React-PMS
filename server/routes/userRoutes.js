@@ -1,8 +1,10 @@
-const express = require("express");
+import express from "express";
+import * as userController from "../controllers/userController.js";
+import authenticateAPIKey from "../middleware/apiKeyAuth.js";
+import authenticate from "../middleware/authentication.js";
+
 const router = express.Router();
-const userController = require("../controllers/userController");
-const authenticateAPIKey = require("../middleware/apiKeyAuth");
-const { authenticate } = require("../middleware/authentication");
+
 ////////
 ////////  All of these routes are prefixed with the base url /
 ////////  Potentially want to change these to be better defined
@@ -119,4 +121,4 @@ router.get(
   userController.rentalCenterConfig
 );
 
-module.exports = router;
+export default router;

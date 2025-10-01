@@ -1,12 +1,12 @@
-const bcrpyt = require("bcrypt");
+import bcrypt from "bcrypt";
 
 const hashPassword = (password) => {
   return new Promise((resolve, reject) => {
-    bcrpyt.genSalt(12, (err, salt) => {
+    bcrypt.genSalt(12, (err, salt) => {
       if (err) {
         reject(err);
       }
-      bcrpyt.hash(password, salt, (err, hash) => {
+      bcrypt.hash(password, salt, (err, hash) => {
         if (err) {
           reject(err);
         }
@@ -17,7 +17,7 @@ const hashPassword = (password) => {
 };
 
 const comparePassword = (password, hashed) => {
-  return bcrpyt.compare(password, hashed);
+  return bcrypt.compare(password, hashed);
 };
 
 const passwordValidator = (password) => {
@@ -49,8 +49,4 @@ const passwordValidator = (password) => {
   return null;
 };
 
-module.exports = {
-  hashPassword,
-  comparePassword,
-  passwordValidator,
-};
+export { hashPassword, comparePassword, passwordValidator };

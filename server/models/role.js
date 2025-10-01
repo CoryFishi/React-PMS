@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
 const { Schema } = mongoose;
 
 // Role Schema with Permissions
@@ -55,3 +56,5 @@ const roleSchema = new Schema(
 );
 
 const RoleModel = mongoose.model("Role", roleSchema);
+
+export default RoleModel;

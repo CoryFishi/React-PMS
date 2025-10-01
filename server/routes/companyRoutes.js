@@ -1,8 +1,9 @@
-const express = require("express");
+import express from "express";
+import * as companyController from "../controllers/companyController.js";
+import authenticateAPIKey from "../middleware/apiKeyAuth.js";
+import authenticate from "../middleware/authentication.js";
+
 const router = express.Router();
-const companyController = require("../controllers/companyController");
-const authenticateAPIKey = require("../middleware/apiKeyAuth");
-const { authenticate } = require("../middleware/authentication");
 
 // Base route: `/companies`
 router.get(
@@ -72,4 +73,4 @@ router.put(
   companyController.editCompany
 );
 
-module.exports = router;
+export default router;

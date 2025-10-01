@@ -1,6 +1,8 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const storageFacilitySchema = new mongoose.Schema({
+const { Schema } = mongoose;
+
+const storageFacilitySchema = new Schema({
   facilityName: {
     type: String,
     required: [true, "Facility name is required"],
@@ -147,4 +149,4 @@ const StorageFacility = mongoose.model(
   storageFacilitySchema
 );
 
-module.exports = StorageFacility;
+export default StorageFacility;

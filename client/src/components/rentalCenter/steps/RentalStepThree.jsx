@@ -8,10 +8,9 @@ export default function RentalStepThree({
   onSelectInsurance,
   unit,
   facility,
+  moveInDate,
+  setMoveInDate,
 }) {
-  const [moveInDate, setMoveInDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
   const [insurance, setInsurance] = useState([
     {
       _id: "1",
@@ -128,7 +127,6 @@ export default function RentalStepThree({
           <input
             type="date"
             className="p-2 block border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring focus:ring-sky-500 focus:ring-opacity-50 w-1/2 cursor-pointer"
-            defaultValue={new Date().toISOString().split("T")[0]}
             value={moveInDate}
             onChange={handleMoveInDateChange}
           />

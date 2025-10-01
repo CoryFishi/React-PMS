@@ -1,4 +1,5 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 const API_KEY = process.env.API_KEY;
 
@@ -13,4 +14,4 @@ const authenticateAPIKey = (req, res, next) => {
   next();
 };
 
-module.exports = authenticateAPIKey;
+export default authenticateAPIKey;

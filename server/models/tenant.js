@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+
 const { Schema } = mongoose;
 
 const tenantSchema = new Schema(
@@ -129,22 +130,17 @@ const tenantSchema = new Schema(
     password: {
       type: String,
       required: [true, "Password is required"],
-      minlength: [6, "Password must be at least 6 characters long"],
-      maxlength: [32, "Password must be at most 32 characters long"],
-      validate: {
-        validator: function (v) {
-          return (
-            /[a-z]/.test(v) &&
-            /[A-Z]/.test(v) &&
-            /[0-9]/.test(v) &&
-            /[^A-Za-z0-9]/.test(v)
-          );
-        },
-        message:
-          "Password must contain at least one lowercase letter, one uppercase letter, one number, and one symbol",
-      },
-      select: false,
     },
+    isMilitary: {
+      type: Boolean,
+      default: false,
+    },
+    recoveryQuestions: [
+      {
+        question: { type: String, required: [true, "Question is required"] },
+        answer: { type: String, required: [true, "Answer is required"] },
+      },
+    ],
     dateOfBirth: {
       type: String,
       match: [/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"],
@@ -180,6 +176,12 @@ const tenantSchema = new Schema(
         },
       },
     ],
+    units: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StorageUnit",
+      },
+    ],
     status: {
       type: String,
       default: "Active",
@@ -208,4 +210,4 @@ const tenantSchema = new Schema(
 
 const Tenant = mongoose.model("Tenant", tenantSchema);
 
-module.exports = Tenant;
+export default Tenant;

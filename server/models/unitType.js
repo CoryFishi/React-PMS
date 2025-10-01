@@ -1,4 +1,8 @@
-const unitTypeSchema = new mongoose.Schema({
+import mongoose from "mongoose";
+
+const { Schema } = mongoose;
+
+const unitTypeSchema = new Schema({
   name: { type: String },
   size: {
     width: { type: Number, required: true },
@@ -55,4 +59,6 @@ const unitTypeSchema = new mongoose.Schema({
   },
 });
 
-export const UnitType = mongoose.model("UnitType", unitTypeSchema);
+const UnitType = mongoose.model("UnitType", unitTypeSchema);
+
+export default UnitType;

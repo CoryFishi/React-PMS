@@ -1,9 +1,20 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cookieParser = require("cookie-parser");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-require("dotenv").config();
+import express from "express";
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
+import cors from "cors";
+import getEnvelopesApi from "./services/docusignClient.js";
+import dotenv from "dotenv";
+
+import companyRoutes from "./routes/companyRoutes.js";
+import facilityRoutes from "./routes/facilityRoutes.js";
+import tenantRoutes from "./routes/tenantRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import rentalRoutes from "./routes/rentalRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+
+dotenv.config();
 
 const app = express();
 
@@ -27,13 +38,13 @@ app.use((req, res, next) => {
 });
 
 // Import & Use Routes
-app.use("/companies", require("./routes/companyRoutes"));
-app.use("/facilities", require("./routes/facilityRoutes"));
-app.use("/tenants", require("./routes/tenantRoutes"));
-app.use("/events", require("./routes/eventRoutes"));
-app.use("/payments", require("./routes/paymentRoutes"));
-app.use("/rental", require("./routes/rentalRoutes"));
-app.use("/", require("./routes/userRoutes"));
+app.use("/companies", companyRoutes);
+app.use("/facilities", facilityRoutes);
+app.use("/tenants", tenantRoutes);
+app.use("/events", eventRoutes);
+app.use("/payments", paymentRoutes);
+app.use("/rental", rentalRoutes);
+app.use("/", userRoutes);
 
 // MongoDB Connection
 mongoose
@@ -50,39 +61,28 @@ mongoose
     process.exit(1);
   });
 
-// const runDelinquency = () => {
-//   exec("node ./processes/delinquency.js", (error, stdout, stderr) => {
-//     if (error) {
-//       console.error(`exec error: ${error}`);
-//       return;
-//     }
-//     if (stdout) {
-//       console.log(`${stdout}`);
-//     }
-//     if (stderr) {
-//       console.error(`${stderr}`);
-//     }
-//   });
-// };
+// Example health route to verify auth works
+app.get("/docusign/ping", async (req, res) => {
+  try {
+    const { accountId } = await getEnvelopesApi();
+    res.json({ ok: true, accountId });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
 
-// const runMonthly = () => {
-//   exec("node ./processes/monthly.js", (error, stdout, stderr) => {
-//     if (error) {
-//       console.error(`exec error: ${error}`);
-//       return;
-//     }
-//     if (stdout) {
-//       console.log(`${stdout}`);
-//     }
-//     if (stderr) {
-//       console.error(`${stderr}`);
-//     }
-//   });
-// };
-
-// run delinquency script every 60 minutes
-// This script turns tenants that have not paid their bill too delinquent
-// setInterval(runDelinquency, 60 * 60 * 1000);
-// run monthly script every 60 minutes
-// This script adds the tenants monthly rent to their balance
-// setInterval(runMonthly, 60 * 60 * 1000);
+// Example: get envelope status (quick test)
+app.get("/docusign/envelopes/:envelopeId", async (req, res) => {
+  try {
+    const { envelopesApi, accountId } = await getEnvelopesApi();
+    const env = await envelopesApi.getEnvelope(
+      accountId,
+      req.params.envelopeId,
+      null
+    );
+    res.json(env);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});

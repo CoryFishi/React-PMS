@@ -23,7 +23,9 @@ export default function RentalCheckout() {
   const [facilities, setFacilities] = useState([]);
   const [units, setUnits] = useState([]);
   const [facility, setFacility] = useState(null);
-
+  const [moveInDate, setMoveInDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [stepIndex, setStepIndex] = useState(() => {
     if (!companyId) return 0;
     if (!facilityId) return 0;
@@ -177,26 +179,57 @@ export default function RentalCheckout() {
     setTenantInfo(null);
   };
 
-  const handleTenantInfoSubmit = async (data) => {
-    setTenantInfo(data);
-    createTenant(data);
-    setStepIndex(4);
+  const handleTenantInfoSubmit = async (data, submitType) => {
+    if (submitType === "login") {
+      const result = await loginTenant(data);
+      toast.success(result);
+      return;
+    } else if (submitType === "register") {
+      const result = await createTenant(data);
+      if (result !== "Tenant created successfully") {
+        toast.error(result);
+        return;
+      }
+      toast.success("Tenant information saved");
+      setStepIndex(4);
+    }
+  };
+
+  const loginTenant = async (data) => {
+    try {
+      const response = await axios.post(
+        `/rental/${companyId}/${facilityId}/${unitId}/login&rent`,
+        {
+          username: data.username,
+          password: data.password,
+          company: companyId,
+        },
+        { headers: { "x-api-key": API_KEY } }
+      );
+      setTenantInfo(response.data);
+      return "Tenant created successfully";
+    } catch (error) {
+      console.error("Error creating tenant:", error);
+      return error?.response?.data?.message || "Failed to create tenant";
+    }
   };
 
   const createTenant = async (data) => {
     try {
-      const payload = {
+      const tenantInfo = {
         ...data,
         company: companyId,
       };
       const response = await axios.post(
-        `/rental/${companyId}/${facilityId}/${unitId}/tenant`,
-        payload
+        `/rental/${companyId}/${facilityId}/${unitId}/rent`,
+        { tenantInfo: tenantInfo },
+        { headers: { "x-api-key": API_KEY } }
       );
       setTenantInfo(response.data);
+      return "Tenant created successfully";
     } catch (error) {
       console.error("Error creating tenant:", error);
-      toast.error("Failed to create tenant");
+      return error?.response?.data?.message || "Failed to create tenant";
     }
   };
 
@@ -304,11 +337,13 @@ export default function RentalCheckout() {
           onDetailsLoaded={setUnitDetails}
           unit={unitDetails}
           facility={facility}
+          moveInDate={moveInDate}
+          setMoveInDate={setMoveInDate}
         />
       ),
     },
     {
-      title: "Additional Information",
+      title: "Account Information",
       content: (
         <RentalStepFour
           onNext={handleTenantInfoSubmit}
@@ -318,7 +353,7 @@ export default function RentalCheckout() {
       ),
     },
     {
-      title: "Review & Pay",
+      title: "Disclosure & E-Signature",
       content: (
         <RentalStepFive
           company={company}
@@ -332,55 +367,76 @@ export default function RentalCheckout() {
         />
       ),
     },
+    {
+      title: "Payment Information",
+      content: (
+        <RentalStepFive
+          company={company}
+          facility={facility}
+          unit={unitDetails}
+          selectedInsurance={selectedInsurance}
+          tenantInfo={tenantInfo}
+          onBack={() => setStepIndex(4)}
+          onCheckout={handleCheckout}
+          isSubmitting={isLaunchingCheckout}
+        />
+      ),
+    },
   ];
 
   return (
-    <div className="mx-auto max-w-5xl p-5">
-      <div className="mb-6 flex items-center gap-3">
-        {company?.logo && (
-          <img
-            src={company.logo}
-            alt={`${company?.companyName ?? "Selected"} logo`}
-            className="max-h-10"
-          />
-        )}
-        <div>
-          <h1 className="text-2xl font-bold">
-            {company?.companyName || "Choose a company to begin"}
-          </h1>
-          {facility && (
-            <p>
-              {facility?.address?.street1},
-              {facility?.address?.street2 && ` ${facility?.address?.street2},`}{" "}
-              {facility?.address?.city}, {facility?.address?.state},{" "}
-              {facility?.address?.zipCode}
-            </p>
+    <>
+      <div className="mx-auto max-w-5xl p-5">
+        <div className="mb-6 flex items-center gap-3">
+          {company?.logo && (
+            <img
+              src={company.logo}
+              alt={`${company?.companyName ?? "Selected"} logo`}
+              className="max-h-10"
+            />
           )}
+          <div>
+            <h1 className="text-2xl font-bold">
+              {company?.companyName || "Choose a company to begin"}
+            </h1>
+            {facility && (
+              <p>
+                {facility?.address?.street1},
+                {facility?.address?.street2 &&
+                  ` ${facility?.address?.street2},`}{" "}
+                {facility?.address?.city}, {facility?.address?.state},{" "}
+                {facility?.address?.zipCode}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
 
-      {steps
-        .filter((_, index) => !(companyId && index === 0))
-        .map((step, index) => {
-          // Adjust stepIndex and maxStep since the first step is hidden
-          const actualIndex = index;
-          return (
-            <div key={step.title} className="flex flex-col border">
-              <button
-                type="button"
-                className={`flex items-start justify-between gap-2 px-3 py-2 text-left cursor-default ${
-                  stepIndex === actualIndex
-                    ? "bg-zinc-600 text-white"
-                    : "text-zinc-500"
-                }`}
-              >
-                <span className="font-semibold">{actualIndex + 1}.</span>
-                <span>{step.title}</span>
-              </button>
-              {stepIndex === actualIndex && step.content}
-            </div>
-          );
-        })}
-    </div>
+        {steps
+          .filter((_, index) => !(companyId && index === 0))
+          .map((step, index) => {
+            // Adjust stepIndex and maxStep since the first step is hidden
+            const actualIndex = index;
+            return (
+              <div key={step.title} className="flex flex-col border">
+                <button
+                  type="button"
+                  className={`flex items-start justify-between gap-2 px-3 py-2 text-left cursor-default ${
+                    stepIndex === actualIndex
+                      ? "bg-zinc-600 text-white"
+                      : "text-zinc-500"
+                  }`}
+                >
+                  <span className="font-semibold">{actualIndex + 1}.</span>
+                  <span>{step.title}</span>
+                </button>
+                {stepIndex === actualIndex && step.content}
+              </div>
+            );
+          })}
+      </div>
+      <div className="w-full flex justify-end mt-2">
+        <h2 className="text-zinc-500 p-4 font-medium">Powered by Storix</h2>
+      </div>
+    </>
   );
 }
