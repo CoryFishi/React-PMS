@@ -645,8 +645,13 @@ export const getDashboardData = async (req, res) => {
       1
     );
 
-    // Helper to scope queries
-    const companyFilter = user.role === "System_Admin" ? [] : user.company;
+    // Helper to scope queries. System roles see global counts; everyone else
+    // is scoped to their own company. The previous version spread an ObjectId
+    // into `{}` for non-admin users, silently leaking cross-company counts.
+    const companyFilter =
+      user.role === "System_Admin" || user.role === "System_User"
+        ? {}
+        : { company: user.company };
 
     // Users
     const totalUsers = await User.countDocuments({ ...companyFilter });
