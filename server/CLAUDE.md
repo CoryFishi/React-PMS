@@ -6,9 +6,12 @@ Express 4 + Mongoose 8 on Node ESM. Entry is `index.js`. Stripe and DocuSign int
 
 ```bash
 npm start         # nodemon index.js
+npm run lint      # eslint, must stay at 0 warnings
 ```
 
 No test command. The `test` script intentionally errors — don't invoke it, and don't claim a test pass.
+
+ESLint config lives in the `eslintConfig` key of `package.json` (ESLint 8 legacy style). Don't add a separate `.eslintrc.*` file.
 
 ## Module layout
 

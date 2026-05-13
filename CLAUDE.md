@@ -16,8 +16,9 @@ cd server && npm start          # uses nodemon
 # client (port 5173)
 cd client && npm run dev
 
-# lint client
+# lint
 cd client && npm run lint
+cd server && npm run lint
 ```
 
 There is no test suite. Do not invent a `npm test` command — `server`'s test script intentionally errors.

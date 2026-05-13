@@ -7,7 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "build": "npm i"
+    "build": "npm i",
+    "lint": "eslint . --ext js --report-unused-disable-directives --max-warnings 0"
   },
   "author": "",
   "license": "ISC",
@@ -24,5 +25,27 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.0",
     "stripe": "^16.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+      "es2022": true
+    },
+    "parserOptions": {
+      "ecmaVersion": 2022,
+      "sourceType": "module"
+    },
+    "extends": ["eslint:recommended"],
+    "rules": {
+      "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+      "no-console": "off",
+      "no-empty": ["warn", { "allowEmptyCatch": true }],
+      "no-constant-condition": ["error", { "checkLoops": false }]
+    },
+    "ignorePatterns": ["node_modules/"]
   }
 }
