@@ -11,10 +11,31 @@ let counter = 0;
 const uniq = (prefix) => `${prefix}-${Date.now()}-${++counter}`;
 
 export async function makeCompany(overrides = {}) {
+  // Create a bootstrap user for createdBy if not provided
+  let createdBy = overrides.createdBy;
+  if (!createdBy) {
+    const user = await User.create({
+      displayName: uniq("cbyu"),
+      name: "Creator User",
+      email: `${uniq("creator")}@example.com`,
+      role: "System_Admin",
+      address: {
+        street1: "1 Creator St",
+        city: "Creator City",
+        state: "TX",
+        zipCode: "12345",
+        country: "US",
+      },
+      createdBy: new mongoose.Types.ObjectId(),
+    });
+    createdBy = user._id;
+  }
+
   return Company.create({
     companyName: uniq("Acme"),
     status: "Enabled",
     address: { street1: "1 Main", city: "X", state: "TX", zipCode: "00000", country: "US" },
+    createdBy,
     ...overrides,
   });
 }
@@ -42,11 +63,39 @@ export async function makeUnit(facility, overrides = {}) {
 }
 
 export async function makeUser(overrides = {}) {
+  // Create a bootstrap user first if createdBy is not provided
+  let createdBy = overrides.createdBy;
+  if (!createdBy) {
+    const bootstrap = await User.create({
+      displayName: uniq("boot"),
+      name: "Bootstrap User",
+      email: `${uniq("bootstrap")}@example.com`,
+      role: "System_Admin",
+      address: {
+        street1: "1 Bootstrap St",
+        city: "Bootstrap City",
+        state: "TX",
+        zipCode: "12345",
+        country: "US",
+      },
+      createdBy: new mongoose.Types.ObjectId(),
+    });
+    createdBy = bootstrap._id;
+  }
+
   return User.create({
     displayName: uniq("user"),
-    name: { firstName: "Test", lastName: "User" },
+    name: "Test User",
     email: `${uniq("u")}@example.com`,
+    address: {
+      street1: "1 Main St",
+      city: "Test City",
+      state: "TX",
+      zipCode: "12345",
+      country: "US",
+    },
     role: "System_Admin",
+    createdBy,
     ...overrides,
   });
 }
