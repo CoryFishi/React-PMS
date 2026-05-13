@@ -1,5 +1,6 @@
 import express from "express";
 import * as rentalController from "../controllers/rentalController.js";
+import * as leaseController from "../controllers/leaseController.js";
 import authenticateAPIKey from "../middleware/apiKeyAuth.js";
 
 const router = express.Router();
@@ -7,6 +8,12 @@ const router = express.Router();
 // Base route: `/rental`
 // Get companies for rental checkout
 router.get("/companies", authenticateAPIKey, rentalController.getCompanies);
+
+router.post(
+  "/:rentalId/lease/envelope",
+  authenticateAPIKey,
+  leaseController.createLeaseEnvelope
+);
 
 // Create a new rental
 router.post(

@@ -80,9 +80,17 @@ Loaded via `dotenv` from `server/.env`. **Never read or echo the file's contents
 - Core: `MONGO_URL`, `PORT`, `JWT_SECRET`, `API_KEY`, `FRONTEND_URL`
 - Email (Nodemailer): `EMAIL`, `PASS`
 - Stripe: `STRIPE_SECRET`, `STRIPE_SECRET_KEY`
-- DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
+- DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`, `DS_LEASE_TEMPLATE_ID`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
 
 If a feature needs a new env var, add it here and document it in the root `CLAUDE.md`.
+
+### DocuSign lease template
+
+`DS_LEASE_TEMPLATE_ID` is the UUID of a DocuSign template authored in the DocuSign UI. The template must:
+
+- Define a recipient with role name `tenant` (case-sensitive)
+- Use text tabs with labels: `tenantName`, `tenantEmail`, `unitNumber`, `facilityName`, `monthlyPrice`, `startDate`
+- Include at least one signature tab assigned to the `tenant` role
 
 ## Don't
 

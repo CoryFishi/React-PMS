@@ -1,10 +1,11 @@
 import Payment from "../models/payment.js";
 import StorageUnit from "../models/unit.js";
-import Rental from "../models/rental.js";
+import mongoose from "mongoose";
 import {
   getStripeClient,
   assertStripeReadyForCompany,
 } from "../services/stripeConnect.js";
+import * as leaseService from "../services/leaseService.js";
 
 // Endpoint to handle payments
 export const createPayment = async (req, res) => {
@@ -57,196 +58,78 @@ export const createPayment = async (req, res) => {
 
 export const createUnitCheckoutSession = async (req, res) => {
   try {
-    const stripe = getStripeClient();
-    const {
-      unitId,
-      tenantEmail,
-      tenantName,
-      successUrl,
-      cancelUrl,
-      metadata: metadataPayload,
-    } = req.body;
+    const { unitId, tenantEmail, tenantName, successUrl, cancelUrl } = req.body;
 
     if (!unitId) {
       return res.status(400).json({ message: "unitId is required" });
     }
 
     const unit = await StorageUnit.findById(unitId).populate("facility");
-
-    if (!unit) {
-      return res.status(404).json({ message: "Unit not found" });
-    }
-
+    if (!unit) return res.status(404).json({ message: "Unit not found" });
     if (!unit.availability || unit.status === "Rented") {
-      return res
-        .status(409)
-        .json({ message: "Unit is not currently available" });
+      return res.status(409).json({ message: "Unit is not currently available" });
     }
-
-    const facility = unit.facility;
-
-    if (!facility) {
-      return res
-        .status(409)
-        .json({ message: "Unit is missing facility association" });
+    if (!unit.facility) {
+      return res.status(409).json({ message: "Unit is missing facility association" });
     }
 
     let company;
     try {
-      company = await assertStripeReadyForCompany(facility.company);
-    } catch (validationError) {
-      if (validationError.message === "Company not found") {
-        return res.status(404).json({ message: validationError.message });
-      }
-      if (validationError.message === "Company is not connected to Stripe") {
-        return res.status(409).json({ message: validationError.message });
-      }
+      company = await assertStripeReadyForCompany(unit.facility.company);
+    } catch (e) {
+      if (e.message === "Company not found") return res.status(404).json({ message: e.message });
       if (
-        validationError.message ===
-        "Company has not completed Stripe onboarding"
+        e.message === "Company is not connected to Stripe" ||
+        e.message === "Company has not completed Stripe onboarding"
       ) {
-        return res.status(409).json({ message: validationError.message });
+        return res.status(409).json({ message: e.message });
       }
-      throw validationError;
+      throw e;
     }
 
-    const stripeAccountId = unit.stripe?.accountId || company.stripe?.accountId;
-
-    const priceId = unit.stripe?.priceId;
-
-    if (!priceId) {
-      return res.status(409).json({
-        message: "Unit is not configured with a Stripe price",
-      });
+    const resolvedSuccess = successUrl || req.body.url;
+    const resolvedCancel = cancelUrl || req.body.url;
+    if (!resolvedSuccess || !resolvedCancel) {
+      return res.status(400).json({ message: "Both successUrl and cancelUrl are required" });
     }
 
-    let price;
+    const tenantShim = {
+      _id: req.body.tenantId
+        ? new mongoose.Types.ObjectId(req.body.tenantId)
+        : new mongoose.Types.ObjectId(),
+      firstName: tenantName || "",
+      lastName: "",
+      contactInfo: { email: tenantEmail || undefined },
+    };
+
+    let result;
     try {
-      price = await stripe.prices.retrieve(priceId, {
-        stripeAccount: stripeAccountId,
-        expand: ["product"],
+      result = await leaseService.startRental({
+        company,
+        facility: unit.facility,
+        unit,
+        tenant: tenantShim,
+        successUrl: resolvedSuccess,
+        cancelUrl: resolvedCancel,
       });
-    } catch (priceError) {
-      console.error("Unable to retrieve Stripe price for unit:", priceError);
-      if (priceError?.code === "resource_missing") {
-        return res.status(409).json({
-          message: "Configured Stripe price could not be found",
-        });
+    } catch (svcErr) {
+      if (svcErr.message === "Unit is not configured with a Stripe price") {
+        return res.status(409).json({ message: svcErr.message });
       }
-      throw priceError;
+      if (svcErr.message === "Unit's Stripe price is inactive") {
+        return res.status(409).json({ message: svcErr.message });
+      }
+      throw svcErr;
     }
 
-    if (!price || price.active === false) {
-      return res.status(409).json({
-        message: "Unit's Stripe price is inactive",
-      });
-    }
-
-    const isRecurringPrice = price.type === "recurring";
-    const checkoutMode = isRecurringPrice ? "subscription" : "payment";
-
-    const resolvedSuccessUrl = successUrl || req.body.url;
-    const resolvedCancelUrl = cancelUrl || req.body.url;
-
-    if (!resolvedSuccessUrl || !resolvedCancelUrl) {
-      return res.status(400).json({
-        message: "Both successUrl and cancelUrl are required",
-      });
-    }
-
-    const metadata = {
-      companyId: company._id.toString(),
-      facilityId: facility._id.toString(),
-      unitId: unit._id.toString(),
-      ...(tenantName ? { tenantName } : {}),
-      ...(metadataPayload && typeof metadataPayload === "object"
-        ? Object.fromEntries(
-            Object.entries(metadataPayload).filter(
-              ([, value]) => value !== undefined && value !== null
-            )
-          )
-        : {}),
-    };
-
-    const metadataForStripe = Object.fromEntries(
-      Object.entries(metadata).map(([key, value]) => [
-        key,
-        value === undefined || value === null ? "" : String(value),
-      ])
-    );
-
-    const sessionPayload = {
-      mode: checkoutMode,
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: resolvedSuccessUrl,
-      cancel_url: resolvedCancelUrl,
-      billing_address_collection: "required",
-      phone_number_collection: { enabled: true },
-      customer_email: tenantEmail || undefined,
-    };
-
-    if (Object.keys(metadataForStripe).length > 0) {
-      sessionPayload.metadata = metadataForStripe;
-    }
-
-    if (checkoutMode === "payment") {
-      sessionPayload.payment_intent_data = { metadata: metadataForStripe };
-    } else {
-      sessionPayload.subscription_data = { metadata: metadataForStripe };
-    }
-
-    const session = await stripe.checkout.sessions.create(sessionPayload, {
-      stripeAccount: stripeAccountId,
-    });
-
-    const priceAmountInCents =
-      typeof price.unit_amount === "number"
-        ? price.unit_amount
-        : unit.stripe?.priceAmount;
-
-    const priceAmount =
-      typeof priceAmountInCents === "number"
-        ? priceAmountInCents / 100
-        : unit.paymentInfo?.pricePerMonth;
-
-    if (typeof priceAmount !== "number" || Number.isNaN(priceAmount)) {
-      return res
-        .status(409)
-        .json({ message: "Unit does not have a valid price configured" });
-    }
-
-    const rentalMetadata =
-      Object.keys(metadataForStripe).length > 0 ? metadataForStripe : undefined;
-
-    await Rental.create({
-      company: company._id,
-      facility: facility._id,
-      unit: unit._id,
-      tenantEmail: tenantEmail || undefined,
-      tenantName: tenantName || undefined,
-      amount: priceAmount,
-      currency: price?.currency || unit.stripe?.currency || "usd",
-      checkoutSessionId: session.id,
-      stripeAccountId,
-      stripePriceId: priceId,
-      checkoutMode,
-      stripePriceType: price?.type,
-      stripeRecurringInterval: price?.recurring?.interval,
-      stripeRecurringIntervalCount: price?.recurring?.interval_count,
-      metadata: rentalMetadata,
-    });
-
-    res.status(200).json({
-      id: session.id,
-      url: session.url,
-      amount: priceAmount,
-      currency: price?.currency || unit.stripe?.currency || "usd",
-      mode: checkoutMode,
+    const Rental = (await import("../models/rental.js")).default;
+    const rental = await Rental.findById(result.rentalId);
+    return res.status(200).json({
+      id: rental.checkoutSessionId,
+      url: result.checkoutUrl,
+      amount: rental.amount,
+      currency: rental.currency,
+      mode: rental.checkoutMode || "payment",
     });
   } catch (error) {
     console.error("Error creating tenant checkout session:", error);
@@ -256,6 +139,6 @@ export const createUnitCheckoutSession = async (req, res) => {
     if (error?.type === "StripeInvalidRequestError") {
       return res.status(400).json({ message: error.message });
     }
-    res.status(500).json({ message: "Failed to create checkout session" });
+    return res.status(500).json({ message: "Failed to create checkout session" });
   }
 };

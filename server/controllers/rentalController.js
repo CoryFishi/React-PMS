@@ -5,7 +5,9 @@ import StorageUnit from "../models/unit.js";
 import {
   hashPassword,
   passwordValidator,
+  comparePassword,
 } from "../helpers/password.js";
+import * as leaseService from "../services/leaseService.js";
 
 // Get all companies
 export const getCompanies = async (req, res) => {
@@ -112,14 +114,13 @@ export const getUnitDataById = async (req, res) => {
 };
 
 export const createTenantAndLease = async (req, res) => {
+  let tenant;
   try {
     const { companyId, facilityId, unitId } = req.params;
-    const { tenantInfo, leaseInfo: _leaseInfo } = req.body;
-    // Validate input data
+    const { tenantInfo, successUrl, cancelUrl } = req.body;
+
     if (!tenantInfo) {
-      return res
-        .status(400)
-        .json({ message: "Tenant information are required." });
+      return res.status(400).json({ message: "Tenant information is required." });
     }
 
     const existingUser = await Tenant.findOne({
@@ -127,44 +128,28 @@ export const createTenantAndLease = async (req, res) => {
       company: companyId,
     });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User already exists. Please Login." });
+      return res.status(400).json({ message: "User already exists. Please Login." });
     }
 
     passwordValidator(tenantInfo.password);
 
-    const vehicleInfo = {
-      DLNumber: tenantInfo.DLNumber,
-      DLState: tenantInfo.DLState,
-      DLExpire: tenantInfo.DLExpire,
-    };
-    const addressInfo = {
-      street1: tenantInfo.street1,
-      street2: tenantInfo.street2,
-      city: tenantInfo.city,
-      state: tenantInfo.state,
-      zipCode: tenantInfo.zipCode,
-      country: tenantInfo.country,
-    };
-    const contactInfo = {
-      phone: tenantInfo.phone,
-      additionalPhone: tenantInfo.additionalPhone,
-      smsOptIn: tenantInfo.smsOptIn,
-      email: tenantInfo.email,
-      emailOptIn: tenantInfo.emailOptIn,
-    };
-    const recoveryQuestions = [
-      {
-        question: tenantInfo.recoveryQuestion1,
-        answer: tenantInfo.recoveryAnswer1,
-      },
-      {
-        question: tenantInfo.recoveryQuestion2,
-        answer: tenantInfo.recoveryAnswer2,
-      },
-    ];
-    const tenantSchema = {
+    const company = await Company.findById(companyId);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    const facility = await Facility.findById(facilityId);
+    if (!facility) return res.status(404).json({ message: "Facility not found" });
+
+    const unit = await StorageUnit.findOne({
+      _id: unitId,
+      facility: facilityId,
+      status: "Vacant",
+      availability: true,
+    });
+    if (!unit) {
+      return res.status(400).json({ message: "The selected unit is no longer available." });
+    }
+
+    tenant = await Tenant.create({
       firstName: tenantInfo.firstName,
       middleName: tenantInfo.middleInitial,
       lastName: tenantInfo.lastName,
@@ -174,13 +159,82 @@ export const createTenantAndLease = async (req, res) => {
       username: tenantInfo.username,
       password: await hashPassword(tenantInfo.password),
       businessName: tenantInfo.businessName,
-      recoveryQuestions: recoveryQuestions,
-      contactInfo: contactInfo,
-      address: addressInfo,
-      vehicle: vehicleInfo,
-    };
+      status: "New",
+      recoveryQuestions: [
+        { question: tenantInfo.recoveryQuestion1, answer: tenantInfo.recoveryAnswer1 },
+        { question: tenantInfo.recoveryQuestion2, answer: tenantInfo.recoveryAnswer2 },
+      ],
+      contactInfo: {
+        phone: tenantInfo.phone,
+        alternatePhone: tenantInfo.additionalPhone,
+        email: tenantInfo.email,
+      },
+      address: {
+        street1: tenantInfo.street1,
+        street2: tenantInfo.street2,
+        city: tenantInfo.city,
+        state: tenantInfo.state,
+        zipCode: tenantInfo.zipCode,
+        country: tenantInfo.country,
+      },
+      vehicle: {
+        DLNumber: tenantInfo.DLNumber,
+        DLExpire: tenantInfo.DLExpire,
+        DLState: tenantInfo.DLState,
+      },
+    });
 
-    // Check if the unit is still vacant
+    try {
+      const { checkoutUrl, rentalId } = await leaseService.startRental({
+        company,
+        facility,
+        unit,
+        tenant,
+        successUrl,
+        cancelUrl,
+      });
+      return res.status(200).json({ checkoutUrl, rentalId });
+    } catch (stripeErr) {
+      if (tenant?._id) {
+        await Tenant.deleteOne({ _id: tenant._id });
+      }
+      console.error("startRental failed:", stripeErr.message);
+      return res.status(502).json({ message: "Failed to start rental payment" });
+    }
+  } catch (error) {
+    console.error("Error processing the createTenantAndLease call:\n" + error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const loginTenantAndCreateLease = async (req, res) => {
+  try {
+    const { companyId, facilityId, unitId } = req.params;
+    const { email, password, successUrl, cancelUrl } = req.body;
+
+    if (!email || !password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const tenant = await Tenant.findOne({
+      "contactInfo.email": email,
+      company: companyId,
+    });
+    if (!tenant) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const ok = await comparePassword(password, tenant.password);
+    if (!ok) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const company = await Company.findById(companyId);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    const facility = await Facility.findById(facilityId);
+    if (!facility) return res.status(404).json({ message: "Facility not found" });
+
     const unit = await StorageUnit.findOne({
       _id: unitId,
       facility: facilityId,
@@ -188,31 +242,25 @@ export const createTenantAndLease = async (req, res) => {
       availability: true,
     });
     if (!unit) {
-      return res
-        .status(400)
-        .json({ message: "The selected unit is no longer available." });
+      return res.status(400).json({ message: "The selected unit is no longer available." });
     }
 
-    const tenant = new Tenant(tenantSchema);
-    await tenant.save();
-
-    // Respond with success message
-    return res.status(200).json({ message: "Tenant and lease created." });
+    try {
+      const { checkoutUrl, rentalId } = await leaseService.startRental({
+        company,
+        facility,
+        unit,
+        tenant,
+        successUrl,
+        cancelUrl,
+      });
+      return res.status(200).json({ checkoutUrl, rentalId });
+    } catch (stripeErr) {
+      console.error("startRental failed in login&rent:", stripeErr.message);
+      return res.status(502).json({ message: "Failed to start rental payment" });
+    }
   } catch (error) {
-    console.error(
-      "Error processing the createTenantAndLease call:\n" + error.message
-    );
+    console.error("Error processing the loginTenantAndCreateLease call:\n" + error.message);
     return res.status(400).json({ message: error.message });
   }
-};
-
-export const loginTenantAndCreateLease = async (_req, res) => {
-  // F-001 stub: the original implementation referenced undefined identifiers
-  // (doc, envelopesApi, ACCOUNT_ID, Lease, leaseId) and crashed at runtime on
-  // every call. A proper DocuSign-backed lease flow is tracked as follow-up
-  // work. Returning 501 here is intentional and load-bearing — do not change
-  // the status code without restoring real behavior.
-  return res.status(501).json({
-    message: "Existing-tenant lease flow is not yet implemented.",
-  });
 };
