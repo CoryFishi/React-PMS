@@ -1,9 +1,11 @@
-const mongoose = require("mongoose");
-const Tenant = require("../models/tenant");
-const StorageUnit = require("../models/unit");
-const StorageFacility = require("../models/facility");
-const Event = require("../models/event");
-const dotenv = require("dotenv").config();
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import Tenant from "../models/tenant.js";
+import StorageUnit from "../models/unit.js";
+import StorageFacility from "../models/facility.js";
+import Event from "../models/event.js";
+
+dotenv.config();
 
 // Increase the default timeout settings
 const connectionOptions = {
@@ -17,17 +19,11 @@ const connectionOptions = {
 // For example if I rented one 2 days ago but my other rental is due in 2 days, I dont have to pay both
 //////////////////////////////////////////////
 
-// Connect to the database
-mongoose
-  .connect(process.env.MONGO_URL, connectionOptions)
-  .catch((err) =>
-    console.log("🔴 Monthly Script Database failed to connect", err)
-  );
-
-// Function to update tenant balance
-const updateTenantBalance = async () => {
-  console.time("Update Tenant Balance"); // Start timer
-  var count = 0;
+// Update tenant balances. Exported so tests (and other callers) can invoke
+// without triggering the connect/disconnect lifecycle.
+export const updateTenantBalance = async ({ disconnect = true } = {}) => {
+  console.time("Update Tenant Balance");
+  let count = 0;
   const facilityCountMap = new Map();
 
   try {
@@ -42,7 +38,7 @@ const updateTenantBalance = async () => {
         const storageUnit = await StorageUnit.findById(unitId);
 
         if (storageUnit) {
-          totalAdditionalBalance += storageUnit.pricePerMonth;
+          totalAdditionalBalance += storageUnit.paymentInfo?.pricePerMonth ?? 0;
           const facilityIdStr = storageUnit.facility.toString();
           facilityCountMap.set(
             facilityIdStr,
@@ -53,19 +49,20 @@ const updateTenantBalance = async () => {
 
       await Tenant.updateOne(
         { _id: tenant._id },
-        { $inc: { balance: totalAdditionalBalance } }
+        { $inc: { balance: totalAdditionalBalance } },
+        { strict: false }
       );
       count++;
     }
     console.log(`${count} tenants balance increased`);
-    for (const [facilityIdStr, count] of facilityCountMap) {
+    for (const [facilityIdStr, fcount] of facilityCountMap) {
       const facilityId = new mongoose.Types.ObjectId(facilityIdStr);
       const facility = await StorageFacility.findById(facilityId);
       if (facility) {
         await Event.create({
           eventType: "Application",
           eventName: "Facility Balancer",
-          message: `${facility.facilityName} updated ${count} tenant's balances`,
+          message: `${facility.facilityName} updated ${fcount} tenant's balances`,
           facility: facilityId,
         });
       }
@@ -73,11 +70,26 @@ const updateTenantBalance = async () => {
   } catch (error) {
     console.error("Error updating tenant balance:", error);
   } finally {
-    // Close the database connection
-    mongoose.connection.close();
-    console.timeEnd("Update Tenant Balance"); // End timer
+    if (disconnect) {
+      await mongoose.connection.close();
+    }
+    console.timeEnd("Update Tenant Balance");
   }
 };
 
-// Run the update function
-updateTenantBalance();
+// When invoked directly as a script (node server/processes/monthly.js),
+// connect to Mongo, run the job, then disconnect.
+const invokedAsScript =
+  import.meta.url === `file://${process.argv[1]}` ||
+  import.meta.url.endsWith(
+    (process.argv[1] || "").replace(/\\/g, "/")
+  );
+
+if (invokedAsScript) {
+  mongoose
+    .connect(process.env.MONGO_URL, connectionOptions)
+    .then(() => updateTenantBalance({ disconnect: true }))
+    .catch((err) =>
+      console.log("🔴 Monthly Script Database failed to connect", err)
+    );
+}

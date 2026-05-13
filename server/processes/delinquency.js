@@ -1,9 +1,10 @@
-const mongoose = require("mongoose");
-const Tenant = require("../models/tenant");
-const StorageFacility = require("../models/facility");
-const StorageUnit = require("../models/unit");
-const Event = require("../models/event");
-const dotenv = require("dotenv").config();
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import Tenant from "../models/tenant.js";
+import StorageFacility from "../models/facility.js";
+import Event from "../models/event.js";
+
+dotenv.config();
 
 // Increase the default timeout settings
 const connectionOptions = {
@@ -16,21 +17,14 @@ const connectionOptions = {
 // So everyone is not billed across the software
 ////////////////////////////////////////
 
-// Connect to the database
-mongoose
-  .connect(process.env.MONGO_URL, connectionOptions)
-  .catch((err) =>
-    console.log("🔴 Delinquency Script Database failed to connect", err)
-  );
-
-const updateTenantStatus = async () => {
-  console.time("Update Tenant Status"); // Start timer
+export const updateTenantStatus = async ({ disconnect = true } = {}) => {
+  console.time("Update Tenant Status");
   try {
     const oneWeekAgo = new Date();
     const facilityCountMap = new Map();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    const tenants = await Tenant.find({ status: "Rented" }).populate("units"); // Assuming 'units' is a reference field
+    const tenants = await Tenant.find({ status: "Rented" }).populate("units");
 
     let updatedCount = 0;
 
@@ -75,10 +69,24 @@ const updateTenantStatus = async () => {
   } catch (error) {
     console.error("Error updating tenant status:", error);
   } finally {
-    // Close the database connection
-    mongoose.connection.close();
-    console.timeEnd("Update Tenant Status"); // End timer
+    if (disconnect) {
+      await mongoose.connection.close();
+    }
+    console.timeEnd("Update Tenant Status");
   }
 };
 
-updateTenantStatus();
+const invokedAsScript =
+  import.meta.url === `file://${process.argv[1]}` ||
+  import.meta.url.endsWith(
+    (process.argv[1] || "").replace(/\\/g, "/")
+  );
+
+if (invokedAsScript) {
+  mongoose
+    .connect(process.env.MONGO_URL, connectionOptions)
+    .then(() => updateTenantStatus({ disconnect: true }))
+    .catch((err) =>
+      console.log("🔴 Delinquency Script Database failed to connect", err)
+    );
+}

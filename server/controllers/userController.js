@@ -59,10 +59,9 @@ export const createUser = async (req, res) => {
       phone,
       createdBy,
     });
-    const userWithCompany = await User.findById(user._id).populate(
-      "company",
-      "companyName"
-    );
+    const userWithCompany = await User.findById(user._id)
+      .select("-password")
+      .populate("company", "companyName");
     // Send confirmation email
     const subject = "Confirm your SafePhish account";
     const to = email;
@@ -238,8 +237,10 @@ export const loginUser = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
           });
 
-          // Send the user data as a response
-          res.status(200).json(user);
+          // Send the user data as a response, stripping the password hash.
+          const safeUser = user.toObject();
+          delete safeUser.password;
+          res.status(200).json(safeUser);
         }
       );
     } else {
@@ -355,7 +356,9 @@ export const editUser = async (req, res) => {
         phone,
       },
       { new: true }
-    ).populate("company", "companyName");
+    )
+      .select("-password")
+      .populate("company", "companyName");
 
     if (!user) {
       return res.status(404).send({ message: "User not found" });
@@ -616,7 +619,7 @@ export const getUsers = async (req, res) => {
 export const getUserById = async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Error fetching user", error });
@@ -642,8 +645,13 @@ export const getDashboardData = async (req, res) => {
       1
     );
 
-    // Helper to scope queries
-    const companyFilter = user.role === "System_Admin" ? [] : user.company;
+    // Helper to scope queries. System roles see global counts; everyone else
+    // is scoped to their own company. The previous version spread an ObjectId
+    // into `{}` for non-admin users, silently leaking cross-company counts.
+    const companyFilter =
+      user.role === "System_Admin" || user.role === "System_User"
+        ? {}
+        : { company: user.company };
 
     // Users
     const totalUsers = await User.countDocuments({ ...companyFilter });
