@@ -514,7 +514,7 @@ export const sendUserConfirmationEmail = async (req, res) => {
 // User confirmation email
 export const userConfirmationEmail = async (req, res) => {
   const userId = req.params.userId;
-  const redirectUrl = `http://localhost:5173/register/${userId}`;
+  const redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/register/${userId}`;
   try {
     const userExist = await User.findOne({ _id: userId });
     if (!userExist) {
