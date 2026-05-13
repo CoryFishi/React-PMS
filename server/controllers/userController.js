@@ -63,7 +63,7 @@ export const createUser = async (req, res) => {
       .select("-password")
       .populate("company", "companyName");
     // Send confirmation email
-    const subject = "Confirm your SafePhish account";
+    const subject = "Confirm your React-PMS account";
     const to = email;
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -126,7 +126,7 @@ export const createUser = async (req, res) => {
         <body>
             <div class="email-container">
                 <div class="header">
-                    <h1>Welcome to SafePhish!</h1>
+                    <h1>Welcome to React-PMS!</h1>
                 </div>
                 <div class="content">
                     <p>Hello ${name},</p>
@@ -147,8 +147,8 @@ export const createUser = async (req, res) => {
                     <p>Thank you for joining us and welcome aboard!</p>
                 </div>
                 <div class="footer">
-                    <p>If you have any questions, feel free to contact us at support@safephish.com.</p>
-                    <p>© 2024 SafePhish. All rights reserved.</p>
+                    <p>If you have any questions, feel free to contact us at support@react-pms.com.</p>
+                    <p>© 2024 React-PMS. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -156,7 +156,7 @@ export const createUser = async (req, res) => {
         `;
     const mailOptions = {
       from: {
-        name: "SafePhish",
+        name: "React-PMS",
         address: process.env.EMAIL,
       },
       to,
@@ -399,7 +399,7 @@ export const sendUserConfirmationEmail = async (req, res) => {
     return res.status(500).send({ message: error });
   }
   // Send confirmation email
-  const subject = "Confirm your SafePhish account";
+  const subject = "Confirm your React-PMS account";
   const to = user.email;
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -462,7 +462,7 @@ export const sendUserConfirmationEmail = async (req, res) => {
       <body>
           <div class="email-container">
               <div class="header">
-                  <h1>Welcome to SafePhish!</h1>
+                  <h1>Welcome to React-PMS!</h1>
               </div>
               <div class="content">
                   <p>Hello ${user.name},</p>
@@ -483,8 +483,8 @@ export const sendUserConfirmationEmail = async (req, res) => {
                   <p>Thank you for joining us and welcome aboard!</p>
               </div>
               <div class="footer">
-                  <p>If you have any questions, feel free to contact us at support@safephish.com.</p>
-                  <p>© 2024 SafePhish. All rights reserved.</p>
+                  <p>If you have any questions, feel free to contact us at support@react-pms.com.</p>
+                  <p>© 2024 React-PMS. All rights reserved.</p>
               </div>
           </div>
       </body>
@@ -492,7 +492,7 @@ export const sendUserConfirmationEmail = async (req, res) => {
       `;
   const mailOptions = {
     from: {
-      name: "SafePhish",
+      name: "React-PMS",
       address: process.env.EMAIL,
     },
     to,
