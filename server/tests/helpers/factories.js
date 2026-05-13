@@ -9,13 +9,15 @@ import Payment from "../../models/payment.js";
 
 let counter = 0;
 const uniq = (prefix) => `${prefix}-${Date.now()}-${++counter}`;
+// Short unique string for fields with maxlength constraints (e.g. displayName ≤ 20)
+const shortUniq = () => String(Date.now()).slice(-8) + String(++counter).padStart(4, "0");
 
 export async function makeCompany(overrides = {}) {
   // Create a bootstrap user for createdBy if not provided
   let createdBy = overrides.createdBy;
   if (!createdBy) {
     const user = await User.create({
-      displayName: uniq("cbyu"),
+      displayName: shortUniq(),
       name: "Creator User",
       email: `${uniq("creator")}@example.com`,
       role: "System_Admin",
@@ -41,23 +43,66 @@ export async function makeCompany(overrides = {}) {
 }
 
 export async function makeFacility(company, overrides = {}) {
+  // createdBy is required; create a bootstrap user if not supplied
+  let createdBy = overrides.createdBy;
+  if (!createdBy) {
+    const user = await User.create({
+      displayName: shortUniq(),
+      name: "Facility Creator",
+      email: `${uniq("fc")}@example.com`,
+      role: "System_Admin",
+      address: {
+        street1: "1 FC St",
+        city: "FC City",
+        state: "TX",
+        zipCode: "12345",
+        country: "US",
+      },
+      createdBy: new mongoose.Types.ObjectId(),
+    });
+    createdBy = user._id;
+  }
+
   return Facility.create({
     company: company._id,
     facilityName: uniq("Facility"),
     status: "Enabled",
     address: { street1: "1 Main", city: "X", state: "TX", zipCode: "00000", country: "US" },
-    contactInfo: { phone: "555-0100", email: "f@example.com" },
+    contactInfo: { phone: "5550100000", email: "f@example.com" },
+    createdBy,
     ...overrides,
   });
 }
 
 export async function makeUnit(facility, overrides = {}) {
+  // createdBy is required; create a bootstrap user if not supplied
+  let createdBy = overrides.createdBy;
+  if (!createdBy) {
+    const user = await User.create({
+      displayName: shortUniq(),
+      name: "Unit Creator",
+      email: `${uniq("uc")}@example.com`,
+      role: "System_Admin",
+      address: {
+        street1: "1 UC St",
+        city: "UC City",
+        state: "TX",
+        zipCode: "12345",
+        country: "US",
+      },
+      createdBy: new mongoose.Types.ObjectId(),
+    });
+    createdBy = user._id;
+  }
+
   return StorageUnit.create({
     facility: facility._id,
     unitNumber: uniq("U"),
+    unitType: "Standard",
     status: "Vacant",
     specifications: { width: 10, depth: 10, height: 8, unit: "ft" },
-    paymentInfo: { pricePerMonth: 100, currency: "USD" },
+    paymentInfo: { pricePerMonth: 100 },
+    createdBy,
     ...overrides,
   });
 }
@@ -67,7 +112,7 @@ export async function makeUser(overrides = {}) {
   let createdBy = overrides.createdBy;
   if (!createdBy) {
     const bootstrap = await User.create({
-      displayName: uniq("boot"),
+      displayName: shortUniq(),
       name: "Bootstrap User",
       email: `${uniq("bootstrap")}@example.com`,
       role: "System_Admin",
@@ -84,7 +129,7 @@ export async function makeUser(overrides = {}) {
   }
 
   return User.create({
-    displayName: uniq("user"),
+    displayName: shortUniq(),
     name: "Test User",
     email: `${uniq("u")}@example.com`,
     address: {
@@ -101,11 +146,36 @@ export async function makeUser(overrides = {}) {
 }
 
 export async function makeTenant(overrides = {}) {
+  // company is required by schema; create one if caller didn't supply it
+  let company = overrides.company;
+  if (!company) {
+    const c = await makeCompany();
+    company = c._id;
+  }
+
   return Tenant.create({
     firstName: "Test",
     lastName: "Tenant",
-    email: `${uniq("t")}@example.com`,
-    phone: "555-0101",
+    username: uniq("tu"),
+    password: "Password1!",
+    dateOfBirth: "1990-01-01",
+    company,
+    contactInfo: {
+      phone: "5550101234",
+      email: `${uniq("t")}@example.com`,
+    },
+    address: {
+      street1: "1 Tenant St",
+      city: "Tenant City",
+      state: "TX",
+      zipCode: "12345",
+      country: "US",
+    },
+    vehicle: {
+      DLNumber: "DL12345678",
+      DLExpire: new Date("2030-01-01"),
+      DLState: "TX",
+    },
     ...overrides,
   });
 }
