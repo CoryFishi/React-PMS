@@ -9,7 +9,20 @@ npm start         # nodemon index.js
 npm run lint      # eslint, must stay at 0 warnings
 ```
 
-No test command. The `test` script intentionally errors — don't invoke it, and don't claim a test pass.
+## Tests
+
+Vitest + mongodb-memory-server + supertest. Mocks for Stripe, DocuSign, Nodemailer.
+
+- Run once: `npm test`
+- Watch: `npm run test:watch`
+- Coverage: `npm run test:coverage`
+
+Tests live under `server/tests/` mirroring source layout (`controllers/`, `routes/`, `middleware/`, `unit/`). Shared helpers in `tests/helpers/` (factories for User/Company/Facility/Unit/Tenant/Rental/Payment, JWT cookie signer, supertest-with-api-key wrapper, and module mocks for Stripe/DocuSign/Nodemailer). Global setup in `tests/setup.js` starts an in-memory MongoDB once per worker and drops collections between tests.
+
+When adding a new endpoint:
+1. Add a controller test in `tests/controllers/<x>Controller.test.js` covering happy path + at least one error path.
+2. Add a route test in `tests/routes/<x>Routes.test.js` proving both middleware layers (API key + JWT, if applicable) reject correctly.
+3. Use factories from `tests/helpers/factories.js`; if your test needs a new entity shape, add a factory there rather than inlining.
 
 ESLint config lives in the `eslintConfig` key of `package.json` (ESLint 8 legacy style). Don't add a separate `.eslintrc.*` file.
 
