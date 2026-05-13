@@ -28,6 +28,11 @@ export const createUser = async (req, res) => {
     } = req.body;
 
     // Check for account if not a system account
+    if (!role) {
+      return res.status(400).json({
+        error: "Please assign a role to this user!",
+      });
+    }
     if (
       (role === "Company_Admin" && !company) ||
       (role === "Company_User" && !company)
@@ -36,14 +41,9 @@ export const createUser = async (req, res) => {
         error: "Please assign a company to this user!",
       });
     }
-    if (role === "Company_User" && Object.keys(facilities).length === 0) {
+    if (role === "Company_User" && (!facilities || Object.keys(facilities).length === 0)) {
       return res.status(400).json({
         error: "Please assign a facility to this user!",
-      });
-    }
-    if (!role) {
-      return res.status(400).json({
-        error: "Please assign a role to this user!",
       });
     }
 
