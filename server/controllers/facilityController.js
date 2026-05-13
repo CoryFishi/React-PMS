@@ -713,16 +713,21 @@ export const editNote = async (req, res) => {
   const { unitId, noteIndex } = req.params;
   const update = req.body;
 
-  const unit = await StorageUnit.findById(unitId);
-  if (!unit) return res.status(404).json({ error: "Unit not found" });
+  try {
+    const unit = await StorageUnit.findById(unitId);
+    if (!unit) return res.status(404).json({ error: "Unit not found" });
 
-  if (!unit.notes[noteIndex])
-    return res.status(404).json({ error: "Note not found" });
+    if (!unit.notes[noteIndex])
+      return res.status(404).json({ error: "Note not found" });
 
-  Object.assign(unit.notes[noteIndex], update);
-  await unit.save();
+    Object.assign(unit.notes[noteIndex], update);
+    await unit.save();
 
-  res.json({ message: "Note updated", note: unit.notes[noteIndex] });
+    res.json({ message: "Note updated", note: unit.notes[noteIndex] });
+  } catch (err) {
+    console.error("editNote failed:", err);
+    return res.status(500).json({ error: "Failed to update note" });
+  }
 };
 
 // Remove tenant from unit
@@ -864,8 +869,20 @@ export const getVacantUnits = async (req, res) => {
 
 // Get all Facilities
 export const getFacilities = async (req, res) => {
-  const facilities = await StorageFacility.find({}).sort({ facilityName: 1 });
-  res.status(200).json({ facilities });
+  try {
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const isSystem = user.role === "System_Admin" || user.role === "System_User";
+    const filter = isSystem ? {} : { company: user.company };
+
+    const facilities = await StorageFacility.find(filter).sort({ facilityName: 1 });
+    return res.status(200).json({ facilities });
+  } catch (err) {
+    console.error("getFacilities failed:", err);
+    return res.status(500).json({ error: "Failed to fetch facilities" });
+  }
 };
 
 export const getFacilitiesAndCompany = async (req, res) => {

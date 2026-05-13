@@ -23,10 +23,10 @@ describe("authenticate middleware", () => {
     expect(res.status).toBe(403);
   });
 
-  it("returns 403 when token is expired", async () => {
+  it("returns 401 when token is expired", async () => {
     const token = signJwt({ sub: "u1" }, { expiresIn: -1 });
     const res = await supertest(app()).get("/me").set("Cookie", `token=${token}`);
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   it("attaches decoded user and calls next() on valid token", async () => {

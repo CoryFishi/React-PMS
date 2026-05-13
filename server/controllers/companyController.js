@@ -9,9 +9,9 @@ const unixToDate = (timestamp) =>
   typeof timestamp === "number" ? new Date(timestamp * 1000) : undefined;
 
 export const createCompany = async (req, res) => {
+  let stripeAccount;
   try {
-    // 1. Create the Stripe Connected Account
-    const stripeAccount = await stripe.accounts.create({
+    stripeAccount = await stripe.accounts.create({
       type: "express",
       country: "US",
       email: req.body.contactInfo?.email,
@@ -21,35 +21,46 @@ export const createCompany = async (req, res) => {
       },
     });
 
-    // 2. Add stripe data to the company body
     const companyWithStripe = {
       ...req.body,
+      createdBy: req.user?.id || req.user?._id,
       stripe: {
         accountId: stripeAccount.id,
         onboardingComplete: false,
       },
     };
 
-    // 3. Create the company in MongoDB
     const newCompany = await Company.create(companyWithStripe);
-    res.status(201).json(newCompany);
+    return res.status(201).json(newCompany);
   } catch (error) {
+    if (stripeAccount?.id) {
+      try {
+        await stripe.accounts.del(stripeAccount.id);
+      } catch (cleanupErr) {
+        console.error(
+          "Failed to delete orphan Stripe account " + stripeAccount.id + ":",
+          cleanupErr.message
+        );
+      }
+    }
+
     if (error.name === "ValidationError") {
       const firstErrorKey = Object.keys(error.errors)[0];
-      console.error(
-        "Rejecting due to validation error: " +
-          error.errors[firstErrorKey].message
-      );
-      res.status(500).send({ error: error.errors[firstErrorKey].message });
-    } else if (error.code === 11000) {
+      console.error("Rejecting due to validation error: " + error.errors[firstErrorKey].message);
+      return res.status(500).send({ error: error.errors[firstErrorKey].message });
+    }
+    if (error.code === 11000) {
       const duplicateField = Object.keys(error.keyValue)[0];
       const duplicateValue = error.keyValue[duplicateField];
       console.error("Rejecting due to duplicate value");
-      res.status(409).send({ error: `${duplicateValue} is already taken!` });
-    } else {
-      console.error("Rejecting due to unknown error: " + error.name);
-      res.status(500).send({ error: error.name });
+      return res.status(409).send({ error: `${duplicateValue} is already taken!` });
     }
+    if (error.name === "MongooseError" && error.message?.includes("already taken")) {
+      console.error("Rejecting due to duplicate value");
+      return res.status(409).send({ error: error.message });
+    }
+    console.error("Rejecting due to unknown error: " + error.name);
+    return res.status(500).send({ error: error.name });
   }
 };
 
@@ -113,8 +124,8 @@ export const createStripeAccountLink = async (req, res) => {
     // Otherwise, generate onboarding link
     const accountLink = await stripe.accountLinks.create({
       account: company.stripe.accountId,
-      refresh_url: "http://localhost:5173/dashboard/companies",
-      return_url: "http://localhost:5173/dashboard/companies",
+      refresh_url: `${process.env.FRONTEND_URL}/dashboard/companies`,
+      return_url: `${process.env.FRONTEND_URL}/dashboard/companies`,
       type: "account_onboarding",
     });
 
