@@ -1,17 +1,19 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-const API_KEY = process.env.API_KEY;
+import crypto from "crypto";
 
 const authenticateAPIKey = (req, res, next) => {
   const apiKey = req.headers["x-api-key"];
-  if (!apiKey) {
-    return res.status(401).json({ error: "Unauthorized: No API Key Provided" });
+  const expected = process.env.API_KEY;
+
+  if (!apiKey || !expected || apiKey.length !== expected.length) {
+    return res.status(401).json({ error: "Invalid API key" });
   }
-  if (apiKey !== API_KEY) {
-    return res.status(403).json({ error: "Forbidden: Invalid API Key" });
+
+  const ok = crypto.timingSafeEqual(Buffer.from(apiKey), Buffer.from(expected));
+  if (!ok) {
+    return res.status(401).json({ error: "Invalid API key" });
   }
-  next();
+
+  return next();
 };
 
 export default authenticateAPIKey;

@@ -16,11 +16,11 @@ describe("authenticateAPIKey", () => {
     expect(res.body.error).toMatch(/api key/i);
   });
 
-  it("returns 403 when x-api-key is wrong", async () => {
+  it("returns 401 when x-api-key is wrong", async () => {
     const res = await supertest(appWithMiddleware())
       .get("/protected")
       .set("x-api-key", "wrong");
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(401);
   });
 
   it("calls next() when x-api-key matches", async () => {
