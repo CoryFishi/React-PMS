@@ -869,8 +869,20 @@ export const getVacantUnits = async (req, res) => {
 
 // Get all Facilities
 export const getFacilities = async (req, res) => {
-  const facilities = await StorageFacility.find({}).sort({ facilityName: 1 });
-  res.status(200).json({ facilities });
+  try {
+    const userId = req.user?.id || req.user?._id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const isSystem = user.role === "System_Admin" || user.role === "System_User";
+    const filter = isSystem ? {} : { company: user.company };
+
+    const facilities = await StorageFacility.find(filter).sort({ facilityName: 1 });
+    return res.status(200).json({ facilities });
+  } catch (err) {
+    console.error("getFacilities failed:", err);
+    return res.status(500).json({ error: "Failed to fetch facilities" });
+  }
 };
 
 export const getFacilitiesAndCompany = async (req, res) => {
