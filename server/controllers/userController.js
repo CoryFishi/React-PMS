@@ -309,23 +309,20 @@ export const logoutUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   const userId = req.query.userId;
   if (!userId) {
-    return res.json({
-      error: "id is required",
-    });
+    return res.status(400).json({ error: "id is required" });
   }
   try {
     const result = await User.findByIdAndDelete(userId);
-    if (result) {
-      res.status(200).send({ message: userId + " deleted" });
-    } else {
-      res.status(404).send({ message: "User not found" });
+    if (!result) {
+      return res.status(404).send({ message: "User not found" });
     }
     await StorageFacility.updateMany(
       { manager: userId },
       { $pull: { manager: userId } }
     );
+    return res.status(200).send({ message: userId + " deleted" });
   } catch (error) {
-    res
+    return res
       .status(500)
       .send({ message: "Error deleting user", error: error.message });
   }
@@ -517,7 +514,7 @@ export const sendUserConfirmationEmail = async (req, res) => {
 // User confirmation email
 export const userConfirmationEmail = async (req, res) => {
   const userId = req.params.userId;
-  const redirectUrl = `http://localhost:5173/register/${userId}`;
+  const redirectUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/register/${userId}`;
   try {
     const userExist = await User.findOne({ _id: userId });
     if (!userExist) {

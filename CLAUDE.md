@@ -21,7 +21,7 @@ cd client && npm run lint
 cd server && npm run lint
 ```
 
-There is no test suite. Do not invent a `npm test` command — `server`'s test script intentionally errors.
+There is a Vitest test suite on the server: `cd server && npm test` (39 tests as of 2026-05-12). There is still no client-side test suite.
 
 ## Required env vars
 

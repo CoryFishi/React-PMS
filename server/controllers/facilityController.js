@@ -85,13 +85,23 @@ const createStripeUnitResources = async ({
 // Create a new facility
 export const createFacility = async (req, res) => {
   try {
+    // Whitelist only client-editable fields (F-007: block mass-assignment).
+    // Non-editable fields (status, createdBy, units, _id) are set server-side or by schema.
+    const {
+      facilityName,
+      address,
+      contactInfo,
+      manager,
+      settings,
+      tags,
+      photos,
+      company: companyId,
+    } = req.body;
+
     // Find manager by id
-    if (
-      req.body.manager &&
-      !mongoose.Types.ObjectId.isValid(req.body.manager)
-    ) {
-      const manager = await User.findOne({ _id: req.body.manager });
-      if (!manager) {
+    if (manager && !mongoose.Types.ObjectId.isValid(manager)) {
+      const managerDoc = await User.findOne({ _id: manager });
+      if (!managerDoc) {
         console.error("Rejecting create facility due to no manager found!");
         return res.status(404).json({
           error: "Manager does not exist!",
@@ -99,14 +109,26 @@ export const createFacility = async (req, res) => {
       }
     }
     // Find company by id
-    const company = await Company.findOne({ _id: req.body.company });
+    const company = await Company.findOne({ _id: companyId });
     if (!company) {
       console.error("Rejecting create facility due to no company found!");
       return res.status(404).json({
         error: "Company does not exist!",
       });
     }
-    const facility = await StorageFacility.create(req.body);
+
+    const facility = await StorageFacility.create({
+      facilityName,
+      address,
+      contactInfo,
+      manager,
+      settings,
+      tags,
+      photos,
+      company: companyId,
+      // status: omitted — schema default "Pending Deployment" applies
+      createdBy: req.user?.id || req.user?._id,
+    });
     const facilityWithCompanyAndManager = await StorageFacility.findById(
       facility._id
     )
@@ -218,10 +240,26 @@ export const editFacility = async (req, res) => {
   }
 
   try {
+    // Whitelist only client-editable fields (F-007: block mass-assignment).
+    // company, status, createdBy, units, _id are NOT editable via this handler.
+    const {
+      facilityName,
+      address,
+      contactInfo,
+      manager,
+      settings,
+      tags,
+      photos,
+    } = req.body;
+
+    const updates = { facilityName, address, contactInfo, manager, settings, tags, photos };
+    // Strip undefined values so they don't overwrite existing data with null
+    Object.keys(updates).forEach((k) => updates[k] === undefined && delete updates[k]);
+
     const facility = await StorageFacility.findByIdAndUpdate(
       facilityId,
-      req.body,
-      { new: true }
+      updates,
+      { new: true, runValidators: true }
     );
     if (!facility) {
       return res.status(404).send({ message: "Facility not found" });
@@ -904,10 +942,17 @@ export const getSecurityLevels = async (req, res) => {
 export const deployFacility = async (req, res) => {
   const facilityId = req.query.facilityId;
   try {
+    // Whitelist: only status may be changed via this handler (F-007: block mass-assignment).
+    const { status } = req.body;
+    const allowedStatuses = ["Pending Deployment", "Disabled", "Enabled", "Maintenance"];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
     const facility = await StorageFacility.findByIdAndUpdate(
       facilityId,
-      req.body,
-      { new: true }
+      { status },
+      { new: true, runValidators: true }
     );
     if (!facility) {
       return res.status(404).send({ message: "Facility not found" });

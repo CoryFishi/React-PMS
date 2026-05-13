@@ -105,7 +105,7 @@ export const getTenants = async (req, res) => {
   const facilityId = req.query.facilityId || req.params.facilityId;
   const companyId = req.query.companyId || req.params.companyId;
   try {
-    var tenants = [];
+    let tenants = [];
     if (facilityId) {
       const units = await StorageUnit.find({ facility: facilityId }).select(
         "_id tenant"
@@ -114,20 +114,20 @@ export const getTenants = async (req, res) => {
       const tenantIds = [...new Set(units.map((unit) => unit.tenant))];
 
       // Retrieve tenant information from the Tenant collection using the unique tenant IDs
-      const tenants = await Tenant.find({ _id: { $in: tenantIds } })
+      tenants = await Tenant.find({ _id: { $in: tenantIds } })
         .sort({
-          firstNameName: 1,
+          firstName: 1,
           lastName: 1,
         })
         .populate("units");
     } else if (companyId) {
-      const tenants = await Tenant.find({ company: companyId }).sort({
-        firstNameName: 1,
+      tenants = await Tenant.find({ company: companyId }).sort({
+        firstName: 1,
         lastName: 1,
       });
     } else {
-      const tenants = await Tenant.find({}).sort({
-        firstNameName: 1,
+      tenants = await Tenant.find({}).sort({
+        firstName: 1,
         lastName: 1,
       });
     }
@@ -207,7 +207,7 @@ export const deleteTenant = async (req, res) => {
   try {
     // Check if tenant has units
     const unitsRented = await StorageUnit.find({ tenant: tenantId });
-    if (unitsRented) {
+    if (unitsRented.length > 0) {
       return res.status(409).send({ error: "Tenant is associated to unit(s)" });
     }
     // Delete the tenant

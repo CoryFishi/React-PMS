@@ -5,10 +5,7 @@ import StorageUnit from "../models/unit.js";
 import {
   hashPassword,
   passwordValidator,
-  comparePassword,
 } from "../helpers/password.js";
-import getEnvelopesApi from "../services/docusignClient.js";
-import docusign from "docusign-esign";
 
 // Get all companies
 export const getCompanies = async (req, res) => {
@@ -117,7 +114,7 @@ export const getUnitDataById = async (req, res) => {
 export const createTenantAndLease = async (req, res) => {
   try {
     const { companyId, facilityId, unitId } = req.params;
-    const { tenantInfo, leaseInfo } = req.body;
+    const { tenantInfo, leaseInfo: _leaseInfo } = req.body;
     // Validate input data
     if (!tenantInfo) {
       return res
@@ -209,80 +206,13 @@ export const createTenantAndLease = async (req, res) => {
   }
 };
 
-export const loginTenantAndCreateLease = async (req, res) => {
-  try {
-    const { companyId, facilityId, unitId } = req.params;
-    const { username, password, leaseInfo } = req.body;
-
-    console.log(req.body);
-    // Validate input data
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ message: "Username and password are required." });
-    }
-    const tenant = await Tenant.findOne({ username, company: companyId });
-    if (!tenant) {
-      return res.status(400).json({ message: "Invalid username or password." });
-    }
-    const isPasswordValid = await comparePassword(password, tenant.password);
-    console.log(tenant);
-    if (!isPasswordValid) {
-      return res.status(400).json({ message: "Invalid username or password." });
-    }
-    // Check if the unit is still vacant
-    const unit = await StorageUnit.findOne({
-      _id: unitId,
-      facility: facilityId,
-      status: "Vacant",
-      availability: true,
-    });
-    if (!unit) {
-      return res
-        .status(400)
-        .json({ message: "The selected unit is no longer available." });
-    }
-
-    const facility = await Facility.findOne({
-      _id: facilityId,
-      company: companyId,
-      status: "Enabled",
-    }).select("facilityName address");
-
-    const signer = new docusign.Signer({
-      email: tenant.email,
-      name: tenant.legalName || tenant.name,
-      recipientId: "1",
-      routingOrder: "1",
-    });
-
-    const envDef = new docusign.EnvelopeDefinition({
-      emailSubject: `Lease for Unit ${unit.unitNumber} at ${facility.facilityName}`,
-      documents: [doc],
-      recipients: { signers: [signer] },
-      status: "sent",
-    });
-
-    const { envelopeId } = await envelopesApi.createEnvelope(ACCOUNT_ID, {
-      envelopeDefinition: envDef,
-    });
-
-    // save for tracking
-    await Lease.updateOne(
-      { _id: leaseId },
-      { docusignEnvelopeId: envelopeId, status: "pending_signature" }
-    );
-
-    // return something the FE can watch
-    res.json({ leaseId, envelopeId });
-    return res.status(200).json({
-      message: "Lease created successfully. DocuSign envelope sent.",
-      // envelopeId: envelopeId
-    });
-  } catch (error) {
-    console.error(
-      "Error processing the loginTenantAndCreateLease call:\n" + error.message
-    );
-    return res.status(400).json({ message: error.message });
-  }
+export const loginTenantAndCreateLease = async (_req, res) => {
+  // F-001 stub: the original implementation referenced undefined identifiers
+  // (doc, envelopesApi, ACCOUNT_ID, Lease, leaseId) and crashed at runtime on
+  // every call. A proper DocuSign-backed lease flow is tracked as follow-up
+  // work. Returning 501 here is intentional and load-bearing — do not change
+  // the status code without restoring real behavior.
+  return res.status(501).json({
+    message: "Existing-tenant lease flow is not yet implemented.",
+  });
 };

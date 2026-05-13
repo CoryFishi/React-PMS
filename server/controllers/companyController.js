@@ -348,9 +348,27 @@ export const getFacilitiesByCompany = async (req, res) => {
 // Update a company by ID
 export const editCompany = async (req, res) => {
   try {
+    // Whitelist only client-editable fields (F-008: block mass-assignment).
+    // stripe.*, createdBy, _id, createdAt, updatedAt are NOT editable from the client.
+    const { companyName, address, contactInfo, logo } = req.body;
+
+    const updates = { companyName, address, contactInfo, logo };
+
+    // status is only writable by System_Admin or System_User
+    const userRole = req.user?.role;
+    if (
+      req.body.status !== undefined &&
+      (userRole === "System_Admin" || userRole === "System_User")
+    ) {
+      updates.status = req.body.status;
+    }
+
+    // Strip undefined values so they don't overwrite existing data with null
+    Object.keys(updates).forEach((k) => updates[k] === undefined && delete updates[k]);
+
     const updatedCompany = await Company.findByIdAndUpdate(
       req.query.companyId,
-      req.body,
+      updates,
       { new: true, runValidators: true }
     );
     if (!updatedCompany) {

@@ -59,13 +59,11 @@ router.put(
 router.put(
   "/users/confirm/:userId",
   authenticateAPIKey,
-  authenticate,
   userController.setUserPassword
 ); // May want to make this a put /users/confirm?=userId
 router.get(
   "/users/confirm/:userId",
   authenticateAPIKey,
-  authenticate,
   userController.userConfirmationEmail
 ); // May want to make this a get /users/confirm?=userId
 router.post(
