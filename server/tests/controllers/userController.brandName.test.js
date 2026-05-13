@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { buildApp } from "../../app.js";
 import { api } from "../helpers/request.js";
 import { cookieFor } from "../helpers/auth.js";
-import { makeUser, makeCompany } from "../helpers/factories.js";
+import { makeUser } from "../helpers/factories.js";
 
 const sendMail = vi.fn().mockResolvedValue({ messageId: "ok" });
 vi.mock("nodemailer", () => ({
