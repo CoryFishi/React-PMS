@@ -12,6 +12,29 @@ router.get(
   authenticate,
   companyController.getCompanies
 );
+
+// Static-segment routes — must be registered before /:companyId to avoid
+// Express matching the literal segment as a param value (F-101).
+router.post(
+  "/create",
+  authenticateAPIKey,
+  authenticate,
+  companyController.createCompany
+);
+router.delete(
+  "/delete",
+  authenticateAPIKey,
+  authenticate,
+  companyController.deleteCompany
+);
+router.put(
+  "/update",
+  authenticateAPIKey,
+  authenticate,
+  companyController.editCompany
+);
+
+// Dynamic /:companyId routes
 router.post(
   "/:companyId/stripe-onboarding",
   authenticateAPIKey,
@@ -53,24 +76,6 @@ router.post(
   authenticateAPIKey,
   authenticate,
   companyController.createCheckoutSession
-);
-router.post(
-  "/create",
-  authenticateAPIKey,
-  authenticate,
-  companyController.createCompany
-);
-router.delete(
-  "/delete",
-  authenticateAPIKey,
-  authenticate,
-  companyController.deleteCompany
-);
-router.put(
-  "/update",
-  authenticateAPIKey,
-  authenticate,
-  companyController.editCompany
 );
 
 export default router;
