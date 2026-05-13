@@ -59,6 +59,25 @@ const rentalSchema = new Schema(
       type: Map,
       of: String,
     },
+    tenant: {
+      type: Schema.Types.ObjectId,
+      ref: "Tenant",
+    },
+    envelopeId: {
+      type: String,
+      index: true,
+    },
+    signingStatus: {
+      type: String,
+      enum: ["unsent", "sent", "signed", "declined", "voided"],
+      default: "unsent",
+    },
+    signedAt: {
+      type: Date,
+    },
+    signedPdfUrl: {
+      type: String,
+    },
   },
   {
     timestamps: true,
