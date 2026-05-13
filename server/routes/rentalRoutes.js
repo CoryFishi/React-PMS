@@ -21,18 +21,11 @@ router.post(
   rentalController.loginTenantAndCreateLease
 );
 
-// Get company by ID and only return enabled facilities
+// Get unit by ID within a facility and company, returning unit details
 router.get(
-  "/:companyId",
+  "/:companyId/:facilityId/:unitId",
   authenticateAPIKey,
-  rentalController.getCompanyDataById
-);
-
-// Get facilities with lowest rates for a company
-router.get(
-  "/:companyId/facilities",
-  authenticateAPIKey,
-  rentalController.getFacilitiesLowestRate
+  rentalController.getUnitDataById
 );
 
 // Get facility by ID and only return vacant units
@@ -42,11 +35,18 @@ router.get(
   rentalController.getFacilityDataById
 );
 
-// Get unit by ID within a facility and company, returning unit details
+// Get facilities with lowest rates for a company
 router.get(
-  "/:companyId/:facilityId/:unitId",
+  "/:companyId/facilities",
   authenticateAPIKey,
-  rentalController.getUnitDataById
+  rentalController.getFacilitiesLowestRate
+);
+
+// Get company by ID and only return enabled facilities
+router.get(
+  "/:companyId",
+  authenticateAPIKey,
+  rentalController.getCompanyDataById
 );
 
 export default router;
