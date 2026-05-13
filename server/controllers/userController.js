@@ -391,18 +391,12 @@ export const sendUserConfirmationEmail = async (req, res) => {
 
   var user = [];
   try {
-    user = await User.findByIdAndUpdate(
-      userId,
-      {
-        confirmed: false,
-      },
-      { new: true }
-    );
+    user = await User.findById(userId);
     if (!user) {
-      res.status(404).send({ message: "User not found" });
+      return res.status(404).send({ message: "User not found" });
     }
   } catch (error) {
-    res.status(500).send({ message: error });
+    return res.status(500).send({ message: error });
   }
   // Send confirmation email
   const subject = "Confirm your SafePhish account";
