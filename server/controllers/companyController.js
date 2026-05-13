@@ -124,8 +124,8 @@ export const createStripeAccountLink = async (req, res) => {
     // Otherwise, generate onboarding link
     const accountLink = await stripe.accountLinks.create({
       account: company.stripe.accountId,
-      refresh_url: "http://localhost:5173/dashboard/companies",
-      return_url: "http://localhost:5173/dashboard/companies",
+      refresh_url: `${process.env.FRONTEND_URL}/dashboard/companies`,
+      return_url: `${process.env.FRONTEND_URL}/dashboard/companies`,
       type: "account_onboarding",
     });
 
