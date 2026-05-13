@@ -713,16 +713,21 @@ export const editNote = async (req, res) => {
   const { unitId, noteIndex } = req.params;
   const update = req.body;
 
-  const unit = await StorageUnit.findById(unitId);
-  if (!unit) return res.status(404).json({ error: "Unit not found" });
+  try {
+    const unit = await StorageUnit.findById(unitId);
+    if (!unit) return res.status(404).json({ error: "Unit not found" });
 
-  if (!unit.notes[noteIndex])
-    return res.status(404).json({ error: "Note not found" });
+    if (!unit.notes[noteIndex])
+      return res.status(404).json({ error: "Note not found" });
 
-  Object.assign(unit.notes[noteIndex], update);
-  await unit.save();
+    Object.assign(unit.notes[noteIndex], update);
+    await unit.save();
 
-  res.json({ message: "Note updated", note: unit.notes[noteIndex] });
+    res.json({ message: "Note updated", note: unit.notes[noteIndex] });
+  } catch (err) {
+    console.error("editNote failed:", err);
+    return res.status(500).json({ error: "Failed to update note" });
+  }
 };
 
 // Remove tenant from unit
