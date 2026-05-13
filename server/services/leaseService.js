@@ -1,5 +1,6 @@
 import Rental from "../models/rental.js";
 import { getStripeClient, assertStripeReadyForCompany } from "./stripeConnect.js";
+import getEnvelopesApi from "./docusignClient.js";
 
 const sanitizeMetadata = (meta) =>
   Object.fromEntries(
@@ -88,4 +89,83 @@ export async function startRental({
   });
 
   return { checkoutUrl: session.url, rentalId: rental._id.toString() };
+}
+
+export async function createEnvelope({ rentalId }) {
+  const templateId = process.env.DS_LEASE_TEMPLATE_ID;
+  if (!templateId) {
+    throw new Error("DS_LEASE_TEMPLATE_ID is not configured");
+  }
+
+  const rental = await Rental.findById(rentalId)
+    .populate("tenant")
+    .populate("unit")
+    .populate("facility");
+
+  if (!rental) {
+    throw new Error("Rental not found");
+  }
+  if (rental.status !== "paid") {
+    throw new Error("Payment not complete");
+  }
+
+  const { envelopesApi, accountId } = await getEnvelopesApi();
+  const returnUrl = `${process.env.FRONTEND_URL || ""}/rental/${rental._id}/signed`;
+
+  let envelopeId = rental.envelopeId;
+  if (!envelopeId || rental.signingStatus === "unsent") {
+    const tenant = rental.tenant;
+    const unit = rental.unit;
+    const facility = rental.facility;
+
+    const tenantName = [tenant?.firstName, tenant?.lastName].filter(Boolean).join(" ");
+    const tenantEmail = tenant?.contactInfo?.email;
+    const monthlyPrice =
+      typeof rental.amount === "number" ? rental.amount.toFixed(2) : "";
+    const startDate = new Date().toISOString().slice(0, 10);
+
+    const envelopeDefinition = {
+      templateId,
+      status: "sent",
+      templateRoles: [
+        {
+          roleName: "tenant",
+          name: tenantName,
+          email: tenantEmail,
+          clientUserId: tenant._id.toString(),
+          tabs: {
+            textTabs: [
+              { tabLabel: "tenantName", value: tenantName },
+              { tabLabel: "tenantEmail", value: tenantEmail || "" },
+              { tabLabel: "unitNumber", value: unit?.unitNumber || "" },
+              { tabLabel: "facilityName", value: facility?.facilityName || "" },
+              { tabLabel: "monthlyPrice", value: monthlyPrice },
+              { tabLabel: "startDate", value: startDate },
+            ],
+          },
+        },
+      ],
+    };
+
+    const created = await envelopesApi.createEnvelope(accountId, { envelopeDefinition });
+    envelopeId = created.envelopeId;
+    rental.envelopeId = envelopeId;
+    rental.signingStatus = "sent";
+    await rental.save();
+  }
+
+  const tenantId = rental.tenant._id.toString();
+  const recipientViewRequest = {
+    returnUrl,
+    authenticationMethod: "none",
+    email: rental.tenant?.contactInfo?.email,
+    userName: [rental.tenant?.firstName, rental.tenant?.lastName].filter(Boolean).join(" "),
+    clientUserId: tenantId,
+  };
+
+  const view = await envelopesApi.createRecipientView(accountId, envelopeId, {
+    recipientViewRequest,
+  });
+
+  return { envelopeId, signingUrl: view.url };
 }
