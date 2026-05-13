@@ -164,9 +164,9 @@ export const createUser = async (req, res) => {
       html: htmlContent,
     };
     try {
-      transporter.sendMail(mailOptions);
-    } catch (error) {
-      res.status(500).send("Failed to send confirmation email");
+      await transporter.sendMail(mailOptions);
+    } catch (mailErr) {
+      console.error("Confirmation email failed to send:", mailErr.message);
     }
     return res.status(201).json(userWithCompany);
   } catch (error) {
