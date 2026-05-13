@@ -80,7 +80,7 @@ Loaded via `dotenv` from `server/.env`. **Never read or echo the file's contents
 - Core: `MONGO_URL`, `PORT`, `JWT_SECRET`, `API_KEY`, `FRONTEND_URL`
 - Email (Nodemailer): `EMAIL`, `PASS`
 - Stripe: `STRIPE_SECRET`, `STRIPE_SECRET_KEY`
-- DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B`, `DS_USER_ID`
+- DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
 
 If a feature needs a new env var, add it here and document it in the root `CLAUDE.md`.
 

@@ -1,5 +1,17 @@
 import docusign from "docusign-esign";
 
+const privateKeyB64 = process.env.DS_PRIVATE_KEY_B64 ?? process.env.DS_PRIVATE_KEY_B;
+
+if (!privateKeyB64) {
+  console.warn(
+    "[docusignClient] Neither DS_PRIVATE_KEY_B64 nor DS_PRIVATE_KEY_B is set; DocuSign JWT auth will fail."
+  );
+} else if (!process.env.DS_PRIVATE_KEY_B64 && process.env.DS_PRIVATE_KEY_B) {
+  console.warn(
+    "[docusignClient] DS_PRIVATE_KEY_B is deprecated; rename to DS_PRIVATE_KEY_B64."
+  );
+}
+
 let cached = {
   accessToken: null,
   expiresAt: 0,
@@ -18,7 +30,7 @@ async function ensureToken() {
     process.env.DS_INTEGRATION_KEY,
     process.env.DS_USER_ID,
     process.env.DS_OAUTH_BASE,
-    Buffer.from(process.env.DS_PRIVATE_KEY_B64, "base64"),
+    Buffer.from(privateKeyB64, "base64"),
     3600,
     ["signature", "impersonation"]
   );
