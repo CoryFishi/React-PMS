@@ -5,6 +5,7 @@ import StorageUnit from "../models/unit.js";
 import {
   hashPassword,
   passwordValidator,
+  comparePassword,
 } from "../helpers/password.js";
 import * as leaseService from "../services/leaseService.js";
 
@@ -206,13 +207,60 @@ export const createTenantAndLease = async (req, res) => {
   }
 };
 
-export const loginTenantAndCreateLease = async (_req, res) => {
-  // F-001 stub: the original implementation referenced undefined identifiers
-  // (doc, envelopesApi, ACCOUNT_ID, Lease, leaseId) and crashed at runtime on
-  // every call. A proper DocuSign-backed lease flow is tracked as follow-up
-  // work. Returning 501 here is intentional and load-bearing — do not change
-  // the status code without restoring real behavior.
-  return res.status(501).json({
-    message: "Existing-tenant lease flow is not yet implemented.",
-  });
+export const loginTenantAndCreateLease = async (req, res) => {
+  try {
+    const { companyId, facilityId, unitId } = req.params;
+    const { email, password, successUrl, cancelUrl } = req.body;
+
+    if (!email || !password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const tenant = await Tenant.findOne({
+      "contactInfo.email": email,
+      company: companyId,
+    });
+    if (!tenant) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const ok = await comparePassword(password, tenant.password);
+    if (!ok) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const company = await Company.findById(companyId);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    const facility = await Facility.findById(facilityId);
+    if (!facility) return res.status(404).json({ message: "Facility not found" });
+
+    const unit = await StorageUnit.findOne({
+      _id: unitId,
+      facility: facilityId,
+      status: "Vacant",
+      availability: true,
+    });
+    if (!unit) {
+      return res.status(400).json({ message: "The selected unit is no longer available." });
+    }
+
+    try {
+      const { checkoutUrl, rentalId } = await leaseService.startRental({
+        company,
+        facility,
+        unit,
+        tenant,
+        successUrl,
+        cancelUrl,
+      });
+      return res.status(200).json({ checkoutUrl, rentalId });
+    } catch (stripeErr) {
+      console.error("startRental failed in login&rent:", stripeErr.message);
+      return res.status(502).json({ message: "Failed to start rental payment" });
+    }
+  } catch (error) {
+    console.error("Error processing the loginTenantAndCreateLease call:\n" + error.message);
+    return res.status(400).json({ message: error.message });
+  }
 };
