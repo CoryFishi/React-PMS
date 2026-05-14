@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import Tenant from "../models/tenant.js";
 import StorageFacility from "../models/facility.js";
 import Event from "../models/event.js";
+import * as gateService from "../services/gateService.js";
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ export const updateTenantStatus = async ({ disconnect = true } = {}) => {
     const facilityCountMap = new Map();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
-    const tenants = await Tenant.find({ status: "Rented" }).populate("units");
+    const tenants = await Tenant.find({ status: "Rented" }).populate("units").lean();
 
     let updatedCount = 0;
 
@@ -39,6 +40,12 @@ export const updateTenantStatus = async ({ disconnect = true } = {}) => {
             facilityIdStr,
             (facilityCountMap.get(facilityIdStr) || 0) + 1
           );
+
+          try {
+            await gateService.suspendUnit({ unitId: unit._id });
+          } catch (gateErr) {
+            console.error(`Gate suspend failed for unit ${unit._id}:`, gateErr.message);
+          }
 
           break;
         }
