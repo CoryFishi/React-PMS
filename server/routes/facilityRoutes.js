@@ -1,6 +1,7 @@
 import express from "express";
 import * as facilityController from "../controllers/facilityController.js";
 import * as tenantController from "../controllers/tenantController.js";
+import * as gateController from "../controllers/gateController.js";
 import authenticateAPIKey from "../middleware/apiKeyAuth.js";
 import authenticate from "../middleware/authentication.js";
 
@@ -178,6 +179,10 @@ router.get(
   authenticate,
   facilityController.getUnitById
 );
+router.post("/:facilityId/gate/sync", authenticateAPIKey, authenticate, gateController.syncFacility);
+router.put("/:facilityId/gate/defaults", authenticateAPIKey, authenticate, gateController.setDefaults);
+router.get("/:facilityId/gate/status", authenticateAPIKey, authenticate, gateController.getStatus);
+
 router.get(
   "/:facilityId",
   authenticateAPIKey,

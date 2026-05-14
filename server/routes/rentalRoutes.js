@@ -1,6 +1,7 @@
 import express from "express";
 import * as rentalController from "../controllers/rentalController.js";
 import * as leaseController from "../controllers/leaseController.js";
+import * as gateController from "../controllers/gateController.js";
 import authenticateAPIKey from "../middleware/apiKeyAuth.js";
 
 const router = express.Router();
@@ -20,6 +21,8 @@ router.get(
   authenticateAPIKey,
   leaseController.streamSignedPdf
 );
+
+router.post("/:rentalId/gate/retry", authenticateAPIKey, gateController.retryProvision);
 
 // Create a new rental
 router.post(
