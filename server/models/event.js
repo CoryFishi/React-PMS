@@ -46,6 +46,9 @@ const eventSchema = new Schema({
         "Facility Balancer",
         "Facility Delinquency",
         //Integrations
+        "Lease Signed",
+        "Lease Declined",
+        "Lease Voided",
         //Notifications
         //Access Control
       ],
