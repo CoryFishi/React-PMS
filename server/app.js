@@ -11,6 +11,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import rentalRoutes from "./routes/rentalRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import getEnvelopesApi from "./services/docusignClient.js";
 
 export function buildApp() {
@@ -36,6 +37,7 @@ export function buildApp() {
     next();
   });
 
+  app.use("/admin", adminRoutes);
   app.use("/companies", companyRoutes);
   app.use("/facilities", facilityRoutes);
   app.use("/tenants", tenantRoutes);
