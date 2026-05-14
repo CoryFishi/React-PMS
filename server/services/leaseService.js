@@ -1,4 +1,6 @@
 import Rental from "../models/rental.js";
+import Event from "../models/event.js";
+import Tenant from "../models/tenant.js";
 import { getStripeClient, assertStripeReadyForCompany } from "./stripeConnect.js";
 import getEnvelopesApi from "./docusignClient.js";
 
@@ -168,4 +170,52 @@ export async function createEnvelope({ rentalId }) {
   });
 
   return { envelopeId, signingUrl: view.url };
+}
+
+const STATUS_MAP = {
+  completed: "signed",
+  declined: "declined",
+  voided: "voided",
+};
+
+const EVENT_NAME = {
+  signed: "Lease Signed",
+  declined: "Lease Declined",
+  voided: "Lease Voided",
+};
+
+export async function applyEnvelopeEvent({ envelopeId, status }) {
+  const rental = await Rental.findOne({ envelopeId }).populate("tenant");
+  if (!rental) {
+    return { noop: true, reason: "rental-not-found" };
+  }
+
+  const mapped = STATUS_MAP[status];
+  if (!mapped) {
+    return { noop: true, reason: "unmapped-status" };
+  }
+
+  if (rental.signingStatus === mapped) {
+    return { noop: true, reason: "already-applied" };
+  }
+
+  rental.signingStatus = mapped;
+  if (mapped === "signed") {
+    rental.signedAt = new Date();
+    if (rental.tenant && rental.tenant.status !== "Active") {
+      rental.tenant.status = "Active";
+      await rental.tenant.save();
+    }
+  }
+  await rental.save();
+
+  await Event.create({
+    eventType: "Integration",
+    eventName: EVENT_NAME[mapped],
+    company: rental.company,
+    facility: rental.facility,
+    message: `Lease envelope ${envelopeId} -> ${mapped}`,
+  });
+
+  return { noop: false, signingStatus: mapped };
 }
