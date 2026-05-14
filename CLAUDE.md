@@ -31,6 +31,8 @@ The server reads these from `server/.env`. Never read, log, or commit the file.
 - Email: `EMAIL`, `PASS`
 - Stripe: `STRIPE_SECRET`, `STRIPE_SECRET_KEY`
 - DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`, `DS_LEASE_TEMPLATE_ID`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
+- DocuSign Connect: `DS_CONNECT_HMAC_KEY` (HMAC secret for /webhooks/docusign)
+- Background jobs: `ORPHAN_TENANT_AGE_DAYS` (default 7)
 
 The client uses `dotenv` and Vite env (`VITE_*`).
 
