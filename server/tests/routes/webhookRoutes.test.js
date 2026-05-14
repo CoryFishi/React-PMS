@@ -1,11 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import crypto from "crypto";
+import Stripe from "stripe";
 
 vi.mock("../../services/leaseService.js", () => ({
   startRental: vi.fn(),
   createEnvelope: vi.fn(),
   applyEnvelopeEvent: vi.fn(),
   streamSignedPdf: vi.fn(),
+}));
+
+vi.mock("../../services/paymentService.js", () => ({
+  handleCheckoutCompleted: vi.fn().mockResolvedValue({ noop: false }),
 }));
 
 import { applyEnvelopeEvent } from "../../services/leaseService.js";
@@ -60,5 +65,46 @@ describe("POST /webhooks/docusign", () => {
       .post("/companies/create")
       .send({ companyName: "X" });
     expect(res.status).toBeLessThan(500);
+  });
+});
+
+describe("POST /webhooks/stripe — end-to-end", () => {
+  function makeStripeSig(payload, secret) {
+    const stripe = Stripe("sk_test_dummy");
+    return stripe.webhooks.generateTestHeaderString({ payload, secret });
+  }
+
+  let stripeApp;
+  beforeEach(() => {
+    process.env.STRIPE_WEBHOOK_SECRET = "whsec_test";
+    stripeApp = buildApp();
+  });
+
+  it("200 + signature accepted on checkout.session.completed", async () => {
+    const payload = JSON.stringify({
+      id: "evt_e2e",
+      type: "checkout.session.completed",
+      data: { object: { id: "cs_e2e", payment_intent: "pi_e2e" } },
+    });
+
+    const res = await api(stripeApp)
+      .post("/webhooks/stripe")
+      .set("Content-Type", "application/json")
+      .set("Stripe-Signature", makeStripeSig(payload, "whsec_test"))
+      .send(payload);
+
+    expect(res.status).toBe(200);
+  });
+
+  it("400 when signature is wrong", async () => {
+    const payload = JSON.stringify({ id: "evt_bad", type: "checkout.session.completed", data: { object: {} } });
+
+    const res = await api(stripeApp)
+      .post("/webhooks/stripe")
+      .set("Content-Type", "application/json")
+      .set("Stripe-Signature", "t=1,v1=bogus")
+      .send(payload);
+
+    expect(res.status).toBe(400);
   });
 });

@@ -38,6 +38,8 @@ The server reads these from `server/.env`. Never read, log, or commit the file.
 
 The client uses `dotenv` and Vite env (`VITE_*`).
 
+For full deployment instructions on Render see [docs/RENDER.md](docs/RENDER.md).
+
 ## Architecture map
 
 ```

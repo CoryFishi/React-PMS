@@ -19,6 +19,7 @@ process.env.DS_PRIVATE_KEY_B = process.env.DS_PRIVATE_KEY_B || "dGVzdC1rZXk=";
 process.env.DS_USER_ID = process.env.DS_USER_ID || "test-user";
 process.env.DS_LEASE_TEMPLATE_ID = process.env.DS_LEASE_TEMPLATE_ID || "tpl_test_lease";
 process.env.DS_CONNECT_HMAC_KEY = process.env.DS_CONNECT_HMAC_KEY || "test-hmac-key";
+process.env.STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || "whsec_test";
 process.env.OPENTECH_CLIENT_ID = process.env.OPENTECH_CLIENT_ID || "test-client-id";
 process.env.OPENTECH_CLIENT_SECRET = process.env.OPENTECH_CLIENT_SECRET || "test-client-secret";
 process.env.OPENTECH_ENV = process.env.OPENTECH_ENV || "dev";
