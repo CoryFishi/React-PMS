@@ -79,7 +79,7 @@ Loaded via `dotenv` from `server/.env`. **Never read or echo the file's contents
 
 - Core: `MONGO_URL`, `PORT`, `JWT_SECRET`, `API_KEY`, `FRONTEND_URL`
 - Email (Nodemailer): `EMAIL`, `PASS`
-- Stripe: `STRIPE_SECRET`, `STRIPE_SECRET_KEY`
+- Stripe: `STRIPE_SECRET`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
 - DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`, `DS_LEASE_TEMPLATE_ID`, `DS_CONNECT_HMAC_KEY`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
 - Background jobs: `ORPHAN_TENANT_AGE_DAYS`
 - Gate (OpenTech): `OPENTECH_CLIENT_ID`, `OPENTECH_CLIENT_SECRET`, `OPENTECH_ENV`, `GATE_ACCESS_CODE_LENGTH`, `GATE_RETRY_BACKOFF_MS`
@@ -146,6 +146,20 @@ Set `StorageUnit.gateProviderRefs.opentech.unitId = "<OpenTech-side unit id>"` o
 - Revocation is triggered automatically when a lease is declined/voided.
 - Delinquency suspension is triggered by `server/processes/delinquency.js`.
 - Per-Company credentials are stored **plaintext** in Mongo. Solve at the deployment layer (MongoDB Atlas KMS, AWS KMS envelope encryption) or via a follow-up `OPENTECH_CREDS_KEY` AES-256 sub-project.
+
+### Stripe webhook
+
+`STRIPE_WEBHOOK_SECRET` is the signing secret for the webhook endpoint configured in the Stripe Dashboard. The `/webhooks/stripe` endpoint verifies signatures via `stripe.webhooks.constructEvent`. Currently only `checkout.session.completed` is handled — it transitions Rental `pending -> paid` and writes a `Payment Recieved` Event. See `docs/RENDER.md` for setup steps.
+
+### Admin cron endpoint
+
+`POST /admin/cron/:job` (API-key auth) lets an external scheduler invoke background jobs. Whitelist:
+
+- `delinquency` → `processes/delinquency.js#updateTenantStatus`
+- `monthly` → `processes/monthly.js#updateTenantBalance`
+- `orphan-cleanup` → `processes/orphanCleanup.js#runOrphanCleanup`
+
+Returns `{ ok, job, durationMs, result }`. See `docs/RENDER.md` for GitHub Actions / Render Cron examples.
 
 ## Don't
 
