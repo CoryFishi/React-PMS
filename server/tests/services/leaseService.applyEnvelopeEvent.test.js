@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { makeCompany, makeFacility, makeUnit, makeTenant } from "../helpers/factories.js";
 import Rental from "../../models/rental.js";
 import Tenant from "../../models/tenant.js";

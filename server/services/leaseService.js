@@ -1,6 +1,5 @@
 import Rental from "../models/rental.js";
 import Event from "../models/event.js";
-import Tenant from "../models/tenant.js";
 import { getStripeClient, assertStripeReadyForCompany } from "./stripeConnect.js";
 import getEnvelopesApi from "./docusignClient.js";
 
