@@ -1,9 +1,14 @@
 import Stripe from "stripe";
 
-const stripeSecretKey =
-  process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET || "sk_test_dummy";
-
-const stripe = new Stripe(stripeSecretKey);
+let _stripe = null;
+function getStripe() {
+  if (!_stripe) {
+    const key =
+      process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET || "sk_test_dummy";
+    _stripe = new Stripe(key);
+  }
+  return _stripe;
+}
 
 const verifyStripeSignature = (req, res, next) => {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -20,7 +25,7 @@ const verifyStripeSignature = (req, res, next) => {
   const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(req.body || "");
 
   try {
-    req.stripeEvent = stripe.webhooks.constructEvent(rawBody, sig, secret);
+    req.stripeEvent = getStripe().webhooks.constructEvent(rawBody, sig, secret);
   } catch (err) {
     console.error("[stripeWebhookAuth] signature verification failed:", err.message);
     return res.status(400).json({ error: "Invalid signature" });
