@@ -80,7 +80,8 @@ Loaded via `dotenv` from `server/.env`. **Never read or echo the file's contents
 - Core: `MONGO_URL`, `PORT`, `JWT_SECRET`, `API_KEY`, `FRONTEND_URL`
 - Email (Nodemailer): `EMAIL`, `PASS`
 - Stripe: `STRIPE_SECRET`, `STRIPE_SECRET_KEY`
-- DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`, `DS_LEASE_TEMPLATE_ID`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
+- DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`, `DS_LEASE_TEMPLATE_ID`, `DS_CONNECT_HMAC_KEY`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
+- Background jobs: `ORPHAN_TENANT_AGE_DAYS`
 
 If a feature needs a new env var, add it here and document it in the root `CLAUDE.md`.
 
@@ -91,6 +92,25 @@ If a feature needs a new env var, add it here and document it in the root `CLAUD
 - Define a recipient with role name `tenant` (case-sensitive)
 - Use text tabs with labels: `tenantName`, `tenantEmail`, `unitNumber`, `facilityName`, `monthlyPrice`, `startDate`
 - Include at least one signature tab assigned to the `tenant` role
+
+### DocuSign Connect (webhook)
+
+`DS_CONNECT_HMAC_KEY` is the shared secret used to verify webhook callbacks from DocuSign Connect. Configured in DocuSign Admin:
+
+1. Admin → Integrations → Connect → Configurations
+2. Add Configuration → "Custom"
+3. URL to publish: `https://<your-host>/webhooks/docusign`
+4. Event filter: Envelope → Envelope Signed/Completed, Envelope Declined, Envelope Voided
+5. Require HMAC: yes, paste the same secret you set as `DS_CONNECT_HMAC_KEY`
+6. Format: JSON (Aggregate)
+
+### Orphan tenant cleanup
+
+`server/processes/orphanCleanup.js` deletes Tenants with `status: "New"` older than `ORPHAN_TENANT_AGE_DAYS` (default 7) that have no `paid` Rental. Run via cron/PM2:
+
+    node server/processes/orphanCleanup.js
+
+The script is safe to re-run; it only deletes tenants that have no paid rental.
 
 ## Don't
 

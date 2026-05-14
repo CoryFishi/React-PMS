@@ -10,6 +10,7 @@ import eventRoutes from "./routes/eventRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import rentalRoutes from "./routes/rentalRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import webhookRoutes from "./routes/webhookRoutes.js";
 import getEnvelopesApi from "./services/docusignClient.js";
 
 export function buildApp() {
@@ -21,6 +22,9 @@ export function buildApp() {
       credentials: true,
     })
   );
+
+  // Webhooks must consume raw body for HMAC verification — mount BEFORE express.json()
+  app.use("/webhooks", webhookRoutes);
 
   app.use(express.json());
   app.use(cookieParser());

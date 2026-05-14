@@ -21,3 +21,16 @@ export const createLeaseEnvelope = async (req, res) => {
     return res.status(502).json({ message: "Failed to create lease envelope" });
   }
 };
+
+export const streamSignedPdf = async (req, res) => {
+  try {
+    const { rentalId } = req.params;
+    await leaseService.streamSignedPdf({ rentalId, res });
+  } catch (error) {
+    const msg = error?.message || "Unknown error";
+    if (msg === "Rental not found") return res.status(404).json({ message: msg });
+    if (msg === "Lease not signed") return res.status(409).json({ message: msg });
+    console.error("streamSignedPdf failed:", msg);
+    return res.status(502).json({ message: "Failed to fetch signed PDF" });
+  }
+};
