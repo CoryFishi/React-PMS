@@ -15,6 +15,12 @@ router.post(
   leaseController.createLeaseEnvelope
 );
 
+router.get(
+  "/:rentalId/lease/pdf",
+  authenticateAPIKey,
+  leaseController.streamSignedPdf
+);
+
 // Create a new rental
 router.post(
   "/:companyId/:facilityId/:unitId/rent",
