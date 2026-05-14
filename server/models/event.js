@@ -49,6 +49,11 @@ const eventSchema = new Schema({
         "Lease Signed",
         "Lease Declined",
         "Lease Voided",
+        "Gate Provisioned",
+        "Gate Revoked",
+        "Gate Suspended",
+        "Gate Unsuspended",
+        "Gate Sync",
         //Notifications
         //Access Control
       ],

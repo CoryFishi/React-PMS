@@ -71,6 +71,12 @@ const CompanySchema = new Schema({
     enum: ["Disabled", "Enabled"],
     default: "Enabled",
   },
+  gateProviders: {
+    opentech: {
+      apiKey: { type: String },
+      apiSecret: { type: String },
+    },
+  },
   stripe: {
     accountId: { type: String },
     onboardingComplete: {

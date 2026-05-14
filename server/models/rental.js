@@ -78,6 +78,16 @@ const rentalSchema = new Schema(
     signedPdfUrl: {
       type: String,
     },
+    gateProviderRefs: {
+      opentech: {
+        visitorId: { type: String },
+        accessCode: { type: String },
+        provisionedAt: { type: Date },
+      },
+    },
+    gateProvisionError: {
+      type: String,
+    },
   },
   {
     timestamps: true,

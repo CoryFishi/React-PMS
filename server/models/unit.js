@@ -115,6 +115,11 @@ const storageUnitSchema = new Schema({
     priceAmount: { type: Number },
     lastSyncedAt: { type: Date },
   },
+  gateProviderRefs: {
+    opentech: {
+      unitId: { type: String },
+    },
+  },
   status: {
     type: String,
     default: "Vacant",

@@ -2,6 +2,7 @@ import Rental from "../models/rental.js";
 import Event from "../models/event.js";
 import { getStripeClient, assertStripeReadyForCompany } from "./stripeConnect.js";
 import getEnvelopesApi from "./docusignClient.js";
+import * as gateService from "./gateService.js";
 
 const sanitizeMetadata = (meta) =>
   Object.fromEntries(
@@ -215,6 +216,23 @@ export async function applyEnvelopeEvent({ envelopeId, status }) {
     facility: rental.facility,
     message: `Lease envelope ${envelopeId} -> ${mapped}`,
   });
+
+  // Gate provider hook. Failures here must not block the envelope state transition.
+  try {
+    if (mapped === "signed") {
+      await gateService.provisionTenant({ rentalId: rental._id });
+    } else if (mapped === "declined" || mapped === "voided") {
+      await gateService.revokeTenant({ rentalId: rental._id });
+    }
+  } catch (gateErr) {
+    rental.gateProvisionError = gateErr?.message || "Gate provisioning failed";
+    try {
+      await rental.save();
+    } catch (saveErr) {
+      console.error("Failed to persist gateProvisionError:", saveErr.message);
+    }
+    console.error(`Gate hook failed for envelope ${envelopeId} -> ${mapped}:`, gateErr.message);
+  }
 
   return { noop: false, signingStatus: mapped };
 }

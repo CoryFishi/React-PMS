@@ -142,6 +142,28 @@ const storageFacilitySchema = new Schema({
     default: Date.now,
   },
   photos: [String],
+  gateProvider: {
+    type: String,
+    enum: ["opentech"],
+  },
+  gateProviderRefs: {
+    opentech: {
+      facilityId: { type: String },
+      timeGroups: [{
+        id: { type: String },
+        name: { type: String },
+        isDefault: { type: Boolean },
+      }],
+      accessProfiles: [{
+        id: { type: String },
+        name: { type: String },
+        isDefault: { type: Boolean },
+      }],
+      defaultTimeGroupId: { type: String },
+      defaultAccessProfileId: { type: String },
+      syncedAt: { type: Date },
+    },
+  },
 });
 
 const StorageFacility = mongoose.model(

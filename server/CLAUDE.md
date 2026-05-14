@@ -82,6 +82,7 @@ Loaded via `dotenv` from `server/.env`. **Never read or echo the file's contents
 - Stripe: `STRIPE_SECRET`, `STRIPE_SECRET_KEY`
 - DocuSign: `DS_ACCOUNT_ID`, `DS_BASE_PATH`, `DS_INTEGRATION_KEY`, `DS_OAUTH_BASE`, `DS_PRIVATE_KEY_B64`, `DS_USER_ID`, `DS_LEASE_TEMPLATE_ID`, `DS_CONNECT_HMAC_KEY`. Legacy `DS_PRIVATE_KEY_B` is still read with a deprecation warning.
 - Background jobs: `ORPHAN_TENANT_AGE_DAYS`
+- Gate (OpenTech): `OPENTECH_CLIENT_ID`, `OPENTECH_CLIENT_SECRET`, `OPENTECH_ENV`, `GATE_ACCESS_CODE_LENGTH`, `GATE_RETRY_BACKOFF_MS`
 
 If a feature needs a new env var, add it here and document it in the root `CLAUDE.md`.
 
@@ -111,6 +112,40 @@ If a feature needs a new env var, add it here and document it in the root `CLAUD
     node server/processes/orphanCleanup.js
 
 The script is safe to re-run; it only deletes tenants that have no paid rental.
+
+### Gate provider (OpenTech)
+
+This codebase supports multiple gate vendors via a `GateProviderAdapter` interface. OpenTech is the first implementation.
+
+**Env vars:**
+
+- `OPENTECH_CLIENT_ID` / `OPENTECH_CLIENT_SECRET` — per-application credentials issued by OpenTech STC Administrators. Shared across all React-PMS companies.
+- `OPENTECH_ENV` — `"prod"` (default) or `"dev"`. Swaps the API base hosts: `*.insomniaccia.com` ↔ `*.insomniaccia-dev.com`.
+- `GATE_ACCESS_CODE_LENGTH` — number of digits in tenant access codes (default 8 → 100M combinations).
+- `GATE_RETRY_BACKOFF_MS` — comma-separated millisecond delays for 5XX retry. Default `"1000,2000,4000"`.
+
+**Per-Company setup (one-time, per OpenTech account):**
+
+1. OpenTech STC Administrators issue API Key + API Secret for the company's account.
+2. Operator (or admin script) sets `Company.gateProviders.opentech = { apiKey, apiSecret }` in Mongo.
+
+**Per-Facility setup:**
+
+1. Set `Facility.gateProvider = "opentech"` and `Facility.gateProviderRefs.opentech.facilityId = "<OpenTech-side facility id>"`.
+2. POST `/facilities/:facilityId/gate/sync` (JWT auth) — pulls Time Groups + Access Profiles into the Facility doc.
+3. PUT `/facilities/:facilityId/gate/defaults` with `{ defaultTimeGroupId, defaultAccessProfileId }`.
+4. GET `/facilities/:facilityId/gate/status` to verify `adapterHealthy: true`.
+
+**Per-Unit setup:**
+
+Set `StorageUnit.gateProviderRefs.opentech.unitId = "<OpenTech-side unit id>"` on every unit that should be controlled by the gate.
+
+**Operational notes:**
+
+- Provisioning is triggered automatically by the DocuSign webhook when a lease is signed. Failures are captured in `Rental.gateProvisionError` and visible via `GET /facilities/:facilityId/gate/status` (unprovisioned-rental count). Use `POST /rental/:rentalId/gate/retry` for manual recovery.
+- Revocation is triggered automatically when a lease is declined/voided.
+- Delinquency suspension is triggered by `server/processes/delinquency.js`.
+- Per-Company credentials are stored **plaintext** in Mongo. Solve at the deployment layer (MongoDB Atlas KMS, AWS KMS envelope encryption) or via a follow-up `OPENTECH_CREDS_KEY` AES-256 sub-project.
 
 ## Don't
 
