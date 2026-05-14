@@ -219,3 +219,20 @@ export async function applyEnvelopeEvent({ envelopeId, status }) {
 
   return { noop: false, signingStatus: mapped };
 }
+
+export async function streamSignedPdf({ rentalId, res }) {
+  const rental = await Rental.findById(rentalId);
+  if (!rental) {
+    throw new Error("Rental not found");
+  }
+  if (rental.signingStatus !== "signed") {
+    throw new Error("Lease not signed");
+  }
+
+  const { envelopesApi, accountId } = await getEnvelopesApi();
+  const pdfBuffer = await envelopesApi.getDocument(accountId, rental.envelopeId, "combined");
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="lease-${rental._id}.pdf"`);
+  res.end(pdfBuffer);
+}
