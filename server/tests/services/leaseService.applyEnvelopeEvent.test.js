@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { makeCompany, makeFacility, makeUnit, makeTenant } from "../helpers/factories.js";
 import Rental from "../../models/rental.js";
 import Tenant from "../../models/tenant.js";
@@ -90,5 +90,42 @@ describe("leaseService.applyEnvelopeEvent", () => {
     const result = await applyEnvelopeEvent({ envelopeId: "env_abc", status: "sent" });
 
     expect(result).toEqual({ noop: true, reason: "unmapped-status" });
+  });
+
+  it("on completed: also calls gateService.provisionTenant", async () => {
+    const { rental } = await seedRental();
+    const gateService = await import("../../services/gateService.js");
+    const spy = vi.spyOn(gateService, "provisionTenant").mockResolvedValue({ noop: false, visitorId: "v" });
+
+    await applyEnvelopeEvent({ envelopeId: "env_abc", status: "completed" });
+
+    expect(spy).toHaveBeenCalledWith({ rentalId: rental._id });
+    spy.mockRestore();
+  });
+
+  it("on completed: gate provisioning failure does not block the envelope transition; persists gateProvisionError", async () => {
+    const { rental } = await seedRental();
+    const gateService = await import("../../services/gateService.js");
+    const spy = vi.spyOn(gateService, "provisionTenant").mockRejectedValue(new Error("OpenTech down"));
+
+    const result = await applyEnvelopeEvent({ envelopeId: "env_abc", status: "completed" });
+
+    expect(result.signingStatus).toBe("signed");
+    const Rental = (await import("../../models/rental.js")).default;
+    const refreshed = await Rental.findById(rental._id);
+    expect(refreshed.signingStatus).toBe("signed");
+    expect(refreshed.gateProvisionError).toMatch(/OpenTech down/);
+    spy.mockRestore();
+  });
+
+  it("on declined: calls gateService.revokeTenant", async () => {
+    const { rental } = await seedRental();
+    const gateService = await import("../../services/gateService.js");
+    const spy = vi.spyOn(gateService, "revokeTenant").mockResolvedValue({ noop: false });
+
+    await applyEnvelopeEvent({ envelopeId: "env_abc", status: "declined" });
+
+    expect(spy).toHaveBeenCalledWith({ rentalId: rental._id });
+    spy.mockRestore();
   });
 });
