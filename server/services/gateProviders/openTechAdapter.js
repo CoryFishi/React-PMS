@@ -119,7 +119,7 @@ const openTechAdapter = {
       return { ok: false, error: e.message };
     }
   },
-  async provisionTenant({ facility, rental, tenant, accessCode }) {
+  async provisionTenant({ facility, rental: _rental, tenant, accessCode }) {
     const fid = facility.gateProviderRefs?.opentech?.facilityId;
     const unitId = facility?.__unitRef?.gateProviderRefs?.opentech?.unitId;
     if (!fid) throw new Error("Facility not linked to OpenTech");
