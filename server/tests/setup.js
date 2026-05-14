@@ -18,6 +18,7 @@ process.env.DS_OAUTH_BASE = process.env.DS_OAUTH_BASE || "account-d.docusign.com
 process.env.DS_PRIVATE_KEY_B = process.env.DS_PRIVATE_KEY_B || "dGVzdC1rZXk=";
 process.env.DS_USER_ID = process.env.DS_USER_ID || "test-user";
 process.env.DS_LEASE_TEMPLATE_ID = process.env.DS_LEASE_TEMPLATE_ID || "tpl_test_lease";
+process.env.DS_CONNECT_HMAC_KEY = process.env.DS_CONNECT_HMAC_KEY || "test-hmac-key";
 
 beforeAll(async () => {
   mongo = await MongoMemoryServer.create();
