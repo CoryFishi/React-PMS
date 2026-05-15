@@ -22,6 +22,7 @@ import { BsFillBuildingFill } from "react-icons/bs";
 import FacilityTemplates from "../facilityComponents/FacilityTemplates";
 import SettingsPage from "../settingsComponents/SettingsPage";
 import axios from "axios";
+import logo from "../../assets/images/logo.png";
 
 export default function AdminDashboard({ darkMode, toggleDarkMode }) {
   const [facilityName, setFacilityName] = useState("Facility Dashboard");
@@ -187,7 +188,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
             className="text-center text-2xl font-bold w-full items-center justify-center flex cursor-pointer"
             onClick={() => navigate("/")}
           >
-            <img src="/src/assets/images/logo.png" alt="Logo" className="h-7" />
+            <img src={logo} alt="Logo" className="h-7" />
             <span className={`p-5 font-semibold text-3xl flex items-center`}>
               Stor<span className="text-sky-500">IX</span>
             </span>
