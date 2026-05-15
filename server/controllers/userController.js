@@ -11,6 +11,8 @@ import Company from "../models/company.js";
 import StorageUnit from "../models/unit.js";
 import Event from "../models/event.js";
 import Tenant from "../models/tenant.js";
+import Rental from "../models/rental.js";
+import { fillMonthly, monthsAgo } from "../helpers/dashboard.js";
 
 // Create User
 export const createUser = async (req, res) => {
@@ -736,6 +738,89 @@ export const getDashboardData = async (req, res) => {
       { $sort: { "_id.year": 1, "_id.month": 1 } },
     ]);
 
+    // 6-month trends for revenue + activity charts.
+    const TREND_MONTHS = 6;
+    const trendStart = monthsAgo(TREND_MONTHS, currentDate);
+    const thirtyDaysAgo = new Date(
+      currentDate.getTime() - 30 * 24 * 60 * 60 * 1000
+    );
+
+    const groupByMonth = {
+      _id: {
+        year: { $year: "$updatedAt" },
+        month: { $month: "$updatedAt" },
+      },
+    };
+
+    const [
+      revenueTrendRows,
+      activityTrendRows,
+      totalRevenueAgg,
+      last30RevenueAgg,
+      rentalStatusRows,
+      signingStatusRows,
+    ] = await Promise.all([
+      Rental.aggregate([
+        {
+          $match: {
+            ...companyFilter,
+            status: "paid",
+            updatedAt: { $gte: trendStart, $lte: currentDate },
+          },
+        },
+        { $group: { ...groupByMonth, amount: { $sum: "$amount" } } },
+      ]),
+      Event.aggregate([
+        {
+          $match: {
+            ...companyFilter,
+            createdAt: { $gte: trendStart, $lte: currentDate },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      Rental.aggregate([
+        { $match: { ...companyFilter, status: "paid" } },
+        { $group: { _id: null, amount: { $sum: "$amount" } } },
+      ]),
+      Rental.aggregate([
+        {
+          $match: {
+            ...companyFilter,
+            status: "paid",
+            updatedAt: { $gte: thirtyDaysAgo },
+          },
+        },
+        { $group: { _id: null, amount: { $sum: "$amount" } } },
+      ]),
+      Rental.aggregate([
+        { $match: { ...companyFilter } },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]),
+      Rental.aggregate([
+        { $match: { ...companyFilter } },
+        { $group: { _id: "$signingStatus", count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const countByKey = (rows) =>
+      rows.reduce((acc, r) => {
+        acc[r._id ?? "unknown"] = r.count;
+        return acc;
+      }, {});
+
+    const occupiedUnits = rentedUnits + delinquentUnits;
+    const pct = (part, whole) =>
+      whole > 0 ? Math.round((part / whole) * 1000) / 10 : 0;
+
     const monthNames = [
       "January",
       "February",
@@ -780,6 +865,34 @@ export const getDashboardData = async (req, res) => {
         active: activeTenants,
         disabled: disabledTenants,
       },
+      occupancy: {
+        total: totalUnits,
+        occupied: occupiedUnits,
+        vacant: vacantUnits,
+        delinquent: delinquentUnits,
+        occupancyRate: pct(occupiedUnits, totalUnits),
+        delinquencyRate: pct(delinquentUnits, totalUnits),
+      },
+      revenue: {
+        total: totalRevenueAgg[0]?.amount || 0,
+        last30: last30RevenueAgg[0]?.amount || 0,
+        trend: fillMonthly(
+          revenueTrendRows,
+          TREND_MONTHS,
+          "amount",
+          currentDate
+        ),
+      },
+      rentals: {
+        byStatus: countByKey(rentalStatusRows),
+        signing: countByKey(signingStatusRows),
+      },
+      activityTrend: fillMonthly(
+        activityTrendRows,
+        TREND_MONTHS,
+        "count",
+        currentDate
+      ),
       events: eventCounts.map((event) => ({
         month: monthNames[event._id.month - 1],
         count: event.count,
