@@ -80,8 +80,8 @@ export default function CompanyDetailReport() {
       const rows = companies.map((company) => [
         company._id,
         company.companyName,
-        company.contactInfo.email || "",
-        company.contactInfo.phone || "",
+        company.contactInfo?.email || "",
+        company.contactInfo?.phone || "",
         company.status,
         company.createdAt,
         company.createdBy,
@@ -91,7 +91,7 @@ export default function CompanyDetailReport() {
         } ${company.address?.state || ""} ${company.address?.country || ""} ${
           company.address?.zipCode || ""
         }`,
-        company.facilities,
+        (company.facilities ?? []).join("; "),
       ]);
 
       const csvContent =
@@ -133,12 +133,12 @@ export default function CompanyDetailReport() {
     {
       key: "email",
       label: "Email",
-      accessor: (c) => c.contactInfo.email || "-",
+      accessor: (c) => c.contactInfo?.email || "-",
     },
     {
       key: "phone",
       label: "Phone",
-      accessor: (c) => c.contactInfo.phone || "-",
+      accessor: (c) => c.contactInfo?.phone || "-",
     },
     {
       key: "status",
@@ -173,7 +173,7 @@ export default function CompanyDetailReport() {
     {
       key: "facilities",
       label: "Facilities",
-      accessor: (c) => c.facilities.join(", ") || "-",
+      accessor: (c) => (c.facilities ?? []).join(", ") || "-",
     },
   ];
 

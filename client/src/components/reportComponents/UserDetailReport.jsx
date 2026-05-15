@@ -98,7 +98,7 @@ export default function UserDetailReport() {
         user.createdBy,
         user.updatedAt,
         user.confirmed ? "true" : "false",
-        user.facilities,
+        (user.facilities ?? []).join("; "),
       ]);
 
       const csvContent =
@@ -219,7 +219,7 @@ export default function UserDetailReport() {
     {
       key: "facilities",
       label: "Facilities",
-      accessor: (u) => u.facilities.join(", ") || "-",
+      accessor: (u) => (u.facilities ?? []).join(", ") || "-",
     },
   ];
 
