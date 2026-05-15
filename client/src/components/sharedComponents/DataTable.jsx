@@ -11,6 +11,8 @@ export default function DataTable({
   hoveredRow = null,
   setHoveredRow = null,
   onRowClick = null,
+  loading = false,
+  emptyMessage = "No records found.",
 }) {
   const [contextMenu, setContextMenu] = useState({
     visible: false,
@@ -78,7 +80,31 @@ export default function DataTable({
           </tr>
         </thead>
         <tbody>
-          {paginatedData.map((item, index) => (
+          {loading &&
+            Array.from({ length: 5 }).map((_, rowIdx) => (
+              <tr key={`skeleton-${rowIdx}`} className="animate-pulse">
+                {columns.map(({ key }) => (
+                  <td
+                    key={key}
+                    className="border-y border-zinc-300 dark:border-slate-700 px-2 py-3 sm:px-4"
+                  >
+                    <div className="h-4 rounded bg-zinc-200 dark:bg-slate-700 mx-auto w-3/4" />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          {!loading && paginatedData.length === 0 && (
+            <tr>
+              <td
+                colSpan={columns.length}
+                className="border-y border-zinc-300 dark:border-slate-700 px-4 py-10 text-center text-zinc-500 dark:text-zinc-400"
+              >
+                {emptyMessage}
+              </td>
+            </tr>
+          )}
+          {!loading &&
+            paginatedData.map((item, index) => (
             <tr
               key={index}
               onClick={() => onRowClick?.(item)}

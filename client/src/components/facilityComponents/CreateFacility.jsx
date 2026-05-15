@@ -15,6 +15,7 @@ export default function CreateFacility({ onClose, onSubmit }) {
   const [companies, setCompanies] = useState([]);
   const [manager, setManager] = useState("");
   const [managers, setManagers] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
   const { user } = useContext(UserContext);
 
   const handleCompanyChange = (e) => {
@@ -56,6 +57,8 @@ export default function CreateFacility({ onClose, onSubmit }) {
   }, []);
 
   const handleSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
     try {
       const selectedCompany = company === "" ? null : company;
       const response = await axios.post(
@@ -76,8 +79,9 @@ export default function CreateFacility({ onClose, onSubmit }) {
       );
       onSubmit(response);
     } catch (error) {
-      console.error("Failed to create company:", error);
-      toast.error(error.response.data.error);
+      console.error("Failed to create facility:", error);
+      toast.error(error.response?.data?.error || "Failed to create facility.");
+      setSubmitting(false);
     }
   };
 
@@ -204,9 +208,10 @@ export default function CreateFacility({ onClose, onSubmit }) {
           <button
             type="button"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200"
+            disabled={submitting}
+            className="px-4 py-2 bg-blue-600 text-white text-base font-medium rounded-md w-auto shadow-sm hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 transition ease-in duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Submit
+            {submitting ? "Submitting..." : "Submit"}
           </button>
           <button
             type="button"

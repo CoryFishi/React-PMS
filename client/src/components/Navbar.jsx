@@ -37,17 +37,23 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
     }
   };
 
-  // Handler to close dropdown if clicking outside of the dropdown area
+  // Close dropdown on outside click or Escape key
   useEffect(() => {
+    if (!isDropdownOpen) return;
+
     function handleClickOutside(event) {
       if (userRef.current && !userRef.current.contains(event.target)) {
-        setIsDropdownOpen(null);
+        setIsDropdownOpen(false);
       }
     }
-    // Add event listener when a dropdown is open
+    function handleEscape(event) {
+      if (event.key === "Escape") setIsDropdownOpen(false);
+    }
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isDropdownOpen]);
 
@@ -100,7 +106,17 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
           {isLoggedIn ? (
             <div className="relative" ref={userRef}>
               <h2
+                role="button"
+                tabIndex={0}
+                aria-haspopup="menu"
+                aria-expanded={isDropdownOpen}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setIsDropdownOpen(!isDropdownOpen);
+                  }
+                }}
                 className={`select-none cursor-pointer bg-slate-100 p-2 px-4 flex items-center justify-center text-center hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700`}
               >
                 {isDropdownOpen ? <MdExpandMore /> : <MdExpandLess />}{" "}
