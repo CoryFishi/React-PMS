@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { RiMoonClearFill, RiSunFill } from "react-icons/ri";
 import axios from "axios";
 import { MdExpandLess, MdExpandMore } from "react-icons/md";
+import logo from "../assets/images/logo.png";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function Navbar({ toggleDarkMode, darkMode }) {
@@ -70,11 +71,7 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
               className="flex items-center gap-2 font-medium text-3xl cursor-pointer"
               onClick={() => navigate("/")}
             >
-              <img
-                src="/src/assets/images/logo.png"
-                alt="Logo"
-                className="h-10 w-auto"
-              />
+              <img src={logo} alt="Logo" className="h-10 w-auto" />
               <h1>
                 Stor<span className="text-sky-500">IX</span>
               </h1>
