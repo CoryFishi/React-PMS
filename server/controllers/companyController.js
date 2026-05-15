@@ -316,12 +316,32 @@ export const getCompanies = async (req, res) => {
 
     let companies;
     if (user.role === "System_Admin" || user.role === "System_User") {
-      companies = await Company.find({}).sort({ companyName: 1 });
+      companies = await Company.find({}).sort({ companyName: 1 }).lean();
     } else {
-      companies = await Company.find({ _id: user.company });
+      companies = await Company.find({ _id: user.company }).lean();
     }
 
-    return res.status(200).json(companies);
+    const companyIds = companies.map((c) => c._id);
+    const facilities = await StorageFacility.find({
+      company: { $in: companyIds },
+    })
+      .select("facilityName company")
+      .lean();
+
+    const facilitiesByCompany = new Map();
+    for (const facility of facilities) {
+      const key = facility.company?.toString();
+      if (!key) continue;
+      if (!facilitiesByCompany.has(key)) facilitiesByCompany.set(key, []);
+      facilitiesByCompany.get(key).push(facility.facilityName);
+    }
+
+    const companiesWithFacilities = companies.map((company) => ({
+      ...company,
+      facilities: facilitiesByCompany.get(company._id.toString()) ?? [],
+    }));
+
+    return res.status(200).json(companiesWithFacilities);
   } catch (error) {
     console.error("Error processing the getCompanies call:\n" + error.message);
     return res.status(400).json({ message: error.message });
@@ -416,7 +436,10 @@ export const deleteCompany = async (req, res) => {
       console.error("Rejecting delete company due to no facility found!");
       return res.status(404).json({ message: "Company not found!" });
     }
-    if (company.facilities.length > 0) {
+    const facilityCount = await StorageFacility.countDocuments({
+      company: companyId,
+    });
+    if (facilityCount > 0) {
       console.error(
         "Rejecting delete company due the company having active facilities!"
       );

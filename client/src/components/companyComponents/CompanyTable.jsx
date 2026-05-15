@@ -220,15 +220,15 @@ export default function CompanyTable() {
       key: "address",
       label: "Address",
       accessor: (c) =>
-        `${c.address.street1}
-                    ${c.address.street2 ? `, ${c.address.street2}` : ""}
-                    , ${c.address.city}, ${c.address.state} 
-                    ${c.address.zipCode}` || "-",
+        `${c.address?.street1 || ""}
+                    ${c.address?.street2 ? `, ${c.address.street2}` : ""}
+                    , ${c.address?.city || ""}, ${c.address?.state || ""}
+                    ${c.address?.zipCode || ""}` || "-",
     },
     {
       key: "facilities",
       label: "Facilities",
-      accessor: (c) => c.facilities.length || "-",
+      accessor: (c) => c.facilities?.length || "-",
     },
     {
       key: "stripe",
