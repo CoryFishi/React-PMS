@@ -6,7 +6,7 @@ import DataTable from "../../sharedComponents/DataTable";
 import PaginationFooter from "../../sharedComponents/PaginationFooter";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import InputBox from "../../sharedComponents/InputBox";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FaDoorClosed } from "react-icons/fa6";
 import { PiPersonBold } from "react-icons/pi";
 
@@ -16,8 +16,15 @@ export default function TenantPage({ facility }) {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("q") || ""
+  );
   const [filteredTenants, setFilteredTenants] = useState([]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
   const [activeTab, setActiveTab] = useState("Current");
   const [sortDirection, setSortDirection] = useState("asc");
   const [sortedColumn, setSortedColumn] = useState(null);
