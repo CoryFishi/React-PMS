@@ -48,13 +48,13 @@ export default function DataTable({
 
   return (
     <>
-      <table className="w-full text-sm dark:text-white">
+      <table className="w-full min-w-max text-xs sm:text-sm dark:text-white">
         <thead className="sticky top-[-1px] z-10 bg-zinc-400 text-white dark:bg-slate-900">
           <tr>
             {columns.map(({ key, label, accessor, sortable = true }) => (
               <th
                 key={key}
-                className={`px-4 py-2 select-none justify-center text-center items-center duration-300 transition-all ${
+                className={`px-2 py-2 sm:px-4 select-none justify-center text-center items-center duration-300 transition-all ${
                   sortable
                     ? "hover:cursor-pointer hover:bg-zinc-600 dark:hover:bg-sky-950"
                     : ""
@@ -95,7 +95,7 @@ export default function DataTable({
               {columns.map(({ key, accessor, render }) => (
                 <td
                   key={key}
-                  className="border-y border-zinc-300 dark:border-slate-700 px-4 py-2 text-sm text-center whitespace-nowrap"
+                  className="border-y border-zinc-300 dark:border-slate-700 px-2 py-2 sm:px-4 text-xs sm:text-sm text-center whitespace-nowrap"
                   onContextMenu={(e) => {
                     e.preventDefault();
                     const value =

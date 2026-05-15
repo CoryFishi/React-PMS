@@ -15,7 +15,7 @@ export default function PaginationFooter({
   const pageCount = Math.ceil(items.length / rowsPerPage);
 
   return (
-    <div className="flex justify-between items-center dark:text-white">
+    <div className="flex flex-wrap justify-between items-center gap-y-3 dark:text-white">
       <div className="flex gap-3">
         <div>
           <select
@@ -43,7 +43,7 @@ export default function PaginationFooter({
           of {items.length}
         </p>
       </div>
-      <div className="gap-2 flex">
+      <div className="gap-2 flex ml-auto">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(1)}
