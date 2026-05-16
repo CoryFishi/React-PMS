@@ -69,3 +69,43 @@ describe("getDashboardData — F-106 regression: company scoping", () => {
     expect(res.body.facilities.total).toBe(2);
   });
 });
+
+describe("getDashboardData — extended metrics", () => {
+  it("returns revenue, occupancy, rentals and a 6-month activity trend", async () => {
+    const company = await makeCompany();
+    await makeFacility(company);
+
+    const admin = await makeUser({
+      role: "Company_Admin",
+      company: company._id,
+    });
+    const cookie = cookieFor({ id: admin._id.toString(), role: admin.role });
+
+    const res = await api(app)
+      .get("/dashboard/overview")
+      .set("Cookie", cookie);
+
+    expect(res.status).toBe(200);
+
+    // Revenue defaults to zero with no paid rentals.
+    expect(res.body.revenue).toMatchObject({ total: 0, last30: 0 });
+
+    // Occupancy is derived from unit counts.
+    expect(res.body.occupancy).toMatchObject({
+      occupancyRate: 0,
+      delinquencyRate: 0,
+    });
+
+    // Leasing funnel is present even when empty.
+    expect(res.body.rentals.byStatus).toEqual({});
+    expect(res.body.rentals.signing).toEqual({});
+
+    // Trend is a continuous, zero-filled 6-month window.
+    expect(res.body.activityTrend).toHaveLength(6);
+    expect(res.body.revenue.trend).toHaveLength(6);
+    res.body.activityTrend.forEach((p) => {
+      expect(p).toHaveProperty("month");
+      expect(p).toHaveProperty("value");
+    });
+  });
+});

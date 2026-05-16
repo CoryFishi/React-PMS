@@ -6,6 +6,8 @@ import StorageUnit from "../models/unit.js";
 import User from "../models/user.js";
 import Tenant from "../models/tenant.js";
 import Event from "../models/event.js";
+import Rental from "../models/rental.js";
+import { fillMonthly, monthsAgo } from "../helpers/dashboard.js";
 import { getStripeClient } from "../services/stripeConnect.js";
 
 const requireStripeClient = () => getStripeClient();
@@ -1183,12 +1185,124 @@ export const getFacilityDashboardData = async (req, res) => {
       .limit(250)
       .sort({ createdAt: -1 });
 
+    const now = new Date();
+    const TREND_MONTHS = 6;
+    const trendStart = monthsAgo(TREND_MONTHS, now);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      revenueTrendRows,
+      activityTrendRows,
+      totalRevenueAgg,
+      last30RevenueAgg,
+      rentalStatusRows,
+      signingStatusRows,
+    ] = await Promise.all([
+      Rental.aggregate([
+        {
+          $match: {
+            facility: new mongoose.Types.ObjectId(facilityId),
+            status: "paid",
+            updatedAt: { $gte: trendStart, $lte: now },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$updatedAt" },
+              month: { $month: "$updatedAt" },
+            },
+            amount: { $sum: "$amount" },
+          },
+        },
+      ]),
+      Event.aggregate([
+        {
+          $match: {
+            facility: new mongoose.Types.ObjectId(facilityId),
+            createdAt: { $gte: trendStart, $lte: now },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      Rental.aggregate([
+        {
+          $match: {
+            facility: new mongoose.Types.ObjectId(facilityId),
+            status: "paid",
+          },
+        },
+        { $group: { _id: null, amount: { $sum: "$amount" } } },
+      ]),
+      Rental.aggregate([
+        {
+          $match: {
+            facility: new mongoose.Types.ObjectId(facilityId),
+            status: "paid",
+            updatedAt: { $gte: thirtyDaysAgo },
+          },
+        },
+        { $group: { _id: null, amount: { $sum: "$amount" } } },
+      ]),
+      Rental.aggregate([
+        { $match: { facility: new mongoose.Types.ObjectId(facilityId) } },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]),
+      Rental.aggregate([
+        { $match: { facility: new mongoose.Types.ObjectId(facilityId) } },
+        { $group: { _id: "$signingStatus", count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const countByKey = (rows) =>
+      rows.reduce((acc, r) => {
+        acc[r._id ?? "unknown"] = r.count;
+        return acc;
+      }, {});
+
+    const rentedUnits = units.filter((u) => u.status === "Rented").length;
+    const delinquentUnits = units.filter(
+      (u) => u.status === "Delinquent"
+    ).length;
+    const vacantUnits = units.filter((u) => u.status === "Vacant").length;
+    const occupiedUnits = rentedUnits + delinquentUnits;
+    const pct = (part, whole) =>
+      whole > 0 ? Math.round((part / whole) * 1000) / 10 : 0;
+
     res.status(200).json({
       units,
+      unitStats: {
+        total: units.length,
+        rented: rentedUnits,
+        vacant: vacantUnits,
+        delinquent: delinquentUnits,
+        occupied: occupiedUnits,
+        occupancyRate: pct(occupiedUnits, units.length),
+        delinquencyRate: pct(delinquentUnits, units.length),
+      },
       tenants: {
+        total: activeTenants + disabledTenants,
         active: { label: "Active", value: activeTenants, color: "green" },
         disabled: { label: "Disabled", value: disabledTenants, color: "red" },
       },
+      revenue: {
+        total: totalRevenueAgg[0]?.amount || 0,
+        last30: last30RevenueAgg[0]?.amount || 0,
+        trend: fillMonthly(revenueTrendRows, TREND_MONTHS, "amount", now),
+      },
+      rentals: {
+        byStatus: countByKey(rentalStatusRows),
+        signing: countByKey(signingStatusRows),
+      },
+      activityTrend: fillMonthly(activityTrendRows, TREND_MONTHS, "count", now),
       events,
     });
   } catch (error) {
