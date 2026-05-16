@@ -8,7 +8,7 @@ import ModalContainer from "../sharedComponents/ModalContainer";
 import InputBox from "../sharedComponents/InputBox";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../sharedComponents/DataTable";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MdDeleteForever, MdSendAndArchive } from "react-icons/md";
 import { BiEdit } from "react-icons/bi";
 
@@ -27,8 +27,15 @@ export default function CompanyTable() {
   //  Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("q") || ""
+  );
   const [filteredCompanies, setFilteredCompanies] = useState([]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
 
   //  Sorting states
   const [sortDirection, setSortDirection] = useState("asc");

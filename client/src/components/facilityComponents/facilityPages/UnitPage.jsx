@@ -10,7 +10,7 @@ import InputBox from "../../sharedComponents/InputBox";
 import ModalContainer from "../../sharedComponents/ModalContainer";
 import { useNavigate } from "react-router-dom";
 import { PiGarageFill } from "react-icons/pi";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { FaDoorClosed, FaDoorOpen } from "react-icons/fa6";
 import { FaParking } from "react-icons/fa";
 import { PiOfficeChairFill } from "react-icons/pi";
@@ -33,8 +33,15 @@ export default function UnitPage({ facility }) {
   const containerRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("q") || ""
+  );
   const [filteredUnits, setFilteredUnits] = useState([]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
   const [activeTab, setActiveTab] = useState("Individual");
   const navigate = useNavigate();
   const { facilityId } = useParams();

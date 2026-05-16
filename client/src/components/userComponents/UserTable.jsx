@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import EditUser from "./EditUser";
@@ -29,8 +30,15 @@ export default function UserTable() {
   //  Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("q") || ""
+  );
   const [filteredUsers, setFilteredUsers] = useState([]);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
 
   //  Sorting states
   const [sortDirection, setSortDirection] = useState("asc");

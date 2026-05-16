@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useContext, useState, useEffect, useRef } from "react";
 import { UserContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
@@ -13,8 +13,38 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
   const { isLoggedIn, setIsLoggedIn, user, setUser, currentfacility } =
     useContext(UserContext);
   const location = useLocation();
+  const { facilityId } = useParams();
   const userRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const inFacility = location.pathname.includes("/dashboard/facility");
+  const searchAreas = inFacility
+    ? [
+        { label: "Tenants", value: "tenants" },
+        { label: "Units", value: "units" },
+      ]
+    : [
+        { label: "Users", value: "users" },
+        { label: "Companies", value: "companies" },
+        { label: "Facilities", value: "facilities" },
+      ];
+
+  const [searchArea, setSearchArea] = useState(searchAreas[0].value);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const activeArea =
+    searchAreas.find((a) => a.value === searchArea)?.value ||
+    searchAreas[0].value;
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const query = searchQuery.trim();
+    const basePath =
+      inFacility && facilityId
+        ? `/dashboard/facility/${facilityId}/${activeArea}`
+        : `/dashboard/${activeArea}`;
+    navigate(query ? `${basePath}?q=${encodeURIComponent(query)}` : basePath);
+  };
 
   const handleLogout = async () => {
     try {
@@ -62,16 +92,39 @@ export default function Navbar({ toggleDarkMode, darkMode }) {
       <div className="flex items-center justify-between">
         <div>
           {location.pathname.includes("dashboard") ? (
-            <input
-              name="company"
-              id="company"
-              className={`bg-white border border-slate-300 rounded-md p-2`}
-              placeholder={
-                !location.pathname.includes("facility")
-                  ? `Search...`
-                  : `Search facility...`
-              }
-            />
+            <form
+              onSubmit={handleSearch}
+              className="flex items-stretch gap-2"
+            >
+              <select
+                aria-label="Search area"
+                value={activeArea}
+                onChange={(e) => setSearchArea(e.target.value)}
+                className="bg-white border border-slate-300 rounded-md p-2 dark:bg-slate-800 dark:border-slate-700"
+              >
+                {searchAreas.map((area) => (
+                  <option key={area.value} value={area.value}>
+                    {area.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                name="navbarSearch"
+                id="navbarSearch"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-white border border-slate-300 rounded-md p-2 dark:bg-slate-800 dark:border-slate-700"
+                placeholder={`Search ${
+                  searchAreas.find((a) => a.value === activeArea)?.label
+                }...`}
+              />
+              <button
+                type="submit"
+                className="bg-sky-600 hover:bg-sky-700 text-white rounded-md px-4 text-sm font-medium"
+              >
+                Search
+              </button>
+            </form>
           ) : (
             <div
               className="flex items-center gap-2 font-medium text-3xl cursor-pointer"

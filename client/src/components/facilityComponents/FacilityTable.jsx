@@ -7,7 +7,7 @@ import CreateFacility from "./CreateFacility";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import DataTable from "../sharedComponents/DataTable";
 import PaginationFooter from "../sharedComponents/PaginationFooter";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ModalContainer from "../sharedComponents/ModalContainer";
 import InputBox from "../sharedComponents/InputBox";
 import { MdDeleteForever, MdSendAndArchive } from "react-icons/md";
@@ -26,11 +26,18 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
   const navigate = useNavigate();
 
   // Pagination states
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("q") || ""
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [filteredFacilities, setFilteredFacilities] = useState([]);
   const { user } = useContext(UserContext);
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
 
   const handleColumnSort = (columnKey, accessor = (a) => a[columnKey]) => {
     let newDirection;
