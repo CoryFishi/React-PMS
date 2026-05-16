@@ -15,6 +15,7 @@ import { BiEdit, BiLinkExternal } from "react-icons/bi";
 
 export default function FacilityTable({ setFacility, setFacilityName }) {
   const [facilities, setFacilities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Modal states
   const [isEditOpen, setEditOpen] = useState(false);
@@ -82,6 +83,7 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
 
   // Get facilities on component mount
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get("/facilities/company", {
         headers: {
@@ -92,7 +94,14 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
       .then(({ data }) => {
         setFacilities(data.facilities);
         setSortedColumn("Name");
-      });
+      })
+      .catch((error) => {
+        console.error("Failed to load facilities:", error);
+        toast.error(
+          error.response?.data?.error || "Failed to load facilities."
+        );
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   // Delete selected facility
@@ -410,6 +419,12 @@ export default function FacilityTable({ setFacility, setFacilityName }) {
           sortDirection={sortDirection}
           sortedColumn={sortedColumn}
           onSort={handleColumnSort}
+          loading={isLoading}
+          emptyMessage={
+            searchQuery
+              ? "No facilities match your search."
+              : "No facilities yet. Create one to get started."
+          }
         />
         {/* Pagination Footer */}
         <div className="px-2 py-5 mx-1">
