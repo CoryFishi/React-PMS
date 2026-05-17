@@ -19,6 +19,7 @@ let cached = {
   accountId: process.env.DS_ACCOUNT_ID,
   apiClient: null,
 };
+let inflightRefresh = null;
 
 // DS_OAUTH_BASE must be host-only (e.g. "account-d.docusign.com", no scheme).
 function oauthBase() {
@@ -93,7 +94,14 @@ async function resolveAccountId(accessToken) {
 async function ensureToken() {
   const now = Math.floor(Date.now() / 1000);
   if (cached.accessToken && now < cached.expiresAt - 60) return cached;
+  if (inflightRefresh) return inflightRefresh;
+  inflightRefresh = _refreshToken(now).finally(() => {
+    inflightRefresh = null;
+  });
+  return inflightRefresh;
+}
 
+async function _refreshToken(now) {
   const { accessToken, expiresIn } = await mintAccessToken();
 
   let accountId = process.env.DS_ACCOUNT_ID || cached.accountId;
