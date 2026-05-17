@@ -1,0 +1,41 @@
+name: cron-jobs
+
+# Recurring background jobs for React-PMS.
+# Calls the API-key-protected POST /admin/cron/:job endpoints on the
+# deployed server. Render free/Starter tiers can cold-start (30-60s),
+# so each curl retries with backoff before failing the job.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"      # daily 06:00 UTC -> delinquency + orphan-cleanup
+    - cron: "0 7 1 * *"      # 07:00 UTC on the 1st -> monthly balance rollover
+  workflow_dispatch:          # allow manual runs from the Actions tab
+
+jobs:
+  daily:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 6 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: delinquency
+        run: |
+          curl -fsS -X POST \
+            --retry 5 --retry-all-errors --retry-delay 30 --max-time 180 \
+            -H "x-api-key: ${{ secrets.RENDER_API_KEY }}" \
+            "https://${{ secrets.RENDER_HOST }}/admin/cron/delinquency"
+      - name: orphan-cleanup
+        run: |
+          curl -fsS -X POST \
+            --retry 5 --retry-all-errors --retry-delay 30 --max-time 180 \
+            -H "x-api-key: ${{ secrets.RENDER_API_KEY }}" \
+            "https://${{ secrets.RENDER_HOST }}/admin/cron/orphan-cleanup"
+
+  monthly:
+    if: github.event.schedule == '0 7 1 * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: monthly
+        run: |
+          curl -fsS -X POST \
+            --retry 5 --retry-all-errors --retry-delay 30 --max-time 180 \
+            -H "x-api-key: ${{ secrets.RENDER_API_KEY }}" \
+            "https://${{ secrets.RENDER_HOST }}/admin/cron/monthly"
