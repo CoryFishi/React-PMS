@@ -238,7 +238,7 @@ export default function RentalCheckout() {
   };
 
   const handleCheckout = async () => {
-    const unit = unitDetails?.unit;
+    const unit = unitDetails;
     if (!unit?._id) {
       toast.error("Select a unit before starting checkout");
       return;
