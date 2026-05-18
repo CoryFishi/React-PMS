@@ -17,8 +17,8 @@ beforeEach(async () => {
   app = buildApp();
 });
 
-describe("POST /rental/:cid/:fid/:uid/login&rent — formerly F-001 stub", () => {
-  it("returns 200 + checkoutUrl on valid creds", async () => {
+describe("POST /rental/:cid/:fid/:uid/login&rent — tenant-only", () => {
+  it("returns 200 + tenant DTO on valid creds, without calling startRental", async () => {
     const company = await makeCompany();
     const facility = await makeFacility(company);
     const unit = await makeUnit(facility);
@@ -29,23 +29,16 @@ describe("POST /rental/:cid/:fid/:uid/login&rent — formerly F-001 stub", () =>
       password: await hashPassword("ValidPassword1!"),
     });
 
-    startRental.mockResolvedValue({
-      checkoutUrl: "https://stripe.example/checkout/login-x",
-      rentalId: "rental_login_x",
-    });
-
     const res = await api(app)
       .post(`/rental/${company._id}/${facility._id}/${unit._id}/login&rent`)
-      .send({
-        email,
-        password: "ValidPassword1!",
-        successUrl: "https://app.example.test/s",
-        cancelUrl: "https://app.example.test/c",
-      });
+      .send({ email, password: "ValidPassword1!" });
 
     expect(res.status).toBe(200);
-    expect(res.body.checkoutUrl).toBe("https://stripe.example/checkout/login-x");
-    expect(startRental).toHaveBeenCalledTimes(1);
+    expect(res.body.tenant).toBeTruthy();
+    expect(res.body.tenant._id).toBeTruthy();
+    expect(res.body.tenant.email).toBe(email);
+    expect(res.body.tenant.password).toBeUndefined();
+    expect(startRental).not.toHaveBeenCalled();
   });
 
   it("returns 401 when no tenant with that email exists", async () => {

@@ -207,7 +207,7 @@ export const createTenantAndLease = async (req, res) => {
 export const loginTenantAndCreateLease = async (req, res) => {
   try {
     const { companyId, facilityId, unitId } = req.params;
-    const { email, password, successUrl, cancelUrl } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -242,20 +242,7 @@ export const loginTenantAndCreateLease = async (req, res) => {
       return res.status(400).json({ message: "The selected unit is no longer available." });
     }
 
-    try {
-      const { checkoutUrl, rentalId } = await leaseService.startRental({
-        company,
-        facility,
-        unit,
-        tenant,
-        successUrl,
-        cancelUrl,
-      });
-      return res.status(200).json({ checkoutUrl, rentalId });
-    } catch (stripeErr) {
-      console.error("startRental failed in login&rent:", stripeErr.message);
-      return res.status(502).json({ message: "Failed to start rental payment" });
-    }
+    return res.status(200).json({ tenant: toTenantDTO(tenant) });
   } catch (error) {
     console.error("Error processing the loginTenantAndCreateLease call:\n" + error.message);
     return res.status(400).json({ message: error.message });
