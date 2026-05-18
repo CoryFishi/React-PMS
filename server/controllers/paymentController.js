@@ -98,6 +98,11 @@ export const createUnitCheckoutSession = async (req, res) => {
     if (req.body.tenantId && mongoose.Types.ObjectId.isValid(req.body.tenantId)) {
       const realTenant = await Tenant.findById(req.body.tenantId);
       if (realTenant) {
+        if (String(realTenant.company) !== String(unit.facility.company)) {
+          return res
+            .status(403)
+            .json({ message: "Tenant does not belong to this company" });
+        }
         tenantForRental = {
           _id: realTenant._id,
           firstName: realTenant.firstName,
@@ -108,10 +113,7 @@ export const createUnitCheckoutSession = async (req, res) => {
     }
     if (!tenantForRental) {
       tenantForRental = {
-        _id:
-          req.body.tenantId && mongoose.Types.ObjectId.isValid(req.body.tenantId)
-            ? new mongoose.Types.ObjectId(req.body.tenantId)
-            : new mongoose.Types.ObjectId(),
+        _id: new mongoose.Types.ObjectId(),
         firstName: tenantName || "",
         lastName: "",
         contactInfo: { email: tenantEmail || undefined },

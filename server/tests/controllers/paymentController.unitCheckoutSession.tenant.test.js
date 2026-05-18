@@ -103,4 +103,21 @@ describe("POST /payments/unit-checkout-session — tenant binding", () => {
     const arg = startRental.mock.calls[0][0];
     expect(arg.tenant.contactInfo.email).toBe("shim@example.com");
   });
+
+  it("returns 403 when the tenant belongs to a different company", async () => {
+    const otherCompany = await makeCompany();
+    const otherTenant = await makeTenant({
+      company: otherCompany._id,
+      firstName: "Other",
+      lastName: "Co",
+      contactInfo: { email: "other@example.com" },
+    });
+
+    const res = await api(app)
+      .post("/payments/unit-checkout-session")
+      .send(payload({ tenantId: String(otherTenant._id) }));
+
+    expect(res.status).toBe(403);
+    expect(startRental).not.toHaveBeenCalled();
+  });
 });
