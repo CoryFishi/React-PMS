@@ -7,7 +7,6 @@ import {
   passwordValidator,
   comparePassword,
 } from "../helpers/password.js";
-import * as leaseService from "../services/leaseService.js";
 
 function toTenantDTO(t) {
   return {
