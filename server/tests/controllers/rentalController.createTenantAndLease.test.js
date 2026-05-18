@@ -77,8 +77,9 @@ describe("POST /rental/:cid/:fid/:uid/rent — createTenantAndLease (tenant-only
       .send({ tenantInfo: tenantBody() });
 
     expect(res.status).toBe(200);
-    expect(res.body.tenant.password).toBeUndefined();
-    expect(res.body.tenant.recoveryQuestions).toBeUndefined();
+    expect(Object.keys(res.body.tenant).sort()).toEqual(
+      ["_id", "email", "firstName", "lastName", "phone", "status"].sort()
+    );
   });
 
   it("returns 400 when tenant email already exists", async () => {
