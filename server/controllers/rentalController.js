@@ -7,7 +7,17 @@ import {
   passwordValidator,
   comparePassword,
 } from "../helpers/password.js";
-import * as leaseService from "../services/leaseService.js";
+
+function toTenantDTO(t) {
+  return {
+    _id: t._id,
+    firstName: t.firstName,
+    lastName: t.lastName,
+    email: t.contactInfo?.email,
+    phone: t.contactInfo?.phone,
+    status: t.status,
+  };
+}
 
 // Get all companies
 export const getCompanies = async (req, res) => {
@@ -114,10 +124,9 @@ export const getUnitDataById = async (req, res) => {
 };
 
 export const createTenantAndLease = async (req, res) => {
-  let tenant;
   try {
     const { companyId, facilityId, unitId } = req.params;
-    const { tenantInfo, successUrl, cancelUrl } = req.body;
+    const { tenantInfo } = req.body;
 
     if (!tenantInfo) {
       return res.status(400).json({ message: "Tenant information is required." });
@@ -131,7 +140,10 @@ export const createTenantAndLease = async (req, res) => {
       return res.status(400).json({ message: "User already exists. Please Login." });
     }
 
-    passwordValidator(tenantInfo.password);
+    const passwordError = passwordValidator(tenantInfo.password);
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
+    }
 
     const company = await Company.findById(companyId);
     if (!company) return res.status(404).json({ message: "Company not found" });
@@ -149,7 +161,7 @@ export const createTenantAndLease = async (req, res) => {
       return res.status(400).json({ message: "The selected unit is no longer available." });
     }
 
-    tenant = await Tenant.create({
+    const tenant = await Tenant.create({
       firstName: tenantInfo.firstName,
       middleName: tenantInfo.middleInitial,
       lastName: tenantInfo.lastName,
@@ -184,23 +196,7 @@ export const createTenantAndLease = async (req, res) => {
       },
     });
 
-    try {
-      const { checkoutUrl, rentalId } = await leaseService.startRental({
-        company,
-        facility,
-        unit,
-        tenant,
-        successUrl,
-        cancelUrl,
-      });
-      return res.status(200).json({ checkoutUrl, rentalId });
-    } catch (stripeErr) {
-      if (tenant?._id) {
-        await Tenant.deleteOne({ _id: tenant._id });
-      }
-      console.error("startRental failed:", stripeErr.message);
-      return res.status(502).json({ message: "Failed to start rental payment" });
-    }
+    return res.status(200).json({ tenant: toTenantDTO(tenant) });
   } catch (error) {
     console.error("Error processing the createTenantAndLease call:\n" + error.message);
     return res.status(400).json({ message: error.message });
@@ -210,7 +206,7 @@ export const createTenantAndLease = async (req, res) => {
 export const loginTenantAndCreateLease = async (req, res) => {
   try {
     const { companyId, facilityId, unitId } = req.params;
-    const { email, password, successUrl, cancelUrl } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -245,20 +241,7 @@ export const loginTenantAndCreateLease = async (req, res) => {
       return res.status(400).json({ message: "The selected unit is no longer available." });
     }
 
-    try {
-      const { checkoutUrl, rentalId } = await leaseService.startRental({
-        company,
-        facility,
-        unit,
-        tenant,
-        successUrl,
-        cancelUrl,
-      });
-      return res.status(200).json({ checkoutUrl, rentalId });
-    } catch (stripeErr) {
-      console.error("startRental failed in login&rent:", stripeErr.message);
-      return res.status(502).json({ message: "Failed to start rental payment" });
-    }
+    return res.status(200).json({ tenant: toTenantDTO(tenant) });
   } catch (error) {
     console.error("Error processing the loginTenantAndCreateLease call:\n" + error.message);
     return res.status(400).json({ message: error.message });

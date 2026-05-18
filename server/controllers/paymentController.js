@@ -1,5 +1,6 @@
 import Payment from "../models/payment.js";
 import StorageUnit from "../models/unit.js";
+import Tenant from "../models/tenant.js";
 import mongoose from "mongoose";
 import {
   getStripeClient,
@@ -93,14 +94,31 @@ export const createUnitCheckoutSession = async (req, res) => {
       return res.status(400).json({ message: "Both successUrl and cancelUrl are required" });
     }
 
-    const tenantShim = {
-      _id: req.body.tenantId
-        ? new mongoose.Types.ObjectId(req.body.tenantId)
-        : new mongoose.Types.ObjectId(),
-      firstName: tenantName || "",
-      lastName: "",
-      contactInfo: { email: tenantEmail || undefined },
-    };
+    let tenantForRental = null;
+    if (req.body.tenantId && mongoose.Types.ObjectId.isValid(req.body.tenantId)) {
+      const realTenant = await Tenant.findById(req.body.tenantId);
+      if (realTenant) {
+        if (String(realTenant.company) !== String(unit.facility.company)) {
+          return res
+            .status(403)
+            .json({ message: "Tenant does not belong to this company" });
+        }
+        tenantForRental = {
+          _id: realTenant._id,
+          firstName: realTenant.firstName,
+          lastName: realTenant.lastName,
+          contactInfo: { email: realTenant.contactInfo?.email },
+        };
+      }
+    }
+    if (!tenantForRental) {
+      tenantForRental = {
+        _id: new mongoose.Types.ObjectId(),
+        firstName: tenantName || "",
+        lastName: "",
+        contactInfo: { email: tenantEmail || undefined },
+      };
+    }
 
     let result;
     try {
@@ -108,7 +126,7 @@ export const createUnitCheckoutSession = async (req, res) => {
         company,
         facility: unit.facility,
         unit,
-        tenant: tenantShim,
+        tenant: tenantForRental,
         successUrl: resolvedSuccess,
         cancelUrl: resolvedCancel,
       });

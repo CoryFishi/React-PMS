@@ -206,7 +206,9 @@ export default function RentalCheckout() {
         },
         { headers: { "x-api-key": API_KEY } }
       );
-      setTenantInfo(response.data);
+      const tenant = response.data.tenant;
+      if (!tenant) throw new Error("Server did not return tenant data");
+      setTenantInfo(tenant);
       return "Tenant created successfully";
     } catch (error) {
       console.error("Error creating tenant:", error);
@@ -225,7 +227,9 @@ export default function RentalCheckout() {
         { tenantInfo: tenantInfo },
         { headers: { "x-api-key": API_KEY } }
       );
-      setTenantInfo(response.data);
+      const tenant = response.data.tenant;
+      if (!tenant) throw new Error("Server did not return tenant data");
+      setTenantInfo(tenant);
       return "Tenant created successfully";
     } catch (error) {
       console.error("Error creating tenant:", error);
@@ -258,6 +262,7 @@ export default function RentalCheckout() {
       const currentUrl = window.location.href;
       const payload = {
         unitId: unit._id,
+        tenantId: tenantInfo?._id,
         tenantEmail: tenantInfo.email,
         tenantName:
           [tenantInfo.firstName, tenantInfo.lastName]
