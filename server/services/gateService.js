@@ -99,6 +99,10 @@ export async function getStatus({ facilityId }) {
       lastSyncedAt: null,
       unprovisionedRentalCount: 0,
       provider: null,
+      timeGroups: [],
+      accessProfiles: [],
+      defaultTimeGroupId: null,
+      defaultAccessProfileId: null,
     };
   }
 
@@ -117,14 +121,45 @@ export async function getStatus({ facilityId }) {
       },
     ],
   });
+  const refs = facility.gateProviderRefs?.[facility.gateProvider] || {};
   return {
     provider: facility.gateProvider,
     adapterHealthy: health.ok,
     adapterError: health.error,
-    lastSyncedAt:
-      facility.gateProviderRefs?.[facility.gateProvider]?.syncedAt || null,
+    lastSyncedAt: refs.syncedAt || null,
     unprovisionedRentalCount,
+    timeGroups: refs.timeGroups || [],
+    accessProfiles: refs.accessProfiles || [],
+    defaultTimeGroupId: refs.defaultTimeGroupId || null,
+    defaultAccessProfileId: refs.defaultAccessProfileId || null,
   };
+}
+
+export async function listUnprovisioned({ facilityId }) {
+  const facility = await loadFacilityWithCompany(facilityId);
+  if (!facility) throw new Error("Facility not found");
+  if (!facility.gateProvider) return [];
+
+  const provider = facility.gateProvider;
+  const rentals = await Rental.find({
+    facility: facility._id,
+    signingStatus: "signed",
+    $or: [
+      { [`gateProviderRefs.${provider}.visitorId`]: { $exists: false } },
+      { [`gateProviderRefs.${provider}.visitorId`]: null },
+      { gateProvisionError: { $exists: true, $ne: null } },
+    ],
+  })
+    .populate("unit", "unitNumber")
+    .lean();
+
+  return rentals.map((r) => ({
+    _id: r._id,
+    tenantName: r.tenantName || null,
+    unitNumber: r.unit?.unitNumber || null,
+    gateProvisionError: r.gateProvisionError || null,
+    signedAt: r.signedAt || null,
+  }));
 }
 
 function generateAccessCode() {

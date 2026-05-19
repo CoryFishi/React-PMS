@@ -184,6 +184,7 @@ router.get(
 router.post("/:facilityId/gate/sync", authenticateAPIKey, authenticate, gateController.syncFacility);
 router.put("/:facilityId/gate/defaults", authenticateAPIKey, authenticate, gateController.setDefaults);
 router.get("/:facilityId/gate/status", authenticateAPIKey, authenticate, gateController.getStatus);
+router.get("/:facilityId/gate/unprovisioned", authenticateAPIKey, authenticate, gateController.listUnprovisioned);
 
 router.get(
   "/:facilityId/settings",

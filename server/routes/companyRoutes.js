@@ -60,6 +60,18 @@ router.get(
   companyController.getCompanyStripeSettings
 );
 router.get(
+  "/:companyId/settings/gate",
+  authenticateAPIKey,
+  authenticate,
+  companyController.getCompanyGateSettings
+);
+router.put(
+  "/:companyId/settings/gate",
+  authenticateAPIKey,
+  authenticate,
+  companyController.updateCompanyGateSettings
+);
+router.get(
   "/:companyId",
   authenticateAPIKey,
   authenticate,

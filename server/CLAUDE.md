@@ -128,7 +128,7 @@ This codebase supports multiple gate vendors via a `GateProviderAdapter` interfa
 **Per-Company setup (one-time, per OpenTech account):**
 
 1. OpenTech STC Administrators issue API Key + API Secret for the company's account.
-2. Operator (or admin script) sets `Company.gateProviders.opentech = { apiKey, apiSecret }` in Mongo.
+2. A System_Admin (or the company's Company_Admin) enters them under Settings → Gate Credentials, which calls `PUT /companies/:companyId/settings/gate`. The secret is write-only: `GET /companies/:companyId/settings/gate` returns only `apiKey` + an `apiSecretSet` flag, and a blank `apiSecret` on PUT preserves the stored value. (Direct `Company.gateProviders.opentech` edits in Mongo still work as a fallback.)
 
 **Per-Facility setup:**
 
