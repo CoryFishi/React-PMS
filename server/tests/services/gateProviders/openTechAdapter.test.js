@@ -191,3 +191,56 @@ describe("openTechAdapter — auth", () => {
     expect(fetchMock.mock.calls[0][0]).not.toContain("-dev");
   });
 });
+
+describe("openTechAdapter — provisionTenant", () => {
+  function provisionFacility() {
+    return {
+      _id: "f1",
+      company: {
+        _id: "c1",
+        gateProviders: { opentech: { apiKey: "ak", apiSecret: "as" } },
+      },
+      gateProviderRefs: {
+        opentech: {
+          facilityId: "remote_f1",
+          defaultTimeGroupId: "5",
+          defaultAccessProfileId: "7",
+        },
+      },
+      __unitRef: { gateProviderRefs: { opentech: { unitId: "42" } } },
+    };
+  }
+
+  it("sends numeric ids and reads visitor id from VisitorResponseModel", async () => {
+    const adapter = await loadAdapter();
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200,
+      json: async () => ({ access_token: "tok", expires_in: 60 }),
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200,
+      json: async () => ({ visitor: { id: 987 }, unit: { id: 42 } }),
+    });
+
+    const result = await adapter.provisionTenant({
+      facility: provisionFacility(),
+      rental: {},
+      tenant: { firstName: "Jane", lastName: "Doe", contactInfo: { phone: "555" } },
+      accessCode: "12345678",
+    });
+
+    expect(result.visitorId).toBe("987");
+    const postCall = fetchMock.mock.calls[1];
+    expect(postCall[0]).toBe(
+      "https://accesscontrol.insomniaccia-dev.com/facilities/remote_f1/visitors"
+    );
+    const sent = JSON.parse(postCall[1].body);
+    expect(sent.unitId).toBe(42);
+    expect(sent.timeGroupId).toBe(5);
+    expect(sent.accessProfileId).toBe(7);
+    expect(typeof sent.unitId).toBe("number");
+    expect(sent.firstName).toBe("Jane");
+    expect(sent.lastName).toBe("Doe");
+    expect(sent.isTenant).toBe(true);
+  });
+});

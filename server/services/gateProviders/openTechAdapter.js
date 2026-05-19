@@ -137,16 +137,17 @@ const openTechAdapter = {
     if (!tg || !ap) throw new Error("Gate defaults not configured");
     const body = {
       isTenant: true,
-      unitId,
+      unitId: Number(unitId),
       accessCode,
-      timeGroupId: tg,
-      accessProfileId: ap,
+      timeGroupId: Number(tg),
+      accessProfileId: Number(ap),
       firstName: tenant?.firstName,
       lastName: tenant?.lastName,
       mobilePhoneNumber: tenant?.contactInfo?.phone,
     };
     const result = await authedRequest("POST", `/facilities/${fid}/visitors`, { facility, body });
-    return { visitorId: String(result.id || result.visitorId || result._id) };
+    const v = result?.visitor || result || {};
+    return { visitorId: String(v.id ?? v.visitorId ?? v._id) };
   },
   async revokeTenant({ facility, unit }) {
     const fid = facility.gateProviderRefs?.opentech?.facilityId;
