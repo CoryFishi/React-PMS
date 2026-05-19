@@ -1,9 +1,10 @@
 // server/tests/unit/rentalLateFeeField.test.js
 import { describe, it, expect } from "vitest";
+import Rental from "../../models/rental.js";
 import { makeCompany, makeFacility, makeUnit, makeTenant, makeRental } from "../helpers/factories.js";
 
 describe("Rental.lateFeeAppliedAt", () => {
-  it("defaults to null and accepts a Date", async () => {
+  it("defaults to null and persists a Date through a DB round-trip", async () => {
     const c = await makeCompany();
     const f = await makeFacility(c);
     const u = await makeUnit(f);
@@ -15,9 +16,15 @@ describe("Rental.lateFeeAppliedAt", () => {
       amount: 100,
       status: "paid",
     });
-    expect(r.lateFeeAppliedAt ?? null).toBeNull();
-    r.lateFeeAppliedAt = new Date("2026-05-18");
-    await r.save();
-    expect(r.lateFeeAppliedAt.toISOString()).toContain("2026-05-18");
+
+    const fresh = await Rental.findById(r._id);
+    expect(fresh.lateFeeAppliedAt).toBeNull();
+
+    fresh.lateFeeAppliedAt = new Date("2026-05-18T00:00:00.000Z");
+    await fresh.save();
+
+    const reloaded = await Rental.findById(r._id);
+    expect(reloaded.lateFeeAppliedAt).toBeInstanceOf(Date);
+    expect(reloaded.lateFeeAppliedAt.toISOString()).toBe("2026-05-18T00:00:00.000Z");
   });
 });
