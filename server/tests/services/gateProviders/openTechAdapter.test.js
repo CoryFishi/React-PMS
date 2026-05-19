@@ -67,6 +67,31 @@ describe("openTechAdapter — auth", () => {
     ).rejects.toThrow(/OpenTech auth failed: 400.*invalid_client/);
   });
 
+  it("calls the OpenTech timegroups/accessprofiles paths (no hyphens)", async () => {
+    const adapter = await loadAdapter();
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200,
+      json: async () => ({ access_token: "tok", expires_in: 60 }),
+    });
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => [] });
+    await adapter.listTimeGroups({ facility: makeFacility() });
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://accesscontrol.insomniaccia-dev.com/facilities/remote_f1/timegroups"
+    );
+
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200,
+      json: async () => ({ access_token: "tok2", expires_in: 60 }),
+    });
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => [] });
+    const adapter2 = await loadAdapter();
+    await adapter2.listAccessProfiles({ facility: makeFacility() });
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://accesscontrol.insomniaccia-dev.com/facilities/remote_f1/accessprofiles"
+    );
+  });
+
   it("reuses cached JWT on second call within TTL", async () => {
     const adapter = await loadAdapter();
     fetchMock.mockResolvedValueOnce({
