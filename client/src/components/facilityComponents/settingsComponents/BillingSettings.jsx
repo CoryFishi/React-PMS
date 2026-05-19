@@ -14,6 +14,8 @@ export default function BillingSettings() {
   const [gracePeriodDays, setGracePeriodDays] = useState("");
   const [lateFeeFlat, setLateFeeFlat] = useState("");
   const [lateFeePercent, setLateFeePercent] = useState("");
+  const [autoSuspendOnDelinquency, setAutoSuspendOnDelinquency] =
+    useState(true);
 
   useEffect(() => {
     if (!facilityId) return;
@@ -24,9 +26,10 @@ export default function BillingSettings() {
       })
       .then(({ data }) => {
         const billing = data?.billing || {};
-        setGracePeriodDays(billing.gracePeriodDays ?? "");
-        setLateFeeFlat(billing.lateFeeFlat ?? "");
-        setLateFeePercent(billing.lateFeePercent ?? "");
+        setGracePeriodDays(billing.gracePeriodDays ?? 7);
+        setLateFeeFlat(billing.lateFee?.flatAmount ?? 0);
+        setLateFeePercent(billing.lateFee?.percentOfRent ?? 0);
+        setAutoSuspendOnDelinquency(billing.autoSuspendOnDelinquency ?? true);
       })
       .catch((err) => {
         console.error("Failed to load billing settings:", err);
@@ -42,11 +45,13 @@ export default function BillingSettings() {
         `/facilities/${facilityId}/settings`,
         {
           billing: {
-            gracePeriodDays:
-              gracePeriodDays === "" ? null : Number(gracePeriodDays),
-            lateFeeFlat: lateFeeFlat === "" ? null : Number(lateFeeFlat),
-            lateFeePercent:
-              lateFeePercent === "" ? null : Number(lateFeePercent),
+            gracePeriodDays: gracePeriodDays === "" ? 0 : Number(gracePeriodDays),
+            lateFee: {
+              flatAmount: lateFeeFlat === "" ? 0 : Number(lateFeeFlat),
+              percentOfRent:
+                lateFeePercent === "" ? 0 : Number(lateFeePercent),
+            },
+            autoSuspendOnDelinquency,
           },
         },
         {
@@ -148,6 +153,24 @@ export default function BillingSettings() {
                 <p className="text-xs text-slate-400 dark:text-slate-500">
                   Percentage of the monthly rent charged as a late fee.
                 </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <input
+                  id="autoSuspendOnDelinquency"
+                  type="checkbox"
+                  checked={autoSuspendOnDelinquency}
+                  onChange={(e) =>
+                    setAutoSuspendOnDelinquency(e.target.checked)
+                  }
+                  className="h-4 w-4 text-sky-500 border-slate-300 rounded focus:ring-sky-500"
+                />
+                <label
+                  htmlFor="autoSuspendOnDelinquency"
+                  className="text-sm font-medium text-slate-600 dark:text-slate-300"
+                >
+                  Auto-suspend gate access when delinquent
+                </label>
               </div>
             </div>
           </div>
