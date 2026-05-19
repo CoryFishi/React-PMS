@@ -138,6 +138,16 @@ const openTechAdapter = {
     });
     return { id: String(result?.id ?? result?.unitId) };
   },
+  async vacateUnit({ facility, unitId }) {
+    const fid = facility.gateProviderRefs?.opentech?.facilityId;
+    if (!fid) throw new Error("Facility not linked to OpenTech");
+    await authedRequest("POST", `/facilities/${fid}/units/${unitId}/vacate`, { facility, body: {} });
+  },
+  async deleteVacantUnit({ facility, unitId }) {
+    const fid = facility.gateProviderRefs?.opentech?.facilityId;
+    if (!fid) throw new Error("Facility not linked to OpenTech");
+    await authedRequest("POST", `/facilities/${fid}/units/${unitId}/delete/vacant`, { facility, body: {} });
+  },
   async healthCheck({ facility }) {
     try {
       await authedRequest("GET", "/facilities", { facility });

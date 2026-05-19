@@ -236,4 +236,25 @@ describe("openTechAdapter — units", () => {
     expect(JSON.parse(call[1].body)).toEqual({ unitNumber: "B2" });
     expect(res).toEqual({ id: "99" });
   });
+
+  it("vacateUnit then deleteVacantUnit hit the correct paths", async () => {
+    const adapter = await loadAdapter();
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200, json: async () => ({ access_token: "tok", expires_in: 60 }),
+    });
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ id: 11 }) });
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => true });
+
+    await adapter.vacateUnit({ facility: uf(), unitId: "11" });
+    await adapter.deleteVacantUnit({ facility: uf(), unitId: "11" });
+
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://accesscontrol.insomniaccia-dev.com/facilities/remote_f1/units/11/vacate"
+    );
+    expect(fetchMock.mock.calls[1][1].method).toBe("POST");
+    expect(fetchMock.mock.calls[2][0]).toBe(
+      "https://accesscontrol.insomniaccia-dev.com/facilities/remote_f1/units/11/delete/vacant"
+    );
+    expect(fetchMock.mock.calls[2][1].method).toBe("POST");
+  });
 });
