@@ -88,6 +88,10 @@ const rentalSchema = new Schema(
     gateProvisionError: {
       type: String,
     },
+    lateFeeAppliedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

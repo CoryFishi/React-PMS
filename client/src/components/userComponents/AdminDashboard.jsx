@@ -267,7 +267,14 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
                     ) : null}
                   </div>
                 ))
-              : facilityNavOptions.map((option, index) => (
+              : facilityNavOptions
+                  .filter(
+                    (option) =>
+                      option.path !== "/settings" ||
+                      user?.role === "System_Admin" ||
+                      user?.role === "Company_Admin"
+                  )
+                  .map((option, index) => (
                   <div key={option.path} className="flex flex-col">
                     <button
                       key={index}

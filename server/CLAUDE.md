@@ -35,6 +35,7 @@ ESLint config lives in the `eslintConfig` key of `package.json` (ESLint 8 legacy
 - `middleware/`
   - `authentication.js` — JWT cookie parsing, attaches user to `req`.
   - `apiKeyAuth.js` — API-key auth for external/automation endpoints.
+  - `requireFacilityAdmin.js` — allows System_Admin or a Company_Admin whose company owns the facility; used by facility settings endpoints.
 - `services/`
   - `stripeConnect.js` — Stripe SDK wrapper.
   - `docusignClient.js` — DocuSign envelope API (`getEnvelopesApi`).
@@ -160,6 +161,16 @@ Set `StorageUnit.gateProviderRefs.opentech.unitId = "<OpenTech-side unit id>"` o
 - `orphan-cleanup` → `processes/orphanCleanup.js#runOrphanCleanup`
 
 Returns `{ ok, job, durationMs, result }`. See `docs/RENDER.md` for GitHub Actions / Render Cron examples.
+
+### Facility settings
+
+`GET/PUT /facilities/:facilityId/settings` — restricted to System_Admin or same-company Company_Admin via `requireFacilityAdmin.js`.
+
+`Facility.settings` has four groups: `billing` (gracePeriodDays, lateFee.flatAmount, lateFee.percentOfRent, autoSuspendOnDelinquency), `hours`, `contact`, and `general` (timezone, currency).
+
+`PUT` deep-merges at the group level: it loads the existing doc, merges only the supplied groups, runs full schema validation, then saves. Unrelated fields (`amenities`, `unitTypes`, untouched groups) are preserved.
+
+The delinquency job (`processes/delinquency.js`) reads `settings.billing` for per-facility grace period and applies a one-time flat+percent late fee (idempotent via `Rental.lateFeeAppliedAt`, cleared when a rental becomes current). It also respects `autoSuspendOnDelinquency`.
 
 ## Don't
 

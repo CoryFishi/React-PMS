@@ -186,7 +186,11 @@ const tenantSchema = new Schema(
       type: String,
       default: "Active",
       required: [true, "Status is required"],
-      enum: ["New", "Active", "Disabled"],
+      enum: ["New", "Active", "Disabled", "Rented", "Delinquent"],
+    },
+    balance: {
+      type: Number,
+      default: 0,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
