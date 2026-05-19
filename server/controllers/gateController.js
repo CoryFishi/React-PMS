@@ -10,7 +10,7 @@ export const syncFacility = async (req, res) => {
     if (/OpenTech (auth|credentials)/i.test(msg)) return res.status(502).json({ message: msg });
     if (/Facility not linked to OpenTech/i.test(msg)) return res.status(400).json({ message: msg });
     console.error("gate/sync failed:", msg);
-    return res.status(502).json({ message: "Gate sync failed" });
+    return res.status(502).json({ message: `Gate sync failed: ${msg}` });
   }
 };
 
