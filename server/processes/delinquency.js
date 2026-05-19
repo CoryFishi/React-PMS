@@ -4,6 +4,12 @@ import Tenant from "../models/tenant.js";
 import StorageFacility from "../models/facility.js";
 import Event from "../models/event.js";
 import * as gateService from "../services/gateService.js";
+import Rental from "../models/rental.js";
+import {
+  resolveGracePeriodDays,
+  computeLateFee,
+  isUnitOverdue,
+} from "../services/billingRules.js";
 
 dotenv.config();
 
@@ -21,33 +27,76 @@ const connectionOptions = {
 export const updateTenantStatus = async ({ disconnect = true } = {}) => {
   console.time("Update Tenant Status");
   try {
-    const oneWeekAgo = new Date();
+    const now = new Date();
     const facilityCountMap = new Map();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const facilityCache = new Map();
 
     const tenants = await Tenant.find({ status: "Rented" }).populate("units").lean();
-
     let updatedCount = 0;
 
     for (const tenant of tenants) {
       let hasOverdueUnit = false;
 
       for (const unit of tenant.units) {
-        if (new Date(unit.paymentDate) < oneWeekAgo) {
-          hasOverdueUnit = true;
-          const facilityIdStr = unit.facility.toString();
-          facilityCountMap.set(
-            facilityIdStr,
-            (facilityCountMap.get(facilityIdStr) || 0) + 1
-          );
+        const facilityId = unit.facility?.toString();
+        if (!facilityId) continue;
 
+        let facility = facilityCache.get(facilityId);
+        if (facility === undefined) {
+          facility = await StorageFacility.findById(facilityId).select(
+            "settings facilityName"
+          );
+          facilityCache.set(facilityId, facility);
+        }
+
+        const graceDays = resolveGracePeriodDays(facility);
+        const overdue = isUnitOverdue(unit, graceDays, now);
+
+        const rental = await Rental.findOne({
+          unit: unit._id,
+          tenant: tenant._id,
+        }).sort({ createdAt: -1 });
+
+        if (!overdue) {
+          if (rental && rental.lateFeeAppliedAt) {
+            rental.lateFeeAppliedAt = null;
+            await rental.save();
+          }
+          continue;
+        }
+
+        hasOverdueUnit = true;
+        facilityCountMap.set(
+          facilityId,
+          (facilityCountMap.get(facilityId) || 0) + 1
+        );
+
+        if (rental && !rental.lateFeeAppliedAt) {
+          const fee = computeLateFee(
+            facility?.settings?.billing?.lateFee,
+            unit.paymentInfo?.pricePerMonth
+          );
+          if (fee > 0) {
+            await Tenant.updateOne(
+              { _id: tenant._id },
+              { $inc: { balance: fee } }
+            );
+          }
+          rental.lateFeeAppliedAt = now;
+          await rental.save();
+        }
+
+        const autoSuspend =
+          facility?.settings?.billing?.autoSuspendOnDelinquency !== false;
+        if (autoSuspend) {
           try {
             await gateService.suspendUnit({ unitId: unit._id });
           } catch (gateErr) {
-            console.error(`Gate suspend failed for unit ${unit._id}:`, gateErr.message);
+            console.error(
+              `Gate suspend failed for unit ${unit._id}:`,
+              gateErr.message
+            );
           }
-
-          break;
         }
       }
 
