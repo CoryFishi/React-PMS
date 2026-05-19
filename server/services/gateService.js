@@ -99,6 +99,10 @@ export async function getStatus({ facilityId }) {
       lastSyncedAt: null,
       unprovisionedRentalCount: 0,
       provider: null,
+      timeGroups: [],
+      accessProfiles: [],
+      defaultTimeGroupId: null,
+      defaultAccessProfileId: null,
     };
   }
 
@@ -117,13 +121,17 @@ export async function getStatus({ facilityId }) {
       },
     ],
   });
+  const refs = facility.gateProviderRefs?.[facility.gateProvider] || {};
   return {
     provider: facility.gateProvider,
     adapterHealthy: health.ok,
     adapterError: health.error,
-    lastSyncedAt:
-      facility.gateProviderRefs?.[facility.gateProvider]?.syncedAt || null,
+    lastSyncedAt: refs.syncedAt || null,
     unprovisionedRentalCount,
+    timeGroups: refs.timeGroups || [],
+    accessProfiles: refs.accessProfiles || [],
+    defaultTimeGroupId: refs.defaultTimeGroupId || null,
+    defaultAccessProfileId: refs.defaultAccessProfileId || null,
   };
 }
 
