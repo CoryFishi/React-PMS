@@ -42,6 +42,22 @@ export const getStatus = async (req, res) => {
   }
 };
 
+export const listUnprovisioned = async (req, res) => {
+  try {
+    const rentals = await gateService.listUnprovisioned({
+      facilityId: req.params.facilityId,
+    });
+    return res.status(200).json({ rentals });
+  } catch (e) {
+    const msg = e?.message || "Unknown error";
+    if (msg === "Facility not found")
+      return res.status(404).json({ message: msg });
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch unprovisioned rentals" });
+  }
+};
+
 export const retryProvision = async (req, res) => {
   try {
     const result = await gateService.retryProvisionTenant({ rentalId: req.params.rentalId });

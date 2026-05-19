@@ -135,6 +135,33 @@ export async function getStatus({ facilityId }) {
   };
 }
 
+export async function listUnprovisioned({ facilityId }) {
+  const facility = await loadFacilityWithCompany(facilityId);
+  if (!facility) throw new Error("Facility not found");
+  if (!facility.gateProvider) return [];
+
+  const provider = facility.gateProvider;
+  const rentals = await Rental.find({
+    facility: facility._id,
+    signingStatus: "signed",
+    $or: [
+      { [`gateProviderRefs.${provider}.visitorId`]: { $exists: false } },
+      { [`gateProviderRefs.${provider}.visitorId`]: null },
+      { gateProvisionError: { $exists: true, $ne: null } },
+    ],
+  })
+    .populate("unit", "unitNumber")
+    .lean();
+
+  return rentals.map((r) => ({
+    _id: r._id,
+    tenantName: r.tenantName || null,
+    unitNumber: r.unit?.unitNumber || null,
+    gateProvisionError: r.gateProvisionError || null,
+    signedAt: r.signedAt || null,
+  }));
+}
+
 function generateAccessCode() {
   const len = Number(process.env.GATE_ACCESS_CODE_LENGTH || 8);
   const min = 10 ** (len - 1);
