@@ -187,6 +187,8 @@ router.get("/:facilityId/gate/status", authenticateAPIKey, authenticate, gateCon
 router.get("/:facilityId/gate/unprovisioned", authenticateAPIKey, authenticate, gateController.listUnprovisioned);
 router.put("/:facilityId/gate/link", authenticateAPIKey, authenticate, requireFacilityAdmin, gateController.linkFacility);
 router.delete("/:facilityId/gate/link", authenticateAPIKey, authenticate, requireFacilityAdmin, gateController.unlinkFacility);
+router.get("/:facilityId/gate/units/status", authenticateAPIKey, authenticate, requireFacilityAdmin, gateController.getUnitSyncStatus);
+router.post("/:facilityId/gate/units/sync", authenticateAPIKey, authenticate, requireFacilityAdmin, gateController.syncUnits);
 
 router.get(
   "/:facilityId/settings",

@@ -14,6 +14,36 @@ export const syncFacility = async (req, res) => {
   }
 };
 
+export const getUnitSyncStatus = async (req, res) => {
+  try {
+    const result = await gateService.checkUnitSync({ facilityId: req.params.facilityId });
+    return res.status(200).json(result);
+  } catch (e) {
+    const msg = e?.message || "Unknown error";
+    if (msg === "Facility not found") return res.status(404).json({ message: msg });
+    if (/not linked to OpenTech/i.test(msg)) return res.status(400).json({ message: msg });
+    console.error("gate/units/status failed:", msg);
+    return res.status(502).json({ message: `Unit sync status failed: ${msg}` });
+  }
+};
+
+export const syncUnits = async (req, res) => {
+  try {
+    const result = await gateService.syncUnits({
+      facilityId: req.params.facilityId,
+      force: req.body?.force === true,
+    });
+    if (result?.blocked) return res.status(409).json(result);
+    return res.status(200).json(result);
+  } catch (e) {
+    const msg = e?.message || "Unknown error";
+    if (msg === "Facility not found") return res.status(404).json({ message: msg });
+    if (/not linked to OpenTech/i.test(msg)) return res.status(400).json({ message: msg });
+    console.error("gate/units/sync failed:", msg);
+    return res.status(502).json({ message: `Unit sync failed: ${msg}` });
+  }
+};
+
 export const setDefaults = async (req, res) => {
   try {
     const result = await gateService.setDefaults({
