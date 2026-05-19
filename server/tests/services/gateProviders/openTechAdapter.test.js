@@ -191,3 +191,31 @@ describe("openTechAdapter — auth", () => {
     expect(fetchMock.mock.calls[0][0]).not.toContain("-dev");
   });
 });
+
+describe("openTechAdapter — units", () => {
+  function uf() {
+    return {
+      _id: "f1",
+      company: { _id: "c1", gateProviders: { opentech: { apiKey: "ak", apiSecret: "as" } } },
+      gateProviderRefs: { opentech: { facilityId: "remote_f1" } },
+    };
+  }
+
+  it("listUnits GETs /facilities/{fid}/units and maps id/unitNumber/status", async () => {
+    const adapter = await loadAdapter();
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200, json: async () => ({ access_token: "tok", expires_in: 60 }),
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200,
+      json: async () => [{ id: 11, unitNumber: "A1", status: "Vacant" }],
+    });
+
+    const out = await adapter.listUnits({ facility: uf() });
+
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      "https://accesscontrol.insomniaccia-dev.com/facilities/remote_f1/units"
+    );
+    expect(out).toEqual([{ id: "11", unitNumber: "A1", status: "Vacant" }]);
+  });
+});

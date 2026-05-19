@@ -119,6 +119,16 @@ const openTechAdapter = {
     const items = await authedRequest("GET", `/facilities/${fid}/accessprofiles`, { facility });
     return (items || []).map((p) => ({ id: String(p.id), name: p.name, isDefault: !!p.isDefault }));
   },
+  async listUnits({ facility }) {
+    const fid = facility.gateProviderRefs?.opentech?.facilityId;
+    if (!fid) throw new Error("Facility not linked to OpenTech (set gateProviderRefs.opentech.facilityId)");
+    const items = await authedRequest("GET", `/facilities/${fid}/units`, { facility });
+    return (items || []).map((u) => ({
+      id: String(u.id),
+      unitNumber: u.unitNumber,
+      status: u.status,
+    }));
+  },
   async healthCheck({ facility }) {
     try {
       await authedRequest("GET", "/facilities", { facility });
