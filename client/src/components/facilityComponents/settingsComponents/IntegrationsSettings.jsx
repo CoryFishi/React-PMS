@@ -18,6 +18,8 @@ export default function IntegrationSettings() {
   const [linkId, setLinkId] = useState("");
   const [isLinking, setIsLinking] = useState(false);
   const [isUnlinking, setIsUnlinking] = useState(false);
+  const [unitSync, setUnitSync] = useState(null);
+  const [isUnitSyncing, setIsUnitSyncing] = useState(false);
 
   const loadStatus = useCallback(() => {
     if (!facilityId) return;
@@ -40,9 +42,56 @@ export default function IntegrationSettings() {
       .finally(() => setIsLoading(false));
   }, [facilityId]);
 
+  const loadUnitSync = useCallback(() => {
+    if (!facilityId) return;
+    return axios
+      .get(`/facilities/${facilityId}/gate/units/status`, {
+        headers: { "x-api-key": API_KEY },
+      })
+      .then(({ data }) => setUnitSync(data))
+      .catch((err) => {
+        if (err?.response?.status !== 400) {
+          console.error("Failed to load unit sync status:", err);
+        }
+      });
+  }, [facilityId]);
+
+  const runUnitSync = (force) => {
+    setIsUnitSyncing(true);
+    axios
+      .post(
+        `/facilities/${facilityId}/gate/units/sync`,
+        { force: !!force },
+        { headers: { "x-api-key": API_KEY } }
+      )
+      .then(({ data }) => {
+        toast.success(
+          `Units synced — created ${data.created}, removed ${data.deleted}, matched ${data.matched}.`
+        );
+        return loadUnitSync();
+      })
+      .catch((err) => {
+        const r = err?.response;
+        if (r?.status === 409 && r.data?.blocked) {
+          if (
+            window.confirm(
+              `This will DELETE ${r.data.wouldDelete} OpenTech unit(s) (vacating their visitors) and create ${r.data.wouldCreate}. React-PMS is the source of truth. Continue?`
+            )
+          ) {
+            return runUnitSync(true);
+          }
+          return;
+        }
+        console.error("Unit sync failed:", err);
+        toast.error(r?.data?.message || "Unit sync failed.");
+      })
+      .finally(() => setIsUnitSyncing(false));
+  };
+
   useEffect(() => {
     loadStatus();
-  }, [loadStatus]);
+    loadUnitSync();
+  }, [loadStatus, loadUnitSync]);
 
   const handleSync = () => {
     setIsSyncing(true);
@@ -309,6 +358,37 @@ export default function IntegrationSettings() {
             them, then pick the defaults used when provisioning tenants.
           </p>
         )}
+
+        <div className="border-t pt-4 mt-4 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">Unit sync</h2>
+            {unitSync && (
+              <span
+                className={
+                  unitSync.status === "in-sync"
+                    ? "text-green-600 text-sm font-medium"
+                    : "text-amber-600 text-sm font-medium"
+                }
+              >
+                {unitSync.status === "in-sync" ? "In sync" : "Out of sync"}
+              </span>
+            )}
+          </div>
+          {unitSync && unitSync.status !== "in-sync" && (
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+              {(unitSync.missing?.length ?? 0)} to create in OpenTech,{" "}
+              {(unitSync.extra?.length ?? 0)} to remove from OpenTech.
+            </p>
+          )}
+          <button
+            type="button"
+            disabled={isUnitSyncing}
+            onClick={() => runUnitSync(false)}
+            className="mt-2 px-4 py-2 rounded bg-blue-600 text-white text-sm disabled:opacity-50"
+          >
+            {isUnitSyncing ? "Syncing units…" : "Sync units"}
+          </button>
+        </div>
       </div>
     </div>
   );
