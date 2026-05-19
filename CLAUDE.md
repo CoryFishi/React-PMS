@@ -55,6 +55,7 @@ User (role-based)   Event (audit/activity log)
 
 Server routes mount in `server/index.js`:
 - `/companies`, `/facilities`, `/tenants`, `/events`, `/payments`, `/rental`, `/` (user)
+- `GET/PUT /facilities/:facilityId/settings` — admin-only (System_Admin or same-company Company_Admin) via `server/middleware/requireFacilityAdmin.js`
 
 Each domain follows the same pattern: `routes/<x>Routes.js` → `controllers/<x>Controller.js` → `models/<x>.js`. Background jobs live in `server/processes/` (`delinquency.js`, `monthly.js`). Third-party SDK wrappers in `server/services/` (Stripe Connect, DocuSign).
 
@@ -65,7 +66,7 @@ Client pages in `client/src/pages/`, feature-grouped components in `client/src/c
 - ESM imports everywhere on the server, including relative paths with `.js` extensions.
 - Mongoose models export the model as default; one model per file.
 - Controllers export named handler functions; routes are thin and only wire URL → handler + middleware.
-- Auth: JWT in HTTP-only cookies, parsed in `server/middleware/authentication.js`. API-key endpoints use `server/middleware/apiKeyAuth.js`.
+- Auth: JWT in HTTP-only cookies, parsed in `server/middleware/authentication.js`. API-key endpoints use `server/middleware/apiKeyAuth.js`. Facility settings endpoints use `server/middleware/requireFacilityAdmin.js` (System_Admin or same-company Company_Admin).
 - Client uses axios with `withCredentials: true` so cookies travel.
 - Styling: Tailwind utility classes first; reach for MUI when a component (DataGrid, Charts, Dialog) saves real work. Don't introduce a third UI system.
 - Files use `.jsx`, never `.tsx`.
@@ -86,7 +87,7 @@ Bugs:
 - Navbar user dropdown doesn't dismiss on outside click.
 - Facility Application Events report errors on API call.
 
-Pending features include: consolidated dashboard endpoint, company-scoped admin/user dashboards, facility unit map, previous-tenants table, gate integration, tenant payments/lease/insurance UI, facility-level settings, removing security level from the unit layer.
+Pending features include: consolidated dashboard endpoint, company-scoped admin/user dashboards, facility unit map, previous-tenants table, gate integration, tenant payments/lease/insurance UI, removing security level from the unit layer.
 
 ## Where to look
 
