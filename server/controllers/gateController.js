@@ -42,6 +42,38 @@ export const getStatus = async (req, res) => {
   }
 };
 
+export const linkFacility = async (req, res) => {
+  try {
+    const result = await gateService.linkFacility({
+      facilityId: req.params.facilityId,
+      opentechFacilityId: req.body?.opentechFacilityId,
+    });
+    return res.status(200).json(result);
+  } catch (e) {
+    const msg = e?.message || "Unknown error";
+    if (msg === "Facility not found")
+      return res.status(404).json({ message: msg });
+    if (/required/i.test(msg)) return res.status(400).json({ message: msg });
+    console.error("gate/link failed:", msg);
+    return res.status(500).json({ message: "Failed to link facility" });
+  }
+};
+
+export const unlinkFacility = async (req, res) => {
+  try {
+    const result = await gateService.unlinkFacility({
+      facilityId: req.params.facilityId,
+    });
+    return res.status(200).json(result);
+  } catch (e) {
+    const msg = e?.message || "Unknown error";
+    if (msg === "Facility not found")
+      return res.status(404).json({ message: msg });
+    console.error("gate/unlink failed:", msg);
+    return res.status(500).json({ message: "Failed to unlink facility" });
+  }
+};
+
 export const listUnprovisioned = async (req, res) => {
   try {
     const rentals = await gateService.listUnprovisioned({

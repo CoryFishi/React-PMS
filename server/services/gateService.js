@@ -135,6 +135,31 @@ export async function getStatus({ facilityId }) {
   };
 }
 
+export async function linkFacility({ facilityId, opentechFacilityId }) {
+  const id = typeof opentechFacilityId === "string" ? opentechFacilityId.trim() : "";
+  if (!id) throw new Error("opentechFacilityId is required");
+  const facility = await loadFacilityWithCompany(facilityId);
+  if (!facility) throw new Error("Facility not found");
+
+  facility.gateProvider = "opentech";
+  facility.gateProviderRefs = facility.gateProviderRefs || {};
+  facility.gateProviderRefs.opentech = facility.gateProviderRefs.opentech || {};
+  facility.gateProviderRefs.opentech.facilityId = id;
+  facility.markModified("gateProviderRefs");
+  await facility.save();
+  return { provider: "opentech", facilityId: id };
+}
+
+export async function unlinkFacility({ facilityId }) {
+  const facility = await loadFacilityWithCompany(facilityId);
+  if (!facility) throw new Error("Facility not found");
+
+  facility.gateProvider = undefined;
+  facility.markModified("gateProvider");
+  await facility.save();
+  return { provider: null };
+}
+
 export async function listUnprovisioned({ facilityId }) {
   const facility = await loadFacilityWithCompany(facilityId);
   if (!facility) throw new Error("Facility not found");

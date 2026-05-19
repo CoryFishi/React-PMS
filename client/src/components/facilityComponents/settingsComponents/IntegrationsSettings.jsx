@@ -15,6 +15,9 @@ export default function IntegrationSettings() {
   const [status, setStatus] = useState(null);
   const [timeGroupId, setTimeGroupId] = useState("");
   const [accessProfileId, setAccessProfileId] = useState("");
+  const [linkId, setLinkId] = useState("");
+  const [isLinking, setIsLinking] = useState(false);
+  const [isUnlinking, setIsUnlinking] = useState(false);
 
   const loadStatus = useCallback(() => {
     if (!facilityId) return;
@@ -94,6 +97,55 @@ export default function IntegrationSettings() {
       .finally(() => setIsSaving(false));
   };
 
+  const handleLink = () => {
+    const id = linkId.trim();
+    if (!id) {
+      toast.error("Enter the OpenTech facility ID.");
+      return;
+    }
+    setIsLinking(true);
+    axios
+      .put(
+        `/facilities/${facilityId}/gate/link`,
+        { opentechFacilityId: id },
+        { headers: { "x-api-key": API_KEY } }
+      )
+      .then(() => {
+        toast.success("Facility linked to OpenTech.");
+        setLinkId("");
+        return loadStatus();
+      })
+      .catch((err) => {
+        console.error("Gate link failed:", err);
+        toast.error(err?.response?.data?.message || "Gate link failed.");
+      })
+      .finally(() => setIsLinking(false));
+  };
+
+  const handleUnlink = () => {
+    if (
+      !window.confirm(
+        "Unlink this facility from OpenTech? Provisioning will stop. Synced time groups and defaults are preserved."
+      )
+    ) {
+      return;
+    }
+    setIsUnlinking(true);
+    axios
+      .delete(`/facilities/${facilityId}/gate/link`, {
+        headers: { "x-api-key": API_KEY },
+      })
+      .then(() => {
+        toast.success("Facility unlinked.");
+        return loadStatus();
+      })
+      .catch((err) => {
+        console.error("Gate unlink failed:", err);
+        toast.error(err?.response?.data?.message || "Gate unlink failed.");
+      })
+      .finally(() => setIsUnlinking(false));
+  };
+
   if (isLoading) {
     return (
       <div className="m-5 dark:text-white">Loading integration settings…</div>
@@ -108,13 +160,29 @@ export default function IntegrationSettings() {
             Integration Settings
           </h1>
         </div>
-        <div className="m-5 p-4 rounded-md bg-slate-100 dark:bg-slate-800 dark:text-white">
-          <p className="font-semibold">No gate provider configured</p>
-          <p className="text-sm mt-1 text-slate-600 dark:text-slate-300">
-            This facility is not linked to a gate-control provider. Set{" "}
-            <code>Facility.gateProvider</code> and the provider&apos;s facility
-            ID, then reload this page to manage the integration.
+        <div className="m-5 p-4 rounded-md bg-slate-100 dark:bg-slate-800 dark:text-white max-w-md">
+          <p className="font-semibold">Link this facility to OpenTech</p>
+          <p className="text-sm mt-1 mb-3 text-slate-600 dark:text-slate-300">
+            Enter the OpenTech-side facility ID (provided by OpenTech) to
+            enable gate provisioning for this facility.
           </p>
+          <label className="block text-sm font-semibold mb-1">
+            OpenTech facility ID
+          </label>
+          <input
+            type="text"
+            value={linkId}
+            onChange={(e) => setLinkId(e.target.value)}
+            className="w-full border rounded-md p-2 dark:bg-slate-700 dark:border-slate-600"
+            placeholder="e.g. 12345"
+          />
+          <button
+            onClick={handleLink}
+            disabled={isLinking}
+            className="mt-3 text-sm px-5 py-2 rounded-md bg-sky-600 text-white hover:bg-sky-700 disabled:opacity-50"
+          >
+            {isLinking ? "Linking…" : "Link to OpenTech"}
+          </button>
         </div>
       </div>
     );
@@ -129,9 +197,18 @@ export default function IntegrationSettings() {
         <h1 className="text-xl font-bold dark:text-white">
           Integration Settings
         </h1>
-        <span className="text-sm text-slate-500 dark:text-slate-400 uppercase">
-          {status.provider}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-slate-500 dark:text-slate-400 uppercase">
+            {status.provider}
+          </span>
+          <button
+            onClick={handleUnlink}
+            disabled={isUnlinking}
+            className="text-xs px-3 py-1 rounded-md border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 disabled:opacity-50"
+          >
+            {isUnlinking ? "Unlinking…" : "Unlink"}
+          </button>
+        </div>
       </div>
 
       <div className="p-5 space-y-5 dark:text-white">
