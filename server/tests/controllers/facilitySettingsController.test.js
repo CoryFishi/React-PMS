@@ -60,4 +60,31 @@ describe("PUT /facilities/:facilityId/settings", () => {
       .send({ general: { currency: "EUR" } });
     expect(res.status).toBe(404);
   });
+
+  it("rejects an invalid contact.publicEmail", async () => {
+    const c = await makeCompany();
+    const f = await makeFacility(c);
+    const res = await api(app)
+      .put(`/facilities/${f._id}/settings`)
+      .set("Cookie", cookie)
+      .send({ contact: { publicEmail: "not-an-email" } });
+    expect(res.status).toBe(400);
+  });
+
+  it("updating contact preserves a previously-set billing group", async () => {
+    const c = await makeCompany();
+    const f = await makeFacility(c);
+    await api(app)
+      .put(`/facilities/${f._id}/settings`)
+      .set("Cookie", cookie)
+      .send({ billing: { gracePeriodDays: 21 } });
+    const res = await api(app)
+      .put(`/facilities/${f._id}/settings`)
+      .set("Cookie", cookie)
+      .send({ contact: { publicPhone: "5550100000" } });
+    expect(res.status).toBe(200);
+    const reloaded = await Facility.findById(f._id);
+    expect(reloaded.settings.billing.gracePeriodDays).toBe(21);
+    expect(reloaded.settings.contact.publicPhone).toBe("5550100000");
+  });
 });
