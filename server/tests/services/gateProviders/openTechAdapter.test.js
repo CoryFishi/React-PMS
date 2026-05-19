@@ -53,6 +53,20 @@ describe("openTechAdapter — auth", () => {
     expect(body).toContain("client_secret=test-client-secret");
   });
 
+  it("includes the OpenTech response body in the thrown auth error", async () => {
+    const adapter = await loadAdapter();
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      text: async () => '{"error":"invalid_client"}',
+      json: async () => ({ error: "invalid_client" }),
+    });
+
+    await expect(
+      adapter.listTimeGroups({ facility: makeFacility() })
+    ).rejects.toThrow(/OpenTech auth failed: 400.*invalid_client/);
+  });
+
   it("reuses cached JWT on second call within TTL", async () => {
     const adapter = await loadAdapter();
     fetchMock.mockResolvedValueOnce({

@@ -28,7 +28,15 @@ async function getToken(company) {
     body,
   });
   if (!res.ok) {
-    throw new Error(`OpenTech auth failed: ${res.status}`);
+    let detail = "";
+    try {
+      detail = (await res.text())?.slice(0, 300) || "";
+    } catch {
+      detail = "";
+    }
+    throw new Error(
+      `OpenTech auth failed: ${res.status}${detail ? ` — ${detail}` : ""}`
+    );
   }
   const json = await res.json();
   // Docs say expires_in is "number of minutes"
