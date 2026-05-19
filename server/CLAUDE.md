@@ -139,7 +139,14 @@ This codebase supports multiple gate vendors via a `GateProviderAdapter` interfa
 
 **Per-Unit setup:**
 
-Set `StorageUnit.gateProviderRefs.opentech.unitId = "<OpenTech-side unit id>"` on every unit that should be controlled by the gate.
+Per-unit linkage is automatic: open Settings → Integrations and click
+"Sync units". React-PMS is the source of truth — it creates missing
+units in OpenTech and vacate+deletes OpenTech units not in React-PMS
+(matching by `unitNumber`, trimmed + case-insensitive), persisting each
+`StorageUnit.gateProviderRefs.opentech.unitId`. A safety guard blocks
+runs that would delete >20% of OpenTech units or when React-PMS has 0
+units (override via the confirm dialog). The Integrations tab shows an
+in-sync / out-of-sync badge (rechecked on load).
 
 **Operational notes:**
 
