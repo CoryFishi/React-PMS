@@ -157,7 +157,7 @@ export async function syncUnits({ facilityId, force = false }) {
 
   // Safety guard
   const zeroOurs = ourUnits.length === 0;
-  const overDeleteRatio = otUnits.length > 0 && extra.length / otUnits.length > 0.5;
+  const overDeleteRatio = otUnits.length > 0 && extra.length / otUnits.length > 0.2;
   if (!force && (zeroOurs || overDeleteRatio)) {
     return { blocked: true, wouldCreate: missing.length, wouldDelete: extra.length };
   }

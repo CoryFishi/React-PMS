@@ -44,7 +44,7 @@ describe("gateService.syncUnits — happy path", () => {
     vacateUnit.mockResolvedValue();
     deleteVacantUnit.mockResolvedValue();
 
-    const res = await syncUnits({ facilityId: f._id });
+    const res = await syncUnits({ facilityId: f._id, force: true });
 
     expect(res.status).toBe("in-sync");
     expect(res.created).toBe(1);
