@@ -139,6 +139,90 @@ export async function checkUnitSync({ facilityId }) {
   };
 }
 
+function setUnitRemoteId(unit, provider, id) {
+  unit.gateProviderRefs = unit.gateProviderRefs || {};
+  unit.gateProviderRefs[provider] = unit.gateProviderRefs[provider] || {};
+  unit.gateProviderRefs[provider].unitId = String(id);
+  unit.markModified("gateProviderRefs");
+}
+
+export async function syncUnits({ facilityId, force = false }) {
+  const facility = await loadFacilityWithCompany(facilityId);
+  if (!facility) throw new Error("Facility not found");
+  const adapter = pickAdapter(facility);
+  if (!facility.gateProvider || !adapter) throw new Error("Facility not linked to OpenTech");
+  const provider = facility.gateProvider;
+
+  const { otUnits, ourUnits, otByKey, missing, extra, matched } = await diffUnits(facility, adapter);
+
+  // Safety guard
+  const zeroOurs = ourUnits.length === 0;
+  const overDeleteRatio = otUnits.length > 0 && extra.length / otUnits.length > 0.5;
+  if (!force && (zeroOurs || overDeleteRatio)) {
+    return { blocked: true, wouldCreate: missing.length, wouldDelete: extra.length };
+  }
+
+  const errors = [];
+  let created = 0;
+  let deleted = 0;
+
+  for (const u of missing) {
+    try {
+      const { id } = await adapter.createUnit({ facility, unitNumber: u.unitNumber });
+      setUnitRemoteId(u, provider, id);
+      await u.save();
+      await logEvent("Gate Unit Created", facility, `Unit ${u.unitNumber} -> OpenTech ${id}`);
+      created += 1;
+    } catch (e) {
+      errors.push({ unitNumber: u.unitNumber, op: "create", message: e.message });
+    }
+  }
+
+  for (const ot of extra) {
+    try {
+      await adapter.vacateUnit({ facility, unitId: ot.id });
+      await adapter.deleteVacantUnit({ facility, unitId: ot.id });
+      await logEvent("Gate Unit Deleted", facility, `Vacated+deleted OpenTech unit ${ot.unitNumber} (${ot.id})`);
+      deleted += 1;
+    } catch (e) {
+      errors.push({ unitNumber: ot.unitNumber, op: "delete", message: e.message });
+    }
+  }
+
+  for (const u of matched) {
+    const ot = otByKey.get(normUnitKey(u.unitNumber));
+    if (ot && u.gateProviderRefs?.[provider]?.unitId !== String(ot.id)) {
+      setUnitRemoteId(u, provider, ot.id);
+      await u.save();
+    }
+  }
+
+  const status =
+    errors.length === 0 && missing.length === created && extra.length === deleted
+      ? "in-sync"
+      : "out-of-sync";
+
+  persistUnitSync(facility, {
+    status,
+    lastSyncAt: new Date(),
+    lastCheckedAt: new Date(),
+    created,
+    deleted,
+    matched: matched.length,
+    missing: missing.length - created,
+    extra: extra.length - deleted,
+    errors,
+  });
+  await facility.save();
+  await logEvent(
+    "Gate Unit Sync",
+    facility,
+    `created ${created}, deleted ${deleted}, matched ${matched.length}, errors ${errors.length}`
+  );
+
+  return { status, created, deleted, matched: matched.length, errors };
+}
+
 export async function getStatus({ facilityId }) {
   const facility = await loadFacilityWithCompany(facilityId);
   if (!facility) throw new Error("Facility not found");

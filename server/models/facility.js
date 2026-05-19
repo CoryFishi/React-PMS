@@ -226,6 +226,16 @@ const storageFacilitySchema = new Schema({
         missing: { type: Number },
         extra: { type: Number },
         matched: { type: Number },
+        lastSyncAt: { type: Date },
+        created: { type: Number },
+        deleted: { type: Number },
+        errors: [
+          {
+            unitNumber: { type: String },
+            op: { type: String },
+            message: { type: String },
+          },
+        ],
       },
     },
   },
