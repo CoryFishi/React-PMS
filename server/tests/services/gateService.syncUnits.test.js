@@ -119,3 +119,22 @@ describe("gateService.syncUnits — safety guard", () => {
     expect(deleteVacantUnit).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("gateService.syncUnits — partial failure", () => {
+  it("continues the batch and reports out-of-sync with errors", async () => {
+    const { f } = await linked();
+    await makeUnit(f, { unitNumber: "A1" }); // create -> fails
+    await makeUnit(f, { unitNumber: "A2" }); // create -> ok
+    listUnits.mockResolvedValue([]); // both missing, no extras
+    createUnit
+      .mockRejectedValueOnce(new Error("OpenTech 500 boom"))
+      .mockResolvedValueOnce({ id: "55" });
+
+    const res = await syncUnits({ facilityId: f._id });
+
+    expect(res.status).toBe("out-of-sync");
+    expect(res.created).toBe(1);
+    expect(res.errors).toHaveLength(1);
+    expect(res.errors[0]).toMatchObject({ op: "create", message: "OpenTech 500 boom" });
+  });
+});
