@@ -46,4 +46,16 @@ describe("POST /facilities/:facilityId/gate/sync", () => {
     const res = await api(app).post(`/facilities/${f._id}/gate/sync`).set("Cookie", cookie);
     expect(res.status).toBe(502);
   });
+
+  it("surfaces the underlying adapter error message on generic failure", async () => {
+    const c = await makeCompany();
+    const f = await makeFacility(c);
+    syncFacilityResources.mockRejectedValue(
+      new Error("OpenTech GET /facilities/999/time-groups failed: 404 not found")
+    );
+
+    const res = await api(app).post(`/facilities/${f._id}/gate/sync`).set("Cookie", cookie);
+    expect(res.status).toBe(502);
+    expect(res.body.message).toMatch(/time-groups failed: 404/);
+  });
 });
