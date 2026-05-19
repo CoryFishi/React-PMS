@@ -54,6 +54,9 @@ const eventSchema = new Schema({
         "Gate Suspended",
         "Gate Unsuspended",
         "Gate Sync",
+        "Gate Unit Created",
+        "Gate Unit Deleted",
+        "Gate Unit Sync",
         //Notifications
         //Access Control
       ],
