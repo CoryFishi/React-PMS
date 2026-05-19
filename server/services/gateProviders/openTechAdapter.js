@@ -129,6 +129,15 @@ const openTechAdapter = {
       status: u.status,
     }));
   },
+  async createUnit({ facility, unitNumber }) {
+    const fid = facility.gateProviderRefs?.opentech?.facilityId;
+    if (!fid) throw new Error("Facility not linked to OpenTech");
+    const result = await authedRequest("POST", `/facilities/${fid}/units`, {
+      facility,
+      body: { unitNumber },
+    });
+    return { id: String(result?.id ?? result?.unitId) };
+  },
   async healthCheck({ facility }) {
     try {
       await authedRequest("GET", "/facilities", { facility });

@@ -218,4 +218,22 @@ describe("openTechAdapter — units", () => {
     );
     expect(out).toEqual([{ id: "11", unitNumber: "A1", status: "Vacant" }]);
   });
+
+  it("createUnit POSTs { unitNumber } and returns the new id", async () => {
+    const adapter = await loadAdapter();
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200, json: async () => ({ access_token: "tok", expires_in: 60 }),
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200, json: async () => ({ id: 99, unitNumber: "B2", status: "Vacant" }),
+    });
+
+    const res = await adapter.createUnit({ facility: uf(), unitNumber: "B2" });
+
+    const call = fetchMock.mock.calls[1];
+    expect(call[0]).toBe("https://accesscontrol.insomniaccia-dev.com/facilities/remote_f1/units");
+    expect(call[1].method).toBe("POST");
+    expect(JSON.parse(call[1].body)).toEqual({ unitNumber: "B2" });
+    expect(res).toEqual({ id: "99" });
+  });
 });
