@@ -131,21 +131,23 @@ const openTechAdapter = {
   },
   async createUnit({ facility, unitNumber }) {
     const fid = facility.gateProviderRefs?.opentech?.facilityId;
-    if (!fid) throw new Error("Facility not linked to OpenTech");
+    if (!fid) throw new Error("Facility not linked to OpenTech (set gateProviderRefs.opentech.facilityId)");
     const result = await authedRequest("POST", `/facilities/${fid}/units`, {
       facility,
       body: { unitNumber },
     });
-    return { id: String(result?.id ?? result?.unitId) };
+    const id = result?.id ?? result?.unitId;
+    if (id === undefined || id === null) throw new Error("OpenTech createUnit returned no id");
+    return { id: String(id) };
   },
   async vacateUnit({ facility, unitId }) {
     const fid = facility.gateProviderRefs?.opentech?.facilityId;
-    if (!fid) throw new Error("Facility not linked to OpenTech");
+    if (!fid) throw new Error("Facility not linked to OpenTech (set gateProviderRefs.opentech.facilityId)");
     await authedRequest("POST", `/facilities/${fid}/units/${unitId}/vacate`, { facility, body: {} });
   },
   async deleteVacantUnit({ facility, unitId }) {
     const fid = facility.gateProviderRefs?.opentech?.facilityId;
-    if (!fid) throw new Error("Facility not linked to OpenTech");
+    if (!fid) throw new Error("Facility not linked to OpenTech (set gateProviderRefs.opentech.facilityId)");
     await authedRequest("POST", `/facilities/${fid}/units/${unitId}/delete/vacant`, { facility, body: {} });
   },
   async healthCheck({ facility }) {

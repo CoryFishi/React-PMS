@@ -237,6 +237,18 @@ describe("openTechAdapter — units", () => {
     expect(res).toEqual({ id: "99" });
   });
 
+  it("createUnit throws when the POST response has no id", async () => {
+    const adapter = await loadAdapter();
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200, json: async () => ({ access_token: "tok", expires_in: 60 }),
+    });
+    fetchMock.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({}) });
+
+    await expect(
+      adapter.createUnit({ facility: uf(), unitNumber: "B2" })
+    ).rejects.toThrow(/returned no id/);
+  });
+
   it("vacateUnit then deleteVacantUnit hit the correct paths", async () => {
     const adapter = await loadAdapter();
     fetchMock.mockResolvedValueOnce({
