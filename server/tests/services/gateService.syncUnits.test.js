@@ -68,3 +68,54 @@ describe("gateService.syncUnits — happy path", () => {
     expect(names).toContain("Gate Unit Sync");
   });
 });
+
+describe("gateService.syncUnits — safety guard", () => {
+  it("blocks when React-PMS has 0 units and makes no remote calls", async () => {
+    const { f } = await linked();
+    listUnits.mockResolvedValue([
+      { id: "1", unitNumber: "A1", status: "Vacant" },
+      { id: "2", unitNumber: "A2", status: "Vacant" },
+    ]);
+
+    const res = await syncUnits({ facilityId: f._id });
+
+    expect(res).toEqual({ blocked: true, wouldCreate: 0, wouldDelete: 2 });
+    expect(vacateUnit).not.toHaveBeenCalled();
+    expect(deleteVacantUnit).not.toHaveBeenCalled();
+    expect(createUnit).not.toHaveBeenCalled();
+  });
+
+  it("blocks when deletion would exceed 20% of OpenTech units", async () => {
+    const { f } = await linked();
+    await makeUnit(f, { unitNumber: "A1" });
+    await makeUnit(f, { unitNumber: "A2" });
+    // 10 OT units, 8 not in ours -> 80% delete -> blocked
+    listUnits.mockResolvedValue([
+      { id: "1", unitNumber: "A1", status: "Vacant" },
+      { id: "2", unitNumber: "A2", status: "Vacant" },
+      ...Array.from({ length: 8 }, (_, i) => ({ id: String(100 + i), unitNumber: `X${i}`, status: "Vacant" })),
+    ]);
+
+    const res = await syncUnits({ facilityId: f._id });
+    expect(res.blocked).toBe(true);
+    expect(res.wouldDelete).toBe(8);
+    expect(deleteVacantUnit).not.toHaveBeenCalled();
+  });
+
+  it("force:true bypasses the guard and performs deletions", async () => {
+    const { f } = await linked();
+    await makeUnit(f, { unitNumber: "A1" });
+    listUnits.mockResolvedValue([
+      { id: "1", unitNumber: "A1", status: "Vacant" },
+      { id: "2", unitNumber: "Z1", status: "Vacant" },
+      { id: "3", unitNumber: "Z2", status: "Vacant" },
+    ]);
+    vacateUnit.mockResolvedValue();
+    deleteVacantUnit.mockResolvedValue();
+
+    const res = await syncUnits({ facilityId: f._id, force: true });
+    expect(res.blocked).toBeUndefined();
+    expect(res.deleted).toBe(2);
+    expect(deleteVacantUnit).toHaveBeenCalledTimes(2);
+  });
+});
