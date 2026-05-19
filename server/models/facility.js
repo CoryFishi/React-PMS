@@ -118,6 +118,64 @@ const storageFacilitySchema = new Schema({
         tags: [{ type: String, trim: true }],
       },
     ],
+    billing: {
+      type: new mongoose.Schema(
+        {
+          gracePeriodDays: { type: Number, default: 7, min: 0 },
+          lateFee: {
+            flatAmount: { type: Number, default: 0, min: 0 },
+            percentOfRent: { type: Number, default: 0, min: 0, max: 100 },
+          },
+          autoSuspendOnDelinquency: { type: Boolean, default: true },
+        },
+        { _id: false }
+      ),
+      default: () => ({}),
+    },
+    hours: {
+      office: [
+        {
+          day: { type: String, enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] },
+          open: { type: String },
+          close: { type: String },
+          closed: { type: Boolean, default: false },
+        },
+      ],
+      gateAccess: [
+        {
+          day: { type: String, enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] },
+          open: { type: String },
+          close: { type: String },
+          closed: { type: Boolean, default: false },
+        },
+      ],
+    },
+    contact: {
+      publicPhone: { type: String, trim: true },
+      publicEmail: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please fill a valid email address"],
+      },
+      announcement: { type: String, trim: true, maxlength: 1000 },
+    },
+    general: {
+      type: new mongoose.Schema(
+        {
+          timezone: { type: String, default: "America/Chicago" },
+          currency: { type: String, default: "USD" },
+          notificationEmailOverride: {
+            type: String,
+            trim: true,
+            lowercase: true,
+            match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please fill a valid email address"],
+          },
+        },
+        { _id: false }
+      ),
+      default: () => ({}),
+    },
   },
   status: {
     type: String,
