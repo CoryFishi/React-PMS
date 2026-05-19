@@ -12,8 +12,8 @@ export default function BillingSettings() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [gracePeriodDays, setGracePeriodDays] = useState("");
-  const [lateFeeFlat, setLateFeeFlat] = useState("");
-  const [lateFeePercent, setLateFeePercent] = useState("");
+  const [lateFeeAmount, setLateFeeAmount] = useState("");
+  const [lateFeePercentOfRent, setLateFeePercentOfRent] = useState("");
   const [autoSuspendOnDelinquency, setAutoSuspendOnDelinquency] =
     useState(true);
 
@@ -27,8 +27,8 @@ export default function BillingSettings() {
       .then(({ data }) => {
         const billing = data?.billing || {};
         setGracePeriodDays(billing.gracePeriodDays ?? 7);
-        setLateFeeFlat(billing.lateFee?.flatAmount ?? 0);
-        setLateFeePercent(billing.lateFee?.percentOfRent ?? 0);
+        setLateFeeAmount(billing.lateFee?.flatAmount ?? 0);
+        setLateFeePercentOfRent(billing.lateFee?.percentOfRent ?? 0);
         setAutoSuspendOnDelinquency(billing.autoSuspendOnDelinquency ?? true);
       })
       .catch((err) => {
@@ -47,9 +47,11 @@ export default function BillingSettings() {
           billing: {
             gracePeriodDays: gracePeriodDays === "" ? 0 : Number(gracePeriodDays),
             lateFee: {
-              flatAmount: lateFeeFlat === "" ? 0 : Number(lateFeeFlat),
+              flatAmount: lateFeeAmount === "" ? 0 : Number(lateFeeAmount),
               percentOfRent:
-                lateFeePercent === "" ? 0 : Number(lateFeePercent),
+                lateFeePercentOfRent === ""
+                  ? 0
+                  : Number(lateFeePercentOfRent),
             },
             autoSuspendOnDelinquency,
           },
@@ -112,18 +114,18 @@ export default function BillingSettings() {
 
               <div className="flex flex-col gap-1">
                 <label
-                  htmlFor="lateFeeFlat"
+                  htmlFor="lateFeeAmount"
                   className="block text-sm font-medium text-slate-600 dark:text-slate-300"
                 >
                   Late Fee — Flat Amount ($)
                 </label>
                 <input
-                  id="lateFeeFlat"
+                  id="lateFeeAmount"
                   type="number"
                   min="0"
                   step="0.01"
-                  value={lateFeeFlat}
-                  onChange={(e) => setLateFeeFlat(e.target.value)}
+                  value={lateFeeAmount}
+                  onChange={(e) => setLateFeeAmount(e.target.value)}
                   placeholder="e.g. 25.00"
                   className="w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 />
@@ -134,19 +136,19 @@ export default function BillingSettings() {
 
               <div className="flex flex-col gap-1">
                 <label
-                  htmlFor="lateFeePercent"
+                  htmlFor="lateFeePercentOfRent"
                   className="block text-sm font-medium text-slate-600 dark:text-slate-300"
                 >
                   Late Fee — Percent of Rent (%)
                 </label>
                 <input
-                  id="lateFeePercent"
+                  id="lateFeePercentOfRent"
                   type="number"
                   min="0"
                   max="100"
                   step="0.01"
-                  value={lateFeePercent}
-                  onChange={(e) => setLateFeePercent(e.target.value)}
+                  value={lateFeePercentOfRent}
+                  onChange={(e) => setLateFeePercentOfRent(e.target.value)}
                   placeholder="e.g. 10"
                   className="w-full px-3 py-2 border dark:bg-slate-800 dark:border-slate-700 border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
                 />
