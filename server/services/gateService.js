@@ -89,6 +89,56 @@ export async function setDefaults({
   return { noop: false };
 }
 
+function normUnitKey(s) {
+  return String(s ?? "").trim().toLowerCase();
+}
+
+async function diffUnits(facility, adapter) {
+  const otUnits = await adapter.listUnits({ facility });
+  const ourUnits = await StorageUnit.find({ facility: facility._id });
+  const otByKey = new Map(otUnits.map((u) => [normUnitKey(u.unitNumber), u]));
+  const ourByKey = new Map(ourUnits.map((u) => [normUnitKey(u.unitNumber), u]));
+  const missing = ourUnits.filter((u) => !otByKey.has(normUnitKey(u.unitNumber)));
+  const extra = otUnits.filter((u) => !ourByKey.has(normUnitKey(u.unitNumber)));
+  const matched = ourUnits.filter((u) => otByKey.has(normUnitKey(u.unitNumber)));
+  return { otUnits, ourUnits, otByKey, missing, extra, matched };
+}
+
+function persistUnitSync(facility, patch) {
+  const provider = facility.gateProvider;
+  facility.gateProviderRefs = facility.gateProviderRefs || {};
+  facility.gateProviderRefs[provider] = facility.gateProviderRefs[provider] || {};
+  facility.gateProviderRefs[provider].unitSync = {
+    ...(facility.gateProviderRefs[provider].unitSync || {}),
+    ...patch,
+  };
+  facility.markModified("gateProviderRefs");
+}
+
+export async function checkUnitSync({ facilityId }) {
+  const facility = await loadFacilityWithCompany(facilityId);
+  if (!facility) throw new Error("Facility not found");
+  const adapter = pickAdapter(facility);
+  if (!facility.gateProvider || !adapter) throw new Error("Facility not linked to OpenTech");
+
+  const { missing, extra, matched } = await diffUnits(facility, adapter);
+  const status = missing.length === 0 && extra.length === 0 ? "in-sync" : "out-of-sync";
+  persistUnitSync(facility, {
+    status,
+    lastCheckedAt: new Date(),
+    missing: missing.length,
+    extra: extra.length,
+    matched: matched.length,
+  });
+  await facility.save();
+  return {
+    status,
+    missing: missing.map((u) => u.unitNumber),
+    extra: extra.map((u) => u.unitNumber),
+    matched: matched.length,
+  };
+}
+
 export async function getStatus({ facilityId }) {
   const facility = await loadFacilityWithCompany(facilityId);
   if (!facility) throw new Error("Facility not found");

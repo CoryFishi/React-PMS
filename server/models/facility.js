@@ -220,6 +220,13 @@ const storageFacilitySchema = new Schema({
       defaultTimeGroupId: { type: String },
       defaultAccessProfileId: { type: String },
       syncedAt: { type: Date },
+      unitSync: {
+        status: { type: String },
+        lastCheckedAt: { type: Date },
+        missing: { type: Number },
+        extra: { type: Number },
+        matched: { type: Number },
+      },
     },
   },
 });
