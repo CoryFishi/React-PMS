@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import StripeSettings from "./StripeSettings";
 import PortfolioUpdates from "./ProtfolioUpdates";
+import GateCredentialsSettings from "./GateCredentialsSettings";
 
 export default function SettingsPage() {
   const { id } = useParams();
@@ -8,6 +9,7 @@ export default function SettingsPage() {
   const settings = {
     stripe: <StripeSettings />,
     "portfolio-updates": <PortfolioUpdates />,
+    "gate-credentials": <GateCredentialsSettings />,
   };
 
   return (

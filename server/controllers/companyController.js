@@ -304,6 +304,73 @@ export const getCompanyStripeSettings = async (req, res) => {
   }
 };
 
+async function authorizeCompanyAdmin(req, res) {
+  const { companyId } = req.params;
+  const userId = req.user?.id || req.user?._id;
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return null;
+  }
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return null;
+  }
+  const { role, company } = user;
+  const isSystem = role === "System_Admin" || role === "System_User";
+  const isCompanyAdmin = role === "Company_Admin";
+  if (!isSystem && !(isCompanyAdmin && company?.toString() === companyId)) {
+    res.status(403).json({ message: "Forbidden: Access denied" });
+    return null;
+  }
+  const companyData = await Company.findById(companyId);
+  if (!companyData) {
+    res.status(404).json({ message: "Company not found" });
+    return null;
+  }
+  return companyData;
+}
+
+function gateSettingsView(companyData) {
+  const ot = companyData.gateProviders?.opentech || {};
+  return {
+    opentech: { apiKey: ot.apiKey || "", apiSecretSet: Boolean(ot.apiSecret) },
+  };
+}
+
+export const getCompanyGateSettings = async (req, res) => {
+  try {
+    const companyData = await authorizeCompanyAdmin(req, res);
+    if (!companyData) return;
+    return res.status(200).json(gateSettingsView(companyData));
+  } catch (error) {
+    console.error("getCompanyGateSettings failed: " + error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+export const updateCompanyGateSettings = async (req, res) => {
+  try {
+    const companyData = await authorizeCompanyAdmin(req, res);
+    if (!companyData) return;
+
+    const input = req.body?.opentech || {};
+    const existing = companyData.gateProviders?.opentech || {};
+    companyData.gateProviders = companyData.gateProviders || {};
+    companyData.gateProviders.opentech = {
+      apiKey: input.apiKey !== undefined ? input.apiKey : existing.apiKey,
+      apiSecret: input.apiSecret ? input.apiSecret : existing.apiSecret,
+    };
+    companyData.markModified("gateProviders");
+    await companyData.save();
+
+    return res.status(200).json(gateSettingsView(companyData));
+  } catch (error) {
+    console.error("updateCompanyGateSettings failed: " + error.message);
+    return res.status(400).json({ message: error.message });
+  }
+};
+
 // Get all companies
 export const getCompanies = async (req, res) => {
   try {

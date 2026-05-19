@@ -101,6 +101,7 @@ export default function AdminDashboard({ darkMode, toggleDarkMode }) {
       options: [
         { name: "Portfolio Updates", path: "/portfolio-updates" },
         { name: "Stripe", path: "/stripe" },
+        { name: "Gate Credentials", path: "/gate-credentials" },
       ],
     },
   ]);
